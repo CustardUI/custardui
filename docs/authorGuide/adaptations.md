@@ -26,7 +26,7 @@ An adaptation is a JSON file hosted alongside your site content. When a user vis
 **Activation priority (highest wins):**
 
 1. `?adapt=<id>` URL parameter — explicit, one-time activation via link
-2. `<meta name="cv-adaptor" content="<id>">` on the page — forces a specific adaptation for that page on every visit
+2. `<meta name="cv-adapt" content="<id>">` on the page — forces a specific adaptation for that page on every visit
 3. `localStorage` — persisted from a previous activation
 
 ---
@@ -163,14 +163,14 @@ When determining the initial toggle state, CustomViews applies layers in this or
 To activate a specific adaptation on a particular page — so that visiting the page always switches to that adaptation regardless of what is currently stored — add a meta tag to the page's `<head>`:
 
 ```html
-<meta name="cv-adaptor" content="ntu">
+<meta name="cv-adapt" content="ntu">
 ```
 
 In MarkBind, use the `<head-bottom>` tag:
 
 ```html
 <head-bottom>
-  <meta name="cv-adaptor" content="ntu">
+  <meta name="cv-adapt" content="ntu">
 </head-bottom>
 ```
 
@@ -203,7 +203,7 @@ For example, we want this documentation site to be customized for NUS.
 **`docs/nus/index.md`**
 ```html
 <head-bottom>
-  <meta name="cv-adaptor" content="nus">
+  <meta name="cv-adapt" content="nus">
 </head-bottom>
 ```
 

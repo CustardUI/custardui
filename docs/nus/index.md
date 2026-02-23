@@ -3,7 +3,7 @@
 </frontmatter>
 
 <head-bottom>
-  <meta name="cv-adaptor" content="nus">
+  <meta name="cv-adapt" content="nus">
 </head-bottom>
 
 # Welcome, [[username]]! (NUS)
