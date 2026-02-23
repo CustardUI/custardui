@@ -2,6 +2,7 @@ import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 import type { Config, ConfigSectionKey, State } from '$lib/types/index';
 import { isValidConfigSection } from '$lib/types/index';
+import type { AdaptationConfig } from '$features/adaptation/types';
 
 /**
  * Store for managing the application's configuration and user state.
@@ -148,6 +149,26 @@ export class ActiveStateStore {
   }
 
   /**
+   * Applies adaptation defaults on top of the config defaults, before persisted state.
+   * User choices applied later via applyState() will override these.
+   *
+   * @param defaults The defaults section from the adaptation config
+   */
+  applyAdaptationDefaults(defaults: AdaptationConfig['defaults']): void {
+    if (!defaults) return;
+
+    if (defaults.toggles) {
+      this.applyToggleMap(defaults.toggles);
+    }
+
+    if (defaults.placeholders) {
+      const validated = placeholderManager.filterValidPlaceholders(defaults.placeholders);
+      if (!this.state.placeholders) this.state.placeholders = {};
+      Object.assign(this.state.placeholders, validated);
+    }
+  }
+
+  /**
    * Resets the application state to the computed defaults.
    */
   reset() {
@@ -207,6 +228,37 @@ export class ActiveStateStore {
   }
 
   // --- Private Helpers ---
+
+  /**
+   * Applies a map of toggleId → visibility to the current state.
+   * Removes each mentioned toggle from both lists, then re-adds to the correct one.
+   * Warns and drops unknown IDs (consistent with filterValidToggles).
+   */
+  private applyToggleMap(toggleMap: Record<string, 'show' | 'hide' | 'peek'>): void {
+    for (const [toggleId, visibility] of Object.entries(toggleMap)) {
+      const match = this.config.toggles?.find(
+        (t) => t.toggleId.toLowerCase() === toggleId.toLowerCase(),
+      );
+      if (!match) {
+        console.warn(`[CustomViews] Adaptation toggle "${toggleId}" is not in the config and will be ignored.`);
+        continue;
+      }
+
+      const canonical = match.toggleId;
+
+      // Remove from both lists
+      this.state.shownToggles = (this.state.shownToggles ?? []).filter((id) => id !== canonical);
+      this.state.peekToggles = (this.state.peekToggles ?? []).filter((id) => id !== canonical);
+
+      // Re-add to correct list
+      if (visibility === 'show') {
+        this.state.shownToggles.push(canonical);
+      } else if (visibility === 'peek') {
+        this.state.peekToggles.push(canonical);
+      }
+      // 'hide' means absent from both lists — already handled above
+    }
+  }
 
   /**
    * Applies the toggle portion of a delta state.

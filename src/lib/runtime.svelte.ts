@@ -1,5 +1,6 @@
 import type { ConfigFile } from '$lib/types/index';
 import type { AssetsManager } from '$features/render/assets';
+import type { AdaptationConfig } from '$features/adaptation/types';
 
 import { PersistenceManager } from './utils/persistence';
 import { URLStateManager } from '$features/url/url-state-manager';
@@ -11,12 +12,15 @@ import { uiStore } from './stores/ui-store.svelte';
 import { derivedStore } from './stores/derived-store.svelte';
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
+import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
+import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 
 export interface RuntimeOptions {
   assetsManager: AssetsManager;
   configFile: ConfigFile;
   rootEl?: HTMLElement | undefined;
   storageKey?: string | undefined;
+  adaptationConfig?: AdaptationConfig | null;
 }
 
 /**
@@ -39,12 +43,15 @@ export class AppRuntime {
     // Initialize all store singletons with config
     this.initStores(opt.configFile);
 
+    // Initialize adaptation store
+    adaptationStore.init(opt.adaptationConfig ?? null);
+
     // Store assetsManager for component access
     derivedStore.setAssetsManager(opt.assetsManager);
 
     // Initial State Resolution:
-    // URL (Sparse Override) > Persistence (Full) > Default
-    this.resolveInitialState();
+    // URL (Sparse Override) > Persistence (Full) > Adaptation Defaults > Config Default
+    this.resolveInitialState(opt.adaptationConfig ?? null);
 
     // Resolve Exclusions
     this.focusService = new FocusService(this.rootEl, {
@@ -80,28 +87,35 @@ export class AppRuntime {
 
   /**
    * Resolves the starting application state by layering sources:
-   * 
+   *
    * 1. **Baseline**: `ActiveStateStore` initializes with defaults from the config file.
-   * 2. **Persistence**: If local storage has a saved state, it replaces the baseline (`applyState`).
-   * 3. **URL Overrides**: If the URL contains parameters (`?t-show=X`), these are applied
+   * 2. **Adaptation Defaults**: If an adaptation is active, its defaults are applied
+   *    on top of the config defaults (before persisted state, so user choices can win).
+   * 3. **Persistence**: If local storage has a saved state, it replaces the baseline (`applyState`).
+   * 4. **URL Overrides**: If the URL contains parameters (`?t-show=X`), these are applied
    *    as **sparse overrides** (`applyDifferenceInState`). Toggles not mentioned in the URL
    *    retain their values from persistence/defaults.
    */
-  private resolveInitialState() {
-    // 1. Apply persisted base state on top of defaults.
+  private resolveInitialState(adaptationConfig: AdaptationConfig | null) {
+    // 1. Apply adaptation defaults on top of config defaults (before persisted state)
+    if (adaptationConfig?.defaults) {
+      activeStateStore.applyAdaptationDefaults(adaptationConfig.defaults);
+    }
+
+    // 2. Apply persisted base state on top of defaults (user choices win over adaptation defaults).
     const persistedState = this.persistenceManager.getPersistedState();
     if (persistedState) {
       activeStateStore.applyState(persistedState);
     }
 
-    // 2. Layer URL delta on top, then clear the URL parameters so they don't persist
+    // 3. Layer URL delta on top, then clear the URL parameters so they don't persist
     const urlDelta = URLStateManager.parseURL();
     if (urlDelta) {
       activeStateStore.applyDifferenceInState(urlDelta);
       URLStateManager.clearURL();
     }
 
-    // 3. Restore UI preferences
+    // 4. Restore UI preferences
     const navPref = this.persistenceManager.getPersistedTabNavVisibility();
     if (navPref !== null) {
       uiStore.isTabGroupNavHeadingVisible = navPref;
@@ -118,6 +132,12 @@ export class AppRuntime {
     this.scanDOM();
     this.startComponentObserver();
     this.startGlobalReactivity();
+
+    // Rewrite hash URL with adaptation namespace after init is complete
+    const activeId = adaptationStore.activeConfig?.id;
+    if (activeId) {
+      AdaptationManager.rewriteHashUrl(activeId);
+    }
   }
 
   // --- Execution Helpers ---

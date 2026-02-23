@@ -11,6 +11,7 @@
 * Site Integrations
   * [MarkBind]({{baseUrl}}/authorGuide/integrations/setupWithMarkbind.html)
 * [Configuration]({{baseUrl}}/authorGuide/configuration.html)
+* [Site Adaptations]({{baseUrl}}/authorGuide/adaptations.html)
 * [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
   * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)

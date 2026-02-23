@@ -4,6 +4,7 @@ import { AppRuntime, type RuntimeOptions } from '$lib/runtime.svelte';
 import { AssetsManager } from '$features/render/assets';
 import type { CustomViewAsset } from '$lib/types/index';
 import { prependBaseUrl } from '$lib/utils/url-utils';
+import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 import '$lib/registry';
 
 // --- No Public API Exports ---
@@ -29,6 +30,11 @@ export function initializeFromScript(): void {
     try {
       // Get attributes from script tag
       const { baseURL, configPath } = getScriptAttributes();
+
+      // Initialize Adaptation early (before AppRuntime):
+      // - Theme CSS injected ASAP (FOUC prevention)
+      // - ?adapt= param cleaned before URLStateManager.parseURL() runs
+      const adaptationConfig = await AdaptationManager.init(baseURL);
 
       // Fetch Config
       const configFile = await fetchConfig(configPath, baseURL);
@@ -58,6 +64,7 @@ export function initializeFromScript(): void {
         configFile,
         rootEl: document.body,
         storageKey: configFile.storageKey,
+        adaptationConfig,
       };
 
       const runtime = new AppRuntime(coreOptions);
