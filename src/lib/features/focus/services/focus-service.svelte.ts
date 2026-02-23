@@ -81,6 +81,7 @@ export class FocusService {
    * Reads the current URL and applies the appropriate focus/highlight mode
    */
   private applyModesFromUrl() {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const url = new URL(window.location.href);
     const showDescriptors = url.searchParams.get(SHOW_PARAM);
     const hideDescriptors = url.searchParams.get(HIDE_PARAM);
@@ -330,6 +331,7 @@ export class FocusService {
     }
 
     if (updateUrl) {
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const url = new URL(window.location.href);
       let changed = false;
       if (url.searchParams.has(SHOW_PARAM)) {

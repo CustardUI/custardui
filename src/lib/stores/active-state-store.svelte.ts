@@ -266,9 +266,13 @@ export class ActiveStateStore {
    * all others retain their current visibility.
    */
   private applyToggleDelta(deltaState: State) {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const toShow = new Set(this.filterValidToggles(deltaState.shownToggles ?? []));
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const toPeek = new Set(this.filterValidToggles(deltaState.peekToggles ?? []));
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const toHide = new Set(this.filterValidToggles(deltaState.hiddenToggles ?? []));
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const allMentioned = new Set([...toShow, ...toPeek, ...toHide]);
 
     const newShown = (this.state.shownToggles ?? []).filter((id) => !allMentioned.has(id));
