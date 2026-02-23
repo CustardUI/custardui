@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { mount, unmount, untrack } from 'svelte';
+import { mount, unmount } from 'svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$lib/utils/dom-element-locator';
 import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
-import { SvelteSet, SvelteURL } from 'svelte/reactivity';
+import { SvelteSet } from 'svelte/reactivity';
 
 const SHOW_PARAM = 'cv-show';
 const HIDE_PARAM = 'cv-hide';
@@ -33,7 +33,6 @@ export class FocusService {
   private excludedIds: Set<string>;
   // Call unsubscribe in destroy to stop svelte effects
   private unsubscribe: () => void;
-  private url = new SvelteURL(window.location.href);
   private highlightService: HighlightService;
 
   constructor(
@@ -52,42 +51,6 @@ export class FocusService {
 
     // Subscribe to store for exit signal
     this.unsubscribe = $effect.root(() => {
-      // 1. Sync URL changes from SvelteURL back to browser history (UI changes affect URL)
-      // This effect handles the "Write" direction: App State -> URL
-      $effect(() => {
-        const currentFromBrowser = window.location.href;
-        // Cycle prevention: Only push if the SvelteURL has changed/diverged from browser
-        if (currentFromBrowser !== this.url.href) {
-          window.history.pushState({}, '', this.url.href);
-        }
-      });
-
-      // 2. React to URL changes (URL changes affect UI)
-      // This effect handles the "Read" direction: URL -> App State
-      $effect(() => {
-        // Check cv-show first
-        const showDescriptors = this.url.searchParams.get(SHOW_PARAM);
-        const hideDescriptors = this.url.searchParams.get(HIDE_PARAM);
-        const highlightDescriptors = this.url.searchParams.get(HIGHLIGHT_PARAM);
-
-        untrack(() => {
-          if (showDescriptors) {
-            this.applyShowMode(showDescriptors);
-          } else if (hideDescriptors) {
-            this.applyHideMode(hideDescriptors);
-          } else if (highlightDescriptors) {
-            this.applyHighlightMode(highlightDescriptors);
-          } else {
-            if (
-              document.body.classList.contains(BODY_SHOW_CLASS) ||
-              document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
-            ) {
-              this.exitShowMode();
-            }
-          }
-        });
-      });
-
       // Store safety check (Store changes affect UI)
       $effect(() => {
         if (
@@ -95,21 +58,49 @@ export class FocusService {
           (document.body.classList.contains(BODY_SHOW_CLASS) ||
             document.body.classList.contains(BODY_HIGHLIGHT_CLASS))
         ) {
-          this.exitShowMode();
+          this.exitShowMode(false);
         }
       });
     });
 
-    // Listen for popstate to sync back to SvelteURL
+    // Listen for popstate to re-evaluate URL actions
     window.addEventListener('popstate', this.handlePopState);
+    
+    // Initial evaluation
+    this.applyModesFromUrl();
   }
 
   /**
-   * Sync native browser navigation with SvelteURL
+   * Re-evaluate the URL when the browser's history changes
    */
   private handlePopState = () => {
-    this.url.href = window.location.href;
+    this.applyModesFromUrl();
   };
+
+  /**
+   * Reads the current URL and applies the appropriate focus/highlight mode
+   */
+  private applyModesFromUrl() {
+    const url = new URL(window.location.href);
+    const showDescriptors = url.searchParams.get(SHOW_PARAM);
+    const hideDescriptors = url.searchParams.get(HIDE_PARAM);
+    const highlightDescriptors = url.searchParams.get(HIGHLIGHT_PARAM);
+
+    if (showDescriptors) {
+      this.applyShowMode(showDescriptors);
+    } else if (hideDescriptors) {
+      this.applyHideMode(hideDescriptors);
+    } else if (highlightDescriptors) {
+      this.applyHighlightMode(highlightDescriptors);
+    } else {
+      if (
+        document.body.classList.contains(BODY_SHOW_CLASS) ||
+        document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+      ) {
+        this.exitShowMode(false);
+      }
+    }
+  }
 
   /**
    * Applies focus mode to the specified descriptors.
@@ -339,14 +330,22 @@ export class FocusService {
     }
 
     if (updateUrl) {
-      if (this.url.searchParams.has(SHOW_PARAM)) {
-        this.url.searchParams.delete(SHOW_PARAM);
+      const url = new URL(window.location.href);
+      let changed = false;
+      if (url.searchParams.has(SHOW_PARAM)) {
+        url.searchParams.delete(SHOW_PARAM);
+        changed = true;
       }
-      if (this.url.searchParams.has(HIDE_PARAM)) {
-        this.url.searchParams.delete(HIDE_PARAM);
+      if (url.searchParams.has(HIDE_PARAM)) {
+        url.searchParams.delete(HIDE_PARAM);
+        changed = true;
       }
-      if (this.url.searchParams.has(HIGHLIGHT_PARAM)) {
-        this.url.searchParams.delete(HIGHLIGHT_PARAM);
+      if (url.searchParams.has(HIGHLIGHT_PARAM)) {
+        url.searchParams.delete(HIGHLIGHT_PARAM);
+        changed = true;
+      }
+      if (changed) {
+         window.history.replaceState({}, '', url.toString());
       }
     }
   }
