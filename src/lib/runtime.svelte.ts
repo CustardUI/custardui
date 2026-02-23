@@ -13,7 +13,6 @@ import { derivedStore } from './stores/derived-store.svelte';
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
-import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 
 export interface RuntimeOptions {
   assetsManager: AssetsManager;
@@ -132,12 +131,6 @@ export class AppRuntime {
     this.scanDOM();
     this.startComponentObserver();
     this.startGlobalReactivity();
-
-    // Rewrite hash URL with adaptation namespace after init is complete
-    const activeId = adaptationStore.activeConfig?.id;
-    if (activeId) {
-      AdaptationManager.rewriteHashUrl(activeId);
-    }
   }
 
   // --- Execution Helpers ---

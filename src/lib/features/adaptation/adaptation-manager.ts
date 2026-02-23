@@ -105,19 +105,30 @@ export class AdaptationManager {
   }
 
   /**
-   * Rewrites the URL hash to show the active adaptation namespace.
-   * Only runs if location.hash is empty to preserve #cv-open triggers and page anchors.
+   * Adds a visual indicator to the URL bar showing the active adaptation.
+   *
+   * - Hash free     → append `#/{id}` (clean, no query-string noise)
+   * - Hash occupied → set `?adapt={id}` so the indicator survives refreshes;
+   *                   init() re-reads and re-applies it each load, and
+   *                   rewriteUrlIndicator re-adds it, keeping it stable.
+   *
+   * Uses replaceState so history is not polluted.
    *
    * @param id The adaptation namespace/id
    */
-  static rewriteHashUrl(id: string): void {
-    if (window.location.hash === '') {
-      history.replaceState(
-        {},
-        '',
-        window.location.pathname + window.location.search + '#/' + id,
-      );
+  static rewriteUrlIndicator(id: string): void {
+    const url = new URL(window.location.href);
+
+    if (url.hash === '') {
+      url.hash = `/${id}`;
+    } else {
+      // Hash is occupied (page anchor, #cv-open, etc.) 
+      // Fall back to query param
+      if (url.searchParams.get('adapt') === id) return;
+      url.searchParams.set('adapt', id);
     }
+
+    history.replaceState({}, '', url.toString());
   }
 
   /**

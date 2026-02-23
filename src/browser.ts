@@ -34,7 +34,18 @@ export function initializeFromScript(): void {
       // Initialize Adaptation early (before AppRuntime):
       // - Theme CSS injected ASAP (FOUC prevention)
       // - ?adapt= param cleaned before URLStateManager.parseURL() runs
+      // - URL indicator set before AppRuntime so FocusService.SvelteURL is seeded correctly
       const adaptationConfig = await AdaptationManager.init(baseURL);
+      if (adaptationConfig?.id) {
+        AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
+
+        // When the user navigates to a hash anchor (#section), the hash indicator
+        // (#/id) is replaced by the browser. Re-run the indicator logic so it
+        // falls back to ?adapt=id for the now-occupied hash.
+        window.addEventListener('hashchange', () => {
+          AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
+        });
+      }
 
       // Fetch Config
       const configFile = await fetchConfig(configPath, baseURL);
