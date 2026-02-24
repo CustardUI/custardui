@@ -138,7 +138,6 @@ export class AdaptationManager {
 
   /**
    * Meta tag is in the form <meta name="cv-adapt" content="{id}">
-   * @returns 
    */
   private static getMetaAdaptationId(): string | null {
     return (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content || null;

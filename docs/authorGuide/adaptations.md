@@ -135,7 +135,7 @@ Adaptation defaults are applied **before** the user's persisted state, so users 
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `customviews.config.json`. Unknown IDs are silently ignored. |
+| `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `customviews.config.json`. Unknown IDs are  warned about and ignored. |
 | `placeholders` | `Record<string, string>` | Override the default value of named placeholders. |
 
 ---
