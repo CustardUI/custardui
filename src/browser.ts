@@ -40,7 +40,7 @@ export function initializeFromScript(): void {
       // Initialize Adaptation early (before AppRuntime):
       // - Theme CSS injected ASAP (FOUC prevention)
       // - ?adapt= param cleaned before URLStateManager.parseURL() runs
-      // - URL indicator set before AppRuntime so FocusService.SvelteURL is seeded correctly
+      // - URL indicator set before AppRuntime so URL state is seeded correctly
       const adaptationConfig = await AdaptationManager.init(effectiveBaseURL, configFile.storageKey);
       if (adaptationConfig?.id) {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);

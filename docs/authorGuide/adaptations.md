@@ -50,11 +50,6 @@ Minimal example:
     "cssVariables": {
       "--cv-primary": "#7c3aed"
     }
-  },
-  "ui": {
-    "badge": {
-      "label": "Dark theme active"
-    }
   }
 }
 ```
@@ -192,7 +187,7 @@ To deactivate the current adaptation and return to the site defaults, link to `?
 <a href="?adapt=clear">Reset to default theme</a>
 ```
 
-This removes the stored adaptation and its badge-dismissed flag from `localStorage`. On the next page load (without a page meta tag), no adaptation will be active.
+This removes the stored adaptation. On the next page load (without a page meta tag), no adaptation will be active.
 
 ---
 
