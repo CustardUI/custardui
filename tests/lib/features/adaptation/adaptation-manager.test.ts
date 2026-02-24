@@ -256,6 +256,41 @@ describe('AdaptationManager', () => {
       expect(localStorage.setItem).not.toHaveBeenCalled();
     });
 
+    it('should correctly decode URI components when extracting from URL hash', async () => {
+      mockLocation('http://localhost/#/my%20special%20id');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'my special id', theme: {} })
+      });
+
+      const result = await AdaptationManager.init('');
+      
+      expect(result).toEqual({ id: 'my special id', theme: {} });
+      // The fetch logic encodes it again when building the final URL path
+      // my%20special%20id -> my%20special%20id
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/my%20special%20id/my%20special%20id.json');
+      expect(localStorage.setItem).toHaveBeenCalledWith('cv-adaptation', 'my special id');
+    });
+
+    it('should successfully match decoded query params against encoded url hashes for cleanup', async () => {
+      // url.hash will natively return '#/my%20special%20id'
+      mockLocation('http://localhost/?adapt=my%20special%20id#/my%20special%20id');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'my special id', theme: {} })
+      });
+
+      const result = await AdaptationManager.init('');
+      
+      expect(result).toEqual({ id: 'my special id', theme: {} });
+      // Because query param and hash matched, it should only strip the query param
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        'http://localhost/#/my%20special%20id'
+      );
+    });
+
     it('should extract adaptation ID from hash indicator', async () => {
       mockLocation('http://localhost/#/hash-id');
       (global.fetch as any).mockResolvedValueOnce({

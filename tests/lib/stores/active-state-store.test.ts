@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock PlaceholderManager
 vi.mock('../../../src/lib/features/placeholder/placeholder-manager', () => ({
@@ -28,6 +28,10 @@ describe('ActiveStateStore', () => {
     // Default: filterValidPlaceholders is a passthrough
     vi.mocked(placeholderManager.filterValidPlaceholders).mockImplementation((ph) => ph ?? {});
     store = new ActiveStateStore();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // ---------------------------------------------------------------------------

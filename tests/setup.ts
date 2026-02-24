@@ -5,9 +5,9 @@
 // This is needed because Vitest is running in a Node.js environment, 
 // which does not have Svelte Runes.
 
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
+// Use `(globalThis as any)` to safely assign polyfills without TS2339 errors
+// Add `any` type to parameters to prevent implicit-any errors in strict mode
+(globalThis as any).$state = (initial: any) => initial;
 
-// @ts-expect-error - Polyfill for testing
-globalThis.$derived = (fn) => (typeof fn === 'function' ? fn() : fn);
-globalThis.$derived.by = (fn) => fn();
+(globalThis as any).$derived = (fn: any) => (typeof fn === 'function' ? fn() : fn);
+(globalThis as any).$derived.by = (fn: any) => fn();

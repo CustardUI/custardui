@@ -152,11 +152,17 @@ export class AdaptationManager {
   }
 
   private static getHashAdaptationId(hash: string): string | null {
-    return this.hasHashAdaptationId(hash) ? hash.slice(this.HASH_PREFIX.length) : null;
+    if (!this.hasHashAdaptationId(hash)) return null;
+    const encodedId = hash.slice(this.HASH_PREFIX.length);
+    try {
+      return decodeURIComponent(encodedId);
+    } catch {
+      return encodedId; // fallback if malformed encoding
+    }
   }
 
   private static getHashUrlIndicator(id: string): string {
-    return `${this.HASH_PREFIX}${id}`;
+    return `${this.HASH_PREFIX}${encodeURIComponent(id)}`;
   }
 
   /**
