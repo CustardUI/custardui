@@ -1,12 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PlaceholderManager } from '../../../../src/lib/features/placeholder/placeholder-manager';
 
-// Polyfill Svelte Runes
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
-
-
-
 vi.mock('../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte', () => ({
   placeholderRegistryStore: {
     has: vi.fn(),

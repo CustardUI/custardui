@@ -2,10 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { adaptationStore } from '../../../../../src/lib/features/adaptation/stores/adaptation-store.svelte';
 import type { AdaptationConfig } from '../../../../../src/lib/features/adaptation/types';
 
-// Polyfill Svelte Runes for testing Svelte 5 $state
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
-
 describe('AdaptationStore', () => {
   beforeEach(() => {
     // Reset store state

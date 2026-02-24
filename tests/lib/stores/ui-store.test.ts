@@ -1,12 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
-// Polyfill Svelte Runes
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
-// @ts-expect-error - Polyfill for testing
-globalThis.$derived = (fn) => (typeof fn === 'function' ? fn() : fn);
-globalThis.$derived.by = (fn) => fn();
-
 import { UIStore } from '../../../src/lib/stores/ui-store.svelte';
 
 describe('UIStore', () => {
