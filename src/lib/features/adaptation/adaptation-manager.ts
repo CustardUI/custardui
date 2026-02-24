@@ -31,32 +31,43 @@ export class AdaptationManager {
     // 1. Read indicators (URL hash first, then ?adapt=)
     const url = new URL(window.location.href);
     const hashMatch = this.getHashAdaptationId(url.hash);
-    const paramValue = url.searchParams.get(this.QUERY_PARAM);
+    const queryParamValue = url.searchParams.get(this.QUERY_PARAM);
 
     // 2. Handle ?adapt=clear
-    if (paramValue === 'clear') {
+    if (queryParamValue === 'clear') {
       this.clearStoredId(persistence);
+      if (this.hasHashAdaptationId(url.hash)) {
+        this.stripHashFromUrl(url);
+      }
       this.stripQueryParamFromUrl(url);
       return null;
     }
 
-    if (paramValue !== null) {
+    if (queryParamValue !== null) {
       // If hash empty, we will populate later with hash indicator, so can remove query param
-      if (url.hash === '' || url.hash === this.getHashUrlIndicator(paramValue)) {
+      if (url.hash === '' || url.hash === this.getHashUrlIndicator(queryParamValue)) {
         this.stripQueryParamFromUrl(url);
       }
     }
 
     // 4. Determine namespace: URL param > page meta tag > localStorage
-    const id = hashMatch ?? paramValue ?? this.getMetaAdaptationId() ?? persistence.getItem(STORAGE_KEY);
-    if (!id) return null;
+    const rawId = hashMatch ?? queryParamValue ?? this.getMetaAdaptationId() ?? persistence.getItem(STORAGE_KEY);
+    const id = typeof rawId === 'string' ? rawId.trim() : rawId;
+    if (!id) {
+      // Clear any previously stored invalid/empty id to avoid reusing it
+      this.clearStoredId(persistence);
+      return null;
+    }
 
-    // 5. Persist namespace
-    persistence.setItem(STORAGE_KEY, id);
-
-    // 6. Fetch adaptation config and validate
+    // 5. Fetch adaptation config and validate
     const config = await this.loadAdaptationConfig(baseUrl, id, persistence);
-    if (!config) return null;
+    if (!config) {
+      this.clearStoredId(persistence);
+      return null;
+    }
+
+    // 6. Persist namespace
+    persistence.setItem(STORAGE_KEY, id);
 
     // 7. Apply theme synchronously (FOUC prevention)
     this.applyTheme(config);
@@ -127,9 +138,12 @@ export class AdaptationManager {
     persistence.removeItem(STORAGE_KEY);
   }
 
+  private static hasHashAdaptationId(hash: string): boolean {
+    return hash.startsWith(this.HASH_PREFIX);
+  }
 
   private static getHashAdaptationId(hash: string): string | null {
-    return hash.startsWith(this.HASH_PREFIX) ? hash.slice(this.HASH_PREFIX.length) : null;
+    return this.hasHashAdaptationId(hash) ? hash.slice(this.HASH_PREFIX.length) : null;
   }
 
   private static getHashUrlIndicator(id: string): string {
@@ -145,6 +159,11 @@ export class AdaptationManager {
 
   private static stripQueryParamFromUrl(url: URL): void {
     url.searchParams.delete(this.QUERY_PARAM);
+    history.replaceState({}, '', url.toString());
+  }
+
+  private static stripHashFromUrl(url: URL): void {
+    url.hash = '';
     history.replaceState({}, '', url.toString());
   }
 
