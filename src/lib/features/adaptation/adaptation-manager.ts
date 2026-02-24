@@ -1,4 +1,5 @@
 import type { AdaptationConfig } from './types';
+import { PersistenceManager } from '$lib/utils/persistence';
 
 const STORAGE_KEY = 'cv-adaptation';
 
@@ -18,9 +19,12 @@ export class AdaptationManager {
    * e.g. baseUrl="/customviews", id="ntu" → "/customviews/ntu/ntu.json"
    *
    * @param baseUrl The site's base URL (from data-base-url, default: '')
+   * @param storageKey The project's unique storageKey prefix to use for saving preferences
    * @returns The loaded AdaptationConfig, or null if no adaptation is active
    */
-  static async init(baseUrl = ''): Promise<AdaptationConfig | null> {
+  static async init(baseUrl = '', storageKey?: string): Promise<AdaptationConfig | null> {
+    const persistence = new PersistenceManager(storageKey);
+
     // 1. Read and remove ?adapt= param via replaceState
     const url = new URL(window.location.href);
     const paramValue = url.searchParams.get('adapt');
@@ -32,11 +36,7 @@ export class AdaptationManager {
 
     // 2. Handle ?adapt=clear
     if (paramValue === 'clear') {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch {
-        // localStorage may be unavailable
-      }
+      AdaptationManager.clearStoredId(persistence);
       return null;
     }
 
@@ -49,21 +49,13 @@ export class AdaptationManager {
 
     let id: string | null = paramValue ?? metaAdaptor;
     if (!id) {
-      try {
-        id = localStorage.getItem(STORAGE_KEY);
-      } catch {
-        // localStorage may be unavailable
-      }
+      id = persistence.getItem(STORAGE_KEY);
     }
 
     if (!id) return null;
 
     // 4. Persist namespace
-    try {
-      localStorage.setItem(STORAGE_KEY, id);
-    } catch {
-      // localStorage may be unavailable
-    }
+    persistence.setItem(STORAGE_KEY, id);
 
     // 5. Fetch adaptation config — co-located with its content at {baseUrl}/{id}/{id}.json
     //    encodeURIComponent prevents path traversal via crafted ?adapt=../secret
@@ -78,14 +70,14 @@ export class AdaptationManager {
         console.warn(
           `[CustomViews] Adaptation "${id}" could not be loaded (HTTP ${response.status}). Clearing stored adaptation.`,
         );
-        AdaptationManager.clearStoredId();
+        AdaptationManager.clearStoredId(persistence);
         return null;
       }
 
       config = await response.json();
     } catch (err) {
       console.warn(`[CustomViews] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
-      AdaptationManager.clearStoredId();
+      AdaptationManager.clearStoredId(persistence);
       return null;
     }
 
@@ -94,7 +86,7 @@ export class AdaptationManager {
       console.warn(
         `[CustomViews] Adaptation config ID mismatch: expected "${id}", got "${config.id}". Clearing stored adaptation.`,
       );
-      AdaptationManager.clearStoredId();
+      AdaptationManager.clearStoredId(persistence);
       return null;
     }
 
@@ -161,11 +153,7 @@ export class AdaptationManager {
     }
   }
 
-  private static clearStoredId(): void {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // localStorage may be unavailable
-    }
+  private static clearStoredId(persistence: PersistenceManager): void {
+    persistence.removeItem(STORAGE_KEY);
   }
 }
