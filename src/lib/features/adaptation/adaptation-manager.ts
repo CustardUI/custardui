@@ -44,14 +44,22 @@ export class AdaptationManager {
     }
 
     if (queryParamValue !== null) {
-      // If hash empty, we will populate later with hash indicator, so can remove query param
+      // If the query param specifies a new adaptation, we should clear any stale hash indicator
+      if (this.hasHashAdaptationId(url.hash) && url.hash !== this.getHashUrlIndicator(queryParamValue)) {
+        this.stripHashFromUrl(url);
+      }
+      // If hash empty, or matches query param, populate later with hash indicator, so remove query param
       if (url.hash === '' || url.hash === this.getHashUrlIndicator(queryParamValue)) {
         this.stripQueryParamFromUrl(url);
       }
     }
 
-    // 4. Determine namespace: URL param > page meta tag > localStorage
-    const rawId = hashMatch ?? queryParamValue ?? this.getMetaAdaptationId() ?? persistence.getItem(STORAGE_KEY);
+    // 4. Determine namespace: page meta tag > URL param > Hash Indicator > localStorage
+    const rawId = this.getMetaAdaptationId() 
+      ?? queryParamValue 
+      ?? hashMatch 
+      ?? persistence.getItem(STORAGE_KEY);
+
     const id = typeof rawId === 'string' ? rawId.trim() : rawId;
     if (!id) {
       // Clear any previously stored invalid/empty id to avoid reusing it
