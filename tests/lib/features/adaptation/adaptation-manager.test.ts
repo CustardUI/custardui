@@ -54,6 +54,34 @@ describe('AdaptationManager', () => {
       
       expect(result).toBeNull();
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+      // Should remove ?adapt=clear
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        'http://localhost/'
+      );
+    });
+
+    it('should clear stored id and strip hash indicator when ?adapt=clear is passed with a hash', async () => {
+      mockLocation('http://localhost/?adapt=clear#/some-id');
+      localStorage.setItem('cv-adaptation', 'some-id');
+      
+      const result = await AdaptationManager.init('');
+      
+      expect(result).toBeNull();
+      expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+      // Should clear the hash first
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        'http://localhost/?adapt=clear'
+      );
+      // Then strip the clear param
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        'http://localhost/'
+      );
     });
 
     it('should gracefully handle fetch failure', async () => {
@@ -64,6 +92,19 @@ describe('AdaptationManager', () => {
       
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/fail-id/fail-id.json');
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+    });
+
+    it('should clear stored id and remove hash when ?adapt=clear with hash indicator is passed', async () => {
+      mockLocation('http://localhost/?adapt=clear#/some-id');
+      localStorage.setItem('cv-adaptation', 'some-id');
+      const result = await AdaptationManager.init('');
+      expect(result).toBeNull();
+      expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        'http://localhost/'
+      );
     });
 
     it('should remove ?adapt param from URL and replace history', async () => {
@@ -211,6 +252,7 @@ describe('AdaptationManager', () => {
       
       expect(result).toBeNull();
       expect(global.fetch).not.toHaveBeenCalled();
+      expect(localStorage.setItem).not.toHaveBeenCalled();
     });
 
     it('should extract adaptation ID from hash indicator', async () => {
@@ -224,6 +266,25 @@ describe('AdaptationManager', () => {
       
       expect(result).toEqual({ id: 'hash-id', theme: {} });
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/hash-id/hash-id.json');
+    });
+
+    it('should prioritize explicit ?adapt parameter over a stale hash indicator and clear the stale hash', async () => {
+      mockLocation('http://localhost/?adapt=new-id#/stale-id');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'new-id', theme: {} })
+      });
+
+      const result = await AdaptationManager.init('');
+      
+      expect(result).toEqual({ id: 'new-id', theme: {} });
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/new-id/new-id.json');
+      // Should have replaced the history to strip the stale hash
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        '',
+        'http://localhost/?adapt=new-id'
+      );
     });
 
     it('should preserve ?adapt parameter during init if hash is occupied by something else', async () => {
