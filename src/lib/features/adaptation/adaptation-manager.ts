@@ -155,10 +155,16 @@ export class AdaptationManager {
     persistence: PersistenceManager
   ): Promise<AdaptationConfig | null> {
     try {
-      // remove trailing slash from baseUrl/ if present
-      const base = baseUrl ? baseUrl.replace(/\/$/, '') : '';
-      const safeId = encodeURIComponent(id);
-      const fetchUrl = `${base}/${safeId}/${safeId}.json`;
+      if (!id || id.trim() === '') return null;
+      const safeId = encodeURIComponent(id.trim());
+      const jsonFile = `${safeId}/${safeId}.json`;
+      
+      // The base must end in a slash for the URL constructor to treat it as a directory.
+      // If baseUrl is empty, this falls back to '/', which resolves against window.location.origin.
+      const directoryBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      
+      const fetchUrl = new URL(jsonFile, new URL(directoryBase, window.location.origin)).toString();
+      
       const response = await fetch(fetchUrl);
 
       if (!response.ok) {

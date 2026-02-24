@@ -56,6 +56,16 @@ describe('AdaptationManager', () => {
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
     });
 
+    it('should gracefully handle fetch failure', async () => {
+      mockLocation('http://localhost/?adapt=fail-id');
+      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+
+      await AdaptationManager.init('/docs');
+      
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/fail-id/fail-id.json');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+    });
+
     it('should remove ?adapt param from URL and replace history', async () => {
       mockLocation('http://localhost/?adapt=ntu');
       (global.fetch as any).mockResolvedValueOnce({
@@ -83,7 +93,7 @@ describe('AdaptationManager', () => {
       await AdaptationManager.init('');
       
       expect(localStorage.setItem).toHaveBeenCalledWith('cv-adaptation', 'url-id');
-      expect(global.fetch).toHaveBeenCalledWith('/url-id/url-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/url-id/url-id.json');
     });
 
     it('should prioritize meta tag over localStorage when URL param is missing', async () => {
@@ -102,7 +112,7 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('');
       
-      expect(global.fetch).toHaveBeenCalledWith('/meta-id/meta-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/meta-id/meta-id.json');
     });
 
     it('should fall back to localStorage if URL param and meta tag are missing', async () => {
@@ -116,7 +126,19 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('');
       
-      expect(global.fetch).toHaveBeenCalledWith('/storage-id/storage-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/storage-id/storage-id.json');
+    });
+
+    it('should handle root baseUrl correctly', async () => {
+      mockLocation('http://localhost/?adapt=id3');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'id3', theme: {} })
+      });
+
+      await AdaptationManager.init('/');
+      
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/id3/id3.json');
     });
 
     it('should return null and clear storage if fetch fails', async () => {
@@ -165,8 +187,9 @@ describe('AdaptationManager', () => {
       await AdaptationManager.init('/base/');
       
       // Should trim trailing slash on base and encode the ID components
+      // Should encode the ID components
       const safeId = encodeURIComponent('id/with/slash');
-      expect(global.fetch).toHaveBeenCalledWith(`/base/${safeId}/${safeId}.json`);
+      expect(global.fetch).toHaveBeenCalledWith(`http://localhost/base/${safeId}/${safeId}.json`);
     });
 
     it('should use provided storageKey prefix for persistence', async () => {
@@ -179,6 +202,40 @@ describe('AdaptationManager', () => {
       await AdaptationManager.init('', 'my-prefix');
       
       expect(localStorage.setItem).toHaveBeenCalledWith('my-prefix-cv-adaptation', 'prefix-id');
+    });
+
+    it('should ignore empty adaptation IDs to prevent malformed fetches', async () => {
+      mockLocation('http://localhost/?adapt=   ');
+      
+      const result = await AdaptationManager.init('/base');
+      
+      expect(result).toBeNull();
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('should extract adaptation ID from hash indicator', async () => {
+      mockLocation('http://localhost/#/hash-id');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'hash-id', theme: {} })
+      });
+
+      const result = await AdaptationManager.init('');
+      
+      expect(result).toEqual({ id: 'hash-id', theme: {} });
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/hash-id/hash-id.json');
+    });
+
+    it('should preserve ?adapt parameter during init if hash is occupied by something else', async () => {
+      mockLocation('http://localhost/?adapt=test-id#other-anchor');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'test-id', theme: {} })
+      });
+
+      await AdaptationManager.init('');
+      
+      expect(window.history.replaceState).not.toHaveBeenCalled();
     });
   });
 
