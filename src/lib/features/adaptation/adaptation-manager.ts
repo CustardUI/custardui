@@ -43,17 +43,6 @@ export class AdaptationManager {
       return null;
     }
 
-    if (queryParamValue !== null) {
-      // If the query param specifies a new adaptation, we should clear any stale hash indicator
-      if (this.hasHashAdaptationId(url.hash) && url.hash !== this.getHashUrlIndicator(queryParamValue)) {
-        this.stripHashFromUrl(url);
-      }
-      // If hash empty, or matches query param, populate later with hash indicator, so remove query param
-      if (url.hash === '' || url.hash === this.getHashUrlIndicator(queryParamValue)) {
-        this.stripQueryParamFromUrl(url);
-      }
-    }
-
     // 4. Determine namespace: page meta tag > URL param > Hash Indicator > localStorage
     const rawId = this.getMetaAdaptationId() 
       ?? queryParamValue 
@@ -74,10 +63,22 @@ export class AdaptationManager {
       return null;
     }
 
-    // 6. Persist namespace
+    // 6. Clean URL indicators given valid adaptation
+    if (queryParamValue !== null) {
+      // If the query param specifies a new adaptation, we should clear any stale hash indicator
+      if (this.hasHashAdaptationId(url.hash) && url.hash !== this.getHashUrlIndicator(queryParamValue)) {
+        this.stripHashFromUrl(url);
+      }
+      // If hash empty, or matches query param, populate later with hash indicator, so remove query param
+      if (url.hash === '' || url.hash === this.getHashUrlIndicator(queryParamValue)) {
+        this.stripQueryParamFromUrl(url);
+      }
+    }
+
+    // 7. Persist namespace
     persistence.setItem(STORAGE_KEY, id);
 
-    // 7. Apply theme synchronously (FOUC prevention)
+    // 8. Apply theme synchronously (FOUC prevention)
     this.applyTheme(config);
 
     return config;

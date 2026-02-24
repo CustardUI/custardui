@@ -134,7 +134,7 @@ Adaptation defaults are applied **before** the user's persisted state, so users 
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `customviews.config.json`. Unknown IDs are  warned about and ignored. |
+| `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `customviews.config.json`. Unknown IDs are warned about and ignored. |
 | `placeholders` | `Record<string, string>` | Override the default value of named placeholders. |
 
 ---
@@ -218,18 +218,3 @@ For example, we want this documentation site to be customized for NUS.
 Students linked to `/nus/` get the NUS theme immediately; the theme persists as they navigate the rest of the site.
 
 See the [live demo](/nus/) for an interactive example.
-
----
-
-<panel header=":fa-solid-lightbulb: Troubleshooting">
-
-**Adaptation not activating?**
-- Open the browser Network tab and confirm the JSON file is being fetched from `{baseUrl}/{id}/{id}.json` and returning HTTP 200.
-- Check that `"id"` in the JSON exactly matches the filename and the `?adapt=` value. A mismatch causes CustomViews to silently clear the stored adaptation.
-
-**CSS variables not applying?**
-- Variables are set on `document.documentElement` (`<html>`). Make sure your CSS references them on `:root` or `html`, not a scoped selector.
-- CSS variable names must include the leading `--` (e.g. `"--cv-primary": "#003d7c"`).
-
-
-</panel>

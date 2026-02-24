@@ -31,8 +31,9 @@ describe('AdaptationManager', () => {
     global.fetch = vi.fn();
 
     // Polyfill CSS.escape for jsdom
-    if (!global.CSS) {
-      (global as any).CSS = { escape: (str: string) => str };
+    if (!(global as any).CSS?.escape) {
+      (global as any).CSS = (global as any).CSS || {};
+      (global as any).CSS.escape = (str: string) => str;
     }
 
     // Clear document head and body
