@@ -21,13 +21,12 @@ Common use cases:
 
 ## How It Works
 
-An adaptation is a JSON file hosted alongside your site content. When a user visits a URL with `?adapt=<id>`, CustomViews fetches that file, applies the theme and state overrides, and persists the active adaptation to `localStorage` — so it remains active across all pages without the parameter needing to be in every URL.
+An adaptation is a JSON file hosted alongside your site content. When a user visits a URL with `?adapt=<id>` or a hash indicator like `#/id` (for example, `https://example.com/#/dark`), CustomViews fetches that file, applies the theme and state overrides, and persists the active adaptation to `localStorage` — so it remains active across all pages without the parameter or hash needing to be in every URL.
 
 **Activation priority (highest wins):**
-
-1. `?adapt=<id>` URL parameter — explicit, one-time activation via link
-2. `<meta name="cv-adapt" content="<id>">` on the page — forces a specific adaptation for that page on every visit
-3. `localStorage` — persisted from a previous activation
+1. `<meta name="cv-adapt" content="<id>">` on the page — forces a specific adaptation for that page on every visit
+1. Explicit URL activation — `?adapt=<id>` parameter or hash `#/id` indicator
+1. `localStorage` — persisted from a previous activation
 
 ---
 
@@ -218,7 +217,7 @@ For example, we want this documentation site to be customized for NUS.
 
 Students linked to `/nus/` get the NUS theme immediately; the theme persists as they navigate the rest of the site.
 
-See the [live demo](/nus/index.md) for an interactive example.
+See the [live demo](/nus/) for an interactive example.
 
 ---
 

@@ -5,10 +5,9 @@
 
 # Welcome, [[username]]! (NUS)
 
-This page activates the **NUS adaptation** when visited with `?adapt=nus`. Once activated, the NUS theme persists across all pages until cleared.
+This page automatically activates the **NUS adaptation** via its layout—no query parameter is required. You can also trigger or share the NUS theme using `?adapt=nus`, and once activated, the NUS theme persists across all pages until cleared.
 
-[Activate NUS theme](?adapt=nus) | [Clear adaptation](?adapt=clear)
-
+[Share NUS theme link](?adapt=nus) | [Clear adaptation](?adapt=clear)
 ---
 
 The NUS adaptation applies the following configuration from [`nus.json`](nus.json):
