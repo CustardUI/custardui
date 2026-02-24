@@ -1,6 +1,6 @@
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-import type { Config, ConfigSectionKey, State } from '$lib/types/index';
+import type { Config, ConfigSectionKey, State, ToggleConfig } from '$lib/types/index';
 import { isValidConfigSection } from '$lib/types/index';
 import type { AdaptationConfig } from '$features/adaptation/types';
 
@@ -230,15 +230,22 @@ export class ActiveStateStore {
   // --- Private Helpers ---
 
   /**
+   * Finds a toggle in the configuration using a case-insensitive ID match.
+   * @param toggleId The ID to search for.
+   * @returns The matched toggle configuration, or undefined if not found.
+   */
+  private getToggleConfigFromConfig(toggleId: string): ToggleConfig | undefined {
+    return this.config.toggles?.find((t) => t.toggleId.toLowerCase() === toggleId.toLowerCase());
+  }
+
+  /**
    * Applies a map of toggleId → visibility to the current state.
    * Removes each mentioned toggle from both lists, then re-adds to the correct one.
    * Warns and drops unknown IDs (consistent with filterValidToggles).
    */
   private applyToggleMap(toggleMap: Record<string, 'show' | 'hide' | 'peek'>): void {
     for (const [toggleId, visibility] of Object.entries(toggleMap)) {
-      const match = this.config.toggles?.find(
-        (t) => t.toggleId.toLowerCase() === toggleId.toLowerCase(),
-      );
+      const match = this.getToggleConfigFromConfig(toggleId);
       if (!match) {
         console.warn(`[CustomViews] Adaptation toggle "${toggleId}" is not in the config and will be ignored.`);
         continue;
@@ -360,7 +367,7 @@ export class ActiveStateStore {
     const valid: string[] = [];
 
     for (const toggleId of incomingToggles) {
-      const match = this.config.toggles.find((t) => t.toggleId.toLowerCase() === toggleId.toLowerCase());
+      const match = this.getToggleConfigFromConfig(toggleId);
       if (!match) {
         console.warn(`[CustomViews] Toggle "${toggleId}" is not in the config and will be ignored.`);
         continue;
