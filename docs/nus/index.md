@@ -1,10 +1,7 @@
 <frontmatter>
   title: NUS — CustomViews
+  layout: nus.md
 </frontmatter>
-
-<head-bottom>
-  <meta name="cv-adapt" content="nus">
-</head-bottom>
 
 # Welcome, [[username]]! (NUS)
 
