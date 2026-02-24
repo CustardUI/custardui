@@ -2,10 +2,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Polyfill Svelte Runes BEFORE import
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
-
 import { IntroManager, type IntroPersistence } from '../../../../src/lib/features/settings/intro-manager.svelte';
 
 describe('IntroManager', () => {

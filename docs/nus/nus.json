@@ -1,0 +1,21 @@
+{
+  "id": "nus",
+  "name": "NUS",
+  "theme": {
+    "cssVariables": {
+      "--cv-primary": "#003d7c",
+      "--cv-primary-hover": "#002d5c",
+      "--cv-icon-bg": "#003d7c",
+      "--cv-icon-color": "#ffffff"
+    }
+  },
+  "defaults": {
+    "toggles": {
+      "linux": "show",
+      "windows": "hide"
+    },
+    "placeholders": {
+      "username": "NUS Student"
+    }
+  }
+}

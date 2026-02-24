@@ -1,11 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-
-// Polyfill Svelte Runes
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
-// @ts-expect-error - Polyfill for testing
-globalThis.$derived = (fn) => (typeof fn === 'function' ? fn() : fn);
-globalThis.$derived.by = (fn) => fn();
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock PlaceholderManager
 vi.mock('../../../src/lib/features/placeholder/placeholder-manager', () => ({
@@ -35,6 +28,10 @@ describe('ActiveStateStore', () => {
     // Default: filterValidPlaceholders is a passthrough
     vi.mocked(placeholderManager.filterValidPlaceholders).mockImplementation((ph) => ph ?? {});
     store = new ActiveStateStore();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // ---------------------------------------------------------------------------
@@ -278,6 +275,73 @@ describe('ActiveStateStore', () => {
       expect(store.state.shownToggles).toContain('real');
       expect(store.state.shownToggles).not.toContain('fakeShow');
       expect(store.state.peekToggles).not.toContain('fakePeek');
+    });
+  });
+
+  describe('applyAdaptationDefaults', () => {
+    beforeEach(() => {
+      const config = {
+        toggles: [
+          { toggleId: 'A-Toggle' },
+          { toggleId: 'B-Toggle' },
+          { toggleId: 'C-Toggle' },
+        ],
+      };
+      store.init(config);
+      // Setup some initial state to prove it overwrites/appends correctly
+      store.state.shownToggles = ['A-Toggle'];
+      store.state.peekToggles = [];
+    });
+
+    it('should correctly apply valid toggle defaults with case-insensitive matching', () => {
+      // 'A-toggle' is already shown, let's tell it to hide.
+      // 'b-toggle' is not shown, let's tell it to show.
+      // 'C-TOGGLE' is not peeked, let's tell it to peek.
+      store.applyAdaptationDefaults({
+        toggles: {
+          'A-toggle': 'hide',
+          'b-toggle': 'show',
+          'C-TOGGLE': 'peek',
+        }
+      });
+
+      expect(store.state.shownToggles).toContain('B-Toggle');
+      expect(store.state.shownToggles).not.toContain('A-Toggle');
+      expect(store.state.peekToggles).toContain('C-Toggle');
+    });
+
+    it('should warn and ignore unknown toggle IDs', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      
+      store.applyAdaptationDefaults({
+        toggles: {
+          'ghost-toggle': 'show',
+        }
+      });
+
+      expect(store.state.shownToggles).not.toContain('ghost-toggle');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('ghost-toggle'));
+    });
+
+    it('should correctly apply placeholder defaults', () => {
+      // Mock the placeholder manager to pass through our placeholders
+      vi.mocked(placeholderManager.filterValidPlaceholders).mockReturnValue({ newKey: 'newVal' });
+
+      store.applyAdaptationDefaults({
+        placeholders: {
+          newKey: 'newVal',
+        }
+      });
+
+      expect(store.state.placeholders).toEqual({ newKey: 'newVal' });
+      expect(placeholderManager.filterValidPlaceholders).toHaveBeenCalledWith({ newKey: 'newVal' });
+    });
+
+    it('should handle null/undefined defaults gracefully', () => {
+      store.applyAdaptationDefaults(undefined as any);
+      store.applyAdaptationDefaults({});
+      // If it doesn't throw, we're good
+      expect(store.state.shownToggles).toContain('A-Toggle');
     });
   });
 });
