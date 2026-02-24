@@ -280,4 +280,71 @@ describe('ActiveStateStore', () => {
       expect(store.state.peekToggles).not.toContain('fakePeek');
     });
   });
+
+  describe('applyAdaptationDefaults', () => {
+    beforeEach(() => {
+      const config = {
+        toggles: [
+          { toggleId: 'A-Toggle' },
+          { toggleId: 'B-Toggle' },
+          { toggleId: 'C-Toggle' },
+        ],
+      };
+      store.init(config);
+      // Setup some initial state to prove it overwrites/appends correctly
+      store.state.shownToggles = ['A-Toggle'];
+      store.state.peekToggles = [];
+    });
+
+    it('should correctly apply valid toggle defaults with case-insensitive matching', () => {
+      // 'A-toggle' is already shown, let's tell it to hide.
+      // 'b-toggle' is not shown, let's tell it to show.
+      // 'C-TOGGLE' is not peeked, let's tell it to peek.
+      store.applyAdaptationDefaults({
+        toggles: {
+          'A-toggle': 'hide',
+          'b-toggle': 'show',
+          'C-TOGGLE': 'peek',
+        }
+      });
+
+      expect(store.state.shownToggles).toContain('B-Toggle');
+      expect(store.state.shownToggles).not.toContain('A-Toggle');
+      expect(store.state.peekToggles).toContain('C-Toggle');
+    });
+
+    it('should warn and ignore unknown toggle IDs', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      
+      store.applyAdaptationDefaults({
+        toggles: {
+          'ghost-toggle': 'show',
+        }
+      });
+
+      expect(store.state.shownToggles).not.toContain('ghost-toggle');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('ghost-toggle'));
+    });
+
+    it('should correctly apply placeholder defaults', () => {
+      // Mock the placeholder manager to pass through our placeholders
+      vi.mocked(placeholderManager.filterValidPlaceholders).mockReturnValue({ newKey: 'newVal' });
+
+      store.applyAdaptationDefaults({
+        placeholders: {
+          newKey: 'newVal',
+        }
+      });
+
+      expect(store.state.placeholders).toEqual({ newKey: 'newVal' });
+      expect(placeholderManager.filterValidPlaceholders).toHaveBeenCalledWith({ newKey: 'newVal' });
+    });
+
+    it('should handle null/undefined defaults gracefully', () => {
+      store.applyAdaptationDefaults(undefined as any);
+      store.applyAdaptationDefaults({});
+      // If it doesn't throw, we're good
+      expect(store.state.shownToggles).toContain('A-Toggle');
+    });
+  });
 });
