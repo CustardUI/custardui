@@ -4,6 +4,7 @@ import type { AdaptationConfig } from '$features/adaptation/types';
 
 import { PersistenceManager } from './utils/persistence';
 import { URLStateManager } from '$features/url/url-state-manager';
+import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 
 import { FocusService } from '$features/focus/services/focus-service.svelte';
 import { activeStateStore } from './stores/active-state-store.svelte';
@@ -34,6 +35,7 @@ export class AppRuntime {
 
   private observer?: MutationObserver;
   private destroyEffectRoot?: () => void;
+  private onHashChange?: () => void;
 
   constructor(opt: RuntimeOptions) {
     this.rootEl = opt.rootEl || document.body;
@@ -160,6 +162,17 @@ export class AppRuntime {
         PlaceholderBinder.updateAll(activeStateStore.state.placeholders ?? {});
       });
     });
+
+    // When the user navigates to a hash anchor (#section), the hash indicator
+    // (#/id) is replaced by the browser. Re-run the indicator logic so it
+    // falls back to ?adapt=id for the now-occupied hash.
+    const activeAdaptationId = adaptationStore.activeConfig?.id;
+    if (activeAdaptationId) {
+      this.onHashChange = () => {
+        AdaptationManager.rewriteUrlIndicator(activeAdaptationId);
+      };
+      window.addEventListener('hashchange', this.onHashChange);
+    }
   }
 
   /**
@@ -246,5 +259,8 @@ export class AppRuntime {
     this.observer?.disconnect();
     this.destroyEffectRoot?.();
     this.focusService.destroy();
+    if (this.onHashChange) {
+      window.removeEventListener('hashchange', this.onHashChange);
+    }
   }
 }

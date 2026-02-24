@@ -44,13 +44,6 @@ export function initializeFromScript(): void {
       const adaptationConfig = await AdaptationManager.init(effectiveBaseURL, configFile.storageKey);
       if (adaptationConfig?.id) {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
-
-        // When the user navigates to a hash anchor (#section), the hash indicator
-        // (#/id) is replaced by the browser. Re-run the indicator logic so it
-        // falls back to ?adapt=id for the now-occupied hash.
-        window.addEventListener('hashchange', () => {
-          AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
-        });
       }
 
       // Initialize Assets
