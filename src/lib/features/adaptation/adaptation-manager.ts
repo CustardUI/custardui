@@ -8,6 +8,9 @@ const STORAGE_KEY = 'cv-adaptation';
  * Handles fetching, persisting, and applying adaptation configs.
  */
 export class AdaptationManager {
+  private static readonly QUERY_PARAM = 'adapt';
+  private static readonly HASH_PREFIX = '#/';
+
   /**
    * Initializes adaptation from the URL parameter or localStorage.
    * Must be called before AppRuntime is instantiated so that:
@@ -25,73 +28,38 @@ export class AdaptationManager {
   static async init(baseUrl = '', storageKey?: string): Promise<AdaptationConfig | null> {
     const persistence = new PersistenceManager(storageKey);
 
-    // 1. Read and remove ?adapt= param via replaceState
+    // 1. Read indicators (URL hash first, then ?adapt=)
     const url = new URL(window.location.href);
-    const paramValue = url.searchParams.get('adapt');
-
-    if (paramValue !== null) {
-      url.searchParams.delete('adapt');
-      history.replaceState({}, '', url.toString());
-    }
+    const hashMatch = this.getHashAdaptationId(url.hash);
+    const paramValue = url.searchParams.get(this.QUERY_PARAM);
 
     // 2. Handle ?adapt=clear
     if (paramValue === 'clear') {
-      AdaptationManager.clearStoredId(persistence);
+      this.clearStoredId(persistence);
+      this.stripQueryParamFromUrl(url);
       return null;
     }
 
-    // 3. Determine namespace: URL param > page meta tag > localStorage
-    //    Page meta tag (<meta name="cv-adapt" content="ntu">) forces the adaptation
-    //    for that page regardless of what is stored, enabling per-page theme assignment.
-    const metaAdaptor =
-      (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content ||
-      null;
-
-    let id: string | null = paramValue ?? metaAdaptor;
-    if (!id) {
-      id = persistence.getItem(STORAGE_KEY);
+    if (paramValue !== null) {
+      // If hash empty, we will populate later with hash indicator, so can remove query param
+      if (url.hash === '' || url.hash === this.getHashUrlIndicator(paramValue)) {
+        this.stripQueryParamFromUrl(url);
+      }
     }
 
+    // 4. Determine namespace: URL param > page meta tag > localStorage
+    const id = hashMatch ?? paramValue ?? this.getMetaAdaptationId() ?? persistence.getItem(STORAGE_KEY);
     if (!id) return null;
 
-    // 4. Persist namespace
+    // 5. Persist namespace
     persistence.setItem(STORAGE_KEY, id);
 
-    // 5. Fetch adaptation config — co-located with its content at {baseUrl}/{id}/{id}.json
-    //    encodeURIComponent prevents path traversal via crafted ?adapt=../secret
-    let config: AdaptationConfig;
-    try {
-      const base = baseUrl ? baseUrl.replace(/\/$/, '') : '';
-      const safeId = encodeURIComponent(id);
-      const fetchUrl = `${base}/${safeId}/${safeId}.json`;
-      const response = await fetch(fetchUrl);
-
-      if (!response.ok) {
-        console.warn(
-          `[CustomViews] Adaptation "${id}" could not be loaded (HTTP ${response.status}). Clearing stored adaptation.`,
-        );
-        AdaptationManager.clearStoredId(persistence);
-        return null;
-      }
-
-      config = await response.json();
-    } catch (err) {
-      console.warn(`[CustomViews] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
-      AdaptationManager.clearStoredId(persistence);
-      return null;
-    }
-
-    // 6. Validate that the config id matches
-    if (config.id !== id) {
-      console.warn(
-        `[CustomViews] Adaptation config ID mismatch: expected "${id}", got "${config.id}". Clearing stored adaptation.`,
-      );
-      AdaptationManager.clearStoredId(persistence);
-      return null;
-    }
+    // 6. Fetch adaptation config and validate
+    const config = await this.loadAdaptationConfig(baseUrl, id, persistence);
+    if (!config) return null;
 
     // 7. Apply theme synchronously (FOUC prevention)
-    AdaptationManager.applyTheme(config);
+    this.applyTheme(config);
 
     return config;
   }
@@ -110,15 +78,16 @@ export class AdaptationManager {
    */
   static rewriteUrlIndicator(adaptationId: string): void {
     const url = new URL(window.location.href);
-    const targetHash = `#/${adaptationId}`;
+    const targetHash = this.getHashUrlIndicator(adaptationId);
+    
     if (url.hash === targetHash) return;
 
     if (url.hash === '') {
       url.hash = targetHash;
     } else {
       // Hash is occupied (page anchor, #cv-open, etc.), use query param
-      if (url.searchParams.get('adapt') === adaptationId) return;
-      url.searchParams.set('adapt', adaptationId);
+      if (url.searchParams.get(this.QUERY_PARAM) === adaptationId) return;
+      url.searchParams.set(this.QUERY_PARAM, adaptationId);
     }
 
     history.replaceState({}, '', url.toString());
@@ -157,4 +126,65 @@ export class AdaptationManager {
   private static clearStoredId(persistence: PersistenceManager): void {
     persistence.removeItem(STORAGE_KEY);
   }
+
+
+  private static getHashAdaptationId(hash: string): string | null {
+    return hash.startsWith(this.HASH_PREFIX) ? hash.slice(this.HASH_PREFIX.length) : null;
+  }
+
+  private static getHashUrlIndicator(id: string): string {
+    return `${this.HASH_PREFIX}${id}`;
+  }
+
+  /**
+   * Meta tag is in the form <meta name="cv-adapt" content="{id}">
+   * @returns 
+   */
+  private static getMetaAdaptationId(): string | null {
+    return (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content || null;
+  }
+
+  private static stripQueryParamFromUrl(url: URL): void {
+    url.searchParams.delete(this.QUERY_PARAM);
+    history.replaceState({}, '', url.toString());
+  }
+
+  private static async loadAdaptationConfig(
+    baseUrl: string,
+    id: string,
+    persistence: PersistenceManager
+  ): Promise<AdaptationConfig | null> {
+    try {
+      // remove trailing slash from baseUrl/ if present
+      const base = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+      const safeId = encodeURIComponent(id);
+      const fetchUrl = `${base}/${safeId}/${safeId}.json`;
+      const response = await fetch(fetchUrl);
+
+      if (!response.ok) {
+        console.warn(
+          `[CustomViews] Adaptation "${id}" could not be loaded (HTTP ${response.status}). Clearing stored adaptation.`,
+        );
+        this.clearStoredId(persistence);
+        return null;
+      }
+
+      const config: AdaptationConfig = await response.json();
+
+      if (config.id !== id) {
+        console.warn(
+          `[CustomViews] Adaptation config ID mismatch: expected "${id}", got "${config.id}". Clearing stored adaptation.`,
+        );
+        this.clearStoredId(persistence);
+        return null;
+      }
+
+      return config;
+    } catch (err) {
+      console.warn(`[CustomViews] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
+      this.clearStoredId(persistence);
+      return null;
+    }
+  }
+
 }
