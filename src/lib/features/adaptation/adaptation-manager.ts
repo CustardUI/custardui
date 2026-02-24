@@ -106,18 +106,19 @@ export class AdaptationManager {
    *
    * Uses replaceState so history is not polluted.
    *
-   * @param id The adaptation namespace/id
+   * @param adaptationId The adaptation namespace/id
    */
-  static rewriteUrlIndicator(id: string): void {
+  static rewriteUrlIndicator(adaptationId: string): void {
     const url = new URL(window.location.href);
+    const targetHash = `#/${adaptationId}`;
+    if (url.hash === targetHash) return;
 
     if (url.hash === '') {
-      url.hash = `/${id}`;
+      url.hash = targetHash;
     } else {
-      // Hash is occupied (page anchor, #cv-open, etc.) 
-      // Fall back to query param
-      if (url.searchParams.get('adapt') === id) return;
-      url.searchParams.set('adapt', id);
+      // Hash is occupied (page anchor, #cv-open, etc.), use query param
+      if (url.searchParams.get('adapt') === adaptationId) return;
+      url.searchParams.set('adapt', adaptationId);
     }
 
     history.replaceState({}, '', url.toString());
