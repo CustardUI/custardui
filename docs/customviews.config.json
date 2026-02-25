@@ -70,7 +70,7 @@
       }
     ]
   },
-  "baseUrl": "/customviews",
+  "baseUrl": "/custard",
   "storageKey": "cv-docs-beta",
   "settings": {
     "enabled": true,

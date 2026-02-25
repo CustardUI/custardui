@@ -35,7 +35,7 @@
   ],
   "deploy": {
     "message": "Update main site.",
-    "repo": "https://github.com/customviews-js/customviews-js.github.io.git",
+    "repo": "https://github.com/custardUI/custardUI.github.io.git",
     "branch": "master"
   }
 }

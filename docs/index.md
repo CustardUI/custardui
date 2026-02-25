@@ -1,16 +1,18 @@
 <frontmatter>
-  title: Custom Views Library - Interactive Documentation & Demo
+  title: CustardUI Library
 </frontmatter>
 
-<h1 class="display-3"><md>**CustomViews**</md></h1>
+<img src="{{baseUrl}}/images/custardui.png" height="100">
 
-What is _Custom Views_?
+<div class="lead">
 
-Custom Views is a small runtime that provides specially designed, customizable, framework-agnostic UI components.
+++**Generate <tooltip content="level up your website!">_more interactive_</tooltip> websites.**++
+Optimized for interacting with any kind of text-based websites %%e.g., eLearning websites, online instruction manuals, project documentation etc.%%
+</div>
 
-:white_check_mark: Entirely Native: Built on web standards with no excess tooling and no third party bloat.
 
-:white_check_mark: Open Source: Use Custom Views however you like, always free and open source.
+CustardUI is a small runtime that provides specially designed, customizable, framework-agnostic UI components.
+
 
 ## Introduction
 
@@ -24,11 +26,15 @@ With Custom Views, you can:
 
 Whether you are building a static site, a dashboard, or a documentation portal, Custom Views gives you the tools to make your content interactive and adaptable while keeping things lightweight and simple.
 
-## Quick Demo
+## You can do this:
+
+* Show case placeholders:
 
 Hi there [[username]]!
 
 ### Toggles
+
+Toggles are sections that can be hidden, peeked or shown and can be toggled easily by the user.
 
 Choose your operating system to see platform-specific content:
 
@@ -73,6 +79,8 @@ You're viewing Windows-specific installation steps. Install using npm:
 
 ### Tabs
 
+Tabs are tabgroups that sync across the site, so a default tab can be set for all pages.
+
 Select a fruit to learn more:
 
 <cv-tabgroup group-id="fruit" nav="auto">
@@ -107,4 +115,7 @@ Pears are sweet, bell-shaped fruits with a soft texture when ripe. They're high 
 
 ---
 
-[:fa-brands-github: GitHub Link&nbsp; :fa-solid-arrow-up-right-from-square:](https://github.com/customviews-js/customviews)
+## And this, and this etc.
+
+[:fa-brands-github: GitHub Link&nbsp; :fa-solid-arrow-up-right-from-square:](https://github.com/custardui/custard)
+
