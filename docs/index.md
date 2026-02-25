@@ -2,7 +2,7 @@
   title: CustardUI Library
 </frontmatter>
 
-<img src="{{baseUrl}}/images/custardui.png" height="100">
+<img src="{{baseUrl}}/images/custardUI.png" height="100">
 
 <div class="lead">
 
@@ -11,14 +11,14 @@ Optimized for interacting with any kind of text-based websites %%e.g., eLearning
 </div>
 
 
-CustardUI is a small runtime that provides specially designed, customizable, framework-agnostic UI components.
+CustardUI (formerly named CustomViews) is a small runtime that provides specially designed, customizable, framework-agnostic UI components.
 
 
 ## Introduction
 
-_Custom Views_ allows developers and designers to define reusable content views that can be toggled, personalized, or adapted dynamically for different users and contexts. It is framework-agnostic, meaning it works with plain HTML, JavaScript, or alongside modern frameworks without imposing additional dependencies.
+_CustardUI_ allows developers and designers to define reusable content views that can be toggled, personalized, or adapted dynamically for different users and contexts. It is framework-agnostic, meaning it works with plain HTML, JavaScript, or alongside modern frameworks without imposing additional dependencies.
 
-With Custom Views, you can:
+With Custard, you can:
 
 - Show or hide sections of a page based on user preferences.
 - Persist user-selected content variants (e.g., "CLI view" vs "GUI view").
