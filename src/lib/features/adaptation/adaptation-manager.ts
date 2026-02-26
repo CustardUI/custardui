@@ -202,7 +202,7 @@ export class AdaptationManager {
 
       if (!response.ok) {
         console.warn(
-          `[CustomViews] Adaptation "${id}" could not be loaded (HTTP ${response.status}). Clearing stored adaptation.`,
+          `[CustardUI] Adaptation "${id}" could not be loaded (HTTP ${response.status}). Clearing stored adaptation.`,
         );
         this.clearStoredId(persistence);
         return null;
@@ -212,7 +212,7 @@ export class AdaptationManager {
 
       if (config.id !== id) {
         console.warn(
-          `[CustomViews] Adaptation config ID mismatch: expected "${id}", got "${config.id}". Clearing stored adaptation.`,
+          `[CustardUI] Adaptation config ID mismatch: expected "${id}", got "${config.id}". Clearing stored adaptation.`,
         );
         this.clearStoredId(persistence);
         return null;
@@ -220,7 +220,7 @@ export class AdaptationManager {
 
       return config;
     } catch (err) {
-      console.warn(`[CustomViews] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
+      console.warn(`[CustardUI] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
       this.clearStoredId(persistence);
       return null;
     }

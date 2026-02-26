@@ -85,6 +85,6 @@ export function renderAssetInto(el: HTMLElement, assetId: string, assetsManager:
       break;
     default:
       el.innerHTML = asset.content || String(asset);
-      console.warn('[CustomViews] Unknown asset type:', type);
+      console.warn('[Custard] Unknown asset type:', type);
   }
 }

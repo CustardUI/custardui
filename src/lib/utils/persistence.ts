@@ -64,22 +64,22 @@ export class PersistenceManager {
   // --- Type-Safe State Accessors (Wrappers around generic storage) ---
 
   public persistState(state: State): void {
-    this.setItem('customviews-state', JSON.stringify(state));
+    this.setItem('custardUI-state', JSON.stringify(state));
   }
 
   public getPersistedState(): State | null {
-    const raw = this.getItem('customviews-state');
+    const raw = this.getItem('custardUI-state');
     if (!raw) return null;
     try {
       return JSON.parse(raw);
     } catch (e) {
-      console.error('Failed to parse persisted state:', e);
+      console.error('[CustardUI] Failed to parse persisted state:', e);
       return null;
     }
   }
 
   public clearAll(): void {
-    this.removeItem('customviews-state');
+    this.removeItem('custardUI-state');
     this.removeItem('cv-tab-navs-visible');
   }
 

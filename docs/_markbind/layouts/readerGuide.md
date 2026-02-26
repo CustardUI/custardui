@@ -7,7 +7,7 @@
     </div>
     <div class="nav-component slim-scroll">
       <site-nav>
-* [Using CustomViews]({{baseUrl}}/readerGuide/readerGuide.html)
+* [Using CustardUI]({{baseUrl}}/readerGuide/readerGuide.html)
 * [Using Custom Components]({{baseUrl}}/readerGuide/customComponents.html)
 * [Using Focused Views]({{baseUrl}}/readerGuide/focusedViews.html)
       </site-nav>

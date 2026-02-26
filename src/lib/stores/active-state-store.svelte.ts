@@ -247,7 +247,7 @@ export class ActiveStateStore {
     for (const [toggleId, visibility] of Object.entries(toggleMap)) {
       const match = this.getToggleConfigFromConfig(toggleId);
       if (!match) {
-        console.warn(`[CustomViews] Adaptation toggle "${toggleId}" is not in the config and will be ignored.`);
+        console.warn(`[CustardUI] Toggle "${toggleId}" is not in the config and will be ignored.`);
         continue;
       }
 
@@ -336,13 +336,13 @@ export class ActiveStateStore {
     for (const [groupId, tabId] of Object.entries(incomingTabs)) {
       const group = this.config.tabGroups?.find((g) => g.groupId.toLowerCase() === groupId.toLowerCase());
       if (!group) {
-        console.warn(`[CustomViews] Tab group "${groupId}" is not in the config and will be ignored.`);
+        console.warn(`[CustardUI] Tab group "${groupId}" is not in the config and will be ignored.`);
         continue;
       }
 
       const matchedTab = group.tabs.find((t) => t.tabId.toLowerCase() === tabId.toLowerCase());
       if (!matchedTab) {
-        console.warn(`[CustomViews] Tab "${tabId}" is not in group "${group.groupId}" and will be ignored.`);
+        console.warn(`[CustardUI] Tab "${tabId}" is not in group "${group.groupId}" and will be ignored.`);
         continue;
       }
 
@@ -359,7 +359,7 @@ export class ActiveStateStore {
   private filterValidToggles(incomingToggles: string[]): string[] {
     if (!this.config.toggles || this.config.toggles.length === 0) {
       incomingToggles.forEach((id) =>
-        console.warn(`[CustomViews] Toggle "${id}" is not in the config and will be ignored.`),
+        console.warn(`[CustardUI] Toggle "${id}" is not in the config and will be ignored.`),
       );
       return [];
     }

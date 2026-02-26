@@ -24,7 +24,7 @@ export interface RuntimeOptions {
 }
 
 /**
- * The reactive runtime for CustomViews. Manages the full lifecycle: initialization,
+ * The reactive runtime for CustardUI. Manages the full lifecycle: initialization,
  * state resolution, reactive side-effects (URL sync, persistence), DOM observation, and teardown.
  * Components (Toggle, TabGroup) are self-contained and self-managing via the global store.
  */
@@ -124,7 +124,7 @@ export class AppRuntime {
   }
 
   /**
-   * Starts the CustomViews execution engine.
+   * Starts the CustardUI execution engine.
    *
    * Components (Toggle, TabGroup) self-register during their mount lifecycle.
    * This method starts the global observers for DOM changes and reactive state side-effects.
