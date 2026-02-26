@@ -1,5 +1,6 @@
 <head-bottom>
   <link rel="stylesheet" href="{{baseUrl}}/stylesheets/main.css">
+  <link rel="stylesheet" href="{{baseUrl}}/stylesheets/custard.css">
 </head-bottom>
 
 <div tags="beta-release" class="w-100 p-1 bg-warning text-center d-print-none"><md>**This site documents the features of CustomViews in development and possible beta breaking changes.

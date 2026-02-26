@@ -3,6 +3,30 @@
     "toggles": [
       { "toggleId": "lt", "label": "Local Toggle", "isLocal": true },
       {
+        "toggleId": "ingredients",
+        "label": "Ingredients",
+        "isLocal": true,
+        "default": "show"
+      },
+      {
+        "toggleId": "instructions",
+        "label": "Instructions",
+        "isLocal": true,
+        "default": "show"
+      },
+      {
+        "toggleId": "nutrition",
+        "label": "Nutrition",
+        "isLocal": true,
+        "default": "peek"
+      },
+      {
+        "toggleId": "tips",
+        "label": "Added Tips",
+        "isLocal": true,
+        "default": "peek"
+      },
+      {
         "toggleId": "localToggle",
         "label": "Local Toggle Label",
         "isLocal": true,
@@ -11,13 +35,25 @@
       {
         "toggleId": "mac",
         "label": "MacOS",
+        "isLocal": true,
         "description": "Show content for macOS users",
         "default": "peek"
       },
-      { "toggleId": "linux", "label": "Linux", "description": "Show content for Linux users" },
-      { "toggleId": "windows", "label": "Windows", "default": "show" }
+      { "toggleId": "linux", "label": "Linux", "isLocal": true, "description": "Show content for Linux users" },
+      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show" }
     ],
     "tabGroups": [
+      {
+        "groupId": "units",
+        "label": "Units",
+        "description": "Select units for measurements.",
+        "isLocal": true,
+        "default": "metric",
+        "tabs": [
+          { "tabId": "metric", "label": "Metric" },
+          { "tabId": "imperial", "label": "Imperial" }
+        ]
+      },
       {
         "groupId": "ltab",
         "label": "Local Tab Configuration",
@@ -45,7 +81,7 @@
         "groupId": "fruit",
         "label": "Fruit Selection",
         "description": "Select your favorite fruit.",
-        "isLocal": false,
+        "isLocal": true,
         "default": "pear",
         "placeholderId": "fruit",
         "tabs": [
@@ -75,22 +111,22 @@
   "settings": {
     "enabled": true,
     "panel": {
-      "title": "Custom Views Settings Dialog",
+      "title": "CustardUI Settings Dialog",
       "description": "Toggle different content sections to customize your view."
+    },
+    "icon": {
+      "position": "middle-left",
+      "color": "#814C20",
+      "backgroundColor": "#F2CA55",
+      "opacity": 0.95,
+      "scale": 1.1
     },
     "callout": {
       "show": true,
       "enablePulse": true,
-      "message": "Open the CustomViews settings to customize your view.",
-      "backgroundColor": "#198755",
-      "textColor": "#ffffff"
-    },
-    "icon": {
-      "position": "middle-left",
-      "color": "#ffffff",
-      "backgroundColor": "#198755",
-      "opacity": 0.9,
-      "scale": 1.1
+      "message": "Open the CustardUI settings to customize your view.",
+      "backgroundColor": "#F2CA55",
+      "textColor": "#2C1A0E"
     }
   }
 }
