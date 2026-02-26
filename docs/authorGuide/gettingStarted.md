@@ -20,6 +20,15 @@
 
 ---
 
+A lightweight add-on that brings dynamic personalization, focused sharing, and multi-tenancy to static websites.
+
+Empowering static educational and documentation sites with dynamic reader customizations, focused sharing, and powerful multi-tenant adaptations.
+
+Transforming text-heavy static sites into personalized, interactive experiences without the need for complex backend servers.
+
+A framework-agnostic tool for static sites featuring user-driven content toggles, persistent tabs, and cross-institutional adaptations.
+
+
 There are two main ways to use CustomViews: including it directly via a script tag (simplest) or installing it via npm (for bundlers).
 
 ## Method 1: CDN / Script Tag (Recommended)

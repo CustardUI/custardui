@@ -1,0 +1,412 @@
+/* ===== CUSTARD BRAND PALETTE ===== */
+:root {
+--custard-yellow: #F2CA55;
+--custard-brown: #814C20;
+--custard-cream: #FDF6E3;
+--custard-dark: #2C1A0E;
+--custard-light-brown: #C4853A;
+--custard-muted: #9A7355;
+}
+
+/* ===== HERO SECTION ===== */
+.cv-hero-badge {
+display: inline-block;
+background: var(--custard-cream);
+border: 1px solid var(--custard-brown);
+color: var(--custard-brown);
+padding: 4px 14px;
+border-radius: 20px;
+font-size: 0.8rem;
+font-weight: 600;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+margin-bottom: 1.2rem;
+}
+
+.cv-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.cv-btn-primary {
+  display: inline-block;
+  border: 1.5px solid var(--custard-brown);
+  color: var(--custard-brown) !important;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none !important;
+  font-size: 0.95rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cv-btn-primary:hover {
+  border-color: var(--custard-brown);
+  background: rgba(129,76,32,0.05);
+}
+
+.cv-btn-secondary {
+  display: inline-block;
+  border: 1.5px solid rgba(129,76,32,0.3);
+  color: var(--custard-brown) !important;
+  font-weight: 600;
+  padding: 11px 28px;
+  border-radius: 8px;
+  text-decoration: none !important;
+  font-size: 0.95rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cv-btn-secondary:hover {
+  border-color: var(--custard-brown);
+  background: rgba(129,76,32,0.05);
+}
+
+
+/* ===== FEATURE CARDS ===== */
+.cv-feature-icon {
+  font-size: 1.1rem;
+  color: var(--custard-light-brown);
+  margin-bottom: 0.9rem;
+  opacity: 0.85;
+}
+
+.cv-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: rgba(129,76,32,0.12);
+  border: 1px solid rgba(129,76,32,0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+
+.cv-feature-card {
+  background: #fff;
+  padding: 2rem 1.8rem;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.cv-feature-card:hover {
+  background: var(--custard-cream);
+}
+
+.cv-feature-index {
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(129,76,32,0.08);
+  line-height: 1;
+  margin-bottom: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.cv-feature-card h3 {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--custard-dark);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.cv-feature-card p {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ===== SECTION TITLES ===== */
+.cv-section-eyebrow {
+font-size: 0.78rem;
+font-weight: 700;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--custard-light-brown);
+margin-bottom: 0.4rem;
+}
+
+.cv-section-title {
+font-size: 1.8rem;
+font-weight: 800;
+color: var(--custard-dark);
+margin-bottom: 0.6rem;
+line-height: 1.2;
+}
+
+.cv-section-lead {
+font-size: 1.05rem;
+color: #555;
+max-width: 620px;
+line-height: 1.7;
+margin-bottom: 2rem;
+}
+
+/* ===== DEMO SECTION ===== */
+.cv-demo-wrapper {
+background: var(--custard-cream);
+border: 1px solid rgba(129,76,32,0.15);
+border-radius: 16px;
+padding: 2rem 2.5rem;
+margin-bottom: 3rem;
+}
+
+.cv-demo-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 1.5rem;
+padding-bottom: 1rem;
+border-bottom: 1px dashed rgba(129,76,32,0.2);
+}
+
+.cv-demo-dot {
+width: 10px; height: 10px;
+border-radius: 50%;
+background: var(--custard-yellow);
+}
+
+.cv-demo-label {
+font-size: 0.78rem;
+font-weight: 700;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+color: var(--custard-muted);
+}
+
+/* ===== RECIPE INGREDIENTS ===== */
+.cv-ingredient-list {
+  list-style: none;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.5rem;
+}
+
+.cv-ingredient-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed rgba(129,76,32,0.12);
+  font-size: 0.88rem;
+  gap: 0.5rem;
+}
+
+.cv-ingredient-list li:last-child,
+.cv-ingredient-list li:nth-last-child(2):nth-child(odd) {
+  border-bottom: none;
+}
+
+.cv-ingredient-name {
+  color: var(--custard-dark);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.cv-ingredient-amount {
+  color: var(--custard-brown);
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+/* ===== HIGHLIGHT (Focus & Share) ===== */
+.highlight-target {
+border-left: 3px solid var(--custard-yellow);
+padding-left: 1rem;
+background: rgba(242,202,85,0.08);
+border-radius: 0 8px 8px 0;
+}
+
+/* ===== ADAPTATIONS SECTION ===== */
+.cv-adaptations-split {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.5rem;
+margin-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+.cv-adaptations-split { grid-template-columns: 1fr; }
+.cv-hero { padding: 2.5rem 1.5rem; }
+.cv-demo-wrapper { padding: 1.5rem; }
+}
+
+.cv-adaptation-card {
+border-radius: 12px;
+padding: 1.4rem;
+border: 1px solid rgba(129,76,32,0.15);
+}
+
+.cv-adaptation-card.org-a {
+background: linear-gradient(135deg, #fff8ee, #fff3d6);
+}
+
+.cv-adaptation-card.org-b {
+background: linear-gradient(135deg, #f0f7ff, #e6f0fa);
+}
+
+.cv-adaptation-card h4 {
+font-size: 0.95rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+}
+
+.cv-adaptation-card p {
+font-size: 0.88rem;
+color: #555;
+line-height: 1.6;
+margin: 0;
+}
+
+/* ===== SETUP SECTION ===== */
+.cv-setup-steps {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 1rem;
+margin-bottom: 1.5rem;
+}
+
+.cv-setup-step {
+background: #fff;
+border: 1px solid rgba(129,76,32,0.12);
+border-radius: 10px;
+padding: 1.2rem 1.4rem;
+display: flex;
+gap: 1rem;
+align-items: flex-start;
+}
+
+.cv-step-num {
+background: var(--custard-yellow);
+color: var(--custard-dark);
+font-weight: 800;
+font-size: 0.85rem;
+width: 28px; height: 28px;
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0;
+}
+
+.cv-setup-step h4 {
+font-size: 0.92rem;
+font-weight: 700;
+color: var(--custard-dark);
+margin-bottom: 0.2rem;
+}
+
+.cv-setup-step p {
+font-size: 0.85rem;
+color: #666;
+margin: 0;
+line-height: 1.5;
+}
+
+
+/* ===== CTA + USED BY (unified) ===== */
+.cv-cta {
+  background: var(--custard-cream);
+  border: 1px solid rgba(129,76,32,0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 3rem;
+}
+
+.cv-cta-body {
+  padding: 2rem 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.cv-cta h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--custard-dark);
+  margin-bottom: 0.5rem;
+}
+
+.cv-cta p {
+  color: var(--custard-muted);
+  font-size: 0.92rem;
+  margin-bottom: 1.4rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+.cv-cta-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cv-used-by {
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(129,76,32,0.12);
+  border-radius: 0;
+  padding: 1rem 2rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cv-used-by-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--custard-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cv-used-by-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(129,76,32,0.2);
+  flex-shrink: 0;
+}
+
+.cv-used-by-sites {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cv-used-by-sites a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: var(--custard-brown) !important;
+  text-decoration: none !important;
+  font-size: 0.88rem;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.cv-used-by-sites a:hover {
+  border-bottom-color: var(--custard-yellow);
+}
+
+.cv-used-by-sites a p {
+  margin: 0;
+  display: inline;
+}

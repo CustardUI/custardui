@@ -1,5 +1,5 @@
 {
-  "baseUrl": "/customviews",
+  "baseUrl": "/custard",
   "timeZone": "Asia/Singapore",
   "titlePrefix": "",
   "titleSuffix": "",
@@ -12,7 +12,8 @@
     "*.njk",
     ".git/*",
     ".gitignore",
-    "node_modules/*"
+    "node_modules/*",
+    "CNAME"
   ],
   "pagesExclude": ["node_modules/*"],
   "pages": [
