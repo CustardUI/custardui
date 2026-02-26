@@ -80,9 +80,9 @@ const builds = [
   {
     input: 'src/browser.ts',
     output: {
-      file: 'dist/custom-views.js',
+      file: 'dist/custard.js',
       format: 'umd',
-      name: 'CustomViews',
+      name: 'Custard',
       banner,
       sourcemap: true,
     },
@@ -93,9 +93,9 @@ const builds = [
   {
     input: 'src/browser.ts',
     output: {
-      file: 'dist/custom-views.min.js',
+      file: 'dist/custard.min.js',
       format: 'umd',
-      name: 'CustomViews',
+      name: 'Custard',
       banner,
       sourcemap: true,
     },
