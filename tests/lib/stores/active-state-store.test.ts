@@ -338,7 +338,7 @@ describe('ActiveStateStore', () => {
     });
 
     it('should handle null/undefined defaults gracefully', () => {
-      store.applyAdaptationDefaults(undefined as any);
+      store.applyAdaptationDefaults(undefined);
       store.applyAdaptationDefaults({});
       // If it doesn't throw, we're good
       expect(store.state.shownToggles).toContain('A-Toggle');
