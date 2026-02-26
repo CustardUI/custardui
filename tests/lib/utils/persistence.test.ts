@@ -66,7 +66,7 @@ describe('PersistenceManager', () => {
       expect(retrieved).toEqual(mockState);
 
       // Verify raw storage
-      const raw = localStorage.getItem('app-customviews-state');
+      const raw = localStorage.getItem('app-custardUI-state');
       expect(JSON.parse(raw!)).toEqual(mockState);
     });
 
@@ -130,11 +130,11 @@ describe('PersistenceManager', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const manager = new PersistenceManager('corrupt');
       // Manually inject bad JSON
-      localStorage.setItem('corrupt-customviews-state', '{ "incomplete": ');
+      localStorage.setItem('corrupt-custardUI-state', '{ "incomplete": ');
 
       const state = manager.getPersistedState();
       expect(state).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to parse persisted state:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('[CustardUI] Failed to parse persisted state:', expect.any(Error));
       consoleSpy.mockRestore();
     });
 
