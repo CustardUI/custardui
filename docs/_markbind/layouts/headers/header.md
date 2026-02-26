@@ -10,7 +10,6 @@ For the latest stable release, visit [here](https://custardui.github.io).**</md>
   <navbar type="dark">
     <a slot="brand" href="{{baseUrl}}/index.html" title="Home" class="navbar-brand"><img src="{{baseUrl}}/images/custardUI-words.png" height="40"></a>
     <li><a highlight-on="exact" href="{{baseUrl}}/index.html" class="nav-link">HOME</a></li>
-    <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/readerGuide/index.html" class="nav-link">READER GUIDE</a></li>
     <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/authorGuide/index.html" class="nav-link">AUTHOR GUIDE</a></li>
     <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/devGuide/index.html" class="nav-link">DEVELOPER GUIDE</a></li>
     <li><a highlight-on="exact" href="{{baseUrl}}/about.html" class="nav-link">ABOUT</a></li>
