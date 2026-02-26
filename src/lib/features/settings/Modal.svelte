@@ -369,7 +369,7 @@
         <div></div>
       {/if}
 
-      <a href="https://github.com/customviews-js/customviews" target="_blank" class="footer-link">
+      <a href="https://github.com/custardui/custard" target="_blank" class="footer-link">
         <IconGitHub />
         <span>View on GitHub</span>
       </a>

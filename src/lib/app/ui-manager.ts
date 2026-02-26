@@ -47,7 +47,7 @@ export type ResolvedUIManagerOptions = Omit<
   };
 };
 
-export class CustomViewsUIManager {
+export class CustardUIManager {
   private app: ReturnType<typeof mount> | null = null;
   private options: ResolvedUIManagerOptions;
 
@@ -111,7 +111,7 @@ export class CustomViewsUIManager {
 export function initUIManager(
   runtime: AppRuntime,
   config: ConfigFile,
-): CustomViewsUIManager | undefined {
+): CustardUIManager | undefined {
   const settingsEnabled = config.settings?.enabled !== false;
 
   const callbacks: RuntimeCallbacks = {
@@ -123,7 +123,7 @@ export function initUIManager(
     markIntroSeen: () => runtime.markIntroSeen(),
   };
 
-  const uiManager = new CustomViewsUIManager({
+  const uiManager = new CustardUIManager({
     callbacks,
     settingsEnabled,
     ...config.settings,

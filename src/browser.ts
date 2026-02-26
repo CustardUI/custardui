@@ -18,15 +18,15 @@ export function initializeFromScript(): void {
   // Only run in browser environment
   if (typeof window === 'undefined') return;
 
-  // Idempotency check
-  if (window.__customViewsInitialized) {
-    console.info('[CustomViews] Auto-init skipped: already initialized.');
+  // Idempotency check 
+  if (window.__custardInitialized) {
+    console.info('[CustardUI] Auto-init skipped: already initialized.');
     return;
   }
 
   document.addEventListener('DOMContentLoaded', async function () {
-    if (window.__customViewsInitInProgress || window.__customViewsInitialized) return;
-    window.__customViewsInitInProgress = true;
+    if (window.__custardInitInProgress || window.__custardInitialized) return;
+    window.__custardInitInProgress = true;
     try {
       // Get attributes from script tag
       const { baseURL, configPath } = getScriptAttributes();
@@ -56,7 +56,7 @@ export function initializeFromScript(): void {
           ).json();
           assetsManager = new AssetsManager(assetsJson, effectiveBaseURL);
         } catch (error) {
-          console.error(`[CustomViews] Failed to load assets JSON from ${assetsPath}:`, error);
+          console.error(`[Custard] Failed to load assets JSON from ${assetsPath}:`, error);
           assetsManager = new AssetsManager({}, effectiveBaseURL);
         }
       } else {
@@ -77,11 +77,11 @@ export function initializeFromScript(): void {
       initUIManager(runtime, configFile);
 
       // Mark initialized
-      window.__customViewsInitialized = true;
-      window.__customViewsInitInProgress = false;
+      window.__custardInitialized = true;
+      window.__custardInitInProgress = false;
     } catch (error) {
-      window.__customViewsInitInProgress = false;
-      console.error('[CustomViews] Auto-initialization error:', error);
+      window.__custardInitInProgress = false;
+      console.error('[CustardUI] Auto-initialization error:', error);
     }
   });
 }

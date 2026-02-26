@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Polyfill Svelte Runes for testing Svelte 5
 // Polyfill is a piece of code that is added to a program to make it work with a 
 // different version of a library or framework.

@@ -68,7 +68,7 @@ export class PlaceholderManager {
       if (placeholderRegistryStore.has(key)) {
         valid[key] = value;
       } else {
-        console.warn(`[CustomViews] Placeholder "${key}" is not registered and will be ignored.`);
+        console.warn(`[CustardUI] Placeholder "${key}" is not registered and will be ignored.`);
       }
     }
     return valid;
@@ -85,7 +85,7 @@ export class PlaceholderManager {
     if (existing) {
       if (existing.source === 'config') {
         console.warn(
-          `[CustomViews] Tab group "${groupConfig.groupId}" is binding to placeholder "${id}", ` +
+          `[CustardUI] Tab group "${groupConfig.groupId}" is binding to placeholder "${id}", ` +
             `which is already explicitly defined in placeholders config. ` +
             `To avoid unexpected behavior, placeholders should have a single source of truth.`,
         );
@@ -94,7 +94,7 @@ export class PlaceholderManager {
         existing.ownerTabGroupId !== groupConfig.groupId
       ) {
         console.warn(
-          `[CustomViews] Multiple tab groups are binding to the same placeholderId: "${id}". ` +
+          `[CustardUI] Multiple tab groups are binding to the same placeholderId: "${id}". ` +
             `Current group: "${groupConfig.groupId}", Existing group: "${existing.ownerTabGroupId}". ` +
             `This will cause race conditions as both groups compete for the same value.`,
         );

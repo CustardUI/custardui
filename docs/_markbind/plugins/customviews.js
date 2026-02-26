@@ -9,7 +9,7 @@
 function getScripts() {
 	return [
 		// Local Development
-		'<script src="../../../dist/custom-views.js" data-base-url="/custard"></script>'
+		'<script src="../../../dist/custard.js" data-base-url="/custard"></script>'
 
 		// Latest Stable Release
 		// '<script src="https://unpkg.com/@customviews-js/customviews@v1" data-base-url="/"></script>'

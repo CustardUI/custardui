@@ -63,7 +63,7 @@ function splitAndDecode(search: string, paramName: string): string[] {
         // application/x-www-form-urlencoded often uses + for spaces
         return decodeURIComponent(item.replace(/\+/g, '%20'));
       } catch {
-        console.warn(`URLStateManager: Failed to decode ${paramName} item: ${item}`);
+        console.warn(`[CustardUI] URLStateManager: Failed to decode ${paramName} item: ${item}`);
         return item;
       }
     })
@@ -277,7 +277,7 @@ function computeShareableState(currentState: State, pageElements: PageElements):
 // --- URL State Manager ---
 
 /**
- * URL State Manager for CustomViews.
+ * URL State Manager for CustardUI.
  * Handles encoding/decoding of view states as human-readable URL parameters.
  *
  * URL Schema:
