@@ -1,5 +1,5 @@
 <frontmatter>
-  title: CustardUI — Personalized, Interactive Static Websites
+  title: CustardUI - Personalized, Interactive Static Websites
 </frontmatter>
 
 <div class="cv-hero-badge">✦ Open Source · Lightweight · Framework-Agnostic</div>
