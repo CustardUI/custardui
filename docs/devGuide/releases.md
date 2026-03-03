@@ -11,7 +11,7 @@
 
 ## Prerequisites
 
-- Ensure you have NPM access to the organization and package on NPM to make releases for CustomViews. [NPM Link](https://www.npmjs.com/package/@customviews-js/customviews).
+- Ensure you have NPM access to the organization and package on NPM to make releases for CustardUI. [NPM Link](https://www.npmjs.com/package/@custardui/custardui).
 - **Login to NPM**: Ensure you are authenticated.
 
 ```sh

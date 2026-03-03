@@ -3,7 +3,7 @@
   <link rel="stylesheet" href="{{baseUrl}}/stylesheets/custard.css">
 </head-bottom>
 
-<div tags="beta-release" class="w-100 p-1 bg-warning text-center d-print-none"><md>**This site documents the features of CustomViews in development and possible beta breaking changes.
+<div tags="beta-release" class="w-100 p-1 bg-warning text-center d-print-none"><md>**This site documents the features of CustardUI in development and possible beta breaking changes.
 For the latest stable release, visit [here](https://custardui.github.io).**</md></div>
 
 <header sticky>
@@ -14,7 +14,7 @@ For the latest stable release, visit [here](https://custardui.github.io).**</md>
     <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/devGuide/index.html" class="nav-link">DEVELOPER GUIDE</a></li>
     <li><a highlight-on="exact" href="{{baseUrl}}/about.html" class="nav-link">ABOUT</a></li>
     <li>
-      <a href="https://github.com/custardui/custard" target="_blank" class="nav-link"><md>:fab-github:</md></a>
+      <a href="https://github.com/custardui/custardui" target="_blank" class="nav-link"><md>:fab-github:</md></a>
     </li>
     <li>
       <a href="#cv-open" class="nav-link">OPEN DIALOG</a>

@@ -14,7 +14,7 @@ For the latest stable release, visit [here](https://custardui.github.io).**</md>
     <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/devGuide/index.html" class="nav-link">DEVELOPER GUIDE</a></li>
     <li><a highlight-on="exact" href="{{baseUrl}}/about.html" class="nav-link">ABOUT</a></li>
     <li>
-      <a href="https://github.com/customviews-js/customviews" target="_blank" class="nav-link"><md>:fab-github:</md></a>
+      <a href="https://github.com/custardui/custardui" target="_blank" class="nav-link"><md>:fab-github:</md></a>
     </li>
     <li>
       <a href="#cv-open" class="nav-link">OPEN DIALOG</a>

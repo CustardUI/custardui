@@ -17,14 +17,14 @@ CustardUI (formerly CustomViews) is a lightweight, framework-agnostic runtime th
 
 Add the script tag to your base layout:
 ```html
-<script src="https://unpkg.com/@custardui/custard" data-base-url="/"></script>
+<script src="https://unpkg.com/@custardui/custardui" data-base-url="/"></script>
 ```
 
-Add a `custard.config.json` to your site root, then start using `<cv-toggle>`, `<cv-tabgroup>`, and `[[placeholders]]` in your pages.
+Add a `custardui.config.json` to your site root, then start using `<cv-toggle>`, `<cv-tabgroup>`, and `[[placeholders]]` in your pages.
 
-Full documentation and author guide → **[custardui.github.io](https://custardui.github.io)**
+Full documentation and author guide → **[custardui.js.org](https://custardui.js.org)**
 
-[View on npm](https://www.npmjs.com/package/@custardui/custard)
+[View on npm](https://www.npmjs.com/package/@custardui/custardui)
 
 ## License
 

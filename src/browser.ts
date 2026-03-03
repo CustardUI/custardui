@@ -11,7 +11,7 @@ import '$lib/registry';
 // The script auto-initializes via initializeFromScript().
 
 /**
- * Initialize CustomViews from script tag attributes and config file
+ * Initialize CustardUI from script tag attributes and config file
  * This runs automatically when the script is loaded.
  */
 export function initializeFromScript(): void {
@@ -19,14 +19,14 @@ export function initializeFromScript(): void {
   if (typeof window === 'undefined') return;
 
   // Idempotency check 
-  if (window.__custardInitialized) {
+  if (window.__custardUIInitialized) {
     console.info('[CustardUI] Auto-init skipped: already initialized.');
     return;
   }
 
   document.addEventListener('DOMContentLoaded', async function () {
-    if (window.__custardInitInProgress || window.__custardInitialized) return;
-    window.__custardInitInProgress = true;
+    if (window.__custardUIInitInProgress || window.__custardUIInitialized) return;
+    window.__custardUIInitInProgress = true;
     try {
       // Get attributes from script tag
       const { baseURL, configPath } = getScriptAttributes();
@@ -77,10 +77,10 @@ export function initializeFromScript(): void {
       initUIManager(runtime, configFile);
 
       // Mark initialized
-      window.__custardInitialized = true;
-      window.__custardInitInProgress = false;
+      window.__custardUIInitialized = true;
+      window.__custardUIInitInProgress = false;
     } catch (error) {
-      window.__custardInitInProgress = false;
+      window.__custardUIInitInProgress = false;
       console.error('[CustardUI] Auto-initialization error:', error);
     }
   });

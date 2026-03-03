@@ -1,5 +1,5 @@
 <frontmatter>
-  title: CustomViews - Settings
+  title: CustardUI - Settings
   layout: authorGuide.md
   pageNav: 4
   pageNavTitle: "Topics"
@@ -61,12 +61,12 @@ Append `?cv-open=true`, or simply `?cv-open` to the URL. Works on page load (rel
 The settings panel stays clean by only verifying configured elements:
 
 - **Toggles/Tabs**: Sections appear only if defined in `config`.
-- **Order of Sections**: The order of Toggles, Tab Groups, and Placeholders in the modal follows their order in your `customviews.config.json`.
+- **Order of Sections**: The order of Toggles, Tab Groups, and Placeholders in the modal follows their order in your `custardui.config.json`.
 - **Description**: Appears only if `panel.description` is set.
 
 ## Configuration
 
-Configure the settings in `customviews.config.json`:
+Configure the settings in `custardui.config.json`:
 
 ```json
 {
@@ -80,7 +80,7 @@ Configure the settings in `customviews.config.json`:
       },
       "callout": {
         "show": true,
-        "message": "Open the CustomViews settings to customize your view.",
+        "message": "Open the CustardUI settings to customize your view.",
         "enablePulse": true,
         "backgroundColor": "#198755",
         "textColor": "#ffffff"

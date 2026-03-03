@@ -1,15 +1,15 @@
 {
-  "name": "@custardui/custard",
+  "name": "@custardui/custardui",
   "version": "1.0.0",
   "description": "A JavaScript dynamic custom views Library.",
   "type": "module",
-  "main": "dist/custard.min.js",
-  "browser": "dist/custard.min.js",
-  "unpkg": "dist/custard.min.js",
-  "jsdelivr": "dist/custard.min.js",
+  "main": "dist/custardui.min.js",
+  "browser": "dist/custardui.min.js",
+  "unpkg": "dist/custardui.min.js",
+  "jsdelivr": "dist/custardui.min.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/custardui/custard.git"
+    "url": "https://github.com/custardui/custardui.git"
   },
   "files": [
     "dist/"
@@ -39,7 +39,8 @@
   "keywords": [
     "javascript",
     "library",
-    "custom views"
+    "custom views",
+    "custardui"
   ],
   "author": "Chan Ger Teck",
   "license": "MIT",
@@ -73,7 +74,7 @@
     "vitest": "^3.2.4"
   },
   "bugs": {
-    "url": "https://github.com/custardui/custard/issues"
+    "url": "https://github.com/custardui/custardui/issues"
   },
-  "homepage": "https://github.com/custardui/custard#readme"
+  "homepage": "https://github.com/custardui/custardui#readme"
 }

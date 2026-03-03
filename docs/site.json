@@ -1,5 +1,5 @@
 {
-  "baseUrl": "/custard",
+  "baseUrl": "/betadocs",
   "timeZone": "Asia/Singapore",
   "titlePrefix": "",
   "titleSuffix": "",
@@ -28,7 +28,7 @@
     "codeTheme": "light"
   },
   "plugins": [
-    "customviews",
+    "custardui",
     "filterTags",
     "codeBlockCopyButtons",
     "codeBlockWrapButtons",
@@ -40,6 +40,8 @@
     }
   },
   "deploy": {
-    "message": "Site Update."
+    "message": "Site Update.",
+    "repo": "https://github.com/custardUI/betadocs.git",
+    "branch": "master"
   }
 }

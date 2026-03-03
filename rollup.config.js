@@ -80,9 +80,9 @@ const builds = [
   {
     input: 'src/browser.ts',
     output: {
-      file: 'dist/custard.js',
+      file: 'dist/custardui.js',
       format: 'umd',
-      name: 'Custard',
+      name: 'CustardUI',
       banner,
       sourcemap: true,
     },
@@ -93,9 +93,9 @@ const builds = [
   {
     input: 'src/browser.ts',
     output: {
-      file: 'dist/custard.min.js',
+      file: 'dist/custardui.min.js',
       format: 'umd',
-      name: 'Custard',
+      name: 'CustardUI',
       banner,
       sourcemap: true,
     },

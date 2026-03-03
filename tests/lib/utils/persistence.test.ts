@@ -111,7 +111,7 @@ describe('PersistenceManager', () => {
       manager.persistTabNavVisibility(true);
 
       // Set unrelated key (simulating same prefix but different key, or different prefix)
-      // Note: clearAll only clears specific known keys ('customviews-state', 'cv-tab-navs-visible')
+      // Note: clearAll only clears specific known keys ('custardUI-state', 'cv-tab-navs-visible')
       // It does NOT clear everything with the prefix currently.
       manager.setItem('other-key', 'keep-me');
 

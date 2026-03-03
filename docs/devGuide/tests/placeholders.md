@@ -9,7 +9,7 @@
 
 # {{ title }}
 
-This page is for smoke testing the Placeholders feature of CustomViews.
+This page is for smoke testing the Placeholders feature of CustardUI.
 
 ### Placeholders from Config work with tabgroup on page:
 

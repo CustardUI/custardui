@@ -369,7 +369,7 @@ export class ActiveStateStore {
     for (const toggleId of incomingToggles) {
       const match = this.getToggleConfigFromConfig(toggleId);
       if (!match) {
-        console.warn(`[CustomViews] Toggle "${toggleId}" is not in the config and will be ignored.`);
+        console.warn(`[CustardUI] Toggle "${toggleId}" is not in the config and will be ignored.`);
         continue;
       }
       valid.push(match.toggleId);

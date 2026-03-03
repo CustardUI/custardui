@@ -1,7 +1,7 @@
 /**
- * CustomViews Plugin for MarkBind
- * Injects the CustomViews auto-init script into every page.
- * Configuration is loaded from websiteUrl/BaseUrl/customviews.config.json
+ * CustardUI Plugin for MarkBind
+ * Injects the CustardUI auto-init script into every page.
+ * Configuration is loaded from websiteUrl/BaseUrl/custardui.config.json
  */
 
 // Local Development: ESM Modules, relative directory
@@ -9,7 +9,7 @@
 function getScripts() {
 	return [
 		// Local Development
-		'<script src="../../../dist/custard.js" data-base-url="/custard"></script>'
+		'<script src="../../../dist/custardui.js" data-base-url="/betadocs"></script>'
 
 		// Latest Stable Release
 		// '<script src="https://unpkg.com/@customviews-js/customviews@v1" data-base-url="/"></script>'

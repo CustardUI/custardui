@@ -29,9 +29,9 @@ Transforming text-heavy static sites into personalized, interactive experiences 
 A framework-agnostic tool for static sites featuring user-driven content toggles, persistent tabs, and cross-institutional adaptations.
 
 
-There are two main ways to use CustomViews: including it directly via a script tag (simplest) or installing it via npm (for bundlers).
+The main way to use CustardUI is by including it directly via a script tag.
 
-## Method 1: CDN / Script Tag (Recommended)
+## Method 1: CDN / Script Tag
 
 <box type="info" seamless>
 
@@ -53,7 +53,7 @@ Add the following script tag to the `<head>` or end of `<body>` in your HTML fil
 
 ++**2. Create a Configuration File (Optional)**++
 
-Create a `customviews.config.json` file in the same directory as your site root. This file defines the available toggles and default settings.
+Create a `custardui.config.json` file in the same directory as your site root. This file defines the available toggles and default settings.
 
 ```json
 {
@@ -96,7 +96,7 @@ To be updated...
 
 Open your HTML file in a browser. If installed correctly:
 
-1.  You should see the **CustomViews Settings** (a gear icon) on your page.
+1.  You should see the **CustardUI Settings** (a gear icon) on your page.
 2.  Clicking the icon should open the customization panel.
 3.  Toggling options in the panel should show/hide the corresponding content on your page.
 
@@ -105,7 +105,7 @@ Open your HTML file in a browser. If installed correctly:
 **Settings icon not appearing?**
 
 - Check your browser console for errors.
-- Ensure `customviews.config.json` is accessible (check the Network tab).
+- Ensure `custardui.config.json` is accessible (check the Network tab).
 - If using a local file (file:// protocol), browser security policies might block loading the JSON config. strongly recommend using a local server (like `http-server` or VS Code's Live Server).
 
 </panel>

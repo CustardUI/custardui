@@ -21,7 +21,7 @@ Common use cases:
 
 ## How It Works
 
-An adaptation is a JSON file hosted alongside your site content. When a user visits a URL with `?adapt=<id>` or a hash indicator like `#/id` (for example, `https://example.com/#/dark`), CustomViews fetches that file, applies the theme and state overrides, and persists the active adaptation to `localStorage` — so it remains active across all pages without the parameter or hash needing to be in every URL.
+An adaptation is a JSON file hosted alongside your site content. When a user visits a URL with `?adapt=<id>` or a hash indicator like `#/id` (for example, `https://example.com/#/dark`), CustardUI fetches that file, applies the theme and state overrides, and persists the active adaptation to `localStorage` — so it remains active across all pages without the parameter or hash needing to be in every URL.
 
 **Activation priority (highest wins):**
 1. `<meta name="cv-adapt" content="<id>">` on the page — forces a specific adaptation for that page on every visit
@@ -125,7 +125,7 @@ docs/
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `cssVariables` | `Record<string, string>` | CSS custom properties set on `document.documentElement`. Applied immediately on page load — before CustomViews finishes initializing — to prevent flash of unstyled content. |
+| `cssVariables` | `Record<string, string>` | CSS custom properties set on `document.documentElement`. Applied immediately on page load — before CustardUI finishes initializing — to prevent flash of unstyled content. |
 | `cssFile` | `string` | URL to an additional stylesheet to inject. The `<link>` tag is added idempotently (only once per page). |
 
 ### `defaults`
@@ -134,18 +134,18 @@ Adaptation defaults are applied **before** the user's persisted state, so users 
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `customviews.config.json`. Unknown IDs are warned about and ignored. |
+| `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `custardui.config.json`. Unknown IDs are warned about and ignored. |
 | `placeholders` | `Record<string, string>` | Override the default value of named placeholders. |
 
 ---
 
 ## State Layering Precedence
 
-When determining the initial toggle state, CustomViews applies layers in this order:
+When determining the initial toggle state, CustardUI applies layers in this order:
 
 | Priority | Layer | Notes |
 | --- | --- | --- |
-| 1 (lowest) | Config file defaults | Defined in `customviews.config.json` |
+| 1 (lowest) | Config file defaults | Defined in `custardui.config.json` |
 | 2 | **Adaptation `defaults`** | Override config defaults; user can still change |
 | 3 | Persisted user state | User's previous choices from `localStorage` |
 | 4 (highest) | URL delta (`?t-show=…`) | Sparse override from a shared link |

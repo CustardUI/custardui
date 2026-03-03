@@ -9,7 +9,7 @@
 
 # {{ title }}
 
-This page is for testing the "Content Focus & Sharing" feature of CustomViews.
+This page is for testing the "Content Focus & Sharing" feature of CustardUI.
 
 <h2 id="intro-section">Introduction</h2>
 

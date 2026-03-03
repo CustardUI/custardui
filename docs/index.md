@@ -16,7 +16,7 @@ CustardUI (formerly named CustomViews) adds dynamic, memory-persistent interacti
 
 <div class="cv-hero-actions">
   <a href="{{baseUrl}}/authorGuide/gettingStarted.html" class="cv-btn-secondary"><md>:fa-solid-book:</md> Read the Docs</a>
-  <a href="https://github.com/custardui/custard" class="cv-btn-secondary"><md>:fa-brands-github:</md> View on GitHub</a>
+  <a href="https://github.com/custardui/custardui" class="cv-btn-secondary"><md>:fa-brands-github:</md> View on GitHub</a>
 </div>
 
 <!-- ═══════════════════════════════════════════════ -->
@@ -337,7 +337,7 @@ Wrap content with `<cv-toggle>`, `<cv-tabgroup>`, and add `[[placeholders]]` any
 
 ```html
 <!-- Step 1: Add to your <head> or base layout -->
-<script src="https://cdn.jsdelivr.net/npm/custard-ui/dist/custard.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/custardui/dist/custardui.min.js"></script>
 ```
 
 ```js
@@ -388,7 +388,7 @@ CustardUI is open source, free to use, and designed to slot into your existing w
 
 <div class="cv-cta-actions">
   <a href="{{baseUrl}}/authorGuide/gettingStarted.html" class="cv-btn-primary"><md>:fa-solid-book:</md> Get Started</a>
-  <a href="https://github.com/custardui/custard" class="cv-btn-secondary"><md>:fa-brands-github:</md> GitHub</a>
+  <a href="https://github.com/custardui/custardui" class="cv-btn-secondary"><md>:fa-brands-github:</md> GitHub</a>
 </div>
 
 </div>

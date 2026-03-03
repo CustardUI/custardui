@@ -16,7 +16,7 @@ export interface RouterOptions {
  * - Invokes the appropriate callbacks (open modal, start share) based on the detected action.
  * - Cleans the URL after processing the action to prevent re-triggering on reload.
  *
- * This service acts as the bridge between browser URL state and the CustomViews UI state.
+ * This service acts as the bridge between browser URL state and the CustardUI UI state.
  */
 export class UrlActionRouter {
   private options: RouterOptions;

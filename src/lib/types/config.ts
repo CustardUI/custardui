@@ -27,7 +27,7 @@ export interface Config {
 }
 
 /**
- * Represents the configuration file structure for CustomViews auto-initialization.
+ * Represents the configuration file structure for CustardUI auto-initialization.
  */
 export interface ConfigFile {
   /** Core configuration object with toggles and defaultState */

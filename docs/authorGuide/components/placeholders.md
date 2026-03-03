@@ -1,5 +1,5 @@
 <frontmatter>
-  title: CustomViews - Placeholders
+  title: CustardUI - Placeholders
   layout: authorGuide.md
   pageNav: 4
   pageNavTitle: "Topics"
@@ -15,7 +15,7 @@ Placeholders allow you to create dynamic "Mad Libs" style documentation. Authors
 
 ### Add the Placeholder Configuration
 
-Placeholders are defined in your `customviews.config.json` under the `placeholders` key.
+Placeholders are defined in your `custardui.config.json` under the `placeholders` key.
 
 ```json
 {
@@ -186,7 +186,7 @@ Example:
 
 ## Tab Group Binding & Integration
 
-You can bind a **Tab Group** directly to a placeholder variable in your `customviews.config.json`. This allows the variable to update automatically when the user switches tabs.
+You can bind a **Tab Group** directly to a placeholder variable in your `custardui.config.json`. This allows the variable to update automatically when the user switches tabs.
 
 ```json
 "tabGroups": [

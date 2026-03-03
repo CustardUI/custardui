@@ -15,7 +15,7 @@ export interface ScriptAttributes {
  */
 export function getScriptAttributes(): ScriptAttributes {
   let scriptTag = document.currentScript as HTMLScriptElement | null;
-  const defaults = { baseURL: '', configPath: '/custard.config.json' };
+  const defaults = { baseURL: '', configPath: '/custardui.config.json' };
 
   if (!scriptTag || !scriptTag.hasAttribute('data-base-url')) {
     const dataAttrMatch = document.querySelector(
@@ -28,7 +28,7 @@ export function getScriptAttributes(): ScriptAttributes {
       for (const script of document.scripts) {
         const src = script.src || '';
         if (
-          /(?:custard|@custardui\/custard)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(
+          /(?:custard(?:ui)?|@custardui\/custard(?:ui)?)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(
             src,
           )
         ) {

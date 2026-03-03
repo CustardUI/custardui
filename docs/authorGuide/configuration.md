@@ -10,9 +10,9 @@
 
 # {{ title }}
 
-## Configuration File (`customviews.config.json`)
+## Configuration File (`custardui.config.json`)
 
-CustomViews is configured via a JSON file, typically named `customviews.config.json`. This file defines toggles, tabs, assets, and widget settings.
+CustomViews is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, assets, and widget settings.
 
 ### Basic Structure
 
@@ -89,7 +89,7 @@ When using auto-initialization via script tag, you can override configuration:
 | Attribute          | Description                                                                                                                                                                                                                         |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `data-base-url`    | Specifies the website's base URL (for example `/docs`). This value is used to resolve relative asset paths and, when provided on the script tag, takes precedence over the `baseURL` in the config file.                            |
-| `data-config-path` | Path to the config file to use for auto-initialization (default: `/customviews.config.json`). Provide an absolute or site-relative path if your config is located elsewhere (e.g. `/my-config.json` or `configs/customviews.json`). |
+| `data-config-path` | Path to the config file to use for auto-initialization (default: `/custardui.config.json`). Provide an absolute or site-relative path if your config is located elsewhere (e.g. `/my-config.json` or `configs/customviews.json`). |
 
 ## Assets Configuration (`assets.json`)
 

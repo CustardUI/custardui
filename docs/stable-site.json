@@ -27,7 +27,7 @@
     }
   ],
   "plugins": [
-    "customviews",
+    "custardui",
     "filterTags",
     "codeBlockCopyButtons",
     "codeBlockWrapButtons",
