@@ -88,6 +88,143 @@ Works with MarkBind, Jekyll, plain HTML — anything. One script tag and a confi
 ---
 
 <!-- ═══════════════════════════════════════════════ -->
+<!--  FOCUS & SHARE CALLOUT                          -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<p class="cv-section-eyebrow">Focus & Share</p>
+<h2 class="cv-section-title">Answer questions with a link.</h2>
+
+Did you notice the **Share this tip** link in Step 3 above? That's Focus & Share in action. Any element on the page, with or without an `id`, can become a shareable, highlighted anchor. No more "scroll down and find the paragraph about tempering eggs." You can even share this text paragraph [here](?cv-highlight=W3sidCI6IlAiLCJpIjoyOSwicCI6ImNvbnRlbnQtd3JhcHBlciIsInMiOiJEaWQgeW91IG5vdGljZSB0aGUgU2hhcmUgdGhpcyB0aSIsImgiOjg0Mzk0NDcxNywiaWQiOiIifV0%3D)!
+
+<box type="info">
+
+**How it works for TAs and instructors:** When a student asks a forum question, instead of typing out an explanation, a TA can share a URL like:
+
+```
+https://your-course-site.com/textbook?cv-highlight=the-element-id
+```
+
+The page loads with that section visually highlighted — drawing the student's eye straight to the answer.
+
+</box>
+
+---
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  ADAPTATIONS SECTION                            -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<p class="cv-section-eyebrow">Adaptations</p>
+<h2 class="cv-section-title">One resource. Every audience.</h2>
+
+Adaptations go beyond themes. They let different organizations share the same underlying content while each seeing a version tailored to them — logos, links, terminology, and all. No backend. No duplicate repositories.
+
+<p>Consider a Git mastery guide used by multiple courses:</p>
+
+<div class="cv-adaptations-split">
+  <div class="cv-adaptation-card org-a">
+
+#### <span style="color: #F2CA55;">:fa-solid-circle:</span> Organization A — NUS CS2103T
+
+Students see the CS2103T branding, TEAMMATES-specific Git workflow diagrams, and links to their course forum. The "fork and PR" model matches their exact project setup.
+  </div>
+  <div class="cv-adaptation-card org-b">
+
+#### <span style="color: #4A90D9;">:fa-solid-circle:</span> Organization B — A different course
+
+The same guide, but with their own branding, a different recommended branching model, and links to their issue tracker. No content was duplicated — only the adaptation config differs.
+  </div>
+</div>
+
+<box type="tip">
+
+This is how **[git-mastery.org](https://git-mastery.org/)** will use CustardUI — a single site serving multiple audiences with zero backend infrastructure.
+
+</box>
+
+---
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  QUICK SETUP                                    -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<p class="cv-section-eyebrow">Getting started</p>
+<h2 class="cv-section-title">Up and running in minutes.</h2>
+
+CustardUI works with any static site. There's no build step, no npm install, and no server to manage.
+
+<div class="cv-setup-steps">
+  <div class="cv-setup-step">
+    <div class="cv-step-num">1</div>
+    <div>
+
+#### Add the script tag
+Include the CustardUI CDN script in your base layout or page template.
+    </div>
+  </div>
+  <div class="cv-setup-step">
+    <div class="cv-step-num">2</div>
+    <div>
+
+#### Create your config
+Add a `config.json` to your site root defining your toggles, tabs, and placeholders.
+    </div>
+  </div>
+  <div class="cv-setup-step">
+    <div class="cv-step-num">3</div>
+    <div>
+
+#### Use the components
+Wrap content with `<cv-toggle>`, `<cv-tabgroup>`, and add `[[placeholders]]` anywhere.
+    </div>
+  </div>
+</div>
+
+```html
+<!-- Step 1: Add to your <head> or base layout -->
+<script src="https://cdn.jsdelivr.net/npm/@custardui/custardui" data-base-url="/"></script>
+```
+
+```js
+// Step 2: config.json — define your toggles and tabs
+{
+  "config": {
+    "toggles": [
+      {
+        "toggleId": "nutrition",
+        "label": "Nutrition",
+        "isLocal": true,
+        "default": "peek"
+      },
+      ...
+    ],
+    "tabgroups": [
+    {
+      "groupId": "units",
+      "tabs": [
+        { "tabId": "metric", "label": "Metric" },
+        { "tabId": "imperial", "label": "Imperial" }
+      ],
+      ...
+    }
+   ],
+   "placeholders": [
+    {
+      "name": "username",
+      "defaultValue": "Guest",
+      ...
+    }
+   ]
+  },
+  ...
+}
+```
+
+
+[:fa-solid-book: Full documentation →]({{baseUrl}}/authorGuide/gettingStarted.html)
+
+
+<!-- ═══════════════════════════════════════════════ -->
 <!--  LIVE DEMO                                      -->
 <!-- ═══════════════════════════════════════════════ -->
 
@@ -239,144 +376,6 @@ Once chilled, sprinkle 1 tsp of caster sugar over each ramekin and torch until c
 </cv-toggle>
 
 </div>
-
----
-
-<!-- ═══════════════════════════════════════════════ -->
-<!--  FOCUS & SHARE CALLOUT                          -->
-<!-- ═══════════════════════════════════════════════ -->
-
-<p class="cv-section-eyebrow">Focus & Share</p>
-<h2 class="cv-section-title">Answer questions with a link.</h2>
-
-Did you notice the **Share this tip** link in Step 3 above? That's Focus & Share in action. Any element on the page, with or without an `id`, can become a shareable, highlighted anchor. No more "scroll down and find the paragraph about tempering eggs." You can even share this text paragraph [here](?cv-highlight=W3sidCI6IlAiLCJpIjoyOSwicCI6ImNvbnRlbnQtd3JhcHBlciIsInMiOiJEaWQgeW91IG5vdGljZSB0aGUgU2hhcmUgdGhpcyB0aSIsImgiOjg0Mzk0NDcxNywiaWQiOiIifV0%3D)!
-
-<box type="info">
-
-**How it works for TAs and instructors:** When a student asks a forum question, instead of typing out an explanation, a TA can share a URL like:
-
-```
-https://your-course-site.com/textbook?cv-highlight=the-element-id
-```
-
-The page loads with that section visually highlighted — drawing the student's eye straight to the answer.
-
-</box>
-
----
-
-<!-- ═══════════════════════════════════════════════ -->
-<!--  ADAPTATIONS SECTION                            -->
-<!-- ═══════════════════════════════════════════════ -->
-
-<p class="cv-section-eyebrow">Adaptations</p>
-<h2 class="cv-section-title">One resource. Every audience.</h2>
-
-Adaptations go beyond themes. They let different organizations share the same underlying content while each seeing a version tailored to them — logos, links, terminology, and all. No backend. No duplicate repositories.
-
-<p>Consider a Git mastery guide used by multiple courses:</p>
-
-<div class="cv-adaptations-split">
-  <div class="cv-adaptation-card org-a">
-
-#### <span style="color: #F2CA55;">:fa-solid-circle:</span> Organization A — NUS CS2103T
-
-Students see the CS2103T branding, TEAMMATES-specific Git workflow diagrams, and links to their course forum. The "fork and PR" model matches their exact project setup.
-  </div>
-  <div class="cv-adaptation-card org-b">
-
-#### <span style="color: #4A90D9;">:fa-solid-circle:</span> Organization B — A different course
-
-The same guide, but with their own branding, a different recommended branching model, and links to their issue tracker. No content was duplicated — only the adaptation config differs.
-  </div>
-</div>
-
-<box type="tip">
-
-This is how **[git-mastery.org](https://git-mastery.org/)** will use CustardUI — a single site serving multiple audiences with zero backend infrastructure.
-
-</box>
-
----
-
-<!-- ═══════════════════════════════════════════════ -->
-<!--  QUICK SETUP                                    -->
-<!-- ═══════════════════════════════════════════════ -->
-
-<p class="cv-section-eyebrow">Getting started</p>
-<h2 class="cv-section-title">Up and running in minutes.</h2>
-
-CustardUI works with any static site. There's no build step, no npm install, and no server to manage.
-
-<div class="cv-setup-steps">
-  <div class="cv-setup-step">
-    <div class="cv-step-num">1</div>
-    <div>
-
-#### Add the script tag
-Include the CustardUI CDN script in your base layout or page template.
-    </div>
-  </div>
-  <div class="cv-setup-step">
-    <div class="cv-step-num">2</div>
-    <div>
-
-#### Create your config
-Add a `config.json` to your site root defining your toggles, tabs, and placeholders.
-    </div>
-  </div>
-  <div class="cv-setup-step">
-    <div class="cv-step-num">3</div>
-    <div>
-
-#### Use the components
-Wrap content with `<cv-toggle>`, `<cv-tabgroup>`, and add `[[placeholders]]` anywhere.
-    </div>
-  </div>
-</div>
-
-```html
-<!-- Step 1: Add to your <head> or base layout -->
-<script src="https://cdn.jsdelivr.net/npm/custardui/dist/custardui.min.js"></script>
-```
-
-```js
-// Step 2: config.json — define your toggles and tabs
-{
-  "config": {
-    "toggles": [
-      {
-        "toggleId": "nutrition",
-        "label": "Nutrition",
-        "isLocal": true,
-        "default": "peek"
-      },
-      ...
-    ],
-    "tabgroups": [
-    {
-      "groupId": "units",
-      "tabs": [
-        { "tabId": "metric", "label": "Metric" },
-        { "tabId": "imperial", "label": "Imperial" }
-      ],
-      ...
-    }
-   ],
-   "placeholders": [
-    {
-      "name": "username",
-      "defaultValue": "Guest",
-      ...
-    }
-   ]
-  },
-  ...
-}
-```
-
-
-[:fa-solid-book: Full documentation →]({{baseUrl}}/authorGuide/gettingStarted.html)
 
 
 <div class="cv-cta">
