@@ -71,7 +71,7 @@ export class HighlightService {
     // Scroll first target into view, expanding any collapsed ancestor toggles first
     const firstTarget = targets[0];
     if (firstTarget) {
-      this.scrollToTarget(firstTarget);
+      this.scrollToTargetSafely(firstTarget);
     }
   }
 
@@ -146,6 +146,12 @@ export class HighlightService {
     }
 
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  private scrollToTargetSafely(target: HTMLElement): void {
+    void this.scrollToTarget(target).catch((error) => {
+      console.error('Failed to scroll to target', error);
+    });
   }
 
   private updatePositions() {
