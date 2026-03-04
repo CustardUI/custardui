@@ -11,12 +11,9 @@
 
 ++**Prerequisites**++
 
-<div class="indented">
+* a basic knowledge of [HTML](https://www.w3schools.com/html/) syntax
+* (Optional) [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com/get-npm) if you plan to use the package manager
 
-:white_check_mark: a basic knowledge of [HTML](https://www.w3schools.com/html/) syntax<br>
-:white_check_mark: (Optional) [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com/get-npm) if you plan to use the package manager
-
-</div>
 
 ---
 
@@ -86,19 +83,6 @@ You can now use CustomViews attributes in your HTML:
 </cv-toggle>
 ```
 
----
-
-## Method 2: Install via NPM
-
-To be updated...
-
-## Verify Installation
-
-Open your HTML file in a browser. If installed correctly:
-
-1.  You should see the **CustardUI Settings** (a gear icon) on your page.
-2.  Clicking the icon should open the customization panel.
-3.  Toggling options in the panel should show/hide the corresponding content on your page.
 
 <panel header=":fa-solid-lightbulb: Troubleshooting">
 
