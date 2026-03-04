@@ -26,6 +26,14 @@ class DerivedStateStore {
     );
   });
 
+  hiddenToggleIds = $derived.by(() => {
+    const shown = activeStateStore.state.shownToggles ?? [];
+    const peek = activeStateStore.state.peekToggles ?? [];
+    return [...elementStore.detectedToggles].filter(
+      (id) => !shown.includes(id) && !peek.includes(id),
+    );
+  });
+
   hasVisiblePlaceholders = $derived.by(() => {
     return placeholderRegistryStore.definitions.some((d) => {
       if (d.hiddenFromSettings) return false;

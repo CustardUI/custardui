@@ -3,7 +3,8 @@ import { mount, unmount } from 'svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
 import * as DomElementLocator from '$lib/utils/dom-element-locator';
-import { scrollToElement } from '$lib/utils/scroll-utils';
+import { activeStateStore } from '$lib/stores/active-state-store.svelte';
+import { derivedStore } from '$lib/stores/derived-store.svelte';
 import HighlightOverlay from '$features/highlight/HighlightOverlay.svelte';
 import { groupSiblings, calculateMergedRects } from '../highlight-logic';
 
@@ -67,15 +68,10 @@ export class HighlightService {
 
     this.renderHighlightOverlay();
 
-    // Scroll first target into view with header offset awareness
+    // Scroll first target into view, expanding any collapsed ancestor toggles first
     const firstTarget = targets[0];
     if (firstTarget) {
-      // Use double-RAF to ensure layout stability (e.g. Svelte updates, animations)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          scrollToElement(firstTarget);
-        });
-      });
+      this.scrollToTarget(firstTarget);
     }
   }
 
@@ -117,6 +113,39 @@ export class HighlightService {
         box: this.state,
       },
     });
+  }
+
+  private async scrollToTarget(element: HTMLElement): Promise<void> {
+    const currentShown = activeStateStore.state.shownToggles ?? [];
+    const currentPeek = activeStateStore.state.peekToggles ?? [];
+
+    // Walk ancestors, collecting toggle IDs that need expansion
+    const needsExpansion: string[] = [];
+    let current: HTMLElement | null = element.parentElement;
+    while (current) {
+      if (current.tagName.toLowerCase() === 'cv-toggle') {
+        (current.getAttribute('toggle-id') || '').split(/\s+/).filter(Boolean).forEach((id) => {
+          if (!currentShown.includes(id)) needsExpansion.push(id);
+        });
+      }
+      current = current.parentElement;
+    }
+
+    // Expand any collapsed/peek ancestor toggles
+    if (needsExpansion.length > 0) {
+      activeStateStore.setToggles(
+        [...new Set([...currentShown, ...needsExpansion])],
+        currentPeek.filter((id) => !needsExpansion.includes(id)),
+      );
+    }
+
+    // Wait for CSS transitions if any toggles are peek, were just expanded, or are hidden (collapsing)
+    if (needsExpansion.length > 0 || currentPeek.length > 0 || derivedStore.hiddenToggleIds.length > 0) {
+      // 350ms = 300ms CSS transition + 50ms buffer
+      await new Promise<void>((resolve) => setTimeout(resolve, 350));
+    }
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   private updatePositions() {
