@@ -23,13 +23,13 @@
     left: 0;
     right: 0;
     z-index: 9000;
-    background-color: #0078d4;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background-color: #f3cb52;
+    box-shadow: 0 2px 8px rgba(44, 26, 14, 0.15);
     font-family: system-ui, sans-serif;
   }
 
   #cv-exit-focus-banner {
-    color: white;
+    color: #2c1a0e;
     padding: 10px 20px;
     display: flex;
     align-items: center;
@@ -38,8 +38,8 @@
   }
 
   button {
-    background: white;
-    color: #0078d4;
+    background: #804b18;
+    color: #fdf6e3;
     border: none;
     padding: 4px 12px;
     border-radius: 4px;
@@ -48,6 +48,6 @@
   }
 
   button:hover {
-    background: #f0f0f0;
+    background: #c4853a;
   }
 </style>
