@@ -13,7 +13,8 @@
     ".git/*",
     ".gitignore",
     "node_modules/*",
-    "CNAME"
+    "CNAME",
+    "design.md"
   ],
   "pagesExclude": ["node_modules/*"],
   "pages": [

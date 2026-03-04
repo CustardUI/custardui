@@ -15,7 +15,8 @@
     "*.njk",
     ".git/*",
     ".gitignore",
-    "node_modules/*"
+    "node_modules/*",
+    "design.md"
   ],
   "pagesExclude": ["node_modules/*"],
   "pages": [
