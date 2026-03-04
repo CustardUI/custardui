@@ -11,7 +11,6 @@
 
   let { box, style = 'marker' }: Props = $props();
   let rects = $derived(box.rects);
-  let attrLabel = $derived(rects.length > 1 ? 'Highlights by CustardUI ↗' : 'Highlighted by CustardUI ↗');
 </script>
 
 <div class="cv-highlight-overlay">
@@ -24,7 +23,7 @@
       {#if i === rects.length - 1}
         <div class="cv-highlight-attr">
           <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
-            {attrLabel}
+            Highlighted by CustardUI ↗
           </a>
         </div>
       {/if}
