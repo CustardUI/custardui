@@ -58,7 +58,7 @@ export class FocusService {
           (document.body.classList.contains(BODY_SHOW_CLASS) ||
             document.body.classList.contains(BODY_HIGHLIGHT_CLASS))
         ) {
-          this.exitShowMode(false);
+          this.exitShowMode(true);
         }
       });
     });
