@@ -3,6 +3,7 @@
   import {
     DEFAULT_ANNOTATION_CORNER,
     MAX_ANNOTATION_LENGTH,
+    CORNER_ICONS,
     type AnnotationCorner,
   } from '$features/highlight/services/highlight-annotations';
 
@@ -57,12 +58,6 @@
     isExpanded = !isExpanded;
   }
 
-  const CORNERS: { key: AnnotationCorner; icon: string }[] = [
-    { key: 'tl', icon: '◤' },
-    { key: 'tr', icon: '◥' },
-    { key: 'bl', icon: '◣' },
-    { key: 'br', icon: '◢' },
-  ];
 
   let tabStyle = $derived.by(() => {
     switch (localCorner) {
@@ -110,7 +105,7 @@
       ></textarea>
       <div class="cv-annotation-footer">
         <div class="cv-corner-selector" role="group" aria-label="Anchor corner">
-          {#each CORNERS as { key, icon } (key)}
+          {#each CORNER_ICONS as { key, icon } (key)}
             <button
               class="cv-corner-btn"
               class:active={localCorner === key}

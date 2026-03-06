@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type HighlightColorKey, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
-import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from '$features/highlight/services/highlight-annotations';
+import { type HighlightColorKey, DEFAULT_COLOR_KEY, HIGHLIGHT_COLORS } from '$features/highlight/services/highlight-colors';
+import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER, ANNOTATION_CORNERS } from '$features/highlight/services/highlight-annotations';
 
 /**
  * Descriptor for an anchor that represents a DOM element.
@@ -187,8 +187,8 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
   }
 }
 
-const COLOR_KEYS = new Set(['yellow', 'blue', 'red', 'black', 'green']);
-const CORNER_KEYS = new Set(['tl', 'tr', 'bl', 'br']);
+const COLOR_KEYS = new Set<string>(HIGHLIGHT_COLORS.map((c) => c.key));
+const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
 
 /**
  * Parses a space-separated, plus-separated, or comma-separated list of IDs into a list of AnchorDescriptors.
