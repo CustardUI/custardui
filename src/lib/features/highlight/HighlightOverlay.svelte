@@ -7,20 +7,37 @@
 
   let { box }: Props = $props();
   let rects = $derived(box.rects);
+
+  function scrollToRect(rect: RectData) {
+    rect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 </script>
 
 <div class="cv-highlight-overlay">
-  {#each rects as rect (`${rect.top}-${rect.left}-${rect.width}-${rect.height}`)}
+  {#each rects as rect, i (`${rect.top}-${rect.left}-${rect.width}-${rect.height}`)}
     <div
       class="cv-highlight-group"
       style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px;"
     >
-      <div class="cv-highlight-marker">
-        <div class="cv-highlight-pill">
-          <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
-            Highlighted by CustardUI ↗
-          </a>
-        </div>
+      <div class="cv-highlight-marker"></div>
+      {#if rects.length > 1}
+        <button
+          class="cv-nav-arrow cv-nav-arrow--up"
+          class:cv-nav-arrow--hidden={i === 0}
+          onclick={() => scrollToRect(rects[i - 1]!)}
+          aria-label="Previous highlight"
+        >↑</button>
+        <button
+          class="cv-nav-arrow cv-nav-arrow--down"
+          class:cv-nav-arrow--hidden={i === rects.length - 1}
+          onclick={() => scrollToRect(rects[i + 1]!)}
+          aria-label="Next highlight"
+        >↓</button>
+      {/if}
+      <div class="cv-highlight-pill">
+        <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
+          CustardUI highlight↗
+        </a>
       </div>
     </div>
   {/each}
@@ -73,12 +90,50 @@
     animation: highlightFadeIn 0.3s ease-out forwards;
   }
 
+  .cv-nav-arrow {
+    position: absolute;
+    right: -5px;
+    pointer-events: auto;
+    width: 14px;
+    height: 14px;
+    border-radius: 100px;
+    border: 1px solid #f5f521;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    color: #814919;
+    font-weight: 700;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    line-height: 1;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(44, 26, 14, 0.15);
+    opacity: 0.7;
+  }
+
+  .cv-nav-arrow:hover {
+    opacity: 1;
+  }
+
+  .cv-nav-arrow--up {
+    top: 0px;
+  }
+
+  .cv-nav-arrow--down {
+    bottom: 0px;
+  }
+
+  .cv-nav-arrow--hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .cv-highlight-pill {
     position: absolute;
-    bottom: -10px; 
+    bottom: -7px;
     right: 14px;
-    transform: rotate(0.5deg); /* Counter-acts the marker rotation */
-    
     background: white;
     height: 14px;
     padding: 0 8px;

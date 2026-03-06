@@ -68,10 +68,10 @@ export class HighlightService {
 
     this.renderHighlightOverlay();
 
-    // Scroll first target into view, expanding any collapsed ancestor toggles first
-    const firstTarget = targets[0];
-    if (firstTarget) {
-      this.scrollToTargetSafely(firstTarget);
+    // Scroll topmost highlighted box into view
+    const firstRect = this.state.rects[0];
+    if (firstRect) {
+      this.scrollToTargetSafely(firstRect.element);
     }
   }
 
@@ -163,7 +163,7 @@ export class HighlightService {
     // Group by Parent (Siblings)
     const groups = groupSiblings(this.activeTargets);
 
-    // Calculate Union Rect for each group
+    // Calculate Union Rect for each group, sorted top-to-bottom
     this.state.rects = calculateMergedRects(
       groups,
       (el) => el.getBoundingClientRect(),
@@ -171,6 +171,6 @@ export class HighlightService {
         scrollTop: window.pageYOffset || document.documentElement.scrollTop,
         scrollLeft: window.pageXOffset || document.documentElement.scrollLeft,
       }),
-    );
+    ).sort((a, b) => a.top - b.top);
   }
 }
