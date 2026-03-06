@@ -1,5 +1,6 @@
 <script lang="ts">
   import { type RectData } from '$features/highlight/services/highlight-types';
+  import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
 
   interface Props {
     box: { rects: RectData[] };
@@ -7,6 +8,11 @@
 
   let { box }: Props = $props();
   let rects = $derived(box.rects);
+
+  function getColorHex(rect: RectData): string {
+    const key = rect.color ?? DEFAULT_COLOR_KEY;
+    return HIGHLIGHT_COLORS.find((c) => c.key === key)?.hex ?? HIGHLIGHT_COLORS[0]!.hex;
+  }
 
   function scrollToRect(rect: RectData) {
     rect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -17,7 +23,7 @@
   {#each rects as rect, i (`${rect.top}-${rect.left}-${rect.width}-${rect.height}`)}
     <div
       class="cv-highlight-group"
-      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px;"
+      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-highlight-color: {getColorHex(rect)};"
     >
       <div class="cv-highlight-marker"></div>
       {#if rects.length > 1}
@@ -65,7 +71,7 @@
     pointer-events: none;
     
     /* Marker Style */
-    border: 3.5px solid #f5f521;
+    border: 3.5px solid var(--cv-highlight-color);
     border-radius: 200px 15px 225px 15px / 15px 225px 15px 255px;
     transform: rotate(-0.5deg);
     
@@ -97,7 +103,7 @@
     width: 14px;
     height: 14px;
     border-radius: 100px;
-    border: 1px solid #f5f521;
+    border: 1px solid var(--cv-highlight-color);
     background: white;
     cursor: pointer;
     display: flex;
@@ -141,7 +147,7 @@
     align-items: center;
     
     border-radius: 100px;
-    border: 1px solid #f5f521;
+    border: 1px solid var(--cv-highlight-color);
     pointer-events: auto;
     white-space: nowrap;
     

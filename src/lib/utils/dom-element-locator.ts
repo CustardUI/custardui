@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { type HighlightColorKey, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
+
 /**
  * Descriptor for an anchor that represents a DOM element.
  */
@@ -9,6 +11,7 @@ export interface AnchorDescriptor {
   textSnippet: string; // First 32 chars of text content (normalized)
   textHash: number; // A simple hash of the full text content
   elementId?: string; // The element's own ID if present
+  color?: HighlightColorKey; // Per-element highlight color (omitted = default yellow)
 }
 
 /**
@@ -84,12 +87,21 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
     s: d.textSnippet,
     h: d.textHash,
     id: d.elementId,
+    ...(d.color && d.color !== DEFAULT_COLOR_KEY ? { c: d.color } : {}),
   }));
 
   // Check if all have IDs, use human-readable format
   const allHaveIds = minified.every((m) => !!m.id);
   if (allHaveIds) {
-    return minified.map((m) => m.id).join(',');
+    const anyNonDefault = minified.some((m) => !!(m as { c?: string }).c);
+    if (!anyNonDefault) {
+      return minified.map((m) => m.id).join(',');
+    }
+    // Encode color as :key suffix (HTML IDs cannot contain ':')
+    return minified.map((m) => {
+      const c = (m as { c?: string }).c;
+      return c ? `${m.id}:${c}` : m.id;
+    }).join(',');
   }
 
   const json = JSON.stringify(minified);
@@ -140,7 +152,7 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
       // Robustness: Ensure item is an object
       if (typeof m !== 'object' || m === null) throw new Error('Item is not an object');
 
-      return {
+      const descriptor: AnchorDescriptor = {
         tag: m.t,
         index: m.i,
         parentId: m.p,
@@ -148,6 +160,8 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
         textHash: m.h,
         elementId: m.id,
       };
+      if (m.c) descriptor.color = m.c as HighlightColorKey;
+      return descriptor;
     });
   } catch {
     // This handles cases where an ID string happens to look like Base64 but does not match the expected schema
@@ -155,18 +169,35 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
   }
 }
 
+const COLOR_KEYS = new Set(['yellow', 'blue', 'red', 'black', 'green']);
+
 /**
  * Parses a space-separated, plus-separated, or comma-separated list of IDs into a list of AnchorDescriptors.
+ * Supports optional color suffix: "id:colorKey" (e.g. "section-1:b").
  */
 function parseIds(encoded: string): AnchorDescriptor[] {
   const parts = encoded.split(/[ +,]+/).filter((p) => p.length > 0);
-  return parts.map((id) => ({
-    tag: 'ANY',
-    index: 0,
-    textSnippet: '',
-    textHash: 0,
-    elementId: id,
-  }));
+  return parts.map((part) => {
+    let id = part;
+    let color: HighlightColorKey | undefined;
+    const colonIdx = part.lastIndexOf(':');
+    if (colonIdx > 0) {
+      const suffix = part.slice(colonIdx + 1);
+      if (COLOR_KEYS.has(suffix)) {
+        id = part.slice(0, colonIdx);
+        color = suffix as HighlightColorKey;
+      }
+    }
+    const descriptor: AnchorDescriptor = {
+      tag: 'ANY',
+      index: 0,
+      textSnippet: '',
+      textHash: 0,
+      elementId: id,
+    };
+    if (color !== undefined) descriptor.color = color;
+    return descriptor;
+  });
 }
 
 const SCORE_EXACT_HASH = 50;

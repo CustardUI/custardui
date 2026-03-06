@@ -1,5 +1,6 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { type RectData } from './services/highlight-types';
+import { type HighlightColorKey } from './services/highlight-colors';
 
 /**
  * Groups elements by their parent.
@@ -41,6 +42,7 @@ export function calculateMergedRects(
   groups: SvelteMap<HTMLElement, HTMLElement[]>,
   getRect: (el: HTMLElement) => SimpleRect,
   getScroll: () => { scrollTop: number; scrollLeft: number },
+  colorMap?: Map<HTMLElement, HighlightColorKey>,
 ): RectData[] {
   const mergedRects: RectData[] = [];
   const { scrollTop, scrollLeft } = getScroll();
@@ -51,7 +53,7 @@ export function calculateMergedRects(
 
     // Optimization if only 1 child, no need to scan parent
     if (siblingsInGroup.length === 1) {
-      addMergedRect(mergedRects, siblingsInGroup, getRect, scrollTop, scrollLeft);
+      addMergedRect(mergedRects, siblingsInGroup, getRect, scrollTop, scrollLeft, colorMap);
       continue;
     }
 
@@ -69,14 +71,14 @@ export function calculateMergedRects(
       } else {
         // Break in continuity
         if (currentBatch.length > 0) {
-          addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft);
+          addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap);
           currentBatch = [];
         }
       }
     }
     // Finalize last batch
     if (currentBatch.length > 0) {
-      addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft);
+      addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap);
     }
   }
 
@@ -89,6 +91,7 @@ function addMergedRect(
   getRect: (el: HTMLElement) => SimpleRect,
   scrollTop: number,
   scrollLeft: number,
+  colorMap?: Map<HTMLElement, HighlightColorKey>,
 ) {
   if (elements.length === 0) return;
 
@@ -113,7 +116,7 @@ function addMergedRect(
 
   const PADDING = 10;
 
-  resultList.push({
+  const rect: RectData = {
     top: minTop - PADDING,
     left: minLeft - PADDING,
     width: maxRight - minLeft + PADDING * 2,
@@ -121,5 +124,8 @@ function addMergedRect(
     right: maxRight + PADDING,
     bottom: maxBottom + PADDING,
     element: elements[0]!,
-  });
+  };
+  const color = colorMap?.get(elements[0]!);
+  if (color !== undefined) rect.color = color;
+  resultList.push(rect);
 }

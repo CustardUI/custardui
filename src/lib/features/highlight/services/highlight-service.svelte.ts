@@ -14,6 +14,7 @@ export const BODY_HIGHLIGHT_CLASS = 'cv-highlight-mode';
 const ARROW_OVERLAY_ID = 'cv-highlight-overlay';
 
 import { type RectData } from './highlight-types';
+import { type HighlightColorKey } from './highlight-colors';
 
 export class HighlightState {
   rects = $state<RectData[]>([]);
@@ -24,6 +25,7 @@ export class HighlightService {
   private state = new HighlightState();
   private resizeObserver: ResizeObserver;
   private activeTargets: HTMLElement[] = [];
+  private activeColors: Map<HTMLElement, HighlightColorKey> = new Map();
   private onWindowResize = () => this.updatePositions();
 
   constructor(private rootEl: HTMLElement) {
@@ -37,10 +39,14 @@ export class HighlightService {
     if (!descriptors || descriptors.length === 0) return;
 
     const targets: HTMLElement[] = [];
+    const colors = new Map<HTMLElement, HighlightColorKey>();
     descriptors.forEach((desc) => {
       const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
       if (matchingEls && matchingEls.length > 0) {
         targets.push(...matchingEls);
+        if (desc.color) {
+          matchingEls.forEach((el) => colors.set(el, desc.color!));
+        }
       }
     });
 
@@ -60,6 +66,7 @@ export class HighlightService {
 
     // Create Overlay across the entire page (App will be mounted into it)
     this.activeTargets = targets;
+    this.activeColors = colors;
 
     // Start observing
     this.activeTargets.forEach((t) => this.resizeObserver.observe(t));
@@ -81,6 +88,7 @@ export class HighlightService {
     this.resizeObserver.disconnect();
     window.removeEventListener('resize', this.onWindowResize);
     this.activeTargets = [];
+    this.activeColors.clear();
     this.state.rects = [];
 
     const overlay = document.getElementById(ARROW_OVERLAY_ID);
@@ -171,6 +179,7 @@ export class HighlightService {
         scrollTop: window.pageYOffset || document.documentElement.scrollTop,
         scrollLeft: window.pageXOffset || document.documentElement.scrollLeft,
       }),
+      this.activeColors,
     ).sort((a, b) => a.top - b.top);
   }
 }
