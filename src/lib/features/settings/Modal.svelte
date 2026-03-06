@@ -107,16 +107,7 @@
 
   function handleToggleChange(detail: any) {
     const { toggleId, value } = detail;
-    const currentShown = activeStateStore.state.shownToggles || [];
-    const currentPeek = activeStateStore.state.peekToggles || [];
-
-    const newShown = currentShown.filter((id: string) => id !== toggleId);
-    const newPeek = currentPeek.filter((id: string) => id !== toggleId);
-
-    if (value === 'show') newShown.push(toggleId);
-    if (value === 'peek') newPeek.push(toggleId);
-
-    activeStateStore.setToggles(newShown, newPeek);
+    activeStateStore.updateToggleState(toggleId, value);
   }
 
   function handleTabGroupChange(detail: any) {
