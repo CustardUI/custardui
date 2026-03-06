@@ -1,4 +1,7 @@
 // Extracted shared type to avoid circular dependency
+import { type HighlightColorKey } from './highlight-colors';
+import { type AnnotationCorner } from './highlight-annotations';
+
 export type RectData = {
   top: number;
   left: number;
@@ -7,4 +10,7 @@ export type RectData = {
   right: number;
   bottom: number;
   element: HTMLElement;
+  color?: HighlightColorKey;
+  annotation?: string;
+  annotationCorner?: AnnotationCorner;
 };

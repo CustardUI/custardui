@@ -14,6 +14,8 @@ export const BODY_HIGHLIGHT_CLASS = 'cv-highlight-mode';
 const ARROW_OVERLAY_ID = 'cv-highlight-overlay';
 
 import { type RectData } from './highlight-types';
+import { type HighlightColorKey } from './highlight-colors';
+import { type AnnotationCorner } from './highlight-annotations';
 
 export class HighlightState {
   rects = $state<RectData[]>([]);
@@ -24,6 +26,8 @@ export class HighlightService {
   private state = new HighlightState();
   private resizeObserver: ResizeObserver;
   private activeTargets: HTMLElement[] = [];
+  private activeColors: Map<HTMLElement, HighlightColorKey> = new Map();
+  private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> = new Map();
   private onWindowResize = () => this.updatePositions();
 
   constructor(private rootEl: HTMLElement) {
@@ -32,15 +36,36 @@ export class HighlightService {
     });
   }
 
+  public resolveTargets(encodedDescriptors: string): HTMLElement[] {
+    const descriptors = DomElementLocator.deserialize(encodedDescriptors);
+    if (!descriptors || descriptors.length === 0) return [];
+    const targets: HTMLElement[] = [];
+    descriptors.forEach((desc) => {
+      const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
+      if (matchingEls && matchingEls.length > 0) targets.push(...matchingEls);
+    });
+    return targets;
+  }
+
   public apply(encodedDescriptors: string): void {
     const descriptors = DomElementLocator.deserialize(encodedDescriptors);
     if (!descriptors || descriptors.length === 0) return;
 
     const targets: HTMLElement[] = [];
+    const colors = new Map<HTMLElement, HighlightColorKey>();
+    const annotations = new Map<HTMLElement, { text: string; corner: AnnotationCorner }>();
     descriptors.forEach((desc) => {
       const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
       if (matchingEls && matchingEls.length > 0) {
         targets.push(...matchingEls);
+        if (desc.color) {
+          matchingEls.forEach((el) => colors.set(el, desc.color!));
+        }
+        if (desc.annotation && desc.annotationCorner) {
+          matchingEls.forEach((el) =>
+            annotations.set(el, { text: desc.annotation!, corner: desc.annotationCorner! }),
+          );
+        }
       }
     });
 
@@ -60,6 +85,8 @@ export class HighlightService {
 
     // Create Overlay across the entire page (App will be mounted into it)
     this.activeTargets = targets;
+    this.activeColors = colors;
+    this.activeAnnotations = annotations;
 
     // Start observing
     this.activeTargets.forEach((t) => this.resizeObserver.observe(t));
@@ -68,10 +95,10 @@ export class HighlightService {
 
     this.renderHighlightOverlay();
 
-    // Scroll first target into view, expanding any collapsed ancestor toggles first
-    const firstTarget = targets[0];
-    if (firstTarget) {
-      this.scrollToTargetSafely(firstTarget);
+    // Scroll topmost highlighted box into view
+    const firstRect = this.state.rects[0];
+    if (firstRect) {
+      this.scrollToTargetSafely(firstRect.element);
     }
   }
 
@@ -81,6 +108,8 @@ export class HighlightService {
     this.resizeObserver.disconnect();
     window.removeEventListener('resize', this.onWindowResize);
     this.activeTargets = [];
+    this.activeColors.clear();
+    this.activeAnnotations.clear();
     this.state.rects = [];
 
     const overlay = document.getElementById(ARROW_OVERLAY_ID);
@@ -163,7 +192,7 @@ export class HighlightService {
     // Group by Parent (Siblings)
     const groups = groupSiblings(this.activeTargets);
 
-    // Calculate Union Rect for each group
+    // Calculate Union Rect for each group, sorted top-to-bottom
     this.state.rects = calculateMergedRects(
       groups,
       (el) => el.getBoundingClientRect(),
@@ -171,6 +200,8 @@ export class HighlightService {
         scrollTop: window.pageYOffset || document.documentElement.scrollTop,
         scrollLeft: window.pageXOffset || document.documentElement.scrollLeft,
       }),
-    );
+      this.activeColors,
+      this.activeAnnotations,
+    ).sort((a, b) => a.top - b.top);
   }
 }

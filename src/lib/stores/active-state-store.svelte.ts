@@ -88,6 +88,25 @@ export class ActiveStateStore {
   }
 
   /**
+   * Update the visibility state of a specific toggle.
+   * Handled internally so UI components (like Modal) don't need to mutate arrays directly.
+   * @param toggleId The ID of the toggle.
+   * @param value The new visibility state.
+   */
+  updateToggleState(toggleId: string, value: 'show' | 'hide' | 'peek') {
+    const currentShown = this.state.shownToggles || [];
+    const currentPeek = this.state.peekToggles || [];
+
+    const newShown = currentShown.filter((id) => id !== toggleId);
+    const newPeek = currentPeek.filter((id) => id !== toggleId);
+
+    if (value === 'show') newShown.push(toggleId);
+    if (value === 'peek') newPeek.push(toggleId);
+
+    this.setToggles(newShown, newPeek);
+  }
+
+  /**
    * Set a specific placeholder value.
    * @param key The ID/name of the placeholder.
    * @param value The value to set.

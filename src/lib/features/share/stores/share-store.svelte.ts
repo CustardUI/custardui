@@ -1,4 +1,6 @@
-import { SvelteSet } from 'svelte/reactivity';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { type HighlightColorKey } from '$features/highlight/services/highlight-colors';
+import { type AnnotationCorner, MAX_ANNOTATION_LENGTH } from '$features/highlight/services/highlight-annotations';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$lib/utils/dom-element-locator';
 import {
@@ -18,6 +20,8 @@ export class ShareStore {
   selectionMode = $state<SelectionMode>('show');
   selectedElements = $state<SvelteSet<HTMLElement>>(new SvelteSet<HTMLElement>());
   currentHoverTarget = $state<HTMLElement | null>(null);
+  highlightColors = new SvelteMap<HTMLElement, HighlightColorKey>();
+  highlightAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
 
   shareCount = $derived(this.selectedElements.size);
 
@@ -92,6 +96,8 @@ export class ShareStore {
       this.selectedElements.forEach((oldEl) => {
         if (!updatedSelection.has(oldEl)) {
           this._removeSelectionClass(oldEl);
+          this.highlightColors.delete(oldEl);
+          this.highlightAnnotations.delete(oldEl);
         }
       });
 
@@ -117,6 +123,30 @@ export class ShareStore {
   clearAllSelections() {
     this.selectedElements.forEach((el) => this._removeSelectionClass(el));
     this.selectedElements.clear();
+    this.highlightColors.clear();
+    this.highlightAnnotations.clear();
+  }
+
+  setAnnotation(el: HTMLElement, text: string, corner: AnnotationCorner) {
+    const trimmed = text.trim();
+    if (trimmed.length === 0) {
+      this.highlightAnnotations.delete(el);
+    } else {
+      const validatedText = trimmed.length > MAX_ANNOTATION_LENGTH 
+        ? trimmed.substring(0, MAX_ANNOTATION_LENGTH) 
+        : trimmed;
+      this.highlightAnnotations.set(el, { text: validatedText, corner });
+    }
+  }
+
+  setHighlightColor(el: HTMLElement, color: HighlightColorKey) {
+    this.highlightColors.set(el, color);
+  }
+
+  setAllHighlightColors(color: HighlightColorKey) {
+    this.selectedElements.forEach((el) => {
+      this.highlightColors.set(el, color);
+    });
   }
 
   private _addHighlightClass(el: HTMLElement) {
@@ -157,9 +187,7 @@ export class ShareStore {
       return;
     }
 
-    const descriptors = Array.from(this.selectedElements).map((el) =>
-      DomElementLocator.createDescriptor(el),
-    );
+    const descriptors = this._buildDescriptors();
     let serialized: string;
     try {
       serialized = DomElementLocator.serialize(descriptors);
@@ -201,9 +229,7 @@ export class ShareStore {
       return;
     }
 
-    const descriptors = Array.from(this.selectedElements).map((el) =>
-      DomElementLocator.createDescriptor(el),
-    );
+    const descriptors = this._buildDescriptors();
     const serialized = DomElementLocator.serialize(descriptors);
 
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
@@ -221,6 +247,22 @@ export class ShareStore {
     }
 
     window.open(url.toString(), '_blank');
+  }
+
+  private _buildDescriptors(): DomElementLocator.AnchorDescriptor[] {
+    return Array.from(this.selectedElements).map((el) => {
+      const desc = DomElementLocator.createDescriptor(el);
+      if (this.selectionMode === 'highlight') {
+        const color = this.highlightColors.get(el);
+        if (color !== undefined) desc.color = color;
+        const annotation = this.highlightAnnotations.get(el);
+        if (annotation !== undefined) {
+          desc.annotation = annotation.text;
+          desc.annotationCorner = annotation.corner;
+        }
+      }
+      return desc;
+    });
   }
 }
 

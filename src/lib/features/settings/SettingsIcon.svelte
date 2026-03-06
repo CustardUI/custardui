@@ -2,6 +2,7 @@
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
   import { onMount } from 'svelte';
+  import IconGear from '$lib/app/icons/IconGear.svelte';
 
   let {
     position = 'middle-left',
@@ -227,10 +228,27 @@
   style:transform={getTransform(position, currentOffset, scale)}
   style:cursor={isDragging ? 'grabbing' : 'grab'}
 >
-  <span class="cv-gear">⚙</span>
+  <span class="cv-gear"><IconGear /></span>
 </div>
 
 <style>
+  .cv-gear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+  }
+
+  .cv-gear :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cv-gear :global(svg path) {
+    fill: currentColor;
+  }
+
   .cv-settings-icon {
     position: fixed;
     background: var(--cv-icon-bg, rgba(255, 255, 255, 0.92));

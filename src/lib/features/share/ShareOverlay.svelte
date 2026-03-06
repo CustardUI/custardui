@@ -3,6 +3,8 @@
   import { isGenericWrapper, SHAREABLE_SELECTOR, isExcluded } from '$features/share/share-logic';
   import ShareToolbar from './ShareToolbar.svelte';
   import HoverHelper from './HoverHelper.svelte';
+  import HighlightColorPicker from './HighlightColorPicker.svelte';
+  import HighlightAnnotationEditor from './HighlightAnnotationEditor.svelte';
 
   let {
     excludedTags = ['HEADER', 'NAV', 'FOOTER'],
@@ -44,8 +46,13 @@
 
     const target = e.target as HTMLElement;
 
-    // 1. If we are on the helper or toolbar, do nothing (keep current selection)
-    if (target.closest('.hover-helper') || target.closest('.floating-bar')) {
+    // 1. If we are on the helper, toolbar, color picker, or annotation editor, do nothing
+    if (
+      target.closest('.hover-helper') ||
+      target.closest('.floating-bar') ||
+      target.closest('.cv-color-picker') ||
+      target.closest('.cv-annotation-editor')
+    ) {
       return;
     }
 
@@ -103,7 +110,12 @@
 
     // Ignore clicks on UI
     const target = e.target as HTMLElement;
-    if (target.closest('.floating-bar') || target.closest('.hover-helper')) return;
+    if (
+      target.closest('.floating-bar') ||
+      target.closest('.hover-helper') ||
+      target.closest('.cv-color-picker') ||
+      target.closest('.cv-annotation-editor')
+    ) return;
 
     // Disable drag on touch devices
     if (window.matchMedia('(pointer: coarse)').matches) return;
@@ -199,7 +211,12 @@
 
     const target = e.target as HTMLElement;
 
-    if (target.closest('.hover-helper') || target.closest('.floating-bar')) return;
+    if (
+      target.closest('.hover-helper') ||
+      target.closest('.floating-bar') ||
+      target.closest('.cv-color-picker') ||
+      target.closest('.cv-annotation-editor')
+    ) return;
 
     // Intercept click on document
     e.preventDefault();
@@ -237,6 +254,13 @@
 <div class="share-overlay-ui">
   <ShareToolbar />
   <HoverHelper />
+
+  {#if shareStore.selectionMode === 'highlight'}
+    {#each [...shareStore.selectedElements] as el (el)}
+      <HighlightColorPicker element={el} />
+      <HighlightAnnotationEditor element={el} />
+    {/each}
+  {/if}
 
   {#if selectionBox}
     <div
