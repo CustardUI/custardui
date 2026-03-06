@@ -116,6 +116,39 @@ describe('ActiveStateStore', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Toggles
+  // ---------------------------------------------------------------------------
+
+  describe('Toggles', () => {
+    it('setToggles should replace shown and peek toggles', () => {
+      store.setToggles(['toggleA'], ['toggleB']);
+      expect(store.state.shownToggles).toEqual(['toggleA']);
+      expect(store.state.peekToggles).toEqual(['toggleB']);
+    });
+
+    it('updateToggleState should correctly move a toggle to "show"', () => {
+      store.setToggles(['otherShow'], ['targetToggle']);
+      store.updateToggleState('targetToggle', 'show');
+      expect(store.state.shownToggles).toEqual(['otherShow', 'targetToggle']);
+      expect(store.state.peekToggles).toEqual([]);
+    });
+
+    it('updateToggleState should correctly move a toggle to "peek"', () => {
+      store.setToggles(['targetToggle'], ['otherPeek']);
+      store.updateToggleState('targetToggle', 'peek');
+      expect(store.state.shownToggles).toEqual([]);
+      expect(store.state.peekToggles).toEqual(['otherPeek', 'targetToggle']);
+    });
+
+    it('updateToggleState should correctly move a toggle to "hide" (remove from both)', () => {
+      store.setToggles(['targetToggle'], ['otherPeek']);
+      store.updateToggleState('targetToggle', 'hide');
+      expect(store.state.shownToggles).toEqual([]);
+      expect(store.state.peekToggles).toEqual(['otherPeek']);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // applyState
   // ---------------------------------------------------------------------------
 
