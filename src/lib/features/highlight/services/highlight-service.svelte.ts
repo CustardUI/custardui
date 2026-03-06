@@ -15,6 +15,7 @@ const ARROW_OVERLAY_ID = 'cv-highlight-overlay';
 
 import { type RectData } from './highlight-types';
 import { type HighlightColorKey } from './highlight-colors';
+import { type AnnotationCorner } from './highlight-annotations';
 
 export class HighlightState {
   rects = $state<RectData[]>([]);
@@ -26,6 +27,7 @@ export class HighlightService {
   private resizeObserver: ResizeObserver;
   private activeTargets: HTMLElement[] = [];
   private activeColors: Map<HTMLElement, HighlightColorKey> = new Map();
+  private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> = new Map();
   private onWindowResize = () => this.updatePositions();
 
   constructor(private rootEl: HTMLElement) {
@@ -40,12 +42,18 @@ export class HighlightService {
 
     const targets: HTMLElement[] = [];
     const colors = new Map<HTMLElement, HighlightColorKey>();
+    const annotations = new Map<HTMLElement, { text: string; corner: AnnotationCorner }>();
     descriptors.forEach((desc) => {
       const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
       if (matchingEls && matchingEls.length > 0) {
         targets.push(...matchingEls);
         if (desc.color) {
           matchingEls.forEach((el) => colors.set(el, desc.color!));
+        }
+        if (desc.annotation && desc.annotationCorner) {
+          matchingEls.forEach((el) =>
+            annotations.set(el, { text: desc.annotation!, corner: desc.annotationCorner! }),
+          );
         }
       }
     });
@@ -67,6 +75,7 @@ export class HighlightService {
     // Create Overlay across the entire page (App will be mounted into it)
     this.activeTargets = targets;
     this.activeColors = colors;
+    this.activeAnnotations = annotations;
 
     // Start observing
     this.activeTargets.forEach((t) => this.resizeObserver.observe(t));
@@ -89,6 +98,7 @@ export class HighlightService {
     window.removeEventListener('resize', this.onWindowResize);
     this.activeTargets = [];
     this.activeColors.clear();
+    this.activeAnnotations.clear();
     this.state.rects = [];
 
     const overlay = document.getElementById(ARROW_OVERLAY_ID);
@@ -180,6 +190,7 @@ export class HighlightService {
         scrollLeft: window.pageXOffset || document.documentElement.scrollLeft,
       }),
       this.activeColors,
+      this.activeAnnotations,
     ).sort((a, b) => a.top - b.top);
   }
 }

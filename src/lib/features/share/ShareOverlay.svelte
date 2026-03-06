@@ -4,6 +4,7 @@
   import ShareToolbar from './ShareToolbar.svelte';
   import HoverHelper from './HoverHelper.svelte';
   import HighlightColorPicker from './HighlightColorPicker.svelte';
+  import HighlightAnnotationEditor from './HighlightAnnotationEditor.svelte';
 
   let {
     excludedTags = ['HEADER', 'NAV', 'FOOTER'],
@@ -45,11 +46,12 @@
 
     const target = e.target as HTMLElement;
 
-    // 1. If we are on the helper, toolbar, or color picker, do nothing
+    // 1. If we are on the helper, toolbar, color picker, or annotation editor, do nothing
     if (
       target.closest('.hover-helper') ||
       target.closest('.floating-bar') ||
-      target.closest('.cv-color-picker')
+      target.closest('.cv-color-picker') ||
+      target.closest('.cv-annotation-editor')
     ) {
       return;
     }
@@ -111,7 +113,8 @@
     if (
       target.closest('.floating-bar') ||
       target.closest('.hover-helper') ||
-      target.closest('.cv-color-picker')
+      target.closest('.cv-color-picker') ||
+      target.closest('.cv-annotation-editor')
     ) return;
 
     // Disable drag on touch devices
@@ -211,7 +214,8 @@
     if (
       target.closest('.hover-helper') ||
       target.closest('.floating-bar') ||
-      target.closest('.cv-color-picker')
+      target.closest('.cv-color-picker') ||
+      target.closest('.cv-annotation-editor')
     ) return;
 
     // Intercept click on document
@@ -254,6 +258,7 @@
   {#if shareStore.selectionMode === 'highlight'}
     {#each [...shareStore.selectedElements] as el (el)}
       <HighlightColorPicker element={el} />
+      <HighlightAnnotationEditor element={el} />
     {/each}
   {/if}
 

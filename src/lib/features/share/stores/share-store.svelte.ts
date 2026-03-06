@@ -1,5 +1,6 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { type HighlightColorKey } from '$features/highlight/services/highlight-colors';
+import { type AnnotationCorner } from '$features/highlight/services/highlight-annotations';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$lib/utils/dom-element-locator';
 import {
@@ -20,6 +21,7 @@ export class ShareStore {
   selectedElements = $state<SvelteSet<HTMLElement>>(new SvelteSet<HTMLElement>());
   currentHoverTarget = $state<HTMLElement | null>(null);
   highlightColors = new SvelteMap<HTMLElement, HighlightColorKey>();
+  highlightAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
 
   shareCount = $derived(this.selectedElements.size);
 
@@ -95,6 +97,7 @@ export class ShareStore {
         if (!updatedSelection.has(oldEl)) {
           this._removeSelectionClass(oldEl);
           this.highlightColors.delete(oldEl);
+          this.highlightAnnotations.delete(oldEl);
         }
       });
 
@@ -121,6 +124,15 @@ export class ShareStore {
     this.selectedElements.forEach((el) => this._removeSelectionClass(el));
     this.selectedElements.clear();
     this.highlightColors.clear();
+    this.highlightAnnotations.clear();
+  }
+
+  setAnnotation(el: HTMLElement, text: string, corner: AnnotationCorner) {
+    if (text.length === 0) {
+      this.highlightAnnotations.delete(el);
+    } else {
+      this.highlightAnnotations.set(el, { text, corner });
+    }
   }
 
   setHighlightColor(el: HTMLElement, color: HighlightColorKey) {
@@ -176,6 +188,11 @@ export class ShareStore {
       if (this.selectionMode === 'highlight') {
         const color = this.highlightColors.get(el);
         if (color !== undefined) desc.color = color;
+        const annotation = this.highlightAnnotations.get(el);
+        if (annotation !== undefined) {
+          desc.annotation = annotation.text;
+          desc.annotationCorner = annotation.corner;
+        }
       }
       return desc;
     });
@@ -225,6 +242,11 @@ export class ShareStore {
       if (this.selectionMode === 'highlight') {
         const color = this.highlightColors.get(el);
         if (color !== undefined) desc.color = color;
+        const annotation = this.highlightAnnotations.get(el);
+        if (annotation !== undefined) {
+          desc.annotation = annotation.text;
+          desc.annotationCorner = annotation.corner;
+        }
       }
       return desc;
     });

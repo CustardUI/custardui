@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity';
   import { type RectData } from '$features/highlight/services/highlight-types';
   import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
+  import { type AnnotationCorner, ANNOTATION_PREVIEW_LENGTH } from '$features/highlight/services/highlight-annotations';
 
   interface Props {
     box: { rects: RectData[] };
@@ -8,6 +10,7 @@
 
   let { box }: Props = $props();
   let rects = $derived(box.rects);
+  let expandedSet = new SvelteSet<number>();
 
   function getColorHex(rect: RectData): string {
     const key = rect.color ?? DEFAULT_COLOR_KEY;
@@ -16,6 +19,23 @@
 
   function scrollToRect(rect: RectData) {
     rect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function toggleBadge(i: number) {
+    if (expandedSet.has(i)) {
+      expandedSet.delete(i);
+    } else {
+      expandedSet.add(i);
+    }
+  }
+
+  function getBadgeStyle(corner: AnnotationCorner): string {
+    switch (corner) {
+      case 'tl': return 'top: 6px; left: 6px;';
+      case 'tr': return 'top: 6px; right: 6px;';
+      case 'bl': return 'bottom: 6px; left: 6px;';
+      case 'br': return 'bottom: 6px; right: 6px;';
+    }
   }
 </script>
 
@@ -45,6 +65,25 @@
           CustardUI highlight↗
         </a>
       </div>
+      {#if rect.annotation}
+        <button
+          class="cv-annotation-badge"
+          class:cv-annotation-badge--expanded={expandedSet.has(i)}
+          style={getBadgeStyle(rect.annotationCorner ?? 'bl')}
+          onclick={(e) => { e.stopPropagation(); toggleBadge(i); }}
+          aria-label={expandedSet.has(i) ? 'Collapse annotation' : 'Expand annotation'}
+        >
+          {#if expandedSet.has(i)}
+            <span class="cv-annotation-text">{rect.annotation}</span>
+          {:else}
+            <span class="cv-annotation-text">
+              {rect.annotation.length > ANNOTATION_PREVIEW_LENGTH
+                ? rect.annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'
+                : rect.annotation}
+            </span>
+          {/if}
+        </button>
+      {/if}
     </div>
   {/each}
 </div>
@@ -168,6 +207,34 @@
 
   .cv-highlight-pill:hover a {
     opacity: 0.8;
+  }
+
+  .cv-annotation-badge {
+    position: absolute;
+    pointer-events: auto;
+    max-width: 180px;
+    background: white;
+    border: 1.5px solid var(--cv-highlight-color);
+    border-radius: 6px;
+    padding: 4px 7px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(44, 26, 14, 0.15);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    text-align: left;
+  }
+
+  .cv-annotation-badge--expanded {
+    max-width: 260px;
+  }
+
+  .cv-annotation-text {
+    display: block;
+    font-size: 9px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.4;
+    word-break: break-word;
+    white-space: pre-wrap;
   }
 
   @keyframes highlightFadeIn {

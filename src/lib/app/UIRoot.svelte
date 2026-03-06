@@ -11,6 +11,7 @@
   import Modal from '$features/settings/Modal.svelte';
   import { showToast } from '$features/notifications/stores/toast-store.svelte';
   import { shareStore, type SelectionMode } from '$features/share/stores/share-store.svelte';
+  import { focusStore } from '$features/focus/stores/focus-store.svelte';
   import { DEFAULT_EXCLUDED_TAGS, DEFAULT_EXCLUDED_IDS } from '$features/share/constants';
   import Toast from '$features/notifications/components/Toast.svelte';
   import ShareOverlay from '$features/share/ShareOverlay.svelte';
@@ -84,6 +85,7 @@
 
   function handleStartShare(mode: SelectionMode = 'show') {
     closeModal();
+    focusStore.exit();
     shareStore.setSelectionMode(mode);
     shareStore.toggleActive(true);
   }

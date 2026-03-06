@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type HighlightColorKey, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
+import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from '$features/highlight/services/highlight-annotations';
 
 /**
  * Descriptor for an anchor that represents a DOM element.
@@ -12,6 +13,8 @@ export interface AnchorDescriptor {
   textHash: number; // A simple hash of the full text content
   elementId?: string; // The element's own ID if present
   color?: HighlightColorKey; // Per-element highlight color (omitted = default yellow)
+  annotation?: string; // Optional text annotation (≤280 chars)
+  annotationCorner?: AnnotationCorner; // Which corner the annotation anchors to
 }
 
 /**
@@ -88,19 +91,30 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
     h: d.textHash,
     id: d.elementId,
     ...(d.color && d.color !== DEFAULT_COLOR_KEY ? { c: d.color } : {}),
+    ...(d.annotation ? { n: d.annotation } : {}),
+    ...(d.annotation && d.annotationCorner && d.annotationCorner !== DEFAULT_ANNOTATION_CORNER
+      ? { nc: d.annotationCorner }
+      : {}),
   }));
 
-  // Check if all have IDs, use human-readable format
+  // When all elements have stable IDs, use a human-readable format.
+  // Annotations are encoded via encodeURIComponent so the format stays URL-readable.
+  // Format per element:
+  //   no color, no note  → "id"
+  //   color only         → "id:color"
+  //   color + note       → "id:color:corner:encodedNote"  (always 4 parts)
+  //   note, no color     → "id::corner:encodedNote"
   const allHaveIds = minified.every((m) => !!m.id);
   if (allHaveIds) {
-    const anyNonDefault = minified.some((m) => !!(m as { c?: string }).c);
-    if (!anyNonDefault) {
-      return minified.map((m) => m.id).join(',');
-    }
-    // Encode color as :key suffix (HTML IDs cannot contain ':')
     return minified.map((m) => {
-      const c = (m as { c?: string }).c;
-      return c ? `${m.id}:${c}` : m.id;
+      const id = m.id!;
+      const c = (m as { c?: string }).c ?? '';
+      const n = (m as { n?: string }).n;
+      const nc = (m as { nc?: string }).nc ?? DEFAULT_ANNOTATION_CORNER;
+      if (n) {
+        return `${id}:${c}:${nc}:${encodeURIComponent(n)}`;
+      }
+      return c ? `${id}:${c}` : id;
     }).join(',');
   }
 
@@ -161,6 +175,10 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
         elementId: m.id,
       };
       if (m.c) descriptor.color = m.c as HighlightColorKey;
+      if (m.n) {
+        descriptor.annotation = m.n as string;
+        descriptor.annotationCorner = (m.nc ?? DEFAULT_ANNOTATION_CORNER) as AnnotationCorner;
+      }
       return descriptor;
     });
   } catch {
@@ -170,24 +188,51 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
 }
 
 const COLOR_KEYS = new Set(['yellow', 'blue', 'red', 'black', 'green']);
+const CORNER_KEYS = new Set(['tl', 'tr', 'bl', 'br']);
 
 /**
  * Parses a space-separated, plus-separated, or comma-separated list of IDs into a list of AnchorDescriptors.
- * Supports optional color suffix: "id:colorKey" (e.g. "section-1:b").
+ * Supports:
+ *   "id"                        — ID only
+ *   "id:color"                  — with color
+ *   "id:color:corner:note"      — with color + annotation (note is percent-encoded)
+ *   "id::corner:note"           — annotation, no color
  */
 function parseIds(encoded: string): AnchorDescriptor[] {
   const parts = encoded.split(/[ +,]+/).filter((p) => p.length > 0);
   return parts.map((part) => {
+    // Split into at most 4 segments on ':'. The note segment (4th) is the
+    // remainder so it can itself contain encoded colons (%3A).
+    const segs = part.split(':');
     let id = part;
     let color: HighlightColorKey | undefined;
-    const colonIdx = part.lastIndexOf(':');
-    if (colonIdx > 0) {
-      const suffix = part.slice(colonIdx + 1);
-      if (COLOR_KEYS.has(suffix)) {
-        id = part.slice(0, colonIdx);
-        color = suffix as HighlightColorKey;
+    let annotation: string | undefined;
+    let annotationCorner: AnnotationCorner | undefined;
+
+    if (segs.length >= 4) {
+      // "id:color:corner:encodedNote..."
+      id = segs[0]!;
+      const colorSeg = segs[1]!;
+      const cornerSeg = segs[2]!;
+      const noteSeg = segs.slice(3).join(':'); // re-join in case of extra colons
+      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as HighlightColorKey;
+      annotationCorner = CORNER_KEYS.has(cornerSeg)
+        ? (cornerSeg as AnnotationCorner)
+        : DEFAULT_ANNOTATION_CORNER;
+      try {
+        annotation = decodeURIComponent(noteSeg);
+      } catch {
+        annotation = noteSeg;
+      }
+    } else if (segs.length === 2) {
+      // "id:color"
+      const colorSeg = segs[1]!;
+      if (COLOR_KEYS.has(colorSeg)) {
+        id = segs[0]!;
+        color = colorSeg as HighlightColorKey;
       }
     }
+
     const descriptor: AnchorDescriptor = {
       tag: 'ANY',
       index: 0,
@@ -196,6 +241,10 @@ function parseIds(encoded: string): AnchorDescriptor[] {
       elementId: id,
     };
     if (color !== undefined) descriptor.color = color;
+    if (annotation !== undefined && annotationCorner !== undefined) {
+      descriptor.annotation = annotation;
+      descriptor.annotationCorner = annotationCorner;
+    }
     return descriptor;
   });
 }
