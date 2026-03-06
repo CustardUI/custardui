@@ -41,7 +41,6 @@
 
   // --- UI State ---
   let isModalOpen = $state(false);
-  let isResetting = $state(false);
   let settingsIcon: { resetPosition: () => void } | undefined = $state();
 
   // --- Computed Props ---
@@ -78,16 +77,9 @@
   }
 
   function handleReset() {
-    isResetting = true;
     callbacks.resetToDefault();
     settingsIcon?.resetPosition();
-
     showToast('Settings reset to default');
-
-    setTimeout(() => {
-      isResetting = false;
-      settingsIcon?.resetPosition();
-    }, 600);
   }
 
   function handleStartShare(mode: SelectionMode = 'show') {
@@ -145,7 +137,6 @@
   <!-- Modal: Only specific to Settings -->
   {#if settingsEnabled && isModalOpen}
     <Modal
-      {isResetting}
       onclose={closeModal}
       onreset={handleReset}
       onstartShare={handleStartShare}

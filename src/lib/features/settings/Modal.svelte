@@ -9,7 +9,6 @@
   import IconShare from '$lib/app/icons/IconShare.svelte';
   import IconCopy from '$lib/app/icons/IconCopy.svelte';
   import IconCheck from '$lib/app/icons/IconCheck.svelte';
-  import IconReset from '$lib/app/icons/IconReset.svelte';
 
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
@@ -26,14 +25,12 @@
   import { copyToClipboard } from '$lib/utils/clipboard-utils';
 
   interface Props {
-    isResetting?: boolean;
     onclose?: () => void;
     onreset?: () => void;
     onstartShare?: () => void;
   }
 
   let {
-    isResetting = false,
     onclose = () => {},
     onreset = () => {},
     onstartShare = () => {},
@@ -359,12 +356,7 @@
 
     <footer class="footer">
       {#if showReset}
-        <button class="reset-btn" title="Reset to Default" onclick={onreset}>
-          <span class="reset-btn-icon {isResetting ? 'spinning' : ''}">
-            <IconReset />
-          </span>
-          <span>Reset</span>
-        </button>
+        <button class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
       {:else}
         <div></div>
       {/if}
@@ -723,26 +715,6 @@
   .done-btn:hover {
     background: var(--cv-primary-hover);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
-  }
-
-  .reset-btn-icon {
-    display: flex;
-    align-items: center;
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  :global(.spinning) {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   /* Share Tab Styles */
