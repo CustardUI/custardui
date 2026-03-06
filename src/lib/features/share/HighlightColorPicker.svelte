@@ -9,7 +9,6 @@
   let { element }: { element: HTMLElement } = $props();
 
   let isExpanded = $state(false);
-  let pickerEl: HTMLElement | undefined = $state(undefined);
   let rect = $state({ top: 0, left: 0, width: 0 });
 
   $effect(() => {
@@ -22,6 +21,7 @@
     return () => {
       window.removeEventListener('scroll', update, { capture: true });
       window.removeEventListener('resize', update);
+      if (clickTimer) clearTimeout(clickTimer);
     };
   });
 
@@ -64,7 +64,6 @@
 <div
   class="cv-color-picker"
   style="left: {centerX}px; top: {topY}px;"
-  bind:this={pickerEl}
   role="none"
 >
   <button

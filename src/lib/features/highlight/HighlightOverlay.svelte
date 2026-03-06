@@ -10,7 +10,7 @@
 
   let { box }: Props = $props();
   let rects = $derived(box.rects);
-  let expandedSet = new SvelteSet<number>();
+  let expandedSet = new SvelteSet<HTMLElement>();
 
   function getColorHex(rect: RectData): string {
     const key = rect.color ?? DEFAULT_COLOR_KEY;
@@ -21,11 +21,11 @@
     rect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  function toggleBadge(i: number) {
-    if (expandedSet.has(i)) {
-      expandedSet.delete(i);
+  function toggleBadge(el: HTMLElement) {
+    if (expandedSet.has(el)) {
+      expandedSet.delete(el);
     } else {
-      expandedSet.add(i);
+      expandedSet.add(el);
     }
   }
 
@@ -40,7 +40,7 @@
 </script>
 
 <div class="cv-highlight-overlay">
-  {#each rects as rect, i (`${rect.top}-${rect.left}-${rect.width}-${rect.height}`)}
+  {#each rects as rect, i (rect.element)}
     <div
       class="cv-highlight-group"
       style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-highlight-color: {getColorHex(rect)};"
@@ -68,12 +68,12 @@
       {#if rect.annotation}
         <button
           class="cv-annotation-badge"
-          class:cv-annotation-badge--expanded={expandedSet.has(i)}
+          class:cv-annotation-badge--expanded={expandedSet.has(rect.element)}
           style={getBadgeStyle(rect.annotationCorner ?? 'bl')}
-          onclick={(e) => { e.stopPropagation(); toggleBadge(i); }}
-          aria-label={expandedSet.has(i) ? 'Collapse annotation' : 'Expand annotation'}
+          onclick={(e) => { e.stopPropagation(); toggleBadge(rect.element); }}
+          aria-label={expandedSet.has(rect.element) ? 'Collapse annotation' : 'Expand annotation'}
         >
-          {#if expandedSet.has(i)}
+          {#if expandedSet.has(rect.element)}
             <span class="cv-annotation-text">{rect.annotation}</span>
           {:else}
             <span class="cv-annotation-text">

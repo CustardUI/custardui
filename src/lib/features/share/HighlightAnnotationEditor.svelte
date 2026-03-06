@@ -28,10 +28,17 @@
   let localCorner = $state<AnnotationCorner>(DEFAULT_ANNOTATION_CORNER);
 
   // Initialize from store when element changes (or annotation changes externally)
-  $effect(() => {
+  $effect.pre(() => {
     const ann = shareStore.highlightAnnotations.get(element);
-    localText = ann?.text ?? '';
-    localCorner = ann?.corner ?? DEFAULT_ANNOTATION_CORNER;
+    const newText = ann?.text ?? '';
+    const newCorner = ann?.corner ?? DEFAULT_ANNOTATION_CORNER;
+
+    if (localText !== newText) {
+      localText = newText;
+    }
+    if (localCorner !== newCorner) {
+      localCorner = newCorner;
+    }
   });
 
   function handleInput(e: Event) {
