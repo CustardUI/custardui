@@ -183,19 +183,7 @@ export class ShareStore {
       return;
     }
 
-    const descriptors = Array.from(this.selectedElements).map((el) => {
-      const desc = DomElementLocator.createDescriptor(el);
-      if (this.selectionMode === 'highlight') {
-        const color = this.highlightColors.get(el);
-        if (color !== undefined) desc.color = color;
-        const annotation = this.highlightAnnotations.get(el);
-        if (annotation !== undefined) {
-          desc.annotation = annotation.text;
-          desc.annotationCorner = annotation.corner;
-        }
-      }
-      return desc;
-    });
+    const descriptors = this._buildDescriptors();
     let serialized: string;
     try {
       serialized = DomElementLocator.serialize(descriptors);
@@ -237,19 +225,7 @@ export class ShareStore {
       return;
     }
 
-    const descriptors = Array.from(this.selectedElements).map((el) => {
-      const desc = DomElementLocator.createDescriptor(el);
-      if (this.selectionMode === 'highlight') {
-        const color = this.highlightColors.get(el);
-        if (color !== undefined) desc.color = color;
-        const annotation = this.highlightAnnotations.get(el);
-        if (annotation !== undefined) {
-          desc.annotation = annotation.text;
-          desc.annotationCorner = annotation.corner;
-        }
-      }
-      return desc;
-    });
+    const descriptors = this._buildDescriptors();
     const serialized = DomElementLocator.serialize(descriptors);
 
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
@@ -267,6 +243,22 @@ export class ShareStore {
     }
 
     window.open(url.toString(), '_blank');
+  }
+
+  private _buildDescriptors(): DomElementLocator.AnchorDescriptor[] {
+    return Array.from(this.selectedElements).map((el) => {
+      const desc = DomElementLocator.createDescriptor(el);
+      if (this.selectionMode === 'highlight') {
+        const color = this.highlightColors.get(el);
+        if (color !== undefined) desc.color = color;
+        const annotation = this.highlightAnnotations.get(el);
+        if (annotation !== undefined) {
+          desc.annotation = annotation.text;
+          desc.annotationCorner = annotation.corner;
+        }
+      }
+      return desc;
+    });
   }
 }
 
