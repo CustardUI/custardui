@@ -87,19 +87,44 @@ export class FocusService {
     const hideDescriptors = url.searchParams.get(HIDE_PARAM);
     const highlightDescriptors = url.searchParams.get(HIGHLIGHT_PARAM);
 
-    if (showDescriptors) {
-      this.applyShowMode(showDescriptors);
-    } else if (hideDescriptors) {
-      this.applyHideMode(hideDescriptors);
-    } else if (highlightDescriptors) {
-      this.applyHighlightMode(highlightDescriptors);
-    } else {
+    const hasAnyMode = showDescriptors || hideDescriptors || highlightDescriptors;
+
+    if (!hasAnyMode) {
       if (
         document.body.classList.contains(BODY_SHOW_CLASS) ||
         document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
       ) {
         this.exitShowMode(false);
       }
+      return;
+    }
+
+    // Clear any existing active state once before re-applying
+    if (
+      document.body.classList.contains(BODY_SHOW_CLASS) ||
+      document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+    ) {
+      this.exitShowMode(false);
+    }
+
+    // Pre-resolve highlight targets so show/hide modes can account for them
+    const highlightTargets = highlightDescriptors
+      ? this.highlightService.resolveTargets(highlightDescriptors)
+      : [];
+
+    // Apply show or hide (mutually exclusive with each other).
+    // Pass highlight targets so they are kept visible in show mode / not hidden in hide mode.
+    if (showDescriptors) {
+      this.applyShowMode(showDescriptors, highlightTargets);
+    } else if (hideDescriptors) {
+      this.applyHideMode(hideDescriptors, highlightTargets);
+    }
+
+    // Apply highlight independently — can coexist with show/hide.
+    // Call highlightService.apply() directly to skip applyHighlightMode()'s guard,
+    // which would otherwise see BODY_SHOW_CLASS and clear the show mode above.
+    if (highlightDescriptors) {
+      this.highlightService.apply(highlightDescriptors);
     }
   }
 
@@ -107,7 +132,7 @@ export class FocusService {
    * Applies focus mode to the specified descriptors.
    * @param encodedDescriptors - The encoded descriptors to apply.
    */
-  public applyShowMode(encodedDescriptors: string): void {
+  public applyShowMode(encodedDescriptors: string, keepTargets: HTMLElement[] = []): void {
     // Check if we are already in the right state to avoid re-rendering loops if feasible
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
@@ -144,10 +169,11 @@ export class FocusService {
     focusStore.setIsActive(true);
     document.body.classList.add(BODY_SHOW_CLASS);
 
-    this.renderShowView(targets);
+    // Merge keepTargets (e.g. highlight targets) so they are not hidden by show mode
+    this.renderShowView([...targets, ...keepTargets]);
   }
 
-  public applyHideMode(encodedDescriptors: string): void {
+  public applyHideMode(encodedDescriptors: string, excludeTargets: HTMLElement[] = []): void {
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
       document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
@@ -180,7 +206,13 @@ export class FocusService {
     focusStore.setIsActive(true);
     document.body.classList.add(BODY_SHOW_CLASS);
 
-    this.renderHiddenView(targets);
+    // Exclude highlight targets from being hidden so they stay visible
+    const excludeSet = new Set(excludeTargets);
+    const filteredTargets = excludeTargets.length > 0
+      ? targets.filter((t) => !excludeSet.has(t))
+      : targets;
+
+    this.renderHiddenView(filteredTargets);
   }
 
   public applyHighlightMode(encodedDescriptors: string): void {

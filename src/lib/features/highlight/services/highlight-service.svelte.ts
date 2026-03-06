@@ -36,6 +36,17 @@ export class HighlightService {
     });
   }
 
+  public resolveTargets(encodedDescriptors: string): HTMLElement[] {
+    const descriptors = DomElementLocator.deserialize(encodedDescriptors);
+    if (!descriptors || descriptors.length === 0) return [];
+    const targets: HTMLElement[] = [];
+    descriptors.forEach((desc) => {
+      const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
+      if (matchingEls && matchingEls.length > 0) targets.push(...matchingEls);
+    });
+    return targets;
+  }
+
   public apply(encodedDescriptors: string): void {
     const descriptors = DomElementLocator.deserialize(encodedDescriptors);
     if (!descriptors || descriptors.length === 0) return;
