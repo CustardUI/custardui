@@ -86,6 +86,7 @@
           ondblclick={(e) => handleSwatchDblClick(e, color.key)}
           title="{color.label} · dbl-click to apply to all"
           aria-label={color.label}
+          aria-pressed={currentColorKey === color.key}
         ></button>
       {/each}
     </div>

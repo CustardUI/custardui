@@ -2,7 +2,7 @@
   import { SvelteSet } from 'svelte/reactivity';
   import { type RectData } from '$features/highlight/services/highlight-types';
   import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
-  import { type AnnotationCorner, ANNOTATION_PREVIEW_LENGTH } from '$features/highlight/services/highlight-annotations';
+  import { type AnnotationCorner, ANNOTATION_PREVIEW_LENGTH, DEFAULT_ANNOTATION_CORNER } from '$features/highlight/services/highlight-annotations';
 
   interface Props {
     box: { rects: RectData[] };
@@ -69,7 +69,7 @@
         <button
           class="cv-annotation-badge"
           class:cv-annotation-badge--expanded={expandedSet.has(rect.element)}
-          style={getBadgeStyle(rect.annotationCorner ?? 'bl')}
+          style={getBadgeStyle(rect.annotationCorner ?? DEFAULT_ANNOTATION_CORNER)}
           onclick={(e) => { e.stopPropagation(); toggleBadge(rect.element); }}
           aria-label={expandedSet.has(rect.element) ? 'Collapse annotation' : 'Expand annotation'}
         >

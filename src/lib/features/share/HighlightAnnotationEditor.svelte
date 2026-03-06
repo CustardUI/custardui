@@ -3,6 +3,7 @@
   import {
     DEFAULT_ANNOTATION_CORNER,
     MAX_ANNOTATION_LENGTH,
+    ANNOTATION_PREVIEW_LENGTH,
     CORNER_ICONS,
     type AnnotationCorner,
   } from '$features/highlight/services/highlight-annotations';
@@ -73,7 +74,7 @@
   });
 
   let preview = $derived(
-    localText.length > 0 ? localText.slice(0, 20) + (localText.length > 20 ? '…' : '') : null,
+    localText.length > 0 ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH) + (localText.length > ANNOTATION_PREVIEW_LENGTH ? '…' : '') : null,
   );
 </script>
 
@@ -115,6 +116,7 @@
               }}
               title="Anchor to {key}"
               aria-label="Anchor to {key}"
+              aria-pressed={localCorner === key}
             >{icon}</button>
           {/each}
         </div>

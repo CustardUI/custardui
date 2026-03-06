@@ -23,6 +23,7 @@
         <button
           class="segment-btn {value === option ? 'active' : ''}"
           onclick={() => { value = option; onchange({ toggleId: toggle.toggleId, value: option }); }}
+          aria-pressed={value === option}
         >{option.charAt(0).toUpperCase() + option.slice(1)}</button>
       {/each}
     </div>
