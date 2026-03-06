@@ -192,6 +192,10 @@
 
     --cv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
 
+    --cv-modal-radius: 0.75rem;
+    --cv-card-radius: 0.5rem;
+    --cv-section-label-transform: uppercase;
+
     font-family: inherit; /* Inherit font from host */
   }
 
@@ -232,6 +236,10 @@
 
     --cv-focus-ring: rgba(62, 132, 244, 0.5);
     --cv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+    --cv-modal-radius: 0.75rem;
+    --cv-card-radius: 0.5rem;
+    --cv-section-label-transform: uppercase;
   }
 
 

@@ -18,40 +18,13 @@
         <p class="description">{toggle.description}</p>
       {/if}
     </div>
-    <div class="radios">
-      <label class="radio-label" title="Hide">
-        <input
-          class="toggle-input"
-          type="radio"
-          name="cv-toggle-{toggle.toggleId}"
-          value="hide"
-          bind:group={value}
-          onchange={() => onchange({ toggleId: toggle.toggleId, value: 'hide' })}
-        />
-        <span>Hide</span>
-      </label>
-      <label class="radio-label" title="Peek">
-        <input
-          class="toggle-input"
-          type="radio"
-          name="cv-toggle-{toggle.toggleId}"
-          value="peek"
-          bind:group={value}
-          onchange={() => onchange({ toggleId: toggle.toggleId, value: 'peek' })}
-        />
-        <span>Peek</span>
-      </label>
-      <label class="radio-label" title="Show">
-        <input
-          class="toggle-input"
-          type="radio"
-          name="cv-toggle-{toggle.toggleId}"
-          value="show"
-          bind:group={value}
-          onchange={() => onchange({ toggleId: toggle.toggleId, value: 'show' })}
-        />
-        <span>Show</span>
-      </label>
+    <div class="segmented" role="group" aria-label="Visibility">
+      {#each (['hide', 'peek', 'show'] as const) as option (option)}
+        <button
+          class="segment-btn {value === option ? 'active' : ''}"
+          onclick={() => { value = option; onchange({ toggleId: toggle.toggleId, value: option }); }}
+        >{option.charAt(0).toUpperCase() + option.slice(1)}</button>
+      {/each}
     </div>
   </div>
 </div>
@@ -60,7 +33,12 @@
   .card {
     background: var(--cv-bg);
     border: 1px solid var(--cv-border);
-    border-radius: 0.5rem;
+    border-radius: var(--cv-card-radius, 0.5rem);
+    transition: background 0.15s ease;
+  }
+
+  .card:hover {
+    background: var(--cv-bg-hover);
   }
 
   .content {
@@ -83,24 +61,40 @@
     margin: 0.125rem 0 0 0;
   }
 
-  .radios {
+  .segmented {
     display: flex;
-    gap: 8px;
+    border: 1px solid var(--cv-border);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    flex-shrink: 0;
   }
 
-  .radio-label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.85rem;
+  .segment-btn {
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--cv-border);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--cv-text-secondary);
     cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+    line-height: 1;
+  }
+
+  .segment-btn:first-child {
+    border-left: none;
+  }
+
+  .segment-btn:hover:not(.active) {
+    background: var(--cv-bg-hover);
     color: var(--cv-text);
   }
 
-  .toggle-input {
-    margin: 0;
-    opacity: 1;
-    width: auto;
-    height: auto;
+  .segment-btn.active {
+    background: var(--cv-primary);
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
 </style>

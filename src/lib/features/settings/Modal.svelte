@@ -395,7 +395,7 @@
 
   .modal-box {
     background: var(--cv-bg);
-    border-radius: 0.75rem;
+    border-radius: var(--cv-modal-radius, 0.75rem);
     box-shadow: 0 25px 50px -12px var(--cv-shadow);
     max-width: 32rem;
     width: 90vw;
@@ -517,9 +517,11 @@
   }
 
   .section-heading {
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--cv-text);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--cv-text-secondary);
+    text-transform: var(--cv-section-label-transform, uppercase);
+    letter-spacing: 0.08em;
     margin: 0;
   }
 
@@ -665,8 +667,8 @@
     align-items: center;
     justify-content: space-between;
     background: var(--cv-bg);
-    border-bottom-left-radius: 0.75rem;
-    border-bottom-right-radius: 0.75rem;
+    border-bottom-left-radius: var(--cv-modal-radius, 0.75rem);
+    border-bottom-right-radius: var(--cv-modal-radius, 0.75rem);
   }
 
   .footer-link {

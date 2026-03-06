@@ -48,7 +48,7 @@
   .placeholder-input {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--cv-input-border);
-    border-radius: 0.375rem;
+    border-radius: var(--cv-card-radius, 0.5rem);
     font-size: 0.9rem;
     transition: border-color 0.2s;
     background: var(--cv-input-bg);
