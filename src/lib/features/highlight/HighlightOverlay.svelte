@@ -137,6 +137,7 @@
 
   .cv-nav-arrow {
     position: absolute;
+    z-index: 10;
     right: -5px;
     pointer-events: auto;
     width: 14px;
@@ -177,6 +178,7 @@
 
   .cv-highlight-pill {
     position: absolute;
+    z-index: 10;
     bottom: -7px;
     right: 14px;
     background: white;
@@ -211,6 +213,7 @@
 
   .cv-annotation-badge {
     position: absolute;
+    z-index: 10;
     pointer-events: auto;
     max-width: 180px;
     background: white;
@@ -225,6 +228,7 @@
 
   .cv-annotation-badge--expanded {
     max-width: 260px;
+    z-index: 20;
   }
 
   .cv-annotation-text {
