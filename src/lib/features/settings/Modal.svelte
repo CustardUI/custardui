@@ -10,7 +10,6 @@
   import IconCopy from '$lib/app/icons/IconCopy.svelte';
   import IconCheck from '$lib/app/icons/IconCheck.svelte';
   import IconReset from '$lib/app/icons/IconReset.svelte';
-  import IconGitHub from '$lib/app/icons/IconGitHub.svelte';
 
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
@@ -370,9 +369,8 @@
         <div></div>
       {/if}
 
-      <a href="https://github.com/custardui/custardui" target="_blank" class="footer-link">
-        <IconGitHub />
-        <span>View on GitHub</span>
+      <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
+        custardui.js.org
       </a>
 
       <button class="done-btn" onclick={onclose}>Done</button>
@@ -661,7 +659,7 @@
 
   /* Footer */
   .footer {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-top: 1px solid var(--cv-border);
     display: flex;
     align-items: center;
@@ -672,56 +670,57 @@
   }
 
   .footer-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-self: flex-end;
     color: var(--cv-text-secondary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.68rem;
     font-weight: 500;
-    transition: color 0.15s ease;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+    transition: color 0.15s ease, opacity 0.15s ease;
   }
 
   .footer-link:hover {
-    color: var(--cv-text);
+    color: var(--cv-primary);
+    opacity: 1;
   }
 
   .reset-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    background: var(--cv-bg);
-    border: 1px solid var(--cv-border);
+    gap: 0.4rem;
+    background: transparent;
+    border: none;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--cv-danger);
+    color: var(--cv-text-secondary);
     cursor: pointer;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.5rem;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 
   .reset-btn:hover {
     background: var(--cv-danger-bg);
-    border-color: var(--cv-danger);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--cv-danger);
   }
 
   .done-btn {
     background: var(--cv-primary);
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 0.5rem;
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .done-btn:hover {
     background: var(--cv-primary-hover);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
   }
 
   .reset-btn-icon {
