@@ -45,7 +45,7 @@
   let suppressClick = false;
 
   const isRight = $derived(position?.includes('right') ?? false);
-  const isPeeking = $derived(iconSettingsStore.isPeeking);
+  const isCollapsed = $derived(iconSettingsStore.isCollapsed);
 
   let minOffset = -Infinity;
   let maxOffset = Infinity;
@@ -108,14 +108,14 @@
 
   function onMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
-    if (isPeeking) return; // strip click expands via onClick; don't start drag
+    if (isCollapsed) return; // strip click expands via onClick; don't start drag
     startDrag(e.clientY);
   }
 
   function onTouchStart(e: TouchEvent) {
     if (e.touches.length !== 1) return;
     // First tap on a peeking icon just reveals it without starting a drag
-    if (isPeeking) {
+    if (isCollapsed) {
       iconSettingsStore.setCollapsed(false);
       e.preventDefault();
       return;
@@ -182,7 +182,7 @@
   }
 
   function onClick(e: MouseEvent) {
-    if (isPeeking) {
+    if (isCollapsed) {
       iconSettingsStore.setCollapsed(false);
       return;
     }
@@ -199,7 +199,7 @@
   function onKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (isPeeking) {
+      if (isCollapsed) {
         iconSettingsStore.setCollapsed(false);
         return;
       }
@@ -208,12 +208,12 @@
   }
 
   // Helper for transforms
-  function getTransform(pos: string | undefined, offset: number, s: number | undefined, peeking: boolean) {
+  function getTransform(pos: string | undefined, offset: number, s: number | undefined, collapsed: boolean) {
     const isMiddle = pos && pos.includes('middle');
     const isRight = pos && pos.includes('right');
     let t = '';
 
-    if (peeking) {
+    if (collapsed) {
       t = isRight
         ? `translateX(calc(100% - ${PEEK_WIDTH}px)) `
         : `translateX(calc(-100% + ${PEEK_WIDTH}px)) `;
@@ -236,11 +236,11 @@
   bind:this={settingsIconElement}
   class="cv-settings-icon cv-settings-{position} {pulse ? 'cv-pulse' : ''}"
   class:cv-is-dragging={isDragging}
-  class:cv-is-peeking={isPeeking}
+  class:cv-is-collapsed={isCollapsed}
   {title}
   role="button"
   tabindex="0"
-  aria-label={isPeeking ? 'Expand settings' : 'Open Custom Views Settings'}
+  aria-label={isCollapsed ? 'Expand settings' : 'Open Custom Views Settings'}
   onmousedown={onMouseDown}
   ontouchstart={onTouchStart}
   onclick={onClick}
@@ -248,8 +248,8 @@
   style:--cv-icon-color={iconColor}
   style:--cv-icon-bg={backgroundColor}
   style:--cv-icon-opacity={opacity}
-  style:transform={getTransform(position, currentOffset, scale, isPeeking)}
-  style:cursor={isDragging ? 'grabbing' : isPeeking ? 'pointer' : 'grab'}
+  style:transform={getTransform(position, currentOffset, scale, isCollapsed)}
+  style:cursor={isDragging ? 'grabbing' : isCollapsed ? 'pointer' : 'grab'}
 >
   <span class="cv-gear"><IconGear /></span>
 
@@ -330,12 +330,12 @@
       border-color 0.3s ease;
   }
 
-  /* When peeking, dim the strip */
-  .cv-settings-icon.cv-is-peeking {
+  /* When collapsed, dim the strip */
+  .cv-settings-icon.cv-is-collapsed {
     opacity: 0.5;
   }
 
-  .cv-settings-icon.cv-is-peeking:hover {
+  .cv-settings-icon.cv-is-collapsed:hover {
     opacity: 0.85;
   }
 
@@ -374,8 +374,8 @@
     background: rgba(0, 0, 0, 0.22);
   }
 
-  /* Hide collapse tab when already peeking */
-  .cv-settings-icon.cv-is-peeking .cv-collapse-btn {
+  /* Hide collapse tab when already collapsed */
+  .cv-settings-icon.cv-is-collapsed .cv-collapse-btn {
     display: none;
   }
 

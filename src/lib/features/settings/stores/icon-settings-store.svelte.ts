@@ -10,15 +10,15 @@ export const ICON_SETTINGS_CTX = Symbol('icon-settings');
  * Constructed by AppRuntime (which owns PersistenceManager) and injected via Svelte context.
  */
 export class IconSettingsStore {
-  isPeeking = $state(false);
+  isCollapsed = $state(false);
   offset = $state(0);
 
   constructor(private persistence: PersistenceManager) {
     const savedCollapsed = persistence.getItem(COLLAPSED_KEY);
     if (savedCollapsed !== null) {
-      this.isPeeking = savedCollapsed === 'true';
+      this.isCollapsed = savedCollapsed === 'true';
     } else if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-      this.isPeeking = true;
+      this.isCollapsed = true;
     }
 
     const savedOffset = persistence.getItem(OFFSET_KEY);
@@ -28,7 +28,7 @@ export class IconSettingsStore {
   }
 
   setCollapsed(value: boolean): void {
-    this.isPeeking = value;
+    this.isCollapsed = value;
     this.persistence.setItem(COLLAPSED_KEY, value.toString());
   }
 
