@@ -245,21 +245,24 @@
   class="cv-settings-icon cv-settings-{position} {pulse ? 'cv-pulse' : ''}"
   class:cv-is-dragging={isDragging}
   class:cv-is-collapsed={isCollapsed}
-  {title}
-  role="button"
-  tabindex="0"
-  aria-label={isCollapsed ? 'Expand settings' : 'Open Custom Views Settings'}
+  role="none"
   onmousedown={onMouseDown}
   ontouchstart={onTouchStart}
-  onclick={onClick}
-  onkeydown={onKeyDown}
   style:--cv-icon-color={iconColor}
   style:--cv-icon-bg={backgroundColor}
   style:--cv-icon-opacity={opacity}
   style:transform={getTransform(position, currentOffset, scale, isCollapsed)}
   style:cursor={isDragging ? 'grabbing' : isCollapsed ? 'pointer' : 'grab'}
 >
-  <span class="cv-gear"><IconGear /></span>
+  <button
+    class="cv-settings-main-btn"
+    {title}
+    aria-label={isCollapsed ? 'Expand settings' : 'Open Custom Views Settings'}
+    onclick={onClick}
+    onkeydown={onKeyDown}
+  >
+    <span class="cv-gear"><IconGear /></span>
+  </button>
 
   <!-- Collapse tab: outer (screen-edge) side, always visible -->
   <button
@@ -283,6 +286,29 @@
 </div>
 
 <style>
+  .cv-settings-main-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: inherit;
+    justify-content: inherit;
+    color: inherit;
+    cursor: inherit;
+    border-radius: inherit;
+  }
+
+  .cv-settings-main-btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+  }
+
   .cv-gear {
     display: flex;
     align-items: center;
