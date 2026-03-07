@@ -3,6 +3,7 @@ import type { AssetsManager } from '$features/render/assets';
 import type { AdaptationConfig } from '$features/adaptation/types';
 
 import { PersistenceManager } from './utils/persistence';
+import { IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
 import { URLStateManager } from '$features/url/url-state-manager';
 import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 
@@ -30,8 +31,9 @@ export interface RuntimeOptions {
  */
 export class AppRuntime {
   private rootEl: HTMLElement;
-  private persistenceManager: PersistenceManager;
+  public persistenceManager: PersistenceManager;
   private focusService: FocusService;
+  public iconSettingsStore: IconSettingsStore;
 
   private observer?: MutationObserver;
   private destroyEffectRoot?: () => void;
@@ -40,6 +42,7 @@ export class AppRuntime {
   constructor(opt: RuntimeOptions) {
     this.rootEl = opt.rootEl || document.body;
     this.persistenceManager = new PersistenceManager(opt.storageKey);
+    this.iconSettingsStore = new IconSettingsStore(this.persistenceManager);
 
     // Initialize all store singletons with config
     this.initStores(opt.configFile);
@@ -228,31 +231,6 @@ export class AppRuntime {
     activeStateStore.reset();
     uiStore.reset();
     uiStore.isTabGroupNavHeadingVisible = true;
-  }
-
-  // --- Icon Position Persistence ---
-
-  public getIconPosition(): number | null {
-    const raw = this.persistenceManager.getItem('cv-settings-icon-offset');
-    return raw ? parseFloat(raw) : null;
-  }
-
-  public saveIconPosition(offset: number): void {
-    this.persistenceManager.setItem('cv-settings-icon-offset', offset.toString());
-  }
-
-  public clearIconPosition(): void {
-    this.persistenceManager.removeItem('cv-settings-icon-offset');
-  }
-
-  // --- Intro Callout Persistence ---
-
-  public isIntroSeen(): boolean {
-    return !!this.persistenceManager.getItem('cv-intro-shown');
-  }
-
-  public markIntroSeen(): void {
-    this.persistenceManager.setItem('cv-intro-shown', 'true');
   }
 
   public destroy() {

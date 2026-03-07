@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { ResolvedUIManagerOptions, RuntimeCallbacks } from './ui-manager';
+  import { onMount, getContext } from 'svelte';
+  import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
@@ -20,20 +20,18 @@
   import { UrlActionRouter } from '$features/url/url-action-router.svelte';
   import { IntroManager } from '$features/settings/intro-manager.svelte';
 
-  let { callbacks, options } = $props<{
-    callbacks: RuntimeCallbacks;
+  let { options } = $props<{
     options: ResolvedUIManagerOptions;
   }>();
+
+  const { persistenceManager, resetToDefault } = getContext<RuntimeCallbacks>(RUNTIME_CALLBACKS_CTX);
 
   // --- Derived State ---
   const storeConfig = $derived(activeStateStore.config);
   const settingsEnabled = $derived(options.settingsEnabled ?? true);
 
   // --- Services ---
-  const introManager = new IntroManager(
-    { isIntroSeen: () => callbacks.isIntroSeen(), markIntroSeen: () => callbacks.markIntroSeen() },
-    () => options.callout,
-  );
+  const introManager = new IntroManager(persistenceManager, () => options.callout);
   const router = new UrlActionRouter({
     onOpenModal: openModal,
     onStartShare: handleStartShare,
@@ -78,7 +76,7 @@
   }
 
   function handleReset() {
-    callbacks.resetToDefault();
+    resetToDefault();
     settingsIcon?.resetPosition();
     showToast('Settings reset to default');
   }
@@ -130,9 +128,6 @@
       backgroundColor={options.icon?.backgroundColor}
       opacity={options.icon?.opacity}
       scale={options.icon?.scale}
-      getIconPosition={callbacks.getIconPosition}
-      saveIconPosition={callbacks.saveIconPosition}
-      clearIconPosition={callbacks.clearIconPosition}
     />
   {/if}
 

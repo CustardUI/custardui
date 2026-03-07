@@ -1,8 +1,11 @@
 <script lang="ts">
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
-  import { onMount } from 'svelte';
+  import { onMount, getContext } from 'svelte';
   import IconGear from '$lib/app/icons/IconGear.svelte';
+  import { type IconSettingsStore, ICON_SETTINGS_CTX } from '$features/settings/stores/icon-settings-store.svelte';
+
+  const iconSettingsStore = getContext<IconSettingsStore>(ICON_SETTINGS_CTX);
 
   let {
     position = 'middle-left',
@@ -13,9 +16,6 @@
     backgroundColor = undefined,
     opacity = undefined,
     scale = undefined,
-    getIconPosition = undefined,
-    saveIconPosition = undefined,
-    clearIconPosition = undefined,
   }: {
     position?:
       | 'top-right'
@@ -31,20 +31,21 @@
     backgroundColor?: string;
     opacity?: number;
     scale?: number;
-    getIconPosition?: () => number | null;
-    saveIconPosition?: (offset: number) => void;
-    clearIconPosition?: () => void;
   } = $props();
 
   // Constants
   const VIEWPORT_MARGIN = 10;
   const DRAG_THRESHOLD = 5;
+  const PEEK_WIDTH = 20;
 
   let isDragging = $state(false);
   let dragStartY = 0;
   let dragStartOffset = 0;
-  let currentOffset = $state(0);
+  let currentOffset = $state(iconSettingsStore.offset);
   let suppressClick = false;
+
+  const isRight = $derived(position?.includes('right') ?? false);
+  const isPeeking = $derived(iconSettingsStore.isPeeking);
 
   let minOffset = -Infinity;
   let maxOffset = Infinity;
@@ -52,14 +53,6 @@
   let settingsIconElement: HTMLElement;
 
   onMount(() => {
-    // Load persisted offset
-    if (getIconPosition) {
-      const savedOffset = getIconPosition();
-      if (savedOffset !== null) {
-        currentOffset = savedOffset;
-      }
-    }
-
     // Global event listeners to handle drag leaving the element
     window.addEventListener('mousemove', handleDragMove);
     window.addEventListener('mouseup', endDrag);
@@ -67,8 +60,8 @@
     window.addEventListener('touchend', endDrag);
     window.addEventListener('resize', constrainPositionToViewport);
 
-    // Initial check
-    constCheckTimer = setTimeout(constrainPositionToViewport, 0); // Ensure layout is ready
+    // Initial check — defer to ensure layout is ready
+    constCheckTimer = setTimeout(constrainPositionToViewport, 0);
 
     return () => {
       window.removeEventListener('mousemove', handleDragMove);
@@ -85,7 +78,12 @@
   export function resetPosition() {
     currentOffset = 0;
     dragStartOffset = 0;
-    clearIconPosition?.();
+    iconSettingsStore.clearOffset();
+  }
+
+  function handleCollapse(e: MouseEvent) {
+    e.stopPropagation(); // don't bubble to the icon's onclick
+    iconSettingsStore.setCollapsed(true);
   }
 
   function constrainPositionToViewport() {
@@ -110,15 +108,23 @@
 
   function onMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
+    if (isPeeking) return; // strip click expands via onClick; don't start drag
     startDrag(e.clientY);
   }
 
   function onTouchStart(e: TouchEvent) {
     if (e.touches.length !== 1) return;
+    // First tap on a peeking icon just reveals it without starting a drag
+    if (isPeeking) {
+      iconSettingsStore.setCollapsed(false);
+      e.preventDefault();
+      return;
+    }
     startDrag(e.touches[0]!.clientY);
   }
 
   function startDrag(clientY: number) {
+    iconSettingsStore.setCollapsed(false);
     isDragging = true;
     dragStartY = clientY;
     dragStartOffset = currentOffset;
@@ -172,10 +178,14 @@
   }
 
   function savePosition() {
-    saveIconPosition?.(currentOffset);
+    iconSettingsStore.setOffset(currentOffset);
   }
 
   function onClick(e: MouseEvent) {
+    if (isPeeking) {
+      iconSettingsStore.setCollapsed(false);
+      return;
+    }
     if (suppressClick) {
       e.stopImmediatePropagation();
       e.preventDefault();
@@ -189,19 +199,30 @@
   function onKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
+      if (isPeeking) {
+        iconSettingsStore.setCollapsed(false);
+        return;
+      }
       if (onclick) onclick();
     }
   }
 
   // Helper for transforms
-  function getTransform(pos: string | undefined, offset: number, s: number | undefined) {
+  function getTransform(pos: string | undefined, offset: number, s: number | undefined, peeking: boolean) {
     const isMiddle = pos && pos.includes('middle');
+    const isRight = pos && pos.includes('right');
     let t = '';
 
+    if (peeking) {
+      t = isRight
+        ? `translateX(calc(100% - ${PEEK_WIDTH}px)) `
+        : `translateX(calc(-100% + ${PEEK_WIDTH}px)) `;
+    }
+
     if (isMiddle) {
-      t = `translateY(calc(-50% + ${offset}px))`;
+      t += `translateY(calc(-50% + ${offset}px))`;
     } else {
-      t = `translateY(${offset}px)`;
+      t += `translateY(${offset}px)`;
     }
 
     if (s && s !== 1) {
@@ -214,10 +235,12 @@
 <div
   bind:this={settingsIconElement}
   class="cv-settings-icon cv-settings-{position} {pulse ? 'cv-pulse' : ''}"
+  class:cv-is-dragging={isDragging}
+  class:cv-is-peeking={isPeeking}
   {title}
   role="button"
   tabindex="0"
-  aria-label="Open Custom Views Settings"
+  aria-label={isPeeking ? 'Expand settings' : 'Open Custom Views Settings'}
   onmousedown={onMouseDown}
   ontouchstart={onTouchStart}
   onclick={onClick}
@@ -225,10 +248,20 @@
   style:--cv-icon-color={iconColor}
   style:--cv-icon-bg={backgroundColor}
   style:--cv-icon-opacity={opacity}
-  style:transform={getTransform(position, currentOffset, scale)}
-  style:cursor={isDragging ? 'grabbing' : 'grab'}
+  style:transform={getTransform(position, currentOffset, scale, isPeeking)}
+  style:cursor={isDragging ? 'grabbing' : isPeeking ? 'pointer' : 'grab'}
 >
   <span class="cv-gear"><IconGear /></span>
+
+  <!-- Collapse tab: outer (screen-edge) side, always visible -->
+  <button
+    class="cv-collapse-btn"
+    data-side={isRight ? 'right' : 'left'}
+    onclick={handleCollapse}
+    tabindex="-1"
+    aria-label="Collapse settings icon"
+  >{isRight ? '›' : '‹'}</button>
+
 </div>
 
 <style>
@@ -268,7 +301,8 @@
       background 0.3s ease,
       color 0.3s ease,
       opacity 0.3s ease,
-      border-color 0.3s ease; /* Removed transform transition to allow smooth dragging */
+      border-color 0.3s ease,
+      transform 0.4s ease; /* transform transition drives the peek slide animation */
     touch-action: none; /* Crucial for touch dragging */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     box-sizing: border-box;
@@ -285,6 +319,66 @@
     opacity: 1;
     border-color: rgba(0, 0, 0, 0.3);
   }
+
+  /* Remove transform transition during drag so it tracks the pointer without lag */
+  .cv-settings-icon.cv-is-dragging {
+    transition:
+      width 0.3s ease,
+      background 0.3s ease,
+      color 0.3s ease,
+      opacity 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  /* When peeking, dim the strip */
+  .cv-settings-icon.cv-is-peeking {
+    opacity: 0.5;
+  }
+
+  .cv-settings-icon.cv-is-peeking:hover {
+    opacity: 0.85;
+  }
+
+  /* Collapse tab — always visible as a thin strip at the inner (page-facing) edge */
+  .cv-collapse-btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.12);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  .cv-collapse-btn[data-side='left'] {
+    left: 0; /* outer = screen-edge side for left icons */
+    border-radius: 0 6px 6px 0;
+  }
+
+  .cv-collapse-btn[data-side='right'] {
+    right: 0; /* outer = screen-edge side for right icons */
+    border-radius: 6px 0 0 6px;
+  }
+
+  .cv-collapse-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  /* Hide collapse tab when already peeking */
+  .cv-settings-icon.cv-is-peeking .cv-collapse-btn {
+    display: none;
+  }
+
 
   /* Top-right */
   .cv-settings-top-right {
