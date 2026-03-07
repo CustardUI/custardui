@@ -30,7 +30,7 @@
 
   // --- Derived State ---
   const storeConfig = $derived(activeStateStore.config);
-  const settingsEnabled = $derived(options.settingsEnabled ?? true);
+  const settingsEnabled = $derived(options.settingsEnabled);
 
   // --- Services ---
   const introManager = new IntroManager(persistenceManager, () => options.callout);
