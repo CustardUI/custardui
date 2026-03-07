@@ -270,6 +270,16 @@
     aria-label="Collapse settings icon"
   >{isRight ? '›' : '‹'}</button>
 
+  <!-- Dismiss button: shown above peek strip when collapsed -->
+  {#if isCollapsed}
+    <button
+      class="cv-dismiss-btn"
+      data-side={isRight ? 'left' : 'right'}
+      onclick={(e) => { e.stopPropagation(); iconSettingsStore.dismiss(); }}
+      aria-label="Dismiss settings icon"
+    >✕</button>
+  {/if}
+
 </div>
 
 <style>
@@ -384,6 +394,34 @@
   /* Hide collapse tab when already collapsed */
   .cv-settings-icon.cv-is-collapsed .cv-collapse-btn {
     display: none;
+  }
+
+  .cv-dismiss-btn {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    font-size: 9px;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  .cv-dismiss-btn[data-side='left'] { left: 0; }
+  .cv-dismiss-btn[data-side='right'] { right: 0; }
+
+  .cv-dismiss-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.25);
   }
 
 

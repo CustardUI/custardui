@@ -12,6 +12,7 @@ export const ICON_SETTINGS_CTX = Symbol('icon-settings');
 export class IconSettingsStore {
   isCollapsed = $state(false);
   offset = $state(0);
+  isDismissed = $state(false);
 
   constructor(private persistence: PersistenceManager) {
     const savedCollapsed = persistence.getItem(COLLAPSED_KEY);
@@ -48,5 +49,9 @@ export class IconSettingsStore {
   clearOffset(): void {
     this.offset = 0;
     this.persistence.removeItem(OFFSET_KEY);
+  }
+
+  dismiss(): void {
+    this.isDismissed = true;
   }
 }

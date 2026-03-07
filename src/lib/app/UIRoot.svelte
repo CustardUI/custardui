@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, getContext } from 'svelte';
   import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
+  import { ICON_SETTINGS_CTX, type IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
@@ -25,6 +26,7 @@
   }>();
 
   const { persistenceManager, resetToDefault } = getContext<RuntimeCallbacks>(RUNTIME_CALLBACKS_CTX);
+  const iconSettingsStore = getContext<IconSettingsStore>(ICON_SETTINGS_CTX);
 
   // --- Derived State ---
   const storeConfig = $derived(activeStateStore.config);
@@ -88,9 +90,11 @@
     shareStore.toggleActive(true);
   }
 
-  // --- Settings Visibility ---
-  const shouldRenderSettings = $derived(
-    settingsEnabled && (derivedStore.hasMenuOptions || uiStore.uiOptions.showTabGroups || isModalOpen),
+  // --- Icon Visibility ---
+  const shouldShowIcon = $derived(
+    settingsEnabled &&
+    !iconSettingsStore.isDismissed &&
+    (derivedStore.hasMenuOptions || uiStore.uiOptions.showTabGroups || isModalOpen),
   );
 </script>
 
@@ -117,7 +121,7 @@
   <FocusBanner />
 
   <!-- Widget Icon: Only specific to Settings -->
-  {#if shouldRenderSettings && options.icon.show}
+  {#if shouldShowIcon && options.icon.show}
     <SettingsIcon
       bind:this={settingsIcon}
       position={options.icon.position}
