@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { IconSettingsStore } from '../../../../../src/lib/features/settings/stores/icon-settings-store.svelte';
 import type { PersistenceManager } from '../../../../../src/lib/utils/persistence';
 
@@ -13,7 +13,11 @@ describe('IconSettingsStore', () => {
     } as unknown as PersistenceManager;
 
     // Mock window to simulate mobile view sometimes
-    vi.stubGlobal('window', { innerWidth: 1024 });
+    vi.stubGlobal('window', { ...window, innerWidth: 1024 });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('initializes with default values when storage is empty', () => {
@@ -24,7 +28,7 @@ describe('IconSettingsStore', () => {
   });
 
   it('initializes as collapsed on mobile screens by default', () => {
-    vi.stubGlobal('window', { innerWidth: 500 }); // Mobile viewport
+    vi.stubGlobal('window', { ...window, innerWidth: 500 }); // Mobile viewport
     const store = new IconSettingsStore(mockPersistence);
     
     expect(store.isCollapsed).toBe(true);

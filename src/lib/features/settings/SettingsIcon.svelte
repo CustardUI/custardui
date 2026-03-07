@@ -270,6 +270,9 @@
     data-side={isRight ? 'right' : 'left'}
     onclick={handleCollapse}
     onkeydown={handleCollapseKeydown}
+    onmousedown={(e) => e.stopPropagation()}
+    ontouchstart={(e) => e.stopPropagation()}
+    onpointerdown={(e) => e.stopPropagation()}
     aria-label="Collapse settings icon"
   >{isRight ? '›' : '‹'}</button>
 
@@ -279,6 +282,9 @@
       class="cv-dismiss-btn"
       data-side={isRight ? 'left' : 'right'}
       onclick={(e) => { e.stopPropagation(); iconSettingsStore.dismiss(); }}
+      onmousedown={(e) => e.stopPropagation()}
+      ontouchstart={(e) => e.stopPropagation()}
+      onpointerdown={(e) => e.stopPropagation()}
       aria-label="Dismiss settings icon"
     >✕</button>
   {/if}
