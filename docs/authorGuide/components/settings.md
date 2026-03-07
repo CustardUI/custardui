@@ -101,7 +101,7 @@ Configure the settings in `custardui.config.json`:
 
 | Name                    | Type                   | Default                                     | Description                                                     |
 | :---------------------- | :--------------------- | :------------------------------------------ | :-------------------------------------------------------------- |
-| enabled                 | `boolean`              | `true`                                      | Enables or disables the settings widget.                        |
+| enabled                 | `boolean`              | `false`                                     | Enables or disables the settings widget.                        |
 | theme                   | `'light' \| 'dark'`    | `'light'`                                   | Theme of the settings widget.                                   |
 | panel.title             | `string`               | `'Customize View'`                          | Title displayed in the settings modal.                          |
 | panel.description       | `string`               | -                                           | Description text displayed in the settings modal.               |

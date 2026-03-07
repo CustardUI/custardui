@@ -58,7 +58,7 @@ export interface WidgetIconConfig {
  * Top-level settings for the widget.
  */
 export interface WidgetSettings {
-  /** Whether the settings widget is enabled */
+  /** Whether the settings widget is enabled (default: false) */
   enabled?: boolean;
   /** Settings panel configuration */
   panel?: WidgetPanelConfig;
