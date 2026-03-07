@@ -13,7 +13,7 @@ describe('IconSettingsStore', () => {
     } as unknown as PersistenceManager;
 
     // Mock window to simulate mobile view sometimes
-    vi.stubGlobal('window', { ...window, innerWidth: 1024 });
+    vi.stubGlobal('innerWidth', 1024);
   });
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe('IconSettingsStore', () => {
   });
 
   it('initializes as collapsed on mobile screens by default', () => {
-    vi.stubGlobal('window', { ...window, innerWidth: 500 }); // Mobile viewport
+    vi.stubGlobal('innerWidth', 500); // Mobile viewport
     const store = new IconSettingsStore(mockPersistence);
     
     expect(store.isCollapsed).toBe(true);

@@ -91,10 +91,21 @@
 
     const min = VIEWPORT_MARGIN - zeroTop;
     const max = window.innerHeight - VIEWPORT_MARGIN - zeroTop - elementHeight;
+
+    // Refresh boundaries during drag so handleDragMove respects the new window size
+    if (isDragging) {
+      minOffset = min;
+      maxOffset = max;
+    }
+
     // Clamp
     const clamped = Math.max(min, Math.min(max, currentOffset));
     if (clamped !== currentOffset) {
-      iconSettingsStore.setOffset(clamped);
+      if (isDragging) {
+        dragOffset = clamped;
+      } else {
+        iconSettingsStore.setOffset(clamped);
+      }
     }
   }
 
