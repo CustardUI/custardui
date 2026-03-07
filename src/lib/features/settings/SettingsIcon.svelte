@@ -86,6 +86,14 @@
     iconSettingsStore.setCollapsed(true);
   }
 
+  function handleCollapseKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.stopPropagation();
+      e.preventDefault();
+      iconSettingsStore.setCollapsed(true);
+    }
+  }
+
   function constrainPositionToViewport() {
     if (!settingsIconElement) return;
 
@@ -258,7 +266,7 @@
     class="cv-collapse-btn"
     data-side={isRight ? 'right' : 'left'}
     onclick={handleCollapse}
-    tabindex="-1"
+    onkeydown={handleCollapseKeydown}
     aria-label="Collapse settings icon"
   >{isRight ? '›' : '‹'}</button>
 
@@ -339,7 +347,6 @@
     opacity: 0.85;
   }
 
-  /* Collapse tab — always visible as a thin strip at the inner (page-facing) edge */
   .cv-collapse-btn {
     position: absolute;
     top: 0;

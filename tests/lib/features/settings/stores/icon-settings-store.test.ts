@@ -44,6 +44,18 @@ describe('IconSettingsStore', () => {
     expect(store.offset).toBe(150.5);
   });
 
+  it('handles corrupted NaN offset gracefully', () => {
+    mockPersistence.getItem = vi.fn((key: string) => {
+      if (key === 'cv-settings-icon-offset') return 'not-a-number';
+      return null;
+    });
+
+    const store = new IconSettingsStore(mockPersistence);
+    
+    expect(store.offset).toBe(0);
+    expect(mockPersistence.removeItem).toHaveBeenCalledWith('cv-settings-icon-offset');
+  });
+
   it('updates state and persists when setCollapsed is called', () => {
     const store = new IconSettingsStore(mockPersistence);
     

@@ -21,9 +21,17 @@ export class IconSettingsStore {
       this.isCollapsed = true;
     }
 
+    // Parse offset safely
     const savedOffset = persistence.getItem(OFFSET_KEY);
     if (savedOffset !== null) {
-      this.offset = parseFloat(savedOffset);
+      const parsedOffset = parseFloat(savedOffset);
+      if (Number.isFinite(parsedOffset)) {
+        this.offset = parsedOffset;
+      } else {
+        // Corrupted value; clear it out.
+        this.offset = 0;
+        persistence.removeItem(OFFSET_KEY);
+      }
     }
   }
 
