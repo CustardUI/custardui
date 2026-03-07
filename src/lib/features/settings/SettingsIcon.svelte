@@ -41,7 +41,8 @@
   let isDragging = $state(false);
   let dragStartY = 0;
   let dragStartOffset = 0;
-  let currentOffset = $state(iconSettingsStore.offset);
+  let dragOffset = $state(0);
+  const currentOffset = $derived(isDragging ? dragOffset : iconSettingsStore.offset);
   let suppressClick = false;
 
   const isRight = $derived(position?.includes('right') ?? false);
@@ -90,13 +91,10 @@
 
     const min = VIEWPORT_MARGIN - zeroTop;
     const max = window.innerHeight - VIEWPORT_MARGIN - zeroTop - elementHeight;
-
     // Clamp
     const clamped = Math.max(min, Math.min(max, currentOffset));
-
     if (clamped !== currentOffset) {
-      currentOffset = clamped;
-      savePosition();
+      iconSettingsStore.setOffset(clamped);
     }
   }
 
@@ -121,7 +119,8 @@
     iconSettingsStore.setCollapsed(false);
     isDragging = true;
     dragStartY = clientY;
-    dragStartOffset = currentOffset;
+    dragStartOffset = iconSettingsStore.offset;
+    dragOffset = dragStartOffset;
     suppressClick = false;
 
     calculateDragConstraints();
@@ -149,7 +148,7 @@
     const rawOffset = dragStartOffset + deltaY;
 
     // Clamp the offset to keep element on screen
-    currentOffset = Math.max(minOffset, Math.min(maxOffset, rawOffset));
+    dragOffset = Math.max(minOffset, Math.min(maxOffset, rawOffset));
 
     if (Math.abs(deltaY) > DRAG_THRESHOLD) {
       suppressClick = true;
@@ -168,14 +167,10 @@
   function endDrag() {
     if (!isDragging) return;
     isDragging = false;
-    savePosition();
+    iconSettingsStore.setOffset(dragOffset);
   }
 
-  function savePosition() {
-    iconSettingsStore.setOffset(currentOffset);
-  }
-
-  function onClick(e: MouseEvent) {
+  function handleMainClick(e: MouseEvent) {
     if (isCollapsed) {
       iconSettingsStore.setCollapsed(false);
       return;
@@ -187,18 +182,6 @@
       return;
     }
     if (onclick) onclick();
-  }
-
-  // Key handler for accessibility
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (isCollapsed) {
-        iconSettingsStore.setCollapsed(false);
-        return;
-      }
-      if (onclick) onclick();
-    }
   }
 
   // Helper for transforms
@@ -244,8 +227,7 @@
     class="cv-settings-main-btn"
     {title}
     aria-label={isCollapsed ? 'Expand settings' : 'Open Custom Views Settings'}
-    onclick={onClick}
-    onkeydown={onKeyDown}
+    onclick={handleMainClick}
   >
     <span class="cv-gear"><IconGear /></span>
   </button>
