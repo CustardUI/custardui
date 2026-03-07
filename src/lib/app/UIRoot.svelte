@@ -42,7 +42,6 @@
 
   // --- UI State ---
   let isModalOpen = $state(false);
-  let settingsIcon: { resetPosition: () => void } | undefined = $state();
 
   // --- Computed Props ---
 
@@ -79,7 +78,7 @@
 
   function handleReset() {
     resetToDefault();
-    settingsIcon?.resetPosition();
+    iconSettingsStore.resetPositionAndCollapseState();
     showToast('Settings reset to default');
   }
 
@@ -123,7 +122,6 @@
   <!-- Widget Icon: Only specific to Settings -->
   {#if shouldShowIcon && options.icon.show}
     <SettingsIcon
-      bind:this={settingsIcon}
       position={options.icon.position}
       title={uiStore.uiOptions.title}
       pulse={introManager.showPulse}

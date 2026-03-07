@@ -75,23 +75,9 @@
 
   let constCheckTimer: any;
 
-  export function resetPosition() {
-    currentOffset = 0;
-    dragStartOffset = 0;
-    iconSettingsStore.clearOffset();
-  }
-
   function handleCollapse(e: MouseEvent) {
     e.stopPropagation(); // don't bubble to the icon's onclick
     iconSettingsStore.setCollapsed(true);
-  }
-
-  function handleCollapseKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.stopPropagation();
-      e.preventDefault();
-      iconSettingsStore.setCollapsed(true);
-    }
   }
 
   function constrainPositionToViewport() {
@@ -269,7 +255,6 @@
     class="cv-collapse-btn"
     data-side={isRight ? 'right' : 'left'}
     onclick={handleCollapse}
-    onkeydown={handleCollapseKeydown}
     onmousedown={(e) => e.stopPropagation()}
     ontouchstart={(e) => e.stopPropagation()}
     onpointerdown={(e) => e.stopPropagation()}

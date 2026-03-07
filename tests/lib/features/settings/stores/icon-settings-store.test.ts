@@ -83,13 +83,18 @@ describe('IconSettingsStore', () => {
     expect(mockPersistence.setItem).toHaveBeenCalledWith('cv-settings-icon-offset', '200');
   });
 
-  it('clears offset from state and persistence when clearOffset is called', () => {
+  it('clears all state and persistence when resetPositionAndCollapseState is called', () => {
     const store = new IconSettingsStore(mockPersistence);
-    store.setOffset(200); // Set it first
+    store.setOffset(200); 
+    store.setCollapsed(true);
+    store.dismiss();
     
-    store.clearOffset();
+    store.resetPositionAndCollapseState();
     
     expect(store.offset).toBe(0);
+    expect(store.isCollapsed).toBe(false); // default for desktop
+    expect(store.isDismissed).toBe(false);
     expect(mockPersistence.removeItem).toHaveBeenCalledWith('cv-settings-icon-offset');
+    expect(mockPersistence.removeItem).toHaveBeenCalledWith('cv-settings-icon-collapsed');
   });
 });

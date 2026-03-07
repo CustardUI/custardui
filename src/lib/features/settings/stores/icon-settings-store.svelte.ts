@@ -46,9 +46,16 @@ export class IconSettingsStore {
     this.persistence.setItem(OFFSET_KEY, value.toString());
   }
 
-  clearOffset(): void {
+  resetPositionAndCollapseState(): void {
     this.offset = 0;
     this.persistence.removeItem(OFFSET_KEY);
+    this.persistence.removeItem(COLLAPSED_KEY);
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      this.isCollapsed = true;
+    } else {
+      this.isCollapsed = false;
+    }
+    this.isDismissed = false;
   }
 
   dismiss(): void {
