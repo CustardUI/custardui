@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { ResolvedUIManagerOptions, RuntimeCallbacks } from './ui-manager';
+  import { onMount, getContext } from 'svelte';
+  import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
+  import { ICON_SETTINGS_CTX, type IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
@@ -20,20 +21,19 @@
   import { UrlActionRouter } from '$features/url/url-action-router.svelte';
   import { IntroManager } from '$features/settings/intro-manager.svelte';
 
-  let { callbacks, options } = $props<{
-    callbacks: RuntimeCallbacks;
+  let { options } = $props<{
     options: ResolvedUIManagerOptions;
   }>();
 
+  const { persistenceManager, resetToDefault } = getContext<RuntimeCallbacks>(RUNTIME_CALLBACKS_CTX);
+  const iconSettingsStore = getContext<IconSettingsStore>(ICON_SETTINGS_CTX);
+
   // --- Derived State ---
   const storeConfig = $derived(activeStateStore.config);
-  const settingsEnabled = $derived(options.settingsEnabled ?? true);
+  const settingsEnabled = $derived(options.settingsEnabled);
 
   // --- Services ---
-  const introManager = new IntroManager(
-    { isIntroSeen: () => callbacks.isIntroSeen(), markIntroSeen: () => callbacks.markIntroSeen() },
-    () => options.callout,
-  );
+  const introManager = new IntroManager(persistenceManager, () => options.callout);
   const router = new UrlActionRouter({
     onOpenModal: openModal,
     onStartShare: handleStartShare,
@@ -42,7 +42,6 @@
 
   // --- UI State ---
   let isModalOpen = $state(false);
-  let settingsIcon: { resetPosition: () => void } | undefined = $state();
 
   // --- Computed Props ---
 
@@ -78,8 +77,8 @@
   }
 
   function handleReset() {
-    callbacks.resetToDefault();
-    settingsIcon?.resetPosition();
+    resetToDefault();
+    iconSettingsStore.resetPositionAndCollapseState();
     showToast('Settings reset to default');
   }
 
@@ -90,9 +89,11 @@
     shareStore.toggleActive(true);
   }
 
-  // --- Settings Visibility ---
-  const shouldRenderSettings = $derived(
-    settingsEnabled && (derivedStore.hasMenuOptions || uiStore.uiOptions.showTabGroups || isModalOpen),
+  // --- Icon Visibility ---
+  const shouldShowIcon = $derived(
+    settingsEnabled &&
+    !iconSettingsStore.isDismissed &&
+    (derivedStore.hasMenuOptions || uiStore.uiOptions.showTabGroups || isModalOpen),
   );
 </script>
 
@@ -119,9 +120,8 @@
   <FocusBanner />
 
   <!-- Widget Icon: Only specific to Settings -->
-  {#if shouldRenderSettings && options.icon.show}
+  {#if shouldShowIcon && options.icon.show}
     <SettingsIcon
-      bind:this={settingsIcon}
       position={options.icon.position}
       title={uiStore.uiOptions.title}
       pulse={introManager.showPulse}
@@ -130,9 +130,6 @@
       backgroundColor={options.icon?.backgroundColor}
       opacity={options.icon?.opacity}
       scale={options.icon?.scale}
-      getIconPosition={callbacks.getIconPosition}
-      saveIconPosition={callbacks.saveIconPosition}
-      clearIconPosition={callbacks.clearIconPosition}
     />
   {/if}
 

@@ -1,9 +1,5 @@
-import type { UIManagerOptions } from '$lib/app/ui-manager';
-
-export interface IntroPersistence {
-  isIntroSeen: () => boolean;
-  markIntroSeen: () => void;
-}
+import type { UIManagerOptions } from '$lib/app/types';
+import type { PersistenceManager } from '$lib/utils/persistence';
 
 /**
  * IntroManager
@@ -19,12 +15,12 @@ export class IntroManager {
   showCallout = $state(false);
   showPulse = $state(false);
 
-  private persistence: IntroPersistence;
+  private persistence: PersistenceManager;
   private getOptions: () => UIManagerOptions['callout'];
   private hasChecked = false;
 
   constructor(
-    persistence: IntroPersistence,
+    persistence: PersistenceManager,
     options: UIManagerOptions['callout'] | (() => UIManagerOptions['callout']),
   ) {
     this.persistence = persistence;
@@ -49,7 +45,7 @@ export class IntroManager {
   }
 
   private checkAndShow() {
-    if (!this.persistence.isIntroSeen()) {
+    if (!this.persistence.getItem('cv-intro-shown')) {
       setTimeout(() => {
         this.showCallout = true;
         this.showPulse = true;
@@ -60,6 +56,6 @@ export class IntroManager {
   public dismiss() {
     this.showCallout = false;
     this.showPulse = false;
-    this.persistence.markIntroSeen();
+    this.persistence.setItem('cv-intro-shown', 'true');
   }
 }

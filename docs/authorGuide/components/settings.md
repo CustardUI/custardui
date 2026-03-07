@@ -7,7 +7,9 @@
 
 ## Settings Dialog
 
-The **Settings Dialog** allows visitors to customize page content visibility and tab selections. It is enabled by default and automatically adapts to your configuration, showing only relevant sections.
+The **Settings Dialog** allows visitors to customize page content visibility and tab selections. It adapts to your configuration, showing only relevant sections.
+
+It is disabled by default in case users wish to use CustardUI only for specific features.
 
 The settings panel allows users to:
 
@@ -101,7 +103,7 @@ Configure the settings in `custardui.config.json`:
 
 | Name                    | Type                   | Default                                     | Description                                                     |
 | :---------------------- | :--------------------- | :------------------------------------------ | :-------------------------------------------------------------- |
-| enabled                 | `boolean`              | `true`                                      | Enables or disables the settings widget.                        |
+| enabled                 | `boolean`              | `false`                                     | Enables or disables the settings widget.                        |
 | theme                   | `'light' \| 'dark'`    | `'light'`                                   | Theme of the settings widget.                                   |
 | panel.title             | `string`               | `'Customize View'`                          | Title displayed in the settings modal.                          |
 | panel.description       | `string`               | -                                           | Description text displayed in the settings modal.               |

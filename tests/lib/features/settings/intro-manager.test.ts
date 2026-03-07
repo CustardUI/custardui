@@ -2,18 +2,19 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { IntroManager, type IntroPersistence } from '../../../../src/lib/features/settings/intro-manager.svelte';
+import { IntroManager } from '../../../../src/lib/features/settings/intro-manager.svelte';
+import type { PersistenceManager } from '../../../../src/lib/utils/persistence';
 
 describe('IntroManager', () => {
   let introManager: IntroManager;
-  let persistence: IntroPersistence;
+  let persistence: PersistenceManager;
   let calloutOptions: any;
 
   beforeEach(() => {
     persistence = {
-      isIntroSeen: vi.fn().mockReturnValue(false),
-      markIntroSeen: vi.fn(),
-    };
+      getItem: vi.fn().mockReturnValue(null),
+      setItem: vi.fn(),
+    } as unknown as PersistenceManager;
 
     calloutOptions = {
       show: true,
@@ -50,7 +51,7 @@ describe('IntroManager', () => {
   });
 
   it('should not show if already persisted as shown', () => {
-    (persistence.isIntroSeen as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (persistence.getItem as ReturnType<typeof vi.fn>).mockReturnValue('true');
     introManager = new IntroManager(persistence, calloutOptions);
     introManager.init(true, true);
 
@@ -66,6 +67,6 @@ describe('IntroManager', () => {
     introManager.dismiss();
 
     expect(introManager.showCallout).toBe(false);
-    expect(persistence.markIntroSeen).toHaveBeenCalled();
+    expect(persistence.setItem).toHaveBeenCalledWith('cv-intro-shown', 'true');
   });
 });

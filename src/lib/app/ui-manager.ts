@@ -3,49 +3,15 @@ import type { ConfigFile } from '$lib/types/index';
 import UIRoot from './UIRoot.svelte';
 import { mount, unmount } from 'svelte';
 
-import type { WidgetSettings, WidgetCalloutConfig, WidgetIconConfig } from '$features/settings/types';
+import { ICON_SETTINGS_CTX } from '$features/settings/stores/icon-settings-store.svelte';
+import {
+  type UIManagerOptions,
+  type ResolvedUIManagerOptions,
+  type RuntimeCallbacks,
+  RUNTIME_CALLBACKS_CTX,
+} from './types';
 
-/**
- * Callbacks that the UI layer needs from the runtime.
- * This keeps the UI decoupled from the AppRuntime class.
- */
-export interface RuntimeCallbacks {
-  resetToDefault: () => void;
-  getIconPosition: () => number | null;
-  saveIconPosition: (offset: number) => void;
-  clearIconPosition: () => void;
-  isIntroSeen: () => boolean;
-  markIntroSeen: () => void;
-}
-
-export interface UIManagerOptions extends Omit<WidgetSettings, 'enabled'> {
-  /** Callbacks from the runtime for persistence and reset */
-  callbacks: RuntimeCallbacks;
-
-  /** Container element where the settings widget should be rendered */
-  container?: HTMLElement;
-
-  /** Whether the settings feature (icon/modal) is enabled */
-  settingsEnabled?: boolean;
-}
-
-export type ResolvedUIManagerOptions = Omit<
-  UIManagerOptions,
-  'container' | 'panel' | 'callout' | 'icon'
-> & {
-  container: HTMLElement;
-  settingsEnabled: boolean;
-  theme: 'light' | 'dark';
-  callout: Required<Pick<WidgetCalloutConfig, 'show' | 'message' | 'enablePulse'>> & {
-    backgroundColor?: string | undefined;
-    textColor?: string | undefined;
-  };
-  icon: Required<Pick<WidgetIconConfig, 'position' | 'scale' | 'show'>> & {
-    color?: string | undefined;
-    backgroundColor?: string | undefined;
-    opacity?: number | undefined;
-  };
-};
+export * from './types';
 
 export class CustardUIManager {
   private app: ReturnType<typeof mount> | null = null;
@@ -56,7 +22,7 @@ export class CustardUIManager {
     this.options = {
       callbacks: options.callbacks,
       container: options.container || document.body,
-      settingsEnabled: options.settingsEnabled ?? true,
+      settingsEnabled: options.settingsEnabled ?? false,
       theme: options.panel?.theme || 'light',
       callout: {
         show: options.callout?.show ?? false,
@@ -84,13 +50,18 @@ export class CustardUIManager {
       return;
     }
 
+    // Map context dependency injection directly into app root
+    const rootContext = new Map();
+    rootContext.set(ICON_SETTINGS_CTX, this.options.callbacks.iconSettings);
+    rootContext.set(RUNTIME_CALLBACKS_CTX, this.options.callbacks);
+
     // Mount Svelte App using Svelte 5 API
     this.app = mount(UIRoot, {
       target: this.options.container,
       props: {
-        callbacks: this.options.callbacks,
         options: this.options,
       },
+      context: rootContext,
     });
   }
 
@@ -112,15 +83,12 @@ export function initUIManager(
   runtime: AppRuntime,
   config: ConfigFile,
 ): CustardUIManager | undefined {
-  const settingsEnabled = config.settings?.enabled !== false;
+  const settingsEnabled = config.settings?.enabled === true;
 
   const callbacks: RuntimeCallbacks = {
     resetToDefault: () => runtime.resetToDefault(),
-    getIconPosition: () => runtime.getIconPosition(),
-    saveIconPosition: (offset) => runtime.saveIconPosition(offset),
-    clearIconPosition: () => runtime.clearIconPosition(),
-    isIntroSeen: () => runtime.isIntroSeen(),
-    markIntroSeen: () => runtime.markIntroSeen(),
+    iconSettings: runtime.iconSettingsStore,
+    persistenceManager: runtime.persistenceManager,
   };
 
   const uiManager = new CustardUIManager({
