@@ -15,7 +15,7 @@ export interface ScriptAttributes {
  */
 export function getScriptAttributes(): ScriptAttributes {
   let scriptTag = document.currentScript as HTMLScriptElement | null;
-  const defaults = { baseURL: '', configPath: '/customviews.config.json' };
+  const defaults = { baseURL: '', configPath: '/custardui.config.json' };
 
   if (!scriptTag || !scriptTag.hasAttribute('data-base-url')) {
     const dataAttrMatch = document.querySelector(
@@ -28,7 +28,7 @@ export function getScriptAttributes(): ScriptAttributes {
       for (const script of document.scripts) {
         const src = script.src || '';
         if (
-          /(?:custom[-_]views|@customviews-js\/customviews)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(
+          /(?:custard(?:ui)?|@custardui\/custard(?:ui)?)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(
             src,
           )
         ) {
@@ -63,14 +63,14 @@ export async function fetchConfig(configPath: string, baseURL: string): Promise<
     const response = await fetch(fullConfigPath);
 
     if (!response.ok) {
-      console.warn(`[CustomViews] Config file not found at ${fullConfigPath}. Using defaults.`);
+      console.warn(`[CustardUI] Config file not found at ${fullConfigPath}. Using defaults.`);
       return fallbackMinimalConfig;
     }
 
     const config = await response.json();
     return config;
   } catch (error) {
-    console.error('[CustomViews] Error loading config file:', error);
+    console.error('[CustardUI] Error loading config file:', error);
     return fallbackMinimalConfig;
   }
 }

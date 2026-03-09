@@ -1,5 +1,5 @@
 <frontmatter>
-  title: CustomViews - Toggle Component
+  title: CustardUI - Toggle Component
   layout: authorGuide.md
   pageNav: 4
   pageNavTitle: "Topics"
@@ -87,7 +87,7 @@ This means that "Show" overrides "Peek", and "Peek" overrides "Hide". Explicit i
 
 ## Configuration
 
-To make toggles discoverable by the settings, you must define them in your `customviews.config.json`.
+To make toggles discoverable by the settings, you must define them in your `custardui.config.json`.
 
 ```json
 {
@@ -117,7 +117,7 @@ To make toggles discoverable by the settings, you must define them in your `cust
 }
 ```
 
-## Key Configuration Fields in `customviews.config.json` for Toggles
+## Key Configuration Fields in `custardui.config.json` for Toggles
 
 | Name        | Type      | Default      | Description                                                                           |
 | ----------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
@@ -129,11 +129,13 @@ To make toggles discoverable by the settings, you must define them in your `cust
 
 ### Visibility Resolution Order
 
-1. URL state (if `showUrl` is enabled)
-2. Persisted local storage state
-3. Default configuration (per-item `default`)
+Visibility is resolved by layering state in this order:
 
-Elements whose toggles match the active state are shown; all others are hidden.
+1.  **URL State (Sparse Overrides)**: If a toggle is explicitly mentioned in the URL (e.g., `?t-show=A`), it wins.
+2.  **Persisted State**: If not in the URL, the state stored in the browser's local storage is used.
+3.  **Default Configuration**: If neither of the above are present, the `default` value from `custardui.config.json` is used.
+
+This means you can share a link that overrides specific toggles (like hiding a normally-visible section) without completely resetting the recipient's other local preferences.
 
 ## Global vs. Local Toggles
 
@@ -210,8 +212,5 @@ This will ensure that the specified local toggles appear in the configuration se
 - No effect when toggling?
   - Ensure the element uses `<cv-toggle toggle-id="...">` and the category matches a configured toggle ID.
 
-- URL state not persisting in URL bar?
-  - Enable showUrl in the configuration.
-
 - Settings icon not loading?
-  - Verify the script is included and customviews.config.json is accessible.
+  - Verify the script is included and custardui.config.json is accessible.

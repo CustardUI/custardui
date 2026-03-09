@@ -1,5 +1,5 @@
 <frontmatter>
-  title: CustomViews - Settings
+  title: CustardUI - Settings
   layout: authorGuide.md
   pageNav: 4
   pageNavTitle: "Topics"
@@ -7,7 +7,9 @@
 
 ## Settings Dialog
 
-The **Settings Dialog** allows visitors to customize page content visibility and tab selections. It is enabled by default and automatically adapts to your configuration, showing only relevant sections.
+The **Settings Dialog** allows visitors to customize page content visibility and tab selections. It adapts to your configuration, showing only relevant sections.
+
+It is disabled by default in case users wish to use CustardUI only for specific features.
 
 The settings panel allows users to:
 
@@ -61,12 +63,12 @@ Append `?cv-open=true`, or simply `?cv-open` to the URL. Works on page load (rel
 The settings panel stays clean by only verifying configured elements:
 
 - **Toggles/Tabs**: Sections appear only if defined in `config`.
-- **Order of Sections**: The order of Toggles, Tab Groups, and Placeholders in the modal follows their order in your `customviews.config.json`.
+- **Order of Sections**: The order of Toggles, Tab Groups, and Placeholders in the modal follows their order in your `custardui.config.json`.
 - **Description**: Appears only if `panel.description` is set.
 
 ## Configuration
 
-Configure the settings in `customviews.config.json`:
+Configure the settings in `custardui.config.json`:
 
 ```json
 {
@@ -80,7 +82,7 @@ Configure the settings in `customviews.config.json`:
       },
       "callout": {
         "show": true,
-        "message": "Open the CustomViews settings to customize your view.",
+        "message": "Open the CustardUI settings to customize your view.",
         "enablePulse": true,
         "backgroundColor": "#198755",
         "textColor": "#ffffff"
@@ -101,7 +103,7 @@ Configure the settings in `customviews.config.json`:
 
 | Name                    | Type                   | Default                                     | Description                                                     |
 | :---------------------- | :--------------------- | :------------------------------------------ | :-------------------------------------------------------------- |
-| enabled                 | `boolean`              | `true`                                      | Enables or disables the settings widget.                        |
+| enabled                 | `boolean`              | `false`                                     | Enables or disables the settings widget.                        |
 | theme                   | `'light' \| 'dark'`    | `'light'`                                   | Theme of the settings widget.                                   |
 | panel.title             | `string`               | `'Customize View'`                          | Title displayed in the settings modal.                          |
 | panel.description       | `string`               | -                                           | Description text displayed in the settings modal.               |

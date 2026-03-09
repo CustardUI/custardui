@@ -1,19 +1,30 @@
-## Custom Views
+# CustardUI
 
-[npm package link](https://www.npmjs.com/package/@customviews-js/customviews)
+> Rich, layered interactivity for static websites with no backend required.
 
-_Custom Views_ allows developers and designers to define reusable content views that can be toggled, personalized, or adapted dynamically for different users and contexts. It is framework-agnostic, meaning it works with plain HTML, JavaScript, or alongside modern frameworks without imposing additional dependencies.
+CustardUI (formerly CustomViews) is a lightweight, framework-agnostic runtime that adds dynamic, memory-persistent UI components to any static site. Built for educational websites, documentation portals, and course textbooks where one size never fits all.
 
-With Custom Views, you can:
+## What it does
 
-- Show or hide sections of a page based on user preferences.
-- Persist user-selected content variants (e.g., "CLI view" vs "GUI view").
-- Enhance accessibility and provide tailored experiences without bloating your site.
-- Select specific parts of your site to share with users in a "Focused" view!
+- **Toggles** — let readers show, hide, or peek sections based on their preferences
+- **Synced Tabs** — tab selections persist across the entire site and across visits
+- **Placeholders** — personalize text with reader-defined values like names or team IDs
+- **Focus & Share** — highlight and link directly to any content block on the page
+- **Adaptations** — serve entirely different audiences from a single deployment, swapping images, links, and text per organization
 
-Whether you are building a static site, a dashboard, or a documentation portal, Custom Views gives you the tools to make your content interactive and adaptable while keeping things lightweight and simple.
 
-[Documentation and Author Guide](https://customviews-js.github.io)
+## Getting started
+
+Add the script tag to your base layout:
+```html
+<script src="https://unpkg.com/@custardui/custardui" data-base-url="/"></script>
+```
+
+Add a `custardui.config.json` to your site root, then start using `<cv-toggle>`, `<cv-tabgroup>`, and `[[placeholders]]` in your pages.
+
+Full documentation and author guide → **[custardui.js.org](https://custardui.js.org)**
+
+[View on npm](https://www.npmjs.com/package/@custardui/custardui)
 
 ## License
 

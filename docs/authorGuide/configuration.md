@@ -10,9 +10,9 @@
 
 # {{ title }}
 
-## Configuration File (`customviews.config.json`)
+## Configuration File (`custardui.config.json`)
 
-CustomViews is configured via a JSON file, typically named `customviews.config.json`. This file defines toggles, tabs, assets, and widget settings.
+CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, assets, and widget settings.
 
 ### Basic Structure
 
@@ -48,12 +48,35 @@ Refer to individual components for more details on each configuration option.
 
 | Field          | Type      | Default | Description                                                                                                            |
 | -------------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
-| assetsJsonPath | `string`  | null    | Path to the assets manifest JSON file (relative to `baseUrl`).                                                         |
 | baseUrl        | `string`  | `/`     | Base URL for resolving relative paths (can also be `baseURL`). Specifies the website's base URL (for example `/docs`). |
-| showUrl        | `boolean` | `false` | Whether to encode state in the URL for shareable links.                                                                |
 | storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`).   |
 
-### Settings Configuration (`settings`)
+### Settings Configuration in `config.json`: (`settings`)
+
+```json
+{
+  "config": {...},
+  ...
+  "settings": {
+    "enabled": true,
+    "panel": {
+      "title": "Customize View",
+      "description": ""
+    },
+    "callout": {
+      "show": false,
+      "message": "Customize your reading experience here."
+    },
+    "icon": {
+      "position": "middle-left",
+      "color": "#814C20",
+      "backgroundColor": "#F2CA55",
+      "opacity": 0.95,
+      "scale": 1.1
+    }
+  }
+}
+```
 
 | Field                   | Type      | Default                                     | Description                                                                                                         |
 | ----------------------- | --------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -80,9 +103,9 @@ When using auto-initialization via script tag, you can override configuration:
 
 ```html
 <script
-  src="/path/to/custom-views.min.js"
-  data-base-url="/customviews"
-  data-config-path="/my-config.json"
+  src="https://cdn.jsdelivr.net/npm/@custardui/custardui"
+  data-base-url="/"
+  data-config-path="/custardui.config.json"
   defer
 ></script>
 ```
@@ -90,34 +113,4 @@ When using auto-initialization via script tag, you can override configuration:
 | Attribute          | Description                                                                                                                                                                                                                         |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `data-base-url`    | Specifies the website's base URL (for example `/docs`). This value is used to resolve relative asset paths and, when provided on the script tag, takes precedence over the `baseURL` in the config file.                            |
-| `data-config-path` | Path to the config file to use for auto-initialization (default: `/customviews.config.json`). Provide an absolute or site-relative path if your config is located elsewhere (e.g. `/my-config.json` or `configs/customviews.json`). |
-
-## Assets Configuration (`assets.json`)
-
-The assets file defines content that can be dynamically inserted:
-
-```json
-{
-  "screenshot-windows": {
-    "type": "image",
-    "src": "images/windows.png",
-    "alt": "Windows screenshot"
-  },
-  "text-linux": {
-    "type": "text",
-    "content": "Linux installation instructions...",
-    "className": "highlight"
-  }
-}
-```
-
-### Asset Properties
-
-| Property  | Type     | Description                                                           |
-| --------- | -------- | --------------------------------------------------------------------- |
-| type      | `string` | Asset type: `"image"`, `"text"`, `"html"` (auto-detected if omitted). |
-| src       | `string` | Image source URL (for images).                                        |
-| alt       | `string` | Alt text for images.                                                  |
-| content   | `string` | Text or HTML content.                                                 |
-| className | `string` | CSS class(es) to apply.                                               |
-| style     | `string` | Inline CSS styles.                                                    |
+| `data-config-path` | Path to the config file to use for auto-initialization (default: `/custardui.config.json`). Provide an absolute or site-relative path if your config is located elsewhere  |

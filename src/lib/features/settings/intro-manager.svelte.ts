@@ -1,7 +1,5 @@
-import type { PersistenceManager } from '../../state/persistence';
-import type { UIManagerOptions } from '../../ui-manager';
-
-const STORAGE_KEY_INTRO_SHOWN = 'cv-intro-shown';
+import type { UIManagerOptions } from '$lib/app/types';
+import type { PersistenceManager } from '$lib/utils/persistence';
 
 /**
  * IntroManager
@@ -17,18 +15,15 @@ export class IntroManager {
   showCallout = $state(false);
   showPulse = $state(false);
 
-  private getPersistence: () => PersistenceManager;
+  private persistence: PersistenceManager;
   private getOptions: () => UIManagerOptions['callout'];
   private hasChecked = false;
 
   constructor(
-    persistence: PersistenceManager | (() => PersistenceManager),
+    persistence: PersistenceManager,
     options: UIManagerOptions['callout'] | (() => UIManagerOptions['callout']),
   ) {
-    this.getPersistence =
-      typeof persistence === 'function'
-        ? (persistence as () => PersistenceManager)
-        : () => persistence;
+    this.persistence = persistence;
     this.getOptions =
       typeof options === 'function'
         ? (options as () => UIManagerOptions['callout'])
@@ -50,7 +45,7 @@ export class IntroManager {
   }
 
   private checkAndShow() {
-    if (!this.getPersistence().getItem(STORAGE_KEY_INTRO_SHOWN)) {
+    if (!this.persistence.getItem('cv-intro-shown')) {
       setTimeout(() => {
         this.showCallout = true;
         this.showPulse = true;
@@ -61,6 +56,6 @@ export class IntroManager {
   public dismiss() {
     this.showCallout = false;
     this.showPulse = false;
-    this.getPersistence().setItem(STORAGE_KEY_INTRO_SHOWN, 'true');
+    this.persistence.setItem('cv-intro-shown', 'true');
   }
 }

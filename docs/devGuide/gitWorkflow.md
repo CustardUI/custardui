@@ -9,7 +9,7 @@
 
 ### Gitflow Workflow
 
-> **NOTE:** **Gitflow** is a Git workflow for managing Git branches but has become less popular in favor of trunk-based workflows. However, due to the nature of CustomViews, Gitflow is still a useful workflow for managing branches. For more information, refer to [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
+> **NOTE:** **Gitflow** is a Git workflow for managing Git branches but has become less popular in favor of trunk-based workflows. However, due to the nature of CustardUI as a plugin, Gitflow is still a useful workflow for managing branches. For more information, refer to [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
 
 **Gitflow** is an alternative Git branching model that involves the use of feature branches and multiple primary branches. Compared to trunk-based development, Gitflow has numerous, longer-lived branches and larger commits. Under this model, developers create a feature branch and delay merging it to the main trunk branch until the feature is complete.
 

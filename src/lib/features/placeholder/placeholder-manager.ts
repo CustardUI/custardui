@@ -1,0 +1,140 @@
+import { placeholderRegistryStore } from './stores/placeholder-registry-store.svelte';
+import type { Config, TabGroupConfig } from '$lib/types/index';
+
+export class PlaceholderManager {
+  /**
+   * Registers global placeholders defined in the configuration.
+   * Source is marked as 'config'.
+   */
+  registerConfigPlaceholders(config: Config) {
+    if (config.placeholders) {
+      config.placeholders.forEach((def) => {
+        placeholderRegistryStore.register({
+          ...def,
+          // adaptationPlaceholder implies hidden from user-facing settings
+          hiddenFromSettings: def.adaptationPlaceholder ? true : def.hiddenFromSettings,
+          source: 'config',
+        });
+      });
+    }
+  }
+
+  /**
+   * Registers placeholders defined implicitly via Tab Groups.
+   * Source is marked as 'tabgroup'.
+   *
+   * Should be called AFTER registerConfigPlaceholders to ensure config precedence.
+   */
+  registerTabGroupPlaceholders(config: Config) {
+    if (config.tabGroups) {
+      config.tabGroups.forEach((group) => {
+        this.registerPlaceholderFromTabGroup(group);
+      });
+    }
+  }
+
+  /**
+   * Calculates the placeholder value based on the active tab selection in a group.
+   *
+   * @param tabgroupId The ID of the tab group
+   * @param tabId The ID of the currently active tab
+   * @param config The full application configuration
+   * @returns An object containing the placeholder key and value, or null if nothing to update.
+   */
+  calculatePlaceholderFromTabSelected(tabgroupId: string, tabId: string, config: Config): { key: string; value: string } | null {
+    const groupConfig = config.tabGroups?.find((g) => g.groupId === tabgroupId);
+
+    if (!groupConfig || !groupConfig.placeholderId) return null;
+
+    if (!placeholderRegistryStore.has(groupConfig.placeholderId)) return null;
+
+    const tabConfig = groupConfig.tabs.find((t) => t.tabId === tabId);
+
+    if (!tabConfig) return null;
+
+    const placeholderValue = tabConfig.placeholderValue ?? '';
+    return { key: groupConfig.placeholderId, value: placeholderValue };
+  }
+
+  /**
+   * Filters a record of incoming placeholders to only those registered in the registry.
+   * Warns and skips unregistered keys to prevent arbitrary key injection.
+   *
+   * @param placeholders Raw key-value record to validate (e.g. from a URL delta or persistence).
+   * @returns A filtered record containing only registered placeholder keys.
+   */
+  filterValidPlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
+    const valid: Record<string, string> = {};
+    
+    for (const [key, value] of Object.entries(placeholders)) {
+      if (placeholderRegistryStore.has(key)) {
+        valid[key] = value;
+      } else {
+        console.warn(`[CustardUI] Placeholder "${key}" is not registered and will be ignored.`);
+      }
+    }
+    return valid;
+  }
+
+  /**
+   * Filters a record of incoming placeholders to only those that can be set by users.
+   * Extends filterValidPlaceholders() by also excluding adaptation-only placeholders.
+   * Use this for persistence loads and URL delta application.
+   */
+  filterUserSettablePlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
+    const valid = this.filterValidPlaceholders(placeholders);
+    const userSettable: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(valid)) {
+      const def = placeholderRegistryStore.get(key);
+      if (def?.adaptationPlaceholder) {
+        // Silently skip — adaptation-only placeholders cannot be user-set
+        continue;
+      }
+      userSettable[key] = value;
+    }
+    return userSettable;
+  }
+
+  // --- Internal Helpers ---
+
+  private registerPlaceholderFromTabGroup(groupConfig: TabGroupConfig) {
+    if (!groupConfig.placeholderId) return;
+
+    const id = groupConfig.placeholderId;
+    const existing = placeholderRegistryStore.get(id);
+
+    if (existing) {
+      if (existing.source === 'config') {
+        console.warn(
+          `[CustardUI] Tab group "${groupConfig.groupId}" is binding to placeholder "${id}", ` +
+            `which is already explicitly defined in placeholders config. ` +
+            `To avoid unexpected behavior, placeholders should have a single source of truth.`,
+        );
+      } else if (
+        existing.source === 'tabgroup' &&
+        existing.ownerTabGroupId !== groupConfig.groupId
+      ) {
+        console.warn(
+          `[CustardUI] Multiple tab groups are binding to the same placeholderId: "${id}". ` +
+            `Current group: "${groupConfig.groupId}", Existing group: "${existing.ownerTabGroupId}". ` +
+            `This will cause race conditions as both groups compete for the same value.`,
+        );
+      }
+      return;
+    }
+
+    placeholderRegistryStore.register({
+      name: id,
+      settingsLabel: groupConfig.label ?? groupConfig.groupId,
+      hiddenFromSettings: true,
+      source: 'tabgroup',
+      ownerTabGroupId: groupConfig.groupId,
+    });
+    
+    // We do not return the initial value here, as registration happens during config load
+    // and we let the ActiveStateStore handle initial state setup.
+  }
+}
+
+export const placeholderManager = new PlaceholderManager();

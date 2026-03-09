@@ -243,7 +243,7 @@ Install JavaScript by downloading Node.js from nodejs.org.
 
 By default, the **first tab** in a group is selected when the page loads (unless the user has previously selected a different tab, in which case their selection is restored).
 
-You can override this default behavior and specify which tab should be initially selected using the `customviews.config.json`, by adding a `default` property to the `tabGroup`.
+You can override this default behavior and specify which tab should be initially selected using the `custardui.config.json`, by adding a `default` property to the `tabGroup`.
 
 **Default Tab Example Configuration:**
 To make the "orange" tab selected by default for the "fruit" group:
@@ -447,7 +447,7 @@ No required attributes, just a container for the tab body content.
 Tab groups work out of the box with no setup — just use the `<cv-tabgroup>` and `<cv-tab>` elements.  
 By default, the first tab is shown.
 
-For more control (such as settings integration or default selections), configure them in your `customviews.config.json`.
+For more control (such as settings integration or default selections), configure them in your `custardui.config.json`.
 
 ```json
 {

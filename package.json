@@ -1,15 +1,15 @@
 {
-  "name": "@customviews-js/customviews",
-  "version": "1.7.1",
+  "name": "@custardui/custardui",
+  "version": "2.0.0",
   "description": "A JavaScript dynamic custom views Library.",
   "type": "module",
-  "main": "dist/custom-views.min.js",
-  "browser": "dist/custom-views.min.js",
-  "unpkg": "dist/custom-views.min.js",
-  "jsdelivr": "dist/custom-views.min.js",
+  "main": "dist/custardui.min.js",
+  "browser": "dist/custardui.min.js",
+  "unpkg": "dist/custardui.min.js",
+  "jsdelivr": "dist/custardui.min.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/customviews-js/customviews.git"
+    "url": "https://github.com/custardui/custardui.git"
   },
   "files": [
     "dist/"
@@ -20,8 +20,8 @@
     "build:js": "rollup -c",
     "build": "npm run clean && npm run build:types && npm run build:js",
     "release": "npm run release:beta",
-    "release:beta": "npm run build && npm publish --tag beta && git push --tags",
-    "release:prod": "npm run build && npm publish --tag latest && git push --tags",
+    "release:beta": "npm run build && npm publish --access public --tag beta && git push --tags",
+    "release:prod": "npm run build && npm publish --access public --tag latest && git push --tags",
     "bump:beta": "npm version prerelease --preid=beta",
     "bump:patch": "npm version patch",
     "bump:minor": "npm version minor",
@@ -39,7 +39,8 @@
   "keywords": [
     "javascript",
     "library",
-    "custom views"
+    "custom views",
+    "custardui"
   ],
   "author": "Chan Ger Teck",
   "license": "MIT",
@@ -73,7 +74,7 @@
     "vitest": "^3.2.4"
   },
   "bugs": {
-    "url": "https://github.com/customviews-js/customviews/issues"
+    "url": "https://github.com/custardui/custardui/issues"
   },
-  "homepage": "https://github.com/customviews-js/customviews#readme"
+  "homepage": "https://github.com/custardui/custardui#readme"
 }

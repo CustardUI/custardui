@@ -24,7 +24,16 @@ const banner = `/*!
 // Custom Web Component Elements 
 const sveltePluginCustomElements = svelte({
   ...svelteConfig,
-  include: ['src/lib/components/ui/**/*.svelte', 'src/lib/features/placeholder/**/*.svelte'],
+  include: [
+    'src/lib/components/ui/**/*.svelte',
+    'src/lib/features/placeholder/**/*.svelte',
+    'src/lib/features/tabs/**/*.svelte',
+    'src/lib/features/toggles/**/*.svelte',
+  ],
+  compilerOptions: {
+    ...svelteConfig.compilerOptions,
+    customElement: true,
+  },
 });
 
 // Regular Svelte components and Svelte 5 modules (e.g. .svelte.ts)
@@ -32,7 +41,12 @@ const sveltePluginRegular = svelte({
   ...svelteConfig,
   extensions: ['.svelte', '.svelte.ts', '.svelte.js'],
   include: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
-  exclude: ['src/lib/components/ui/**/*.svelte', 'src/lib/features/placeholder/**/*.svelte'],
+  exclude: [
+    'src/lib/components/ui/**/*.svelte',
+    'src/lib/features/placeholder/**/*.svelte',
+    'src/lib/features/tabs/**/*.svelte',
+    'src/lib/features/toggles/**/*.svelte',
+  ],
   // Regular non-custom components
   compilerOptions: {
     ...svelteConfig.compilerOptions,
@@ -66,9 +80,9 @@ const builds = [
   {
     input: 'src/browser.ts',
     output: {
-      file: 'dist/custom-views.js',
+      file: 'dist/custardui.js',
       format: 'umd',
-      name: 'CustomViews',
+      name: 'CustardUI',
       banner,
       sourcemap: true,
     },
@@ -79,9 +93,9 @@ const builds = [
   {
     input: 'src/browser.ts',
     output: {
-      file: 'dist/custom-views.min.js',
+      file: 'dist/custardui.min.js',
       format: 'umd',
-      name: 'CustomViews',
+      name: 'CustardUI',
       banner,
       sourcemap: true,
     },

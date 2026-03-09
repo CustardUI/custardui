@@ -74,25 +74,6 @@ export function findHighestVisibleElement(selector: string): HTMLElement | null 
 }
 
 /**
- * Scrolls the page to align the element to the top of the viewport,
- * accounting for fixed/sticky headers and adding some padding.
- * @param element The element to scroll to.
- */
-export function scrollToElement(element: HTMLElement): void {
-  const headerOffset = getScrollTopOffset();
-  const PADDING_BELOW_HEADER = 20;
-
-  const targetElementRect = element.getBoundingClientRect();
-  const scrollTargetY = targetElementRect.top + window.scrollY;
-  const finalScrollY = scrollTargetY - headerOffset - PADDING_BELOW_HEADER;
-
-  window.scrollTo({
-    top: finalScrollY,
-    behavior: 'smooth',
-  });
-}
-
-/**
  * Adjusts the scroll position to keep a specific element in the same visual location.
  * Useful when content additions/removals above might cause jumps.
  */

@@ -59,6 +59,34 @@ describe('ShareStore', () => {
     expect(el.classList.contains('cv-share-selected')).toBe(false);
   });
 
+  it('should set and clear highlight annotations', () => {
+    const el = document.createElement('div');
+    store.setAnnotation(el, 'Test Note', 'br');
+    
+    const ann = store.highlightAnnotations.get(el);
+    expect(ann).toBeDefined();
+    expect(ann?.text).toBe('Test Note');
+    expect(ann?.corner).toBe('br');
+
+    // Setting empty string should delete
+    store.setAnnotation(el, '', 'tl');
+    expect(store.highlightAnnotations.has(el)).toBe(false);
+  });
+
+  it('should set highlight colors for single and all elements', () => {
+    const el1 = document.createElement('div');
+    const el2 = document.createElement('div');
+    store.toggleMultipleElements([el1, el2]);
+
+    store.setHighlightColor(el1, 'red');
+    expect(store.highlightColors.get(el1)).toBe('red');
+    expect(store.highlightColors.has(el2)).toBe(false);
+
+    store.setAllHighlightColors('green');
+    expect(store.highlightColors.get(el1)).toBe('green');
+    expect(store.highlightColors.get(el2)).toBe('green');
+  });
+
   it('should generate link', async () => {
     const el = document.createElement('div');
     el.id = 'test-id';
@@ -76,5 +104,36 @@ describe('ShareStore', () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       expect.stringContaining('cv-show=serialized-id'),
     );
+  });
+
+  it('should include metadata in generated link for highlight mode', async () => {
+    store.setSelectionMode('highlight');
+    
+    const el = document.createElement('div');
+    el.id = 'target-id';
+    store.toggleElementSelection(el);
+    store.setHighlightColor(el, 'blue');
+    store.setAnnotation(el, 'Hello', 'tl');
+
+    // Use actual createDescriptor to see if metadata is attached
+    const createSpy = vi.spyOn(DomElementLocator, 'createDescriptor').mockImplementation((elParam) => {
+      return { elementId: elParam.id, tag: 'ANY', index: 0, textSnippet: '', textHash: 0 };
+    });
+    
+    // We mock serialize to intercept the descriptors Array
+    let capturedDescriptors: DomElementLocator.AnchorDescriptor[] = [];
+    vi.spyOn(DomElementLocator, 'serialize').mockImplementation((descriptors) => {
+      capturedDescriptors = descriptors;
+      return 'fake';
+    });
+
+    await store.generateLink();
+
+    expect(capturedDescriptors).toHaveLength(1);
+    expect(capturedDescriptors[0]!.color).toBe('blue');
+    expect(capturedDescriptors[0]!.annotation).toBe('Hello');
+    expect(capturedDescriptors[0]!.annotationCorner).toBe('tl');
+    
+    createSpy.mockRestore();
   });
 });

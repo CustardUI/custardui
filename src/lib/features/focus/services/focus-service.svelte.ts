@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { mount, unmount, untrack } from 'svelte';
+import { mount, unmount } from 'svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
-import { showToast } from '$lib/stores/toast-store.svelte';
+import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$lib/utils/dom-element-locator';
 import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
-import { SvelteSet, SvelteURL } from 'svelte/reactivity';
+import { SvelteSet } from 'svelte/reactivity';
 
 const SHOW_PARAM = 'cv-show';
 const HIDE_PARAM = 'cv-hide';
@@ -19,8 +19,8 @@ import {
   HIGHLIGHT_PARAM,
 } from '$features/highlight/services/highlight-service.svelte';
 
-import { DEFAULT_EXCLUDED_IDS, DEFAULT_EXCLUDED_TAGS } from '$lib/exclusion-defaults';
-import { type ShareExclusions } from '$lib/types/config';
+import { DEFAULT_EXCLUDED_IDS, DEFAULT_EXCLUDED_TAGS } from '$features/share/constants';
+import type { ShareExclusions } from '$features/share/types';
 
 export interface FocusServiceOptions {
   shareExclusions?: ShareExclusions;
@@ -33,7 +33,6 @@ export class FocusService {
   private excludedIds: Set<string>;
   // Call unsubscribe in destroy to stop svelte effects
   private unsubscribe: () => void;
-  private url = new SvelteURL(window.location.href);
   private highlightService: HighlightService;
 
   constructor(
@@ -52,42 +51,6 @@ export class FocusService {
 
     // Subscribe to store for exit signal
     this.unsubscribe = $effect.root(() => {
-      // 1. Sync URL changes from SvelteURL back to browser history (UI changes affect URL)
-      // This effect handles the "Write" direction: App State -> URL
-      $effect(() => {
-        const currentFromBrowser = window.location.href;
-        // Cycle prevention: Only push if the SvelteURL has changed/diverged from browser
-        if (currentFromBrowser !== this.url.href) {
-          window.history.pushState({}, '', this.url.href);
-        }
-      });
-
-      // 2. React to URL changes (URL changes affect UI)
-      // This effect handles the "Read" direction: URL -> App State
-      $effect(() => {
-        // Check cv-show first
-        const showDescriptors = this.url.searchParams.get(SHOW_PARAM);
-        const hideDescriptors = this.url.searchParams.get(HIDE_PARAM);
-        const highlightDescriptors = this.url.searchParams.get(HIGHLIGHT_PARAM);
-
-        untrack(() => {
-          if (showDescriptors) {
-            this.applyShowMode(showDescriptors);
-          } else if (hideDescriptors) {
-            this.applyHideMode(hideDescriptors);
-          } else if (highlightDescriptors) {
-            this.applyHighlightMode(highlightDescriptors);
-          } else {
-            if (
-              document.body.classList.contains(BODY_SHOW_CLASS) ||
-              document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
-            ) {
-              this.exitShowMode();
-            }
-          }
-        });
-      });
-
       // Store safety check (Store changes affect UI)
       $effect(() => {
         if (
@@ -95,27 +58,81 @@ export class FocusService {
           (document.body.classList.contains(BODY_SHOW_CLASS) ||
             document.body.classList.contains(BODY_HIGHLIGHT_CLASS))
         ) {
-          this.exitShowMode();
+          this.exitShowMode(true);
         }
       });
     });
 
-    // Listen for popstate to sync back to SvelteURL
+    // Listen for popstate to re-evaluate URL actions
     window.addEventListener('popstate', this.handlePopState);
+    
+    // Initial evaluation
+    this.applyModesFromUrl();
   }
 
   /**
-   * Sync native browser navigation with SvelteURL
+   * Re-evaluate the URL when the browser's history changes
    */
   private handlePopState = () => {
-    this.url.href = window.location.href;
+    this.applyModesFromUrl();
   };
+
+  /**
+   * Reads the current URL and applies the appropriate focus/highlight mode
+   */
+  private applyModesFromUrl() {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const url = new URL(window.location.href);
+    const showDescriptors = url.searchParams.get(SHOW_PARAM);
+    const hideDescriptors = url.searchParams.get(HIDE_PARAM);
+    const highlightDescriptors = url.searchParams.get(HIGHLIGHT_PARAM);
+
+    const hasAnyMode = showDescriptors || hideDescriptors || highlightDescriptors;
+
+    if (!hasAnyMode) {
+      if (
+        document.body.classList.contains(BODY_SHOW_CLASS) ||
+        document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+      ) {
+        this.exitShowMode(false);
+      }
+      return;
+    }
+
+    // Clear any existing active state once before re-applying
+    if (
+      document.body.classList.contains(BODY_SHOW_CLASS) ||
+      document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+    ) {
+      this.exitShowMode(false);
+    }
+
+    // Pre-resolve highlight targets so show/hide modes can account for them
+    const highlightTargets = highlightDescriptors
+      ? this.highlightService.resolveTargets(highlightDescriptors)
+      : [];
+
+    // Apply show or hide (mutually exclusive with each other).
+    // Pass highlight targets so they are kept visible in show mode / not hidden in hide mode.
+    if (showDescriptors) {
+      this.applyShowMode(showDescriptors, highlightTargets);
+    } else if (hideDescriptors) {
+      this.applyHideMode(hideDescriptors, highlightTargets);
+    }
+
+    // Apply highlight independently — can coexist with show/hide.
+    // Call highlightService.apply() directly to skip applyHighlightMode()'s guard,
+    // which would otherwise see BODY_SHOW_CLASS and clear the show mode above.
+    if (highlightDescriptors) {
+      this.highlightService.apply(highlightDescriptors);
+    }
+  }
 
   /**
    * Applies focus mode to the specified descriptors.
    * @param encodedDescriptors - The encoded descriptors to apply.
    */
-  public applyShowMode(encodedDescriptors: string): void {
+  public applyShowMode(encodedDescriptors: string, keepTargets: HTMLElement[] = []): void {
     // Check if we are already in the right state to avoid re-rendering loops if feasible
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
@@ -152,10 +169,11 @@ export class FocusService {
     focusStore.setIsActive(true);
     document.body.classList.add(BODY_SHOW_CLASS);
 
-    this.renderShowView(targets);
+    // Merge keepTargets (e.g. highlight targets) so they are not hidden by show mode
+    this.renderShowView([...targets, ...keepTargets]);
   }
 
-  public applyHideMode(encodedDescriptors: string): void {
+  public applyHideMode(encodedDescriptors: string, excludeTargets: HTMLElement[] = []): void {
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
       document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
@@ -188,7 +206,13 @@ export class FocusService {
     focusStore.setIsActive(true);
     document.body.classList.add(BODY_SHOW_CLASS);
 
-    this.renderHiddenView(targets);
+    // Exclude highlight targets from being hidden so they stay visible
+    const excludeSet = new Set(excludeTargets);
+    const filteredTargets = excludeTargets.length > 0
+      ? targets.filter((t) => !excludeSet.has(t))
+      : targets;
+
+    this.renderHiddenView(filteredTargets);
   }
 
   public applyHighlightMode(encodedDescriptors: string): void {
@@ -339,14 +363,23 @@ export class FocusService {
     }
 
     if (updateUrl) {
-      if (this.url.searchParams.has(SHOW_PARAM)) {
-        this.url.searchParams.delete(SHOW_PARAM);
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+      const url = new URL(window.location.href);
+      let changed = false;
+      if (url.searchParams.has(SHOW_PARAM)) {
+        url.searchParams.delete(SHOW_PARAM);
+        changed = true;
       }
-      if (this.url.searchParams.has(HIDE_PARAM)) {
-        this.url.searchParams.delete(HIDE_PARAM);
+      if (url.searchParams.has(HIDE_PARAM)) {
+        url.searchParams.delete(HIDE_PARAM);
+        changed = true;
       }
-      if (this.url.searchParams.has(HIGHLIGHT_PARAM)) {
-        this.url.searchParams.delete(HIGHLIGHT_PARAM);
+      if (url.searchParams.has(HIGHLIGHT_PARAM)) {
+        url.searchParams.delete(HIGHLIGHT_PARAM);
+        changed = true;
+      }
+      if (changed) {
+         window.history.replaceState({}, '', url.toString());
       }
     }
   }

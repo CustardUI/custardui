@@ -1,63 +1,19 @@
-import type { PlaceholderDefinition } from '$features/placeholder/stores/placeholder-registry-store.svelte';
+import type { PlaceholderDefinition } from '../features/placeholder/types';
+import type { TabGroupConfig } from '../features/tabs/types';
+import type { ToggleConfig } from '../features/toggles/types';
+import type { ShareExclusions } from '../features/share/types';
+import type { WidgetSettings } from '../features/settings/types';
 
-/**
- * Configuration for a single tab within a tab group
- */
-export interface TabConfig {
-  /** Tab identifier */
-  tabId: string;
-  /** Display label for the tab */
-  label?: string;
-  /** Value to set the placeholder to when this tab is active */
-  placeholderValue?: string;
+const CONFIG_SECTION_KEYS = ['toggles', 'tabGroups', 'placeholders'] as const;
+
+export type ConfigSectionKey = (typeof CONFIG_SECTION_KEYS)[number];
+
+export function isValidConfigSection(key: string): key is ConfigSectionKey {
+  return CONFIG_SECTION_KEYS.includes(key as ConfigSectionKey);
 }
 
 /**
- * Configuration for a tab group
- */
-export interface TabGroupConfig {
-  /** Group identifier (stable across the page) */
-  groupId: string;
-  /** Display name for widget/nav */
-  label?: string;
-  /** ID of the placeholder variable to bind this group's selection to */
-  placeholderId?: string;
-  /** Available tabs in this group */
-  tabs: TabConfig[];
-  /** Determines if the tab group is only shown on pages where it's used. */
-  isLocal?: boolean;
-  /** Optional description to display below label */
-  description?: string;
-  /** Default tab ID to select */
-  default?: string;
-}
-
-/**
- * Configuration for a single toggle.
- */
-export interface ToggleConfig {
-  /** Toggle identifier */
-  toggleId: string;
-  /** Display label for the toggle */
-  label?: string;
-  /** Determines if the toggle is only shown on pages where it's used. */
-  isLocal?: boolean;
-  /** Optional description to display below functionality */
-  description?: string;
-  /** Default state for this toggle: 'show', 'hide', or 'peek' */
-  default?: 'show' | 'hide' | 'peek';
-}
-
-/**
- * Configuration for the site, has default state and list of toggles
- */
-export interface ShareExclusions {
-  tags?: string[];
-  ids?: string[];
-}
-
-/**
- * Configuration for the site, has default state and list of toggles
+ * Configuration (website author-defined) for the site
  */
 export interface Config {
   /** All available toggle categories */
@@ -71,7 +27,7 @@ export interface Config {
 }
 
 /**
- * Represents the configuration file structure for CustomViews auto-initialization.
+ * Represents the configuration file structure for CustardUI auto-initialization.
  */
 export interface ConfigFile {
   /** Core configuration object with toggles and defaultState */
@@ -80,59 +36,8 @@ export interface ConfigFile {
   assetsJsonPath?: string;
   /** Base URL for all paths */
   baseUrl?: string;
-  /** Whether to keep the `view` state parameter visible in the browser URL bar */
-  showUrl?: boolean;
   /** Optional key to namespace localStorage items for isolation */
   storageKey?: string;
-
   /** Widget configuration options */
-  settings?: {
-    /** Whether the settings widget is enabled */
-    enabled?: boolean;
-    /** Settings panel configuration */
-    panel?: {
-      /** Widget title */
-      title?: string;
-      /** Widget description text */
-      description?: string;
-      /** Whether to show tab groups section in widget (default: true) */
-      showTabGroups?: boolean;
-      /** Whether to show reset button */
-      showReset?: boolean;
-      /** Widget theme */
-      theme?: 'light' | 'dark';
-    };
-    /** Callout configuration options */
-    callout?: {
-      /** Whether to show the callout (default: false) */
-      show?: boolean;
-      /** Message to display in the callout */
-      message?: string;
-      /** Whether to enable pulse animation */
-      enablePulse?: boolean;
-      /** Custom background color */
-      backgroundColor?: string;
-      /** Custom text color */
-      textColor?: string;
-    };
-    /** Custom icon styling options */
-    icon?: {
-      /** Widget position */
-      position?:
-        | 'top-right'
-        | 'top-left'
-        | 'bottom-right'
-        | 'bottom-left'
-        | 'middle-left'
-        | 'middle-right';
-      /** Custom icon color */
-      color?: string;
-      /** Custom background color */
-      backgroundColor?: string;
-      /** Custom opacity (0-1) */
-      opacity?: number;
-      /** Custom scale factor */
-      scale?: number;
-    };
-  };
+  settings?: WidgetSettings;
 }

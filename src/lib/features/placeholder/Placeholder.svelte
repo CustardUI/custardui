@@ -1,20 +1,46 @@
-<svelte:options customElement="cv-placeholder" />
+<svelte:options
+  customElement={{
+    tag: 'cv-placeholder',
+    props: {
+      name:     { reflect: false, type: 'String',  attribute: 'name' },
+      fallback: { reflect: false, type: 'String',  attribute: 'fallback' },
+      truthy:   { reflect: false, type: 'String',  attribute: 'truthy' },
+      falsy:    { reflect: false, type: 'String',  attribute: 'falsy' },
+      anyValue: { reflect: false, type: 'Boolean', attribute: 'any-value' },
+    },
+  }}
+/>
 
 <script lang="ts">
-  import { placeholderValueStore } from '$features/placeholder/stores/placeholder-value-store.svelte';
+  import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
+  import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 
-  let { name, fallback } = $props<{ name: string; fallback?: string }>();
+  let { name, fallback, truthy, falsy, anyValue } = $props<{
+    name: string;
+    fallback?: string;
+    truthy?: string;
+    falsy?: string;
+    anyValue?: boolean;
+  }>();
 
   let value = $derived.by(() => {
     if (!name) return '';
 
+    if (truthy !== undefined) {
+      const placeholders = activeStateStore.state.placeholders ?? {};
+      const val = anyValue
+        ? PlaceholderBinder.resolveValue(name, undefined, placeholders)
+        : PlaceholderBinder.resolveUserValue(name, placeholders);
+      return val !== undefined ? truthy.replace(/\$/g, () => val) : (falsy ?? '');
+    }
+
     // 1. User Value
-    const userVal = placeholderValueStore.values[name];
+    const userVal = activeStateStore.state.placeholders?.[name];
     if (userVal !== undefined && userVal !== '') return userVal;
 
-    // 2. Fallback
-    if (fallback) return fallback;
+    // 2. Fallback (explicit empty string is valid — shows nothing)
+    if (fallback !== undefined) return fallback;
 
     // 3. Registry Default
     const def = placeholderRegistryStore.get(name);

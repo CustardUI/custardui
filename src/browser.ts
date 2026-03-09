@@ -1,40 +1,50 @@
 import { getScriptAttributes, fetchConfig } from '$lib/utils/init-utils';
-import { initUIManager } from '$lib/ui-manager';
-import { CustomViewsController, type ControllerOptions } from '$lib/controller.svelte';
-import { AssetsManager } from '$lib/assets';
+import { initUIManager } from '$lib/app/ui-manager';
+import { AppRuntime, type RuntimeOptions } from '$lib/runtime.svelte';
+import { AssetsManager } from '$features/render/assets';
 import type { CustomViewAsset } from '$lib/types/index';
 import { prependBaseUrl } from '$lib/utils/url-utils';
+import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 import '$lib/registry';
 
 // --- No Public API Exports ---
 // The script auto-initializes via initializeFromScript().
 
 /**
- * Initialize CustomViews from script tag attributes and config file
+ * Initialize CustardUI from script tag attributes and config file
  * This runs automatically when the script is loaded.
  */
 export function initializeFromScript(): void {
   // Only run in browser environment
   if (typeof window === 'undefined') return;
 
-  // Idempotency check
-  if (window.__customViewsInitialized) {
-    console.info('[CustomViews] Auto-init skipped: already initialized.');
+  // Idempotency check 
+  if (window.__custardUIInitialized) {
+    console.info('[CustardUI] Auto-init skipped: already initialized.');
     return;
   }
 
   document.addEventListener('DOMContentLoaded', async function () {
-    if (window.__customViewsInitInProgress || window.__customViewsInitialized) return;
-    window.__customViewsInitInProgress = true;
+    if (window.__custardUIInitInProgress || window.__custardUIInitialized) return;
+    window.__custardUIInitInProgress = true;
     try {
       // Get attributes from script tag
       const { baseURL, configPath } = getScriptAttributes();
 
-      // Fetch Config
+      // Fetch Config first to retrieve storageKey prefix
       const configFile = await fetchConfig(configPath, baseURL);
 
       // Determine effective baseURL (data attribute takes precedence)
       const effectiveBaseURL = baseURL || configFile.baseUrl || '';
+
+      // Initialize Adaptation early (before AppRuntime):
+      // - Theme CSS injected ASAP (FOUC prevention)
+      // - ?adapt= param cleaned before URLStateManager.parseURL() runs
+      // - URL indicator set before AppRuntime so URL state is seeded correctly
+      const adaptationConfig = await AdaptationManager.init(effectiveBaseURL, configFile.storageKey);
+      if (adaptationConfig?.id) {
+        AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
+      }
 
       // Initialize Assets
       let assetsManager: AssetsManager;
@@ -46,32 +56,32 @@ export function initializeFromScript(): void {
           ).json();
           assetsManager = new AssetsManager(assetsJson, effectiveBaseURL);
         } catch (error) {
-          console.error(`[CustomViews] Failed to load assets JSON from ${assetsPath}:`, error);
+          console.error(`[Custard] Failed to load assets JSON from ${assetsPath}:`, error);
           assetsManager = new AssetsManager({}, effectiveBaseURL);
         }
       } else {
         assetsManager = new AssetsManager({}, effectiveBaseURL);
       }
 
-      const coreOptions: ControllerOptions = {
+      const coreOptions: RuntimeOptions = {
         assetsManager,
-        config: configFile.config || {},
+        configFile,
         rootEl: document.body,
-        showUrl: configFile.showUrl || false,
         storageKey: configFile.storageKey,
+        adaptationConfig,
       };
 
-      const controller = new CustomViewsController(coreOptions);
-      controller.init();
+      const runtime = new AppRuntime(coreOptions);
+      runtime.start();
 
-      initUIManager(controller, configFile);
+      initUIManager(runtime, configFile);
 
       // Mark initialized
-      window.__customViewsInitialized = true;
-      window.__customViewsInitInProgress = false;
+      window.__custardUIInitialized = true;
+      window.__custardUIInitInProgress = false;
     } catch (error) {
-      window.__customViewsInitInProgress = false;
-      console.error('[CustomViews] Auto-initialization error:', error);
+      window.__custardUIInitInProgress = false;
+      console.error('[CustardUI] Auto-initialization error:', error);
     }
   });
 }

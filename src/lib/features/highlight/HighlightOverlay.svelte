@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity';
   import { type RectData } from '$features/highlight/services/highlight-types';
+  import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
+  import { type AnnotationCorner, ANNOTATION_PREVIEW_LENGTH, DEFAULT_ANNOTATION_CORNER } from '$features/highlight/services/highlight-annotations';
 
   interface Props {
     box: { rects: RectData[] };
@@ -7,57 +10,80 @@
 
   let { box }: Props = $props();
   let rects = $derived(box.rects);
+  let expandedSet = new SvelteSet<HTMLElement>();
 
-  function getArrowClass(rect: RectData): string {
-    const viewportWidth = window.innerWidth;
-    const rectLeftViewport =
-      rect.left - (window.pageXOffset || document.documentElement.scrollLeft);
-
-    if (rectLeftViewport >= 50) return 'left';
-    if (viewportWidth - (rectLeftViewport + rect.width) >= 50) return 'right';
-    if (rect.top - (window.pageYOffset || document.documentElement.scrollTop) >= 50) return 'top';
-    return 'bottom';
+  function getColorHex(rect: RectData): string {
+    const key = rect.color ?? DEFAULT_COLOR_KEY;
+    return HIGHLIGHT_COLORS.find((c) => c.key === key)?.hex ?? HIGHLIGHT_COLORS[0]!.hex;
   }
 
-  function getArrowStyle(rect: RectData, direction: string): string {
-    let style = '';
-    if (direction === 'left') {
-      style = `top: ${rect.top}px; left: ${rect.left - 40}px;`;
-    } else if (direction === 'right') {
-      style = `top: ${rect.top}px; left: ${rect.left + rect.width + 10}px;`;
-    } else if (direction === 'top') {
-      style = `top: ${rect.top - 40}px; left: ${rect.left + rect.width / 2 - 15}px;`;
+  function scrollToRect(rect: RectData) {
+    rect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function toggleBadge(el: HTMLElement) {
+    if (expandedSet.has(el)) {
+      expandedSet.delete(el);
     } else {
-      style = `top: ${rect.top + rect.height + 10}px; left: ${rect.left + rect.width / 2 - 15}px;`;
+      expandedSet.add(el);
     }
-    return style;
   }
 
-  function getArrowSymbol(direction: string): string {
-    switch (direction) {
-      case 'left':
-        return '→';
-      case 'right':
-        return '←';
-      case 'top':
-        return '↓';
-      case 'bottom':
-        return '↑';
+  function getBadgeStyle(corner: AnnotationCorner): string {
+    switch (corner) {
+      case 'tl': return 'top: 6px; left: 6px;';
+      case 'tr': return 'top: 6px; right: 6px;';
+      case 'bl': return 'bottom: 6px; left: 6px;';
+      case 'br': return 'bottom: 6px; right: 6px;';
     }
-    return '';
   }
 </script>
 
 <div class="cv-highlight-overlay">
-  {#each rects as rect (`${rect.top}-${rect.left}-${rect.width}-${rect.height}`)}
+  {#each rects as rect, i (rect.element)}
     <div
-      class="cv-highlight-box"
-      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px;"
-    ></div>
-
-    {@const dir = getArrowClass(rect)}
-    <div class="cv-highlight-arrow {dir}" style={getArrowStyle(rect, dir)}>
-      {getArrowSymbol(dir)}
+      class="cv-highlight-group"
+      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-highlight-color: {getColorHex(rect)};"
+    >
+      <div class="cv-highlight-marker"></div>
+      {#if rects.length > 1}
+        <button
+          class="cv-nav-arrow cv-nav-arrow--up"
+          class:cv-nav-arrow--hidden={i === 0}
+          onclick={() => scrollToRect(rects[i - 1]!)}
+          aria-label="Previous highlight"
+        >↑</button>
+        <button
+          class="cv-nav-arrow cv-nav-arrow--down"
+          class:cv-nav-arrow--hidden={i === rects.length - 1}
+          onclick={() => scrollToRect(rects[i + 1]!)}
+          aria-label="Next highlight"
+        >↓</button>
+      {/if}
+      <div class="cv-highlight-pill">
+        <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
+          CustardUI highlight↗
+        </a>
+      </div>
+      {#if rect.annotation}
+        <button
+          class="cv-annotation-badge"
+          class:cv-annotation-badge--expanded={expandedSet.has(rect.element)}
+          style={getBadgeStyle(rect.annotationCorner ?? DEFAULT_ANNOTATION_CORNER)}
+          onclick={(e) => { e.stopPropagation(); toggleBadge(rect.element); }}
+          aria-label={expandedSet.has(rect.element) ? 'Collapse annotation' : 'Expand annotation'}
+        >
+          {#if expandedSet.has(rect.element)}
+            <span class="cv-annotation-text">{rect.annotation}</span>
+          {:else}
+            <span class="cv-annotation-text">
+              {rect.annotation.length > ANNOTATION_PREVIEW_LENGTH
+                ? rect.annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'
+                : rect.annotation}
+            </span>
+          {/if}
+        </button>
+      {/if}
     </div>
   {/each}
 </div>
@@ -71,106 +97,158 @@
     height: 100%;
     pointer-events: none;
     z-index: 8000;
-    overflow: visible;
   }
 
-  .cv-highlight-box {
+  .cv-highlight-group {
     position: absolute;
-    /* Slightly thicker border looks more like a marker stroke */
-    border: 5px solid #d13438;
-    box-sizing: border-box;
-
-    /* Top-Left: 5px (Sharp)
-      Top-Right: 80px
-      Bottom-Right: 40px
-      Bottom-Left: 100px
-      (Separated by the slash for organic asymmetry)
-      Horizontal Radius / Vertical Radius
-    */
-    border-radius: 200px 15px 225px 15px / 15px 225px 15px 255px;
-
-    /* A subtle transform to make it look slightly tilted/imperfect */
-    transform: rotate(-0.5deg);
-
-    /* Balanced shadows from before, but adjusted for the wobble */
-    box-shadow:
-      0 6px 15px rgba(0, 0, 0, 0.13),
-      /* The inset shadow now follows the wobbly border-radius */ inset 0 0 8px 1px
-        rgba(0, 0, 0, 0.12);
-
     pointer-events: none;
-    /* Smoother rendering for the wobbled edges */
-    backface-visibility: hidden;
-
-    opacity: 0.92;
   }
 
-  .cv-highlight-arrow {
+  .cv-highlight-marker {
     position: absolute;
-    font-size: 35px; /* Slightly larger for the "marker" feel */
-    color: #d13438;
-    font-weight: bold;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-
-    /* Hand-drawn style for the arrow: 
-       1. Slight tilt to match the box
-       2. Multi-layer drop shadow to match the box's elevation 
+    inset: 0;
+    pointer-events: none;
+    
+    /* Marker Style */
+    border: 3.5px solid var(--cv-highlight-color);
+    border-radius: 200px 15px 225px 15px / 15px 225px 15px 255px;
+    transform: rotate(-0.5deg);
+    
+    /* 3D INTERNAL VOLUME:
+       Adds depth to the yellow border itself so it looks rounded.
     */
-    transform: rotate(3deg);
-    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    box-shadow: 
+      inset 0 1px 2px rgba(129, 73, 25, 0.2),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.7);
+
+    /* 2A-3 DOUBLE LIGHT PROJECTION:
+       Stacks multiple drop-shadows to cast into the box interior.
+    */
+    filter: 
+      /* Sharp contact shadow for grounding */
+      drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15)) 
+      /* Light Source A: Casts shadow from top-left to bottom-right */
+      drop-shadow(-8px 12px 10px rgba(44, 26, 14, 0.12))
+      /* Light Source B: Casts shadow from top-right to bottom-left */
+      drop-shadow(8px 12px 10px rgba(44, 26, 14, 0.12));
+    
+    animation: highlightFadeIn 0.3s ease-out forwards;
   }
 
-  /* Animations set to run 4 times and stop (forwards) */
-  .cv-highlight-arrow.left {
-    animation: floatArrowLeft 1.5s 4 forwards;
-  }
-  .cv-highlight-arrow.right {
-    animation: floatArrowRight 1.5s 4 forwards;
-  }
-  .cv-highlight-arrow.top {
-    animation: floatArrowTop 1.5s 4 forwards;
-  }
-  .cv-highlight-arrow.bottom {
-    animation: floatArrowBottom 1.5s 4 forwards;
+  .cv-nav-arrow {
+    position: absolute;
+    z-index: 10;
+    right: -5px;
+    pointer-events: auto;
+    width: 14px;
+    height: 14px;
+    border-radius: 100px;
+    border: 1px solid var(--cv-highlight-color);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    color: #814919;
+    font-weight: 700;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    line-height: 1;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(44, 26, 14, 0.15);
+    opacity: 0.7;
   }
 
-  @keyframes floatArrowLeft {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    50% {
-      transform: translateX(-10px);
-    }
+  .cv-nav-arrow:hover {
+    opacity: 1;
   }
-  @keyframes floatArrowRight {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    50% {
-      transform: translateX(10px);
-    }
+
+  .cv-nav-arrow--up {
+    top: 0px;
   }
-  @keyframes floatArrowTop {
-    0%,
-    100% {
-      transform: translate(-50%, 0);
-    }
-    50% {
-      transform: translate(-50%, -10px);
-    }
+
+  .cv-nav-arrow--down {
+    bottom: 0px;
   }
-  @keyframes floatArrowBottom {
-    0%,
-    100% {
-      transform: translate(-50%, 0);
+
+  .cv-nav-arrow--hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .cv-highlight-pill {
+    position: absolute;
+    z-index: 10;
+    bottom: -7px;
+    right: 14px;
+    background: white;
+    height: 14px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    
+    border-radius: 100px;
+    border: 1px solid var(--cv-highlight-color);
+    pointer-events: auto;
+    white-space: nowrap;
+    
+    /* Stronger shadow to match the frame's new altitude */
+    box-shadow: 0 4px 12px rgba(44, 26, 14, 0.15);
+  }
+
+  .cv-highlight-pill a {
+    font-size: 8px;
+    font-weight: 700;
+    color: #814919;
+    text-decoration: none;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .cv-highlight-pill:hover a {
+    opacity: 0.8;
+  }
+
+  .cv-annotation-badge {
+    position: absolute;
+    z-index: 10;
+    pointer-events: auto;
+    max-width: 180px;
+    background: white;
+    border: 1.5px solid var(--cv-highlight-color);
+    border-radius: 6px;
+    padding: 4px 7px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(44, 26, 14, 0.15);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    text-align: left;
+  }
+
+  .cv-annotation-badge--expanded {
+    max-width: 260px;
+    z-index: 20;
+  }
+
+  .cv-annotation-text {
+    display: block;
+    font-size: 9px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.4;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  @keyframes highlightFadeIn {
+    from { 
+      opacity: 0; 
+      transform: scale(0.98) rotate(-1deg); 
     }
-    50% {
-      transform: translate(-50%, 10px);
+    to { 
+      opacity: 1; 
+      transform: scale(1) rotate(-0.5deg); 
     }
   }
 </style>

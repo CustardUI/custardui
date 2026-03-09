@@ -5,16 +5,19 @@
  * reactive spans that update when the variable store changes.
  */
 
-// Regex to find [[ variable : fallback ]]
+// Regex to find [[ variable : fallback ]] or [[ variable ? truthy : falsy ]]
 // Group 1: escape character (backslashes)
 // Group 2: variable name (alphanumeric, underscores, hyphens)
-// Group 3 (optional): fallback value
-export const VAR_REGEX = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(?:\s*:\s*(.*?))?\s*\]\]/g;
+// Group 3 (optional): * modifier — when present, conditional resolves any value (user OR registry default)
+// Group 4 (optional): conditional truthy template (only when ? is present)
+// Group 5 (optional): conditional falsy string (only when ? is present)
+// Group 6 (optional): fallback value (only when : without ?)
+export const VAR_REGEX = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/g;
 // Non-global version for stateless testing
-const VAR_TESTER = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(?:\s*:\s*(.*?))?\s*\]\]/;
+const VAR_TESTER = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/;
 
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-import { store } from '$lib/stores/main-store.svelte';
+import { elementStore } from '$lib/stores/element-store.svelte';
 
 export class PlaceholderBinder {
   /**
@@ -89,7 +92,7 @@ export class PlaceholderBinder {
 
     while ((match = VAR_REGEX.exec(text)) !== null) {
       hasMatch = true;
-      const [fullMatch, escape, name, fallback] = match;
+      const [fullMatch, escape, name, modifier, condTruthy, condFalsy, fallback] = match;
       const index = match.index;
 
       if (!name) continue;
@@ -107,11 +110,17 @@ export class PlaceholderBinder {
         // Create Placeholder Custom Element
         const el = document.createElement('cv-placeholder');
         el.setAttribute('name', name);
-        if (fallback) el.setAttribute('fallback', fallback);
+        if (condTruthy !== undefined) {
+          el.setAttribute('truthy', condTruthy);
+          el.setAttribute('falsy', condFalsy ?? '');
+          if (modifier === '*') el.setAttribute('any-value', '');
+        } else if (fallback !== undefined) {
+          el.setAttribute('fallback', fallback);
+        }
         fragment.appendChild(el);
 
         // Register detection
-        store.registerPlaceholder(name);
+        elementStore.registerPlaceholder(name);
       }
 
       lastIndex = VAR_REGEX.lastIndex;
@@ -158,7 +167,7 @@ export class PlaceholderBinder {
         let match;
         while ((match = matcher.exec(tmpl)) !== null) {
           if (!match[1] && match[2]) {
-            store.registerPlaceholder(match[2]);
+            elementStore.registerPlaceholder(match[2]);
           }
         }
       });
@@ -208,6 +217,22 @@ export class PlaceholderBinder {
   }
 
   /**
+   * Resolves value for a placeholder using only user-set values (no registry defaults).
+   * Returns undefined if the user has not explicitly set a non-empty value.
+   *
+   * Used by conditional syntax `[[name ? truthy : falsy]]` (without `*`) and
+   * `<cv-toggle placeholder-id="name">` (without `*`).
+   *
+   * @param name - The placeholder name to resolve
+   * @param values - Record of user-set placeholder values
+   * @returns The user-set value, or undefined if not set
+   */
+  static resolveUserValue(name: string, values: Record<string, string>): string | undefined {
+    const userVal = values[name];
+    return userVal !== undefined && userVal !== '' ? userVal : undefined;
+  }
+
+  /**
    * Resolves value for a placeholder by checking and using sources in order of:
    * 1. user-set value, 2. registry default value, 3. inline fallback value
    *
@@ -218,7 +243,7 @@ export class PlaceholderBinder {
    * @param values - Record of user-set placeholder values
    * @returns The resolved value, or undefined if no value is available from any source
    */
-  private static resolveValue(
+  static resolveValue(
     name: string,
     fallback: string | undefined,
     values: Record<string, string>,
@@ -231,7 +256,7 @@ export class PlaceholderBinder {
 
     if (userVal !== undefined && userVal !== '') {
       return userVal;
-    } else if (fallback) {
+    } else if (fallback !== undefined) {
       return fallback;
     } else if (registryDefault !== undefined && registryDefault !== '') {
       return registryDefault;
@@ -260,8 +285,22 @@ export class PlaceholderBinder {
     values: Record<string, string>,
     attrName?: string,
   ): string {
-    return template.replace(VAR_REGEX, (_full, escape, name, fallback) => {
+    return template.replace(VAR_REGEX, (_full, escape, name, modifier, condTruthy, condFalsy, fallback) => {
       if (escape) return `[[${name}]]`;
+
+      if (condTruthy !== undefined) {
+        let val = modifier === '*'
+          ? PlaceholderBinder.resolveValue(name, undefined, values)
+          : PlaceholderBinder.resolveUserValue(name, values);
+        if (val === undefined) return condFalsy ?? '';
+        // URL-encode the value component (same as regular placeholders)
+        if (attrName && (attrName === 'href' || attrName === 'src')) {
+          if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
+            val = encodeURIComponent(val);
+          }
+        }
+        return condTruthy.replace(/\$/g, () => val!);
+      }
 
       let val = PlaceholderBinder.resolveValue(name, fallback, values);
       if (val === undefined) return `[[${name}]]`;

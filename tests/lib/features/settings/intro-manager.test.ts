@@ -2,12 +2,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Polyfill Svelte Runes BEFORE import
-// @ts-expect-error - Polyfill for testing
-globalThis.$state = (initial) => initial;
-
 import { IntroManager } from '../../../../src/lib/features/settings/intro-manager.svelte';
-import { PersistenceManager } from '../../../../src/lib/state/persistence';
+import type { PersistenceManager } from '../../../../src/lib/utils/persistence';
 
 describe('IntroManager', () => {
   let introManager: IntroManager;
@@ -15,9 +11,10 @@ describe('IntroManager', () => {
   let calloutOptions: any;
 
   beforeEach(() => {
-    persistence = new PersistenceManager();
-    vi.spyOn(persistence, 'getItem').mockReturnValue(null);
-    vi.spyOn(persistence, 'setItem');
+    persistence = {
+      getItem: vi.fn().mockReturnValue(null),
+      setItem: vi.fn(),
+    } as unknown as PersistenceManager;
 
     calloutOptions = {
       show: true,
@@ -54,7 +51,8 @@ describe('IntroManager', () => {
   });
 
   it('should not show if already persisted as shown', () => {
-    vi.spyOn(persistence, 'getItem').mockReturnValue('true');
+    (persistence.getItem as ReturnType<typeof vi.fn>).mockReturnValue('true');
+    introManager = new IntroManager(persistence, calloutOptions);
     introManager.init(true, true);
 
     vi.advanceTimersByTime(1100);

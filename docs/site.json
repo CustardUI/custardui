@@ -1,5 +1,5 @@
 {
-  "baseUrl": "/customviews",
+  "baseUrl": "/betadocs",
   "timeZone": "Asia/Singapore",
   "titlePrefix": "",
   "titleSuffix": "",
@@ -12,7 +12,9 @@
     "*.njk",
     ".git/*",
     ".gitignore",
-    "node_modules/*"
+    "node_modules/*",
+    "CNAME",
+    "design.md"
   ],
   "pagesExclude": ["node_modules/*"],
   "pages": [
@@ -27,7 +29,7 @@
     "codeTheme": "light"
   },
   "plugins": [
-    "customviews",
+    "custardui",
     "filterTags",
     "codeBlockCopyButtons",
     "codeBlockWrapButtons",
@@ -39,6 +41,8 @@
     }
   },
   "deploy": {
-    "message": "Site Update."
+    "message": "Site Update.",
+    "repo": "https://github.com/custardUI/betadocs.git",
+    "branch": "master"
   }
 }

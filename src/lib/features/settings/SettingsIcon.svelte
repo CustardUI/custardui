@@ -1,7 +1,11 @@
 <script lang="ts">
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
-  import { onMount } from 'svelte';
+  import { onMount, getContext } from 'svelte';
+  import IconGear from '$lib/app/icons/IconGear.svelte';
+  import { type IconSettingsStore, ICON_SETTINGS_CTX } from '$features/settings/stores/icon-settings-store.svelte';
+
+  const iconSettingsStore = getContext<IconSettingsStore>(ICON_SETTINGS_CTX);
 
   let {
     position = 'middle-left',
@@ -12,7 +16,6 @@
     backgroundColor = undefined,
     opacity = undefined,
     scale = undefined,
-    persistence = undefined,
   }: {
     position?:
       | 'top-right'
@@ -28,19 +31,22 @@
     backgroundColor?: string;
     opacity?: number;
     scale?: number;
-    persistence?: any;
   } = $props();
 
   // Constants
-  const STORAGE_KEY_BASE = 'cv-settings-icon-offset';
   const VIEWPORT_MARGIN = 10;
   const DRAG_THRESHOLD = 5;
+  const PEEK_WIDTH = 20;
 
   let isDragging = $state(false);
   let dragStartY = 0;
   let dragStartOffset = 0;
-  let currentOffset = $state(0);
+  let dragOffset = $state(0);
+  const currentOffset = $derived(isDragging ? dragOffset : iconSettingsStore.offset);
   let suppressClick = false;
+
+  const isRight = $derived(position?.includes('right') ?? false);
+  const isCollapsed = $derived(iconSettingsStore.isCollapsed);
 
   let minOffset = -Infinity;
   let maxOffset = Infinity;
@@ -48,14 +54,6 @@
   let settingsIconElement: HTMLElement;
 
   onMount(() => {
-    // Load persisted offset
-    if (persistence) {
-      const savedPosition = persistence.getItem(STORAGE_KEY_BASE);
-      if (savedPosition) {
-        currentOffset = parseFloat(savedPosition);
-      }
-    }
-
     // Global event listeners to handle drag leaving the element
     window.addEventListener('mousemove', handleDragMove);
     window.addEventListener('mouseup', endDrag);
@@ -63,8 +61,8 @@
     window.addEventListener('touchend', endDrag);
     window.addEventListener('resize', constrainPositionToViewport);
 
-    // Initial check
-    constCheckTimer = setTimeout(constrainPositionToViewport, 0); // Ensure layout is ready
+    // Initial check — defer to ensure layout is ready
+    constCheckTimer = setTimeout(constrainPositionToViewport, 0);
 
     return () => {
       window.removeEventListener('mousemove', handleDragMove);
@@ -78,12 +76,9 @@
 
   let constCheckTimer: any;
 
-  export function resetPosition() {
-    currentOffset = 0;
-    dragStartOffset = 0;
-    if (persistence) {
-      persistence.removeItem(STORAGE_KEY_BASE);
-    }
+  function handleCollapse(e: MouseEvent) {
+    e.stopPropagation(); // don't bubble to the icon's onclick
+    iconSettingsStore.setCollapsed(true);
   }
 
   function constrainPositionToViewport() {
@@ -97,29 +92,46 @@
     const min = VIEWPORT_MARGIN - zeroTop;
     const max = window.innerHeight - VIEWPORT_MARGIN - zeroTop - elementHeight;
 
+    // Refresh boundaries during drag so handleDragMove respects the new window size
+    if (isDragging) {
+      minOffset = min;
+      maxOffset = max;
+    }
+
     // Clamp
     const clamped = Math.max(min, Math.min(max, currentOffset));
-
     if (clamped !== currentOffset) {
-      currentOffset = clamped;
-      savePosition();
+      if (isDragging) {
+        dragOffset = clamped;
+      } else {
+        iconSettingsStore.setOffset(clamped);
+      }
     }
   }
 
   function onMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
+    if (isCollapsed) return; // strip click expands via onClick; don't start drag
     startDrag(e.clientY);
   }
 
   function onTouchStart(e: TouchEvent) {
     if (e.touches.length !== 1) return;
+    // First tap on a peeking icon just reveals it without starting a drag
+    if (isCollapsed) {
+      iconSettingsStore.setCollapsed(false);
+      e.preventDefault();
+      return;
+    }
     startDrag(e.touches[0]!.clientY);
   }
 
   function startDrag(clientY: number) {
+    iconSettingsStore.setCollapsed(false);
     isDragging = true;
     dragStartY = clientY;
-    dragStartOffset = currentOffset;
+    dragStartOffset = iconSettingsStore.offset;
+    dragOffset = dragStartOffset;
     suppressClick = false;
 
     calculateDragConstraints();
@@ -147,7 +159,7 @@
     const rawOffset = dragStartOffset + deltaY;
 
     // Clamp the offset to keep element on screen
-    currentOffset = Math.max(minOffset, Math.min(maxOffset, rawOffset));
+    dragOffset = Math.max(minOffset, Math.min(maxOffset, rawOffset));
 
     if (Math.abs(deltaY) > DRAG_THRESHOLD) {
       suppressClick = true;
@@ -166,16 +178,14 @@
   function endDrag() {
     if (!isDragging) return;
     isDragging = false;
-    savePosition();
+    iconSettingsStore.setOffset(dragOffset);
   }
 
-  function savePosition() {
-    if (persistence) {
-      persistence.setItem(STORAGE_KEY_BASE, currentOffset.toString());
+  function handleMainClick(e: MouseEvent) {
+    if (isCollapsed) {
+      iconSettingsStore.setCollapsed(false);
+      return;
     }
-  }
-
-  function onClick(e: MouseEvent) {
     if (suppressClick) {
       e.stopImmediatePropagation();
       e.preventDefault();
@@ -185,23 +195,22 @@
     if (onclick) onclick();
   }
 
-  // Key handler for accessibility
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (onclick) onclick();
-    }
-  }
-
   // Helper for transforms
-  function getTransform(pos: string | undefined, offset: number, s: number | undefined) {
+  function getTransform(pos: string | undefined, offset: number, s: number | undefined, collapsed: boolean) {
     const isMiddle = pos && pos.includes('middle');
+    const isRight = pos && pos.includes('right');
     let t = '';
 
+    if (collapsed) {
+      t = isRight
+        ? `translateX(calc(100% - ${PEEK_WIDTH}px)) `
+        : `translateX(calc(-100% + ${PEEK_WIDTH}px)) `;
+    }
+
     if (isMiddle) {
-      t = `translateY(calc(-50% + ${offset}px))`;
+      t += `translateY(calc(-50% + ${offset}px))`;
     } else {
-      t = `translateY(${offset}px)`;
+      t += `translateY(${offset}px)`;
     }
 
     if (s && s !== 1) {
@@ -214,24 +223,93 @@
 <div
   bind:this={settingsIconElement}
   class="cv-settings-icon cv-settings-{position} {pulse ? 'cv-pulse' : ''}"
-  {title}
-  role="button"
-  tabindex="0"
-  aria-label="Open Custom Views Settings"
+  class:cv-is-dragging={isDragging}
+  class:cv-is-collapsed={isCollapsed}
+  role="none"
   onmousedown={onMouseDown}
   ontouchstart={onTouchStart}
-  onclick={onClick}
-  onkeydown={onKeyDown}
   style:--cv-icon-color={iconColor}
   style:--cv-icon-bg={backgroundColor}
   style:--cv-icon-opacity={opacity}
-  style:transform={getTransform(position, currentOffset, scale)}
-  style:cursor={isDragging ? 'grabbing' : 'grab'}
+  style:transform={getTransform(position, currentOffset, scale, isCollapsed)}
+  style:cursor={isDragging ? 'grabbing' : isCollapsed ? 'pointer' : 'grab'}
 >
-  <span class="cv-gear">⚙</span>
+  <button
+    class="cv-settings-main-btn"
+    {title}
+    aria-label={isCollapsed ? 'Expand settings' : 'Open Custom Views Settings'}
+    onclick={handleMainClick}
+  >
+    <span class="cv-gear"><IconGear /></span>
+  </button>
+
+  <!-- Collapse tab: outer (screen-edge) side, always visible -->
+  <button
+    class="cv-collapse-btn"
+    data-side={isRight ? 'right' : 'left'}
+    onclick={handleCollapse}
+    onmousedown={(e) => e.stopPropagation()}
+    ontouchstart={(e) => e.stopPropagation()}
+    onpointerdown={(e) => e.stopPropagation()}
+    aria-label="Collapse settings icon"
+  >{isRight ? '›' : '‹'}</button>
+
+  <!-- Dismiss button: shown above peek strip when collapsed -->
+  {#if isCollapsed}
+    <button
+      class="cv-dismiss-btn"
+      data-side={isRight ? 'left' : 'right'}
+      onclick={(e) => { e.stopPropagation(); iconSettingsStore.dismiss(); }}
+      onmousedown={(e) => e.stopPropagation()}
+      ontouchstart={(e) => e.stopPropagation()}
+      onpointerdown={(e) => e.stopPropagation()}
+      aria-label="Dismiss settings icon"
+    >✕</button>
+  {/if}
+
 </div>
 
 <style>
+  .cv-settings-main-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: inherit;
+    justify-content: inherit;
+    color: inherit;
+    cursor: inherit;
+    border-radius: inherit;
+  }
+
+  .cv-settings-main-btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+  }
+
+  .cv-gear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+  }
+
+  .cv-gear :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cv-gear :global(svg path) {
+    fill: currentColor;
+  }
+
   .cv-settings-icon {
     position: fixed;
     background: var(--cv-icon-bg, rgba(255, 255, 255, 0.92));
@@ -251,7 +329,8 @@
       background 0.3s ease,
       color 0.3s ease,
       opacity 0.3s ease,
-      border-color 0.3s ease; /* Removed transform transition to allow smooth dragging */
+      border-color 0.3s ease,
+      transform 0.4s ease; /* transform transition drives the peek slide animation */
     touch-action: none; /* Crucial for touch dragging */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     box-sizing: border-box;
@@ -268,6 +347,93 @@
     opacity: 1;
     border-color: rgba(0, 0, 0, 0.3);
   }
+
+  /* Remove transform transition during drag so it tracks the pointer without lag */
+  .cv-settings-icon.cv-is-dragging {
+    transition:
+      width 0.3s ease,
+      background 0.3s ease,
+      color 0.3s ease,
+      opacity 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  /* When collapsed, dim the strip */
+  .cv-settings-icon.cv-is-collapsed {
+    opacity: 0.5;
+  }
+
+  .cv-settings-icon.cv-is-collapsed:hover {
+    opacity: 0.85;
+  }
+
+  .cv-collapse-btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.12);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  .cv-collapse-btn[data-side='left'] {
+    left: 0; /* outer = screen-edge side for left icons */
+    border-radius: 0 6px 6px 0;
+  }
+
+  .cv-collapse-btn[data-side='right'] {
+    right: 0; /* outer = screen-edge side for right icons */
+    border-radius: 6px 0 0 6px;
+  }
+
+  .cv-collapse-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  /* Hide collapse tab when already collapsed */
+  .cv-settings-icon.cv-is-collapsed .cv-collapse-btn {
+    display: none;
+  }
+
+  .cv-dismiss-btn {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    font-size: 9px;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  .cv-dismiss-btn[data-side='left'] { left: 0; }
+  .cv-dismiss-btn[data-side='right'] { right: 0; }
+
+  .cv-dismiss-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
 
   /* Top-right */
   .cv-settings-top-right {

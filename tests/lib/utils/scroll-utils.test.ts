@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getScrollTopOffset, scrollToElement } from '../../../src/lib/utils/scroll-utils';
+import { getScrollTopOffset } from '../../../src/lib/utils/scroll-utils';
 
 describe('scroll-utils', () => {
   beforeEach(() => {
@@ -125,51 +125,6 @@ describe('scroll-utils', () => {
       // Result = Math.max(100, 70) = 100.
       expect(getScrollTopOffset()).toBe(100);
       
-      getComputedStyleSpy.mockRestore();
-    });
-  });
-
-  describe('scrollToElement', () => {
-    it('scrolls to element minus header offset and padding', () => {
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
-      const element = document.createElement('div');
-      document.body.appendChild(element);
-
-      // Mock element position: 500px down
-      vi.spyOn(element, 'getBoundingClientRect').mockReturnValue({
-        top: 500, bottom: 550, left: 0, right: 100, width: 100, height: 50, x: 0, y: 0,
-        toJSON: () => {}
-      });
-
-      // Mock window scrollY: 100
-      Object.defineProperty(window, 'scrollY', { value: 100, configurable: true });
-
-      // Mock header offset: 60
-      const header = document.createElement('header');
-      document.body.appendChild(header);
-      const getComputedStyleSpy = vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
-        if (el === header) { return { position: 'fixed' } as CSSStyleDeclaration; }
-        return {} as CSSStyleDeclaration;
-      });
-      vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({
-        height: 60,
-        top: 0, bottom: 60, left: 0, right: 100, width: 100, x: 0, y: 0,
-        toJSON: () => {}
-      });
-
-      scrollToElement(element);
-
-      // Math:
-      // Target Y = element.top (500) + scrollY (100) = 600
-      // Offset = header (60)
-      // Padding = 20
-      // Final = 600 - 60 - 20 = 520
-      expect(scrollToSpy).toHaveBeenCalledWith({
-        top: 520,
-        behavior: 'smooth'
-      });
-
-      scrollToSpy.mockRestore();
       getComputedStyleSpy.mockRestore();
     });
   });

@@ -1,27 +1,23 @@
 <script lang="ts">
   /* eslint-disable @typescript-eslint/no-explicit-any */
   import { fade, scale } from 'svelte/transition';
-  import {
-    getNavHeadingOnIcon,
-    getNavHeadingOffIcon,
-    getNavDashed,
-    getShareIcon,
-    getCopyIcon,
-    getTickIcon,
-    getGitHubIcon,
-    getResetIcon,
-    getGearIcon,
-    getCloseIcon,
-    getSunIcon,
-    getMoonIcon,
-  } from '$lib/utils/icons';
-  import { themeStore } from '$lib/stores/theme-store.svelte';
-  import type { CustomViewsController } from '$lib/controller.svelte';
+  import IconGear from '$lib/app/icons/IconGear.svelte';
+  import IconClose from '$lib/app/icons/IconClose.svelte';
+  import IconNavDashed from '$lib/app/icons/IconNavDashed.svelte';
+  import IconNavHeadingOn from '$lib/app/icons/IconNavHeadingOn.svelte';
+  import IconNavHeadingOff from '$lib/app/icons/IconNavHeadingOff.svelte';
+  import IconShare from '$lib/app/icons/IconShare.svelte';
+  import IconCopy from '$lib/app/icons/IconCopy.svelte';
+  import IconCheck from '$lib/app/icons/IconCheck.svelte';
+
+  import { activeStateStore } from '$lib/stores/active-state-store.svelte';
+  import { elementStore } from '$lib/stores/element-store.svelte';
+  import { uiStore } from '$lib/stores/ui-store.svelte';
+  import { derivedStore } from '$lib/stores/derived-store.svelte';
   import { URLStateManager } from '$features/url/url-state-manager';
-  import { showToast } from '$lib/stores/toast-store.svelte';
+  import { showToast } from '$features/notifications/stores/toast-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-  import { placeholderValueStore } from '$features/placeholder/stores/placeholder-value-store.svelte';
-  import { findHighestVisibleElement, scrollToElement } from '$lib/utils/scroll-utils';
+  import { findHighestVisibleElement, handleScrollAnchor } from '$lib/utils/scroll-utils';
 
   import ToggleItem from './ToggleItem.svelte';
   import TabGroupItem from './TabGroupItem.svelte';
@@ -29,54 +25,45 @@
   import { copyToClipboard } from '$lib/utils/clipboard-utils';
 
   interface Props {
-    controller: CustomViewsController;
-    title?: string;
-    description?: string;
-    showReset?: boolean;
-    showTabGroups?: boolean;
-    isResetting?: boolean;
     onclose?: () => void;
     onreset?: () => void;
     onstartShare?: () => void;
   }
 
   let {
-    controller,
-    title = 'Customize View',
-    description = '',
-    showReset = true,
-    showTabGroups = true,
-    isResetting = false,
     onclose = () => {},
     onreset = () => {},
     onstartShare = () => {},
   }: Props = $props();
 
   // --- Derived State from Core ---
-  const store = $derived(controller.store);
-  const areTabNavsVisible = $derived(store.isTabGroupNavHeadingVisible);
+  const areTabNavsVisible = $derived(uiStore.isTabGroupNavHeadingVisible);
+  const showTabGroups = $derived(uiStore.uiOptions.showTabGroups);
+  const showReset = $derived(uiStore.uiOptions.showReset);
+  const title = $derived(uiStore.uiOptions.title);
+  const description = $derived(uiStore.uiOptions.description);
 
   // Config Items
-  const toggles = $derived(store.menuToggles);
-  const tabGroups = $derived(store.menuTabGroups);
-  const sectionOrder = $derived(store.configSectionOrder);
+  const toggles = $derived(derivedStore.menuToggles);
+  const tabGroups = $derived(derivedStore.menuTabGroups);
+  const sectionOrder = $derived(activeStateStore.configSectionOrder);
 
   // State Items
-  let shownToggles = $derived(store.state.shownToggles ?? []);
-  let peekToggles = $derived(store.state.peekToggles ?? []);
-  let activeTabs = $derived(store.state.tabs ?? {});
+  let shownToggles = $derived(activeStateStore.state.shownToggles ?? []);
+  let peekToggles = $derived(activeStateStore.state.peekToggles ?? []);
+  let activeTabs = $derived(activeStateStore.state.tabs ?? {});
 
   // Placeholder Data
   let placeholderDefinitions = $derived.by(() => {
     return placeholderRegistryStore.definitions.filter((d) => {
       if (d.hiddenFromSettings) return false;
       if (d.isLocal) {
-        return store.detectedPlaceholders.has(d.name);
+        return elementStore.detectedPlaceholders.has(d.name);
       }
       return true;
     });
   });
-  let placeholderValues = $derived(placeholderValueStore.values);
+  let placeholderValues = $derived(activeStateStore.state.placeholders ?? {});
 
   // --- UI Logic ---
 
@@ -89,7 +76,6 @@
   let activeTab = $state<'customize' | 'share'>('customize');
 
   let copySuccess = $state(false);
-  let navIconHtml = $state('');
 
   // Height preservation logic
   let mainClientHeight = $state(0);
@@ -107,63 +93,52 @@
     }
   });
 
-  $effect(() => {
-    updateNavIcon(areTabNavsVisible, false);
-  });
-
-  function updateNavIcon(isVisible: boolean, isHovering: boolean) {
-    if (isHovering) {
-      navIconHtml = getNavDashed();
-    } else {
-      navIconHtml = isVisible ? getNavHeadingOnIcon() : getNavHeadingOffIcon();
-    }
-  }
+  let isNavHovering = $state(false);
 
   function handleNavHover(hovering: boolean) {
-    updateNavIcon(areTabNavsVisible, hovering);
+    isNavHovering = hovering;
   }
 
   function handleNavToggle() {
-    store.isTabGroupNavHeadingVisible = !areTabNavsVisible;
+    uiStore.isTabGroupNavHeadingVisible = !areTabNavsVisible;
   }
 
   // --- Core Actions ---
 
   function handleToggleChange(detail: any) {
     const { toggleId, value } = detail;
-    const currentShown = store.state.shownToggles || [];
-    const currentPeek = store.state.peekToggles || [];
-
-    const newShown = currentShown.filter((id: string) => id !== toggleId);
-    const newPeek = currentPeek.filter((id: string) => id !== toggleId);
-
-    if (value === 'show') newShown.push(toggleId);
-    if (value === 'peek') newPeek.push(toggleId);
-
-    store.setToggles(newShown, newPeek);
+    activeStateStore.updateToggleState(toggleId, value);
   }
 
   function handleTabGroupChange(detail: any) {
     const { groupId, tabId } = detail;
-    // Scroll Logic: Capture target before state update
-    const groupToScrollTo = findHighestVisibleElement('cv-tabgroup');
+    // Capture element and its current visual position before state change
+    const anchorEl = findHighestVisibleElement('cv-tabgroup');
+    const scrollAnchor = anchorEl
+      ? { element: anchorEl, top: anchorEl.getBoundingClientRect().top }
+      : null;
 
-    store.setPinnedTab(groupId, tabId);
+    activeStateStore.setPinnedTab(groupId, tabId);
 
-    // Restore scroll after update
-    if (groupToScrollTo) {
-      queueMicrotask(() => {
-        scrollToElement(groupToScrollTo);
-      });
+    // Restore visual position after layout shift
+    if (scrollAnchor) {
+      handleScrollAnchor(scrollAnchor);
     }
   }
 
   function handlePlaceholderChange(detail: { name: string; value: string }) {
-    placeholderValueStore.set(detail.name, detail.value);
+    activeStateStore.setPlaceholder(detail.name, detail.value);
   }
 
   async function copyShareUrl() {
-    const url = URLStateManager.generateShareableURL(store.state);
+    const url = URLStateManager.generateShareableURL(
+      activeStateStore.state,
+      {
+        toggles: elementStore.detectedToggles,
+        tabGroups: elementStore.detectedTabGroups,
+        placeholders: elementStore.detectedPlaceholders,
+      }
+    );
     try {
       await copyToClipboard(url);
       showToast('Link copied to clipboard!');
@@ -205,16 +180,12 @@
     <header class="header">
       <div class="header-content">
         <div class="modal-icon">
-          <!-- Gear Icon -->
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html getGearIcon()}
+          <IconGear />
         </div>
         <div class="title">{title}</div>
       </div>
       <button class="close-btn" aria-label="Close modal" onclick={onclose}>
-        <!-- Close icon svg -->
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html getCloseIcon()}
+        <IconClose />
       </button>
     </header>
 
@@ -292,8 +263,13 @@
                     <div class="tabgroup-row">
                       <div class="logo-box" id="cv-nav-icon-box">
                         <div class="nav-icon">
-                          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                          {@html navIconHtml}
+                          {#if isNavHovering}
+                            <IconNavDashed />
+                          {:else if areTabNavsVisible}
+                            <IconNavHeadingOn />
+                          {:else}
+                            <IconNavHeadingOff />
+                          {/if}
                         </div>
                       </div>
                       <div class="tabgroup-info">
@@ -330,44 +306,6 @@
               </div>
             {/if}
           {/each}
-
-          <!-- Hide Light Dark Theme Selection for now -->
-          {#if false}
-            <div class="section">
-              <div class="section-heading">Theme</div>
-              <div class="theme-selector">
-                <button
-                  class="theme-btn {themeStore.mode === 'light' ? 'active' : ''}"
-                  onclick={() => themeStore.setMode('light')}
-                  title="Light Mode"
-                >
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html getSunIcon()}
-                  <span>Light</span>
-                </button>
-                <button
-                  class="theme-btn {themeStore.mode === 'dark' ? 'active' : ''}"
-                  onclick={() => themeStore.setMode('dark')}
-                  title="Dark Mode"
-                >
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html getMoonIcon()}
-                  <span>Dark</span>
-                </button>
-                <!-- Auto button disabled for now -->
-                <!--
-              <button 
-                class="theme-btn {themeStore.mode === 'auto' ? 'active' : ''}" 
-                onclick={() => themeStore.setMode('auto')}
-                title="System Default"
-              >
-                {@html getSystemIcon()}
-                <span>Auto</span>
-              </button>
-              -->
-              </div>
-            </div>
-          {/if}
         </div>
       {:else}
         <div class="tab-content active" in:fade={{ duration: 150 }}>
@@ -379,8 +317,7 @@
 
             <button class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
               <span class="btn-icon"
-                ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html getShareIcon()}</span
+                ><IconShare /></span
               >
               <span>Select elements to share</span>
             </button>
@@ -389,11 +326,9 @@
               <button class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
                 <span class="btn-icon">
                   {#if copySuccess}
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html getTickIcon()}
+                    <IconCheck />
                   {:else}
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html getCopyIcon()}
+                    <IconCopy />
                   {/if}
                 </span>
                 <span>
@@ -412,21 +347,13 @@
 
     <footer class="footer">
       {#if showReset}
-        <button class="reset-btn" title="Reset to Default" onclick={onreset}>
-          <span class="reset-btn-icon {isResetting ? 'spinning' : ''}">
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html getResetIcon()}
-          </span>
-          <span>Reset</span>
-        </button>
+        <button class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
       {:else}
         <div></div>
       {/if}
 
-      <a href="https://github.com/customviews-js/customviews" target="_blank" class="footer-link">
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html getGitHubIcon()}
-        <span>View on GitHub</span>
+      <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
+        custardui.js.org
       </a>
 
       <button class="done-btn" onclick={onclose}>Done</button>
@@ -451,7 +378,7 @@
 
   .modal-box {
     background: var(--cv-bg);
-    border-radius: 0.75rem;
+    border-radius: var(--cv-modal-radius, 0.75rem);
     box-shadow: 0 25px 50px -12px var(--cv-shadow);
     max-width: 32rem;
     width: 90vw;
@@ -573,9 +500,11 @@
   }
 
   .section-heading {
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--cv-text);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--cv-text-secondary);
+    text-transform: var(--cv-section-label-transform, uppercase);
+    letter-spacing: 0.08em;
     margin: 0;
   }
 
@@ -584,44 +513,6 @@
     flex-direction: column;
     gap: 0.5rem;
     overflow: hidden;
-  }
-
-  /* Theme Selector */
-  .theme-selector {
-    display: flex;
-    background: var(--cv-input-bg);
-    border: 1px solid var(--cv-input-border);
-    border-radius: 0.5rem;
-    padding: 0.25rem;
-    gap: 0.25rem;
-  }
-
-  .theme-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border: none;
-    background: transparent;
-    color: var(--cv-text-secondary);
-    border-radius: 0.375rem;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .theme-btn:hover {
-    background: var(--cv-bg-hover);
-    color: var(--cv-text);
-  }
-
-  .theme-btn.active {
-    background: var(--cv-primary);
-    color: white;
-    box-shadow: var(--cv-shadow-sm);
   }
 
   /* Tab Groups Section specific */
@@ -753,87 +644,68 @@
 
   /* Footer */
   .footer {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-top: 1px solid var(--cv-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: var(--cv-bg);
-    border-bottom-left-radius: 0.75rem;
-    border-bottom-right-radius: 0.75rem;
+    border-bottom-left-radius: var(--cv-modal-radius, 0.75rem);
+    border-bottom-right-radius: var(--cv-modal-radius, 0.75rem);
   }
 
   .footer-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-self: flex-end;
     color: var(--cv-text-secondary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.68rem;
     font-weight: 500;
-    transition: color 0.15s ease;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+    transition: color 0.15s ease, opacity 0.15s ease;
   }
 
   .footer-link:hover {
-    color: var(--cv-text);
+    color: var(--cv-primary);
+    opacity: 1;
   }
 
   .reset-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    background: var(--cv-bg);
-    border: 1px solid var(--cv-border);
+    gap: 0.4rem;
+    background: transparent;
+    border: none;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--cv-danger);
+    color: var(--cv-text-secondary);
     cursor: pointer;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.5rem;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 
   .reset-btn:hover {
     background: var(--cv-danger-bg);
-    border-color: var(--cv-danger);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--cv-danger);
   }
 
   .done-btn {
     background: var(--cv-primary);
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 0.5rem;
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .done-btn:hover {
     background: var(--cv-primary-hover);
-  }
-
-  .reset-btn-icon {
-    display: flex;
-    align-items: center;
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  :global(.spinning) {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
   }
 
   /* Share Tab Styles */

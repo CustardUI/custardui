@@ -38,11 +38,16 @@
   .root {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
     padding: 0.75rem;
     background: var(--cv-bg);
     border: 1px solid var(--cv-border);
-    border-radius: 0.5rem;
+    border-radius: var(--cv-card-radius, 0.5rem);
+    transition: background 0.15s ease;
+  }
+
+  .root:hover {
+    background: var(--cv-bg-hover);
   }
 
   /* Remove special handling for last child since they are now separate cards */
