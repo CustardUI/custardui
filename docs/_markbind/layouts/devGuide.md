@@ -18,6 +18,7 @@
   * [Focus and Sharing]({{baseUrl}}/devGuide/tests/focus-test.html)
   * [Placeholders]({{baseUrl}}/devGuide/tests/placeholders.html)
   * [Non Sticky Header]({{baseUrl}}/devGuide/tests/nonStickyHeader.html)
+* [Changelog]({{baseUrl}}/devGuide/changesMade.html)
       </site-nav>
     </div>
   </nav>
