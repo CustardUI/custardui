@@ -7,8 +7,7 @@
 
 # Setting up CustardUI in a MarkBind Site
 
-CustardUI integrates seamlessly with [MarkBind](https://markbind.org) via a simple plugin setup.  
-This allows you to declaratively toggle content visibility, manage tab groups, and personalize documentation — directly within your static site.
+CustardUI integrates seamlessly with [MarkBind](https://markbind.org) via a simple plugin setup. This allows you to declaratively toggle content visibility, manage tab groups, and personalize documentation directly within your static site.
 
 ---
 
@@ -46,7 +45,7 @@ Note: Depending on your MarkBind JS environment, if you are operating in an ESM 
 
 ```js
 function getScripts() {
-  return ['<script src="https://unpkg.com/@customviews-js/customviews@v1" data-base-url="/"></script>'];
+  return ['<script src="https://unpkg.com/@custardui/custardui" data-base-url="/"></script>'];
 }
 
 const tagConfig = {
@@ -66,19 +65,19 @@ This is a current limitation of MarkBind which only operates in CJS formats, whi
 
 </box>
 
-This plugin automatically injects the CustomViews runtime into every generated page during the build process.
+This plugin automatically injects the CustardUI runtime into every generated page during the build process.
 
 ## 2. Register the Plugin in site.json
 
-In your project’s root `site.json`, register the plugin by adding `"customviews"` to the plugins list.
+In your project’s root `site.json`, register the plugin by adding `"custardui"` to the plugins list.
 
 ```json
 {
-  "plugins": ["customviews"]
+  "plugins": ["custardui"]
 }
 ```
 
-> Make sure the file name (customviews.js) exactly matches the plugin name (customviews) declared in site.json.
+> Make sure the file name (custardui.js) exactly matches the plugin name (custardui) declared in site.json.
 
 ## 3. Create custardui.config.json
 
@@ -121,12 +120,12 @@ At your project root, create a `custardui.config.json` file to define your toggl
       }
     ]
   },
-  "baseUrl": "/customviews",
-  "storageKey": "cv-docs-beta",
+  "baseUrl": "/",
+  "storageKey": "unique-string",
   "settings": {
     "enabled": true,
     "panel": {
-      "title": "Custom Views Settings Dialog",
+      "title": "CustardUI Settings Dialog",
       "description": "Toggle different content sections to customize your view."
     },
     "callout": {

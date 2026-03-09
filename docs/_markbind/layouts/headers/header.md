@@ -17,7 +17,7 @@ For the latest stable release, visit [here](https://custardui.github.io).**</md>
       <a href="https://github.com/custardui/custardui" target="_blank" class="nav-link"><md>:fab-github:</md></a>
     </li>
     <li>
-      <a href="#cv-open" class="nav-link">OPEN DIALOG</a>
+      <a highlight-on="none" href="#cv-open" class="nav-link">OPEN DIALOG</a>
     </li>
     <li slot="right">
       <form class="navbar-form">

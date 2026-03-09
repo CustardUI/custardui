@@ -12,7 +12,7 @@
 * [Git Workflow]({{baseUrl}}/devGuide/gitWorkflow.html)
 * [Making Releases]({{baseUrl}}/devGuide/releases.html)
 * [How Components Work]({{baseUrl}}/devGuide/componentWorkings.html)
-* Tests
+* Tests :expanded:
   * [Local Components]({{baseUrl}}/devGuide/tests/localComponents.html)
   * [Test Tabs]({{baseUrl}}/devGuide/tests/tabs.html)
   * [Focus and Sharing]({{baseUrl}}/devGuide/tests/focus-test.html)
