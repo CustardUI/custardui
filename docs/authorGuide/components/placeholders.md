@@ -1,7 +1,7 @@
 <frontmatter>
   title: CustardUI - Placeholders
   layout: authorGuide.md
-  pageNav: 4
+  pageNav: 3
   pageNavTitle: "Topics"
 </frontmatter>
 
@@ -42,15 +42,7 @@ Hello, [[username]]!
 
 The system scans the page and replaces these tokens with the current value. When the user updates the value in the settings, all instances on the page update immediately.
 
-#### Manual Component Usage
-
-You could also use the internal custom element directly:
-
-```html
-<cv-placeholder name="email" fallback="support@example.com"></cv-placeholder>
-```
-
-This is functionally equivalent to `\[[ email : support@example.com ]]` but may be useful for debugging or etc. Hopefully you won't have to use it.
+**Manual Component Usage**: You could also use the internal custom element directly, although it is not necessary. `<cv-placeholder name="email" fallback="support@example.com"></cv-placeholder>` is functionally equivalent to `\[[ email : support@example.com ]]` but may be useful for debugging or etc. 
 
 ## Inline Fallback
 
@@ -62,7 +54,83 @@ Contact us at \[[ email : support@example.com ]]
 Contact us at [[email : support@example.com]]
 ```
 
-If the user has not set a value for `email`, "support@example.com" will be displayed. Placeholders first use user-set values if available, inline fallbacks, registry defaults and lastly raw placeholder names, i.e. `\[[name]]`. User set empty strings (`""`) are treated as "not set" and show inline fallbacks, instead of showing nothing.
+If the user has not set a value for `email`, "support@example.com" will be displayed. Placeholders first use user-set values if available, inline fallbacks, registry defaults and lastly raw placeholder names, i.e. `\[[name]]` (to warn authors that no fallback value was provided).
+* Use `\[[email : ]]` 
+
+ User set empty strings (`""`) are treated as "not set" and show inline fallbacks, instead of showing nothing.
+
+
+## Conditional Syntax (Fall-Forward)
+
+You can render content **only when** a placeholder has a value using the conditional syntax:
+
+```
+\[[name ? truthy-template : falsy]]
+```
+
+- **`truthy-template`** — rendered when the placeholder is set. Use `$` as the insertion marker for the resolved value.
+- **`falsy`** — rendered when the placeholder is not set (usually left empty).
+
+**Examples:**
+
+```markdown
+Hello, \[[username ? $! : ]]
+```
+
+When `username` is unset, nothing is shown. When `username` is `alice`, it renders `Hello, alice!`.
+
+### User-Set vs. Any Resolved Value
+
+By default, the conditional triggers only when the **user has explicitly entered a value**, and registry `defaultValue` are ignored. Append `*` to the name to also trigger on registry defaults:
+
+| Syntax | Triggers truthy when… |
+| :--- | :--- |
+| `[[name ? truthy : falsy]]` | User has explicitly entered a value (registry `defaultValue` ignored) |
+| `[[name* ? truthy : falsy]]` | Any resolved value exists (user-set **or** registry `defaultValue`) |
+
+**Example with `defaultValue: "Guest"` and no user input:**
+
+* `\[[username ? Hi, $! : ]]` → "" (falsy — user-set only, default ignored)
+* `\[[username* ? Hi, $! : ]]` → "Hi, Guest!" (any-value — default fires truthy)
+
+Regular display syntax (`[[name]]`, `\[[name : fallback]]`) is unchanged and always uses the full resolution chain.
+
+For attributes with `class="cv-bind"`:
+
+```html
+<img src="https://cdn.example.com\[[user ? /avatar/$ : ]]" class="cv-bind" alt="Avatar" />
+```
+
+No `user` → `src="https://cdn.example.com"`. With `user=alice` → `src="https://cdn.example.com/avatar/alice"`.
+
+> **URL encoding**: In `href` and `src` attributes, the `$` value is URL-encoded automatically (same as regular placeholders).
+
+> **Known limitation**: The `:` character cannot appear inside the truthy template (e.g., URLs with ports like `localhost:8080`). Use a regular placeholder or construct the value differently in those cases.
+
+## Placeholder-Driven Toggle Visibility
+
+You can show or hide a block of content based on whether a placeholder has a value, using the `placeholder-id` attribute on `<cv-toggle>`:
+
+```html
+<cv-toggle placeholder-id="username">Welcome, [[username]]!</cv-toggle>
+```
+
+The block is **hidden** when `username` has no value, and **visible** when it does. This is useful for conditional sections that only make sense once a user has provided input. Like the conditional syntax, toggle visibility by default requires the **user to have explicitly entered a value**. Append `*` to also show when a registry `defaultValue` exists.
+
+* `placeholder-id="username"`: Toggle only shows when user has explicitly entered a value, irregardless of a default value.
+* `placeholder-id="username*"`: Toggle shows when user has explicitly entered a value AND when a default value is available.
+
+
+
+```html
+<!-- Hidden unless user has set a value (registry default ignored) -->
+<cv-toggle placeholder-id="username">Welcome, [[username]]!</cv-toggle>
+
+<!-- Visible if user has set a value OR a registry defaultValue exists -->
+<cv-toggle placeholder-id="username*">Welcome, [[username]]!</cv-toggle>
+```
+
+Placeholder mode has no peek, label, or border behaviour. `placeholder-id` takes precedence over `toggle-id`, and should not be used on the same element.
 
 
 ## HTML Attribute Interpolation
@@ -73,7 +141,6 @@ In addition to text, you can interpolate variables into HTML attributes, such as
 
 1. You must use standard HTML syntax (e.g., `<a href="...">`) rather than Markdown links.
 2. You must add the `class="cv-bind"` (or `data-cv-bind`) attribute to the element. This signals the system to scan the element's attributes.
-
 
 
 **Example: Dynamic Query Parameter:**

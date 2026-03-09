@@ -6,6 +6,7 @@
       assetId: { reflect: true, type: 'String', attribute: 'asset-id' },
       showPeekBorder: { reflect: true, type: 'Boolean', attribute: 'show-peek-border' },
       showLabel: { reflect: true, type: 'Boolean', attribute: 'show-label' },
+      placeholderId: { reflect: true, type: 'String', attribute: 'placeholder-id' },
     },
   }}
 />
@@ -16,6 +17,7 @@
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { derivedStore } from '$lib/stores/derived-store.svelte';
+  import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
   import { renderAssetInto } from '$features/render/render';
 
   // Props using Svelte 5 runes
@@ -24,11 +26,13 @@
     assetId = '',
     showPeekBorder = false,
     showLabel = false,
+    placeholderId = '',
   }: {
     toggleId?: string;
     assetId?: string;
     showPeekBorder?: boolean;
     showLabel?: boolean;
+    placeholderId?: string;
   } = $props();
   // Derive toggle IDs from toggle-id prop (can have multiple space-separated IDs)
   let toggleIds = $derived((toggleId || '').split(/\s+/).filter(Boolean));
@@ -36,6 +40,30 @@
 
   $effect(() => {
     toggleIds.forEach((id) => elementStore.registerToggle(id));
+  });
+
+  // Placeholder mode: show/hide based on whether a placeholder has a value
+  let placeholderName = $derived(placeholderId.replace(/\*$/, ''));
+  let placeholderAny = $derived(placeholderId.endsWith('*'));
+  let isPlaceholderMode = $derived(!!placeholderId);
+
+  let placeholderVisible = $derived.by(() => {
+    if (!isPlaceholderMode) return false;
+    const values = activeStateStore.state.placeholders ?? {};
+    if (placeholderAny) {
+      return PlaceholderBinder.resolveValue(placeholderName, undefined, values) !== undefined;
+    }
+    return PlaceholderBinder.resolveUserValue(placeholderName, values) !== undefined;
+  });
+
+  $effect(() => {
+    if (placeholderId && toggleId) {
+      console.warn(
+        `[cv-toggle] Both 'toggle-id' and 'placeholder-id' are set. ` +
+          `'placeholder-id' will take precedence and 'toggle-id' will be ignored.`,
+      );
+    }
+    if (placeholderId) elementStore.registerPlaceholder(placeholderName);
   });
 
   // Derive label text from config
@@ -103,7 +131,9 @@
   });
 
   let showFullContent = $derived(
-    showState || (peekState && localExpanded) || (peekState && isSmallContent),
+    isPlaceholderMode
+      ? placeholderVisible
+      : showState || (peekState && localExpanded) || (peekState && isSmallContent),
   );
 
   // Reset unconstrained state when toggling
@@ -118,7 +148,7 @@
   });
   // Only show peek styling (mask) if it's peeking, not expanded locally, AND content is actually taller than peek height
   let showPeekContent = $derived(!showState && peekState && !localExpanded && !isSmallContent);
-  let isHidden = $derived(!showState && !peekState);
+  let isHidden = $derived(isPlaceholderMode ? !placeholderVisible : !showState && !peekState);
 
   // Calculate dynamic max-height for animation
   let currentMaxHeight = $derived.by(() => {

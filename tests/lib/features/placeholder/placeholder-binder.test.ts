@@ -59,6 +59,18 @@ describe('PlaceholderBinder', () => {
       expect(el.getAttribute('fallback')).toBe('default');
     });
 
+    it('should set empty fallback attribute for [[name : ]] (explicit show-nothing)', () => {
+      container.innerHTML = '<p>Value: [[key : ]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el.getAttribute('name')).toBe('key');
+      // Attribute must be present (even as empty string) so Placeholder.svelte
+      // can distinguish "no fallback" (undefined) from "empty fallback" ('')
+      expect(el.hasAttribute('fallback')).toBe(true);
+      expect(el.getAttribute('fallback')).toBe('');
+    });
+
     it('should identify attribute bindings via .cv-bind class', () => {
       container.innerHTML = '<a href="https://example.com?q=[[query]]" class="cv-bind">Link</a>';
       PlaceholderBinder.scanAndHydrate(container);
@@ -234,10 +246,24 @@ describe('PlaceholderBinder', () => {
       const a = container.querySelector('a')!;
       expect(a.getAttribute('href')).toBe('mailto:support@example.com');
     });
-    it('should prioritize inline fallback over registry default', () => {
-      // Setup registry with a default value
-      // @ts-expect-error - mock types
+    it('should treat an explicit empty fallback as "show nothing" (overrides registry default)', () => {
       vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'key',
+        defaultValue: 'REGISTRY_DEFAULT',
+      });
+
+      container.innerHTML = '<div data-value="[[key : ]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({});
+
+      const div = container.querySelector('div')!;
+      // Empty fallback stops resolution — registry default must NOT bleed through
+      expect(div.getAttribute('data-value')).toBe('');
+    });
+
+    it('should prioritize inline fallback over registry default', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'key',
         defaultValue: 'REGISTRY_DEFAULT',
       });
 
@@ -247,6 +273,161 @@ describe('PlaceholderBinder', () => {
 
       const div = container.querySelector('div')!;
       expect(div.getAttribute('data-value')).toBe('INLINE_FALLBACK');
+    });
+  });
+
+  // ===========================================================================
+  // resolveUserValue
+  // ===========================================================================
+
+  describe('resolveUserValue', () => {
+    it('returns the user-set value when present', () => {
+      expect(PlaceholderBinder.resolveUserValue('name', { name: 'alice' })).toBe('alice');
+    });
+
+    it('returns undefined when the key is absent', () => {
+      expect(PlaceholderBinder.resolveUserValue('name', {})).toBeUndefined();
+    });
+
+    it('returns undefined when the value is an empty string', () => {
+      expect(PlaceholderBinder.resolveUserValue('name', { name: '' })).toBeUndefined();
+    });
+
+    it('returns undefined even if a registry defaultValue exists (does not consult registry)', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'name', defaultValue: 'Guest' });
+      // resolveUserValue must NOT call the registry — only looks at the values map
+      expect(PlaceholderBinder.resolveUserValue('name', {})).toBeUndefined();
+    });
+  });
+
+  // ===========================================================================
+  // Conditional syntax — scanAndHydrate DOM output
+  // ===========================================================================
+
+  describe('scanAndHydrate — conditional syntax', () => {
+    it('creates cv-placeholder with truthy/falsy attrs for [[name ? t : f]]', () => {
+      container.innerHTML = '<p>[[user ? Hello, $! : ]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el).not.toBeNull();
+      expect(el.getAttribute('name')).toBe('user');
+      expect(el.getAttribute('truthy')).toBe('Hello, $!');
+      expect(el.getAttribute('falsy')).toBe('');
+    });
+
+    it('does NOT set any-value attribute for plain [[name ? t : f]]', () => {
+      container.innerHTML = '<p>[[user ? Hello, $! : ]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el.hasAttribute('any-value')).toBe(false);
+    });
+
+    it('sets any-value attribute for [[name* ? t : f]]', () => {
+      container.innerHTML = '<p>[[user* ? Hello, $! : ]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el).not.toBeNull();
+      expect(el.getAttribute('name')).toBe('user');
+      expect(el.hasAttribute('any-value')).toBe(true);
+    });
+
+    it('registers the placeholder name (without *) for [[name* ? t : f]]', () => {
+      vi.clearAllMocks();
+      container.innerHTML = '<p>[[user* ? Hello, $! : ]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      expect(elementStore.registerPlaceholder).toHaveBeenCalledWith('user');
+    });
+  });
+
+  // ===========================================================================
+  // Conditional syntax — interpolateString (via updateAll on attribute bindings)
+  // ===========================================================================
+
+  describe('updateAll — conditional syntax resolution', () => {
+    it('[[name ? t : f]] returns falsy when only registry default exists (user-set only)', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'username', defaultValue: 'Guest' });
+
+      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({});
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('nobody');
+    });
+
+    it('[[name* ? t : f]] returns truthy with registry default substituted', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'username', defaultValue: 'Guest' });
+
+      container.innerHTML = '<div data-value="[[username* ? Hi $! : nobody]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({});
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('Hi Guest!');
+    });
+
+    it('[[name ? t : f]] returns truthy when user has set a value', () => {
+      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({ username: 'alice' });
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('Hi alice!');
+    });
+
+    it('[[name* ? t : f]] returns truthy when user has set a value', () => {
+      container.innerHTML = '<div data-value="[[username* ? Hi $! : nobody]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({ username: 'alice' });
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('Hi alice!');
+    });
+
+    it('[[name ? t : f]] returns falsy when neither user value nor registry default exists', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue(undefined);
+
+      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({});
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('nobody');
+    });
+
+    it('[[name ? t : f]] ignores empty string user value (treats as unset)', () => {
+      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({ username: '' });
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('nobody');
+    });
+
+    it('regular [[name]] display is unaffected — still uses registry default', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'username', defaultValue: 'Guest' });
+
+      container.innerHTML = '<div data-value="[[username]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({});
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('Guest');
+    });
+
+    it('regular [[name : fallback]] display is unaffected', () => {
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue(undefined);
+
+      container.innerHTML = '<div data-value="[[username : default_user]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({});
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('default_user');
     });
   });
 });
