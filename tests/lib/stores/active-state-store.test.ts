@@ -5,6 +5,7 @@ vi.mock('../../../src/lib/features/placeholder/placeholder-manager', () => ({
   placeholderManager: {
     calculatePlaceholderFromTabSelected: vi.fn(),
     filterValidPlaceholders: vi.fn((placeholders) => placeholders ?? {}),
+    filterUserSettablePlaceholders: vi.fn((placeholders) => placeholders ?? {}),
   },
 }));
 
@@ -25,8 +26,9 @@ describe('ActiveStateStore', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Default: filterValidPlaceholders is a passthrough
+    // Default: filterValidPlaceholders and filterUserSettablePlaceholders are passthroughs
     vi.mocked(placeholderManager.filterValidPlaceholders).mockImplementation((ph) => ph ?? {});
+    vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockImplementation((ph) => ph ?? {});
     store = new ActiveStateStore();
   });
 
@@ -195,12 +197,12 @@ describe('ActiveStateStore', () => {
       expect(store.state.tabs?.g1).toBe('valid');
     });
 
-    it('should sanitize incoming placeholders via filterValidPlaceholders', () => {
-      vi.mocked(placeholderManager.filterValidPlaceholders).mockReturnValue({ safe: 'ok' });
+    it('should sanitize incoming placeholders via filterUserSettablePlaceholders', () => {
+      vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({ safe: 'ok' });
 
       store.applyState({ placeholders: { safe: 'ok', evil: 'injected' } });
 
-      expect(placeholderManager.filterValidPlaceholders).toHaveBeenCalledWith({ safe: 'ok', evil: 'injected' });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ safe: 'ok', evil: 'injected' });
       expect(store.state.placeholders?.evil).toBeUndefined();
     });
   });
@@ -289,11 +291,11 @@ describe('ActiveStateStore', () => {
     });
 
     it('only accepts registered placeholder keys (explicit override wins)', () => {
-      vi.mocked(placeholderManager.filterValidPlaceholders).mockReturnValue({ p1: 'explicit' });
+      vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({ p1: 'explicit' });
 
       store.applyDifferenceInState({ placeholders: { p1: 'explicit', evil: 'injected' } });
 
-      expect(placeholderManager.filterValidPlaceholders).toHaveBeenCalledWith({ p1: 'explicit', evil: 'injected' });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ p1: 'explicit', evil: 'injected' });
       expect(store.state.placeholders?.evil).toBeUndefined();
     });
 
@@ -370,11 +372,57 @@ describe('ActiveStateStore', () => {
       expect(placeholderManager.filterValidPlaceholders).toHaveBeenCalledWith({ newKey: 'newVal' });
     });
 
+    it('uses filterValidPlaceholders (not filterUserSettablePlaceholders) for adaptation defaults', () => {
+      vi.mocked(placeholderManager.filterValidPlaceholders).mockReturnValue({ instName: 'NUS' });
+
+      store.applyAdaptationDefaults({ placeholders: { instName: 'NUS' } });
+
+      expect(placeholderManager.filterValidPlaceholders).toHaveBeenCalledWith({ instName: 'NUS' });
+      expect(placeholderManager.filterUserSettablePlaceholders).not.toHaveBeenCalled();
+      expect(store.state.placeholders?.instName).toBe('NUS');
+    });
+
     it('should handle null/undefined defaults gracefully', () => {
       store.applyAdaptationDefaults(undefined);
       store.applyAdaptationDefaults({});
       // If it doesn't throw, we're good
       expect(store.state.shownToggles).toContain('A-Toggle');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // applyState — adaptationPlaceholder
+  // ---------------------------------------------------------------------------
+
+  describe('applyState — adaptationPlaceholder', () => {
+    it('blocks persisted adaptation placeholder from overriding state', () => {
+      vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({});
+
+      store.applyState({ placeholders: { instName: 'stale-stored-value' } });
+
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ instName: 'stale-stored-value' });
+      expect(store.state.placeholders?.instName).toBeUndefined();
+    });
+
+    it('uses filterUserSettablePlaceholders (not filterValidPlaceholders) for persistence load', () => {
+      store.applyState({ placeholders: { user: 'Alice' } });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalled();
+      expect(placeholderManager.filterValidPlaceholders).not.toHaveBeenCalled();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // applyDifferenceInState — adaptationPlaceholder
+  // ---------------------------------------------------------------------------
+
+  describe('applyDifferenceInState — adaptationPlaceholder', () => {
+    it('blocks URL delta from overriding an adaptation placeholder', () => {
+      vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({});
+
+      store.applyDifferenceInState({ placeholders: { instName: 'injected' } });
+
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ instName: 'injected' });
+      expect(store.state.placeholders?.instName).toBeUndefined();
     });
   });
 });

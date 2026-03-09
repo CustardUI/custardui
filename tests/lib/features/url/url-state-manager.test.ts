@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+
+vi.mock('../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte', () => ({
+  placeholderRegistryStore: { get: vi.fn() },
+}));
+
 import { URLStateManager } from '../../../../src/lib/features/url/url-state-manager';
 import type { State } from '../../../../src/lib/types/index';
+import { placeholderRegistryStore } from '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte';
 
 // --- Test Helpers ---
 
@@ -23,6 +29,8 @@ function freshLocation() {
 }
 
 describe('URLStateManager', () => {
+  afterEach(() => { vi.clearAllMocks(); });
+
   // ==========================================================================
   // parseURL
   // ==========================================================================
@@ -197,6 +205,53 @@ describe('URLStateManager', () => {
       );
       expect(url).toContain('t-hide=A,B');
       expect(url).not.toContain('t-show=');
+    });
+
+    describe('generateShareableURL — adaptationPlaceholder', () => {
+      beforeEach(freshLocation);
+      afterEach(() => { vi.clearAllMocks(); });
+
+      it('excludes adaptationPlaceholder: true entries from the URL', () => {
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
+          key === 'instName' ? { name: 'instName', adaptationPlaceholder: true } : undefined
+        );
+
+        const url = URLStateManager.generateShareableURL(
+          { placeholders: { instName: 'NUS', user: 'Alice' } },
+          { toggles: [], tabGroups: [], placeholders: ['instName', 'user'] }
+        );
+
+        expect(url).not.toContain('instName');
+        expect(url).toContain('user:Alice');
+      });
+
+      it('includes normal (non-adaptation) placeholders in the URL', () => {
+        vi.mocked(placeholderRegistryStore.get).mockReturnValue(undefined);
+
+        const url = URLStateManager.generateShareableURL(
+          { placeholders: { user: 'Alice' } },
+          { toggles: [], tabGroups: [], placeholders: ['user'] }
+        );
+
+        expect(url).toContain('user:Alice');
+      });
+
+      it('excludes both tabgroup-derived and adaptation-only placeholders', () => {
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
+          if (key === 'fruit') return { name: 'fruit', source: 'tabgroup' };
+          if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          return undefined;
+        });
+
+        const url = URLStateManager.generateShareableURL(
+          { placeholders: { fruit: 'apple', instName: 'NUS', user: 'Alice' } },
+          { toggles: [], tabGroups: [], placeholders: ['fruit', 'instName', 'user'] }
+        );
+
+        expect(url).not.toContain('fruit');
+        expect(url).not.toContain('instName');
+        expect(url).toContain('user:Alice');
+      });
     });
   });
 });

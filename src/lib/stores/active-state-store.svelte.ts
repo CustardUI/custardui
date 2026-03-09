@@ -122,9 +122,11 @@ export class ActiveStateStore {
    * Replaces the full application state (e.g. from persistence).
    *
    * Precedence model:
-   * 1. Start from computed defaults (config-driven).
-   * 2. Layer in the incoming `newState`, sanitizing tabs and placeholders.
-   * 3. Sync any tab-group-derived placeholders that weren't explicitly set.
+   * 1. Start from computed defaults for toggles and tabs.
+   * 2. Layer in the incoming `newState`, sanitizing toggles, tabs, and user-settable placeholders.
+   * 3. For placeholders, use the CURRENT state as the base (preserving adaptation defaults) 
+   *    and merge user-persisted values on top.
+   * 4. Sync any tab-group-derived placeholders that weren't explicitly set.
    *
    * @param newState The persisted state to restore.
    */
@@ -132,7 +134,7 @@ export class ActiveStateStore {
     const defaults = this.computeDefaultState();
 
     const validatedTabs = this.filterValidTabs(newState.tabs ?? {});
-    const validatedPlaceholders = placeholderManager.filterValidPlaceholders(newState.placeholders ?? {});
+    const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(newState.placeholders ?? {});
     const validatedShownToggles = this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []);
     const validatedPeekToggles = this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []);
 
@@ -140,7 +142,9 @@ export class ActiveStateStore {
       shownToggles: validatedShownToggles,
       peekToggles: validatedPeekToggles,
       tabs: { ...(defaults.tabs ?? {}), ...validatedTabs },
-      placeholders: { ...(defaults.placeholders ?? {}), ...validatedPlaceholders },
+      // Use current state as base so adaptation defaults (layered before this call)
+      // are preserved; user-persisted values still win on top.
+      placeholders: { ...(this.state.placeholders ?? {}), ...validatedPlaceholders },
     };
 
     // Sync derived placeholders for any tabs that shifted (and aren't explicitly overridden).
@@ -335,7 +339,7 @@ export class ActiveStateStore {
    * Explicit placeholder values override any tab-derived value (winning over syncPlaceholdersFromTabs).
    */
   private applyPlaceholdersDelta(deltaPlaceholders: Record<string, string>) {
-    const validatedPlaceholders = placeholderManager.filterValidPlaceholders(deltaPlaceholders);
+    const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(deltaPlaceholders);
 
     if (!this.state.placeholders) this.state.placeholders = {};
     Object.assign(this.state.placeholders, validatedPlaceholders);

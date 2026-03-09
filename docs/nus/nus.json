@@ -15,7 +15,8 @@
       "windows": "hide"
     },
     "placeholders": {
-      "username": "NUS Student"
+      "username": "NUS Student",
+      "institutionName": "NUS Institution"
     }
   }
 }

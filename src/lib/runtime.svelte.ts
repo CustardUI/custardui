@@ -1,4 +1,4 @@
-import type { ConfigFile } from '$lib/types/index';
+import type { ConfigFile, State } from '$lib/types/index';
 import type { AssetsManager } from '$features/render/assets';
 import type { AdaptationConfig } from '$features/adaptation/types';
 
@@ -13,8 +13,23 @@ import { elementStore } from './stores/element-store.svelte';
 import { uiStore } from './stores/ui-store.svelte';
 import { derivedStore } from './stores/derived-store.svelte';
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
+import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
+
+/**
+ * Strips adaptation-only placeholder keys from the state before persisting.
+ * These should never accumulate in localStorage, as they are controlled by adaptations.
+ */
+function stripAdaptationPlaceholders(state: State): State {
+  if (!state.placeholders) return state;
+  const filtered: Record<string, string> = {};
+  for (const [key, value] of Object.entries(state.placeholders)) {
+    const def = placeholderRegistryStore.get(key);
+    if (!def?.adaptationPlaceholder) filtered[key] = value;
+  }
+  return { ...state, placeholders: filtered };
+}
 
 export interface RuntimeOptions {
   assetsManager: AssetsManager;
@@ -156,7 +171,7 @@ export class AppRuntime {
     this.destroyEffectRoot = $effect.root(() => {
       // Automatic Persistence
       $effect(() => {
-        this.persistenceManager.persistState(activeStateStore.state);
+        this.persistenceManager.persistState(stripAdaptationPlaceholders(activeStateStore.state));
         this.persistenceManager.persistTabNavVisibility(uiStore.isTabGroupNavHeadingVisible);
       });
 
@@ -229,6 +244,10 @@ export class AppRuntime {
   public resetToDefault() {
     this.persistenceManager.clearAll();
     activeStateStore.reset();
+    // Re-apply adaptation defaults so adaptation-controlled placeholders are not wiped by reset.
+    if (adaptationStore.activeConfig?.defaults) {
+      activeStateStore.applyAdaptationDefaults(adaptationStore.activeConfig.defaults);
+    }
     uiStore.reset();
     uiStore.isTabGroupNavHeadingVisible = true;
   }

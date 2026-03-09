@@ -11,6 +11,8 @@ export class PlaceholderManager {
       config.placeholders.forEach((def) => {
         placeholderRegistryStore.register({
           ...def,
+          // adaptationPlaceholder implies hidden from user-facing settings
+          hiddenFromSettings: def.adaptationPlaceholder ? true : def.hiddenFromSettings,
           source: 'config',
         });
       });
@@ -72,6 +74,26 @@ export class PlaceholderManager {
       }
     }
     return valid;
+  }
+
+  /**
+   * Filters a record of incoming placeholders to only those that can be set by users.
+   * Extends filterValidPlaceholders() by also excluding adaptation-only placeholders.
+   * Use this for persistence loads and URL delta application.
+   */
+  filterUserSettablePlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
+    const valid = this.filterValidPlaceholders(placeholders);
+    const userSettable: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(valid)) {
+      const def = placeholderRegistryStore.get(key);
+      if (def?.adaptationPlaceholder) {
+        // Silently skip — adaptation-only placeholders cannot be user-set
+        continue;
+      }
+      userSettable[key] = value;
+    }
+    return userSettable;
   }
 
   // --- Internal Helpers ---

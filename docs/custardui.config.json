@@ -110,6 +110,11 @@
         "settingsLabel": "Search Query",
         "settingsHint": "Enter search query",
         "isLocal": true
+      },
+      {
+        "name": "institutionName",
+        "defaultValue": "Generic University",
+        "adaptationPlaceholder": true
       }
     ]
   },
