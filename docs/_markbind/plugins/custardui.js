@@ -9,13 +9,13 @@
 function getScripts() {
 	return [
 		// Local Development
-		'<script src="../../../dist/custardui.js" data-base-url="/betadocs"></script>'
+		// '<script src="../../../dist/custardui.js" data-base-url="/betadocs"></script>'
 
 		// Latest Stable Release
-		// '<script src="https://unpkg.com/@customviews-js/customviews@v1" data-base-url="/"></script>'
+		'<script src="https://cdn.jsdelivr.net/npm/@custardui/custardui" data-base-url="/"></script>'
 
 		// Latest Beta Release
-		//'<script src="https://unpkg.com/@customviews-js/customviews@beta" data-base-url="/custard"></script>'
+		//'<script src="https://unpkg.com/@custardui/custardui@beta" data-base-url="/"></script>'
 	];
 }
 

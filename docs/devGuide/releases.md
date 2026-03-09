@@ -36,9 +36,9 @@ npm run release:beta
 - `npm run release:beta` will publish the release to NPM with the `@beta` tag.
 
 After making the beta release, update the MarkBind documentation website if needed.
-Do this by running `npm run deploydocs`. This updates the site at `https://customviews-js.github.io/customviews`, which is the beta documentation site.
+Do this by running `npm run deploydocs`. This updates the site at `https://custardui.js.org/betadocs`, which is the beta documentation site.
 
-- Make sure to update the `data-base-url` in the customviews plugin script to make sure that it is the right value i.e. (`data-base-url="/customviews"`).
+- Make sure to update the `data-base-url` in the `custardui` plugin script to make sure that it is the right value i.e. (`data-base-url="/betadocs"`).
 
 ### Using the beta release
 
@@ -49,13 +49,13 @@ For example,
 unpkg:
 
 ```html
-<script src="https://unpkg.com/@customviews-js/customviews@beta"></script>
+<script src="https://unpkg.com/@custardui/custardui@beta"></script>
 ```
 
 jsDelivr:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@customviews-js/customviews@beta"></script>
+<script src="https://cdn.jsdelivr.net/npm/@custardui/custardui@beta"></script>
 ```
 
 ## Production Release on NPM (Stable)
@@ -74,9 +74,9 @@ npm run release:prod
 > **Note:** The `release:*` commands automatically run `npm run build` before publishing.
 
 After making a production release, update the MarkBind documentation website if needed.
-Do this by running `npm run deploydocs:stable`. This updates the site at `https://customviews-js.github.io`, which is the stable documentation site.
+Do this by running `npm run deploydocs:stable`. This updates the site at `https://custardui.js.org`, which is the stable documentation site.
 
-- Make sure to update the `data-base-url` in the customviews plugin script to make sure that it is the right value (i.e. `data-base-url=""`).
+- Make sure to update the `data-base-url` in the `custardui` plugin script to make sure that it is the right value (i.e. `data-base-url=""`).
 
 ### Using the production release
 
@@ -87,13 +87,13 @@ For example,
 unpkg:
 
 ```html
-<script src="https://unpkg.com/@customviews-js/customviews@latest"></script>
+<script src="https://unpkg.com/@custardui/custardui@latest"></script>
 ```
 
 jsDelivr:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@customviews-js/customviews@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@custardui/custardui@latest"></script>
 ```
 
 ## Making the Release on GitHub

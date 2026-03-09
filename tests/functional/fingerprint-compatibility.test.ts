@@ -21,7 +21,7 @@ describe('Fingerprint Regression', () => {
   const STATIC_HTML = `
         <div id="app-root">
             <header>
-                <h1>Welcome to CustomViews</h1>
+                <h1>Welcome to CustardUI</h1>
             </header>
             <main>
                 <div id="content-area">

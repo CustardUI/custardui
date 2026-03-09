@@ -131,7 +131,7 @@ At your project root, create a `custardui.config.json` file to define your toggl
     "callout": {
       "show": true,
       "enablePulse": true,
-      "message": "Open the CustomViews settings to customize your view.",
+      "message": "Open the CustardUI settings to customize your view.",
       "backgroundColor": "#198755",
       "textColor": "#ffffff"
     },
@@ -152,4 +152,4 @@ After saving, run your MarkBind site locally:
 markbind serve
 ```
 
-If everything is configured correctly, you should see the CustomViews widget floating on your site. Try toggling between views or switching tabs to confirm your setup is working. CustardUI will automatically handle visibility, persistence, and synchronization across all tabs and toggles.
+If everything is configured correctly, you should see the settings widget floating on your site. Try toggling between views or switching tabs to confirm your setup is working. CustardUI will automatically handle visibility, persistence, and synchronization across all tabs and toggles.

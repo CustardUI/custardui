@@ -19,7 +19,7 @@ export class AdaptationManager {
    *
    * Adaptation JSON files are resolved relative to the site's baseUrl:
    *   `{baseUrl}/{id}/{id}.json`
-   * e.g. baseUrl="/customviews", id="ntu" → "/customviews/ntu/ntu.json"
+   * e.g. baseUrl="/base", id="nus" → "/base/nus/nus.json"
    *
    * @param baseUrl The site's base URL (from data-base-url, default: '')
    * @param storageKey The project's unique storageKey prefix to use for saving preferences

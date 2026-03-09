@@ -1,9 +1,16 @@
 <frontmatter>
-  title: NUS — CustomViews
+  title: NUS — CustardUI Page
   layout: nus.md
 </frontmatter>
 
 # Welcome, [[username]]! (NUS)
+
+TODO: 
+> Keep it as a redirect page to the main page.
+> Load nus.json as the default config file.
+
+-----
+
 
 This page automatically activates the **NUS adaptation** via its layout—no query parameter is required. You can also trigger or share the NUS theme using `?adapt=nus`, and once activated, the NUS theme persists across all pages until cleared.
 
