@@ -99,6 +99,13 @@
         "defaultValue": "Guest"
       },
       {
+        "name": "placeholderTest",
+        "settingsLabel": "placeholderTest",
+        "settingsHint": "Enter anything",
+        "defaultValue": "placeholderTestDefaultValue",
+        "isLocal": true
+      },
+      {
         "name": "searchQuery",
         "settingsLabel": "Search Query",
         "settingsHint": "Enter search query",
