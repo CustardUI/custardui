@@ -33,13 +33,14 @@
   $effect.pre(() => {
     const ann = shareStore.highlightAnnotations.get(element);
     const newText = ann?.text ?? '';
-    const newCorner = ann?.corner ?? DEFAULT_ANNOTATION_CORNER;
 
     if (localText !== newText) {
       localText = newText;
     }
-    if (localCorner !== newCorner) {
-      localCorner = newCorner;
+    // Only sync corner from store when there is a stored annotation;
+    // otherwise leave the locally-chosen corner intact.
+    if (ann && localCorner !== ann.corner) {
+      localCorner = ann.corner;
     }
   });
 
@@ -51,7 +52,9 @@
 
   function setCorner(c: AnnotationCorner) {
     localCorner = c;
-    shareStore.setAnnotation(element, localText, c);
+    if (localText.trim().length > 0) {
+      shareStore.setAnnotation(element, localText, c);
+    }
   }
 
   function handleTabClick(e: MouseEvent) {
