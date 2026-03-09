@@ -137,6 +137,38 @@ Adaptation defaults are applied **before** the user's persisted state, so users 
 | `toggles` | `Record<string, "show" \| "hide" \| "peek">` | Override the default state of named toggles. Toggle IDs must exist in `custardui.config.json`. Unknown IDs are warned about and ignored. |
 | `placeholders` | `Record<string, string>` | Override the default value of named placeholders. |
 
+## Author-Controlled Placeholders (`adaptationPlaceholder`)
+
+To define a placeholder that users cannot see or change — only adaptations and the config `defaultValue` can set its value — mark it with `adaptationPlaceholder: true` in `custardui.config.json`:
+
+```json
+{
+  "name": "institutionName",
+  "defaultValue": "Generic University",
+  "adaptationPlaceholder": true
+}
+```
+
+The adaptation then overrides it via `defaults.placeholders`:
+
+```json
+{
+  "id": "nus",
+  "defaults": {
+    "placeholders": { "institutionName": "NUS" }
+  }
+}
+```
+
+#### example placeholder
+
+`\[[institutionName]]` renders `"NUS"` for NUS visitors and `"Generic University"` for others. These values are never shown in the settings modal, never persisted to localStorage, and never included in shared links.
+
+`\[[ institutionName ]]`:
+* [[ institutionName ]]
+* [link to NUS adaptation](./adaptations.html?adapt=nus#example-placeholder), 
+* [link to clear adaptation](./adaptations.html?adapt=clear#example-placeholder)
+
 ---
 
 ## State Layering Precedence

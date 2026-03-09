@@ -171,21 +171,17 @@ function buildFullUrl(url: URL, managedSearch: string): string {
 }
 
 /**
- * Strips placeholder entries whose value is derived from a tab group (source: 'tabgroup').
- *
- * These placeholders should NOT be encoded in the shared URL because their value
- * is already implied by the `?tabs=` param. Encoding both would create two sources
- * of truth and risk drift when decoded on the recipient's side.
+ * Strips placeholder entries that should not appear in shareable URLs:
+ * - Tab-group-derived placeholders (source: 'tabgroup') — implied by ?tabs=
+ * - Adaptation-only placeholders (adaptationPlaceholder: true) — author-controlled, not shareable
  */
-function stripTabDerivedPlaceholders(placeholders: Record<string, string>): Record<string, string> {
+function stripNonShareablePlaceholders(placeholders: Record<string, string>): Record<string, string> {
   const shareable: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(placeholders)) {
     const definition = placeholderRegistryStore.get(key);
-    if (definition?.source === 'tabgroup') {
-      // Omit — the tab selection in ?tabs= is the source of truth for this placeholder.
-      continue;
-    }
+    if (definition?.source === 'tabgroup') continue;      // implied by ?tabs=
+    if (definition?.adaptationPlaceholder) continue;      // author-only, not shareable
     shareable[key] = value;
   }
 
@@ -259,7 +255,7 @@ function computeShareableState(currentState: State, pageElements: PageElements):
 
   // 3. Filter placeholders to only those present on the page
   if (currentState.placeholders) {
-    const shareablePlaceholders = stripTabDerivedPlaceholders(currentState.placeholders);
+    const shareablePlaceholders = stripNonShareablePlaceholders(currentState.placeholders);
     const pagePlaceholders: Record<string, string> = {};
     for (const [key, value] of Object.entries(shareablePlaceholders)) {
       if (pagePlaceholdersSet.has(key)) {

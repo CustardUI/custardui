@@ -144,6 +144,77 @@ describe('PlaceholderManager', () => {
       });
   });
 
+  describe('registerConfigPlaceholders — adaptationPlaceholder', () => {
+    it('forces hiddenFromSettings: true when adaptationPlaceholder is true', () => {
+      manager.registerConfigPlaceholders({
+        placeholders: [{ name: 'instName', adaptationPlaceholder: true }],
+      });
+      expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
+        expect.objectContaining({ hiddenFromSettings: true })
+      );
+    });
+
+    it('overrides explicit hiddenFromSettings: false when adaptationPlaceholder: true', () => {
+      manager.registerConfigPlaceholders({
+        placeholders: [{ name: 'instName', adaptationPlaceholder: true, hiddenFromSettings: false }],
+      });
+      expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
+        expect.objectContaining({ hiddenFromSettings: true })
+      );
+    });
+
+    it('preserves hiddenFromSettings when adaptationPlaceholder is not set', () => {
+      manager.registerConfigPlaceholders({
+        placeholders: [{ name: 'user', hiddenFromSettings: false }],
+      });
+      expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
+        expect.objectContaining({ hiddenFromSettings: false })
+      );
+    });
+  });
+
+  describe('filterUserSettablePlaceholders', () => {
+    it('passes through registered, non-adaptation placeholders', () => {
+      vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'user' });
+
+      expect(manager.filterUserSettablePlaceholders({ user: 'Alice' })).toEqual({ user: 'Alice' });
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('silently drops adaptationPlaceholder: true entries', () => {
+      vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'instName', adaptationPlaceholder: true });
+
+      expect(manager.filterUserSettablePlaceholders({ instName: 'NUS' })).toEqual({});
+      expect(warnSpy).not.toHaveBeenCalled(); // silent, not a warning
+    });
+
+    it('drops unregistered keys with a warning (via filterValidPlaceholders)', () => {
+      vi.mocked(placeholderRegistryStore.has).mockReturnValue(false);
+
+      expect(manager.filterUserSettablePlaceholders({ ghost: 'val' })).toEqual({});
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost"'));
+    });
+
+    it('handles undefined input', () => {
+      expect(manager.filterUserSettablePlaceholders(undefined)).toEqual({});
+    });
+
+    it('mixed: keeps user-settable, drops adaptation-only', () => {
+      vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
+      vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
+        key === 'instName'
+          ? { name: 'instName', adaptationPlaceholder: true }
+          : { name: key }
+      );
+
+      const result = manager.filterUserSettablePlaceholders({ user: 'Alice', instName: 'NUS' });
+      expect(result).toEqual({ user: 'Alice' });
+      expect(result.instName).toBeUndefined();
+    });
+  });
+
   describe('filterValidPlaceholders', () => {
     it('returns values for registered placeholder keys', () => {
       vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
