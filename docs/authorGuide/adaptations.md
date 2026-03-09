@@ -160,7 +160,7 @@ The adaptation then overrides it via `defaults.placeholders`:
 }
 ```
 
-#### example placeholder
+#### Example placeholder
 
 `\[[institutionName]]` renders `"NUS"` for NUS visitors and `"Generic University"` for others. These values are never shown in the settings modal, never persisted to localStorage, and never included in shared links.
 

@@ -122,9 +122,11 @@ export class ActiveStateStore {
    * Replaces the full application state (e.g. from persistence).
    *
    * Precedence model:
-   * 1. Start from computed defaults (config-driven).
-   * 2. Layer in the incoming `newState`, sanitizing tabs and placeholders.
-   * 3. Sync any tab-group-derived placeholders that weren't explicitly set.
+   * 1. Start from computed defaults for toggles and tabs.
+   * 2. Layer in the incoming `newState`, sanitizing toggles, tabs, and user-settable placeholders.
+   * 3. For placeholders, use the CURRENT state as the base (preserving adaptation defaults) 
+   *    and merge user-persisted values on top.
+   * 4. Sync any tab-group-derived placeholders that weren't explicitly set.
    *
    * @param newState The persisted state to restore.
    */
