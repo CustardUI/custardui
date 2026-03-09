@@ -318,3 +318,27 @@ Values entered by the user are saved in the browser's `localStorage` (key: `cv-u
 
 1. Values persist across page reloads.
 2. Values persist when navigating between different pages of the documentation.
+
+## Shareable URL
+
+Placeholder values can be shared via URL using the `ph` parameter. The format is a comma-separated list of `key:value` pairs, with each component individually encoded with `encodeURIComponent`. This means commas inside a value appear as `%2C`, colons appear as `%3A`, spaces appear as `%20`, while the outer commas and colons are not encoded, which keeps the structural separators clear.
+
+| Parameter | Format | Example |
+|-----------|--------|---------|
+| `ph`      | Comma-separated `key:value` pairs | `?ph=username:alice` |
+
+```
+?ph=username:alice,searchQuery:searchThis
+```
+
+Placeholder values that are derived from a tab group (bound via `placeholderId` in the config) should not be included in `?ph=` — they are implied by the `?tabs=` parameter and are automatically re-derived when the page loads.
+
+**Constructing the URL in JavaScript:**
+
+```js
+const ph    = { username: 'alice', api_key: 'my-key' };
+const param = Object.entries(ph)
+  .map(([k, v]) => `${encodeURIComponent(k)}:${encodeURIComponent(v)}`)
+  .join(',');
+const url = `https://yoursite.com/quickstart.html?ph=${param}`;
+```

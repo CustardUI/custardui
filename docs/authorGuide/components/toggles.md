@@ -204,6 +204,34 @@ For example, to make the local toggles with IDs `advanced` and `dark-mode` avail
 
 This will ensure that the specified local toggles appear in the configuration settings, allowing users to control them even if they are not immediately visible on the page.
 
+## Shareable URL
+
+Toggle visibility states can be encoded directly in a URL so that a recipient sees the exact combination of shown, peeked, and hidden content that you intend.
+
+| Parameter | Effect | Format |
+|-----------|--------|--------|
+| `t-show`  | Show these toggles | `?t-show=mac,linux` |
+| `t-peek`  | Peek these toggles | `?t-peek=advanced` |
+| `t-hide`  | Hide these toggles | `?t-hide=windows` |
+
+Each toggle ID is encoded with `encodeURIComponent` and joined with commas, so IDs containing special characters are handled safely. Only the toggle IDs explicitly listed in the URL are affected — all others fall back to the visitor's saved preferences or the configured defaults.
+
+**Example:**
+
+```
+https://yoursite.com/install.html?t-show=mac,linux&t-hide=windows
+```
+
+**Constructing the URL in JavaScript:**
+
+```js
+const show  = ['mac', 'linux'];
+const hide  = ['windows'];
+const url   = `https://yoursite.com/install.html`
+            + `?t-show=${show.map(encodeURIComponent).join(',')}`
+            + `&t-hide=${hide.map(encodeURIComponent).join(',')}`;
+```
+
 # Troubleshooting
 
 - Toggles not appearing in settings?

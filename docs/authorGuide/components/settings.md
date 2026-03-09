@@ -74,6 +74,7 @@ Configure the settings in `custardui.config.json`:
 {
   "config": {
     "settings": {
+      "enabled": true,
       "panel": {
         "title": "Custom Views Settings Dialog",
         "description": "Toggle different content sections to customize your view.",
