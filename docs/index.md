@@ -27,7 +27,7 @@ CustardUI (formerly named CustomViews) adds dynamic, memory-persistent interacti
 <h2 class="cv-section-title">One site. Many readers. Zero compromise.</h2>
 <p class="cv-section-lead">
 
-Text-heavy educational websites serve students, instructors, and whole organizations — all with different needs. CustardUI lets a single static site adapt to each of them, without duplicate pages or complex servers. Think of it as a <tooltip content="Rich, layered, and smooth — just like the dessert.">rich layer of interactivity</tooltip> poured over any existing site.
+Text-heavy educational websites serve students, instructors, and whole organizations — all with different needs. CustardUI lets a single static site adapt to each of them, without duplicate pages or complex servers. 
 </p>
 
 <!-- ═══════════════════════════════════════════════ -->
