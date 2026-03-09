@@ -244,6 +244,10 @@ export class AppRuntime {
   public resetToDefault() {
     this.persistenceManager.clearAll();
     activeStateStore.reset();
+    // Re-apply adaptation defaults so adaptation-controlled placeholders are not wiped by reset.
+    if (adaptationStore.activeConfig?.defaults) {
+      activeStateStore.applyAdaptationDefaults(adaptationStore.activeConfig.defaults);
+    }
     uiStore.reset();
     uiStore.isTabGroupNavHeadingVisible = true;
   }

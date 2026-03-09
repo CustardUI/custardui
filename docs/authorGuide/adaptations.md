@@ -155,7 +155,7 @@ The adaptation then overrides it via `defaults.placeholders`:
 {
   "id": "nus",
   "defaults": {
-    "placeholders": { "institutionName": "NUS" }
+    "placeholders": { "institutionName": "NU Instutition" }
   }
 }
 ```
