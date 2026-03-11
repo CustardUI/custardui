@@ -4,7 +4,7 @@
 
 <div class="cv-hero-badge">✦ Open Source · Lightweight · Framework-Agnostic</div>
 
-<img src="{{baseUrl}}/images/custardUI.png" height="100">
+<h1 class="display-3"><md>**CustardUI**</md></h1>
 
 <div class="lead">
 

@@ -7,4 +7,12 @@
 --custard-light-brown: #C4853A;
 --custard-muted: #9A7355;
 
+
+## Word Colors
+
+--custardWord: #7f4c1e;
+--UIWord: #d79921;
+--CustardUIBackground: #fef6e3;
+
+
 ![colors](images/colors.jpg)
