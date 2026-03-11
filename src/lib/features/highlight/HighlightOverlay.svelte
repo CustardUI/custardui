@@ -62,7 +62,7 @@
       {/if}
       <div class="cv-highlight-pill">
         <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
-          CustardUI highlight↗
+          Annotated by: CustardUI↗
         </a>
       </div>
       {#if rect.annotation}
@@ -179,7 +179,7 @@
   .cv-highlight-pill {
     position: absolute;
     z-index: 10;
-    bottom: -7px;
+    bottom: -4px;
     right: 14px;
     background: white;
     height: 14px;
@@ -202,8 +202,6 @@
     color: #814919;
     text-decoration: none;
     font-family: ui-sans-serif, system-ui, sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     line-height: 1;
   }
 
