@@ -7,4 +7,4 @@ export const HIGHLIGHT_COLORS = [
 ] as const;
 
 export type HighlightColorKey = 'yellow' | 'blue' | 'red' | 'black' | 'green';
-export const DEFAULT_COLOR_KEY: HighlightColorKey = 'yellow';
+export const DEFAULT_COLOR_KEY: HighlightColorKey = 'red';
