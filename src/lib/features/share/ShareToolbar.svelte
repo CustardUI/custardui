@@ -22,6 +22,14 @@
 <div class="floating-bar" transition:fly={{ y: 50, duration: 200 }}>
   <div class="mode-toggle">
     <button
+      class="mode-btn {shareStore.selectionMode === 'highlight' ? 'active' : ''}"
+      onclick={() => shareStore.setSelectionMode('highlight')}
+      title="Highlight selected elements"
+      aria-pressed={shareStore.selectionMode === 'highlight'}
+    >
+      Highlight
+    </button>
+    <button
       class="mode-btn {shareStore.selectionMode === 'show' ? 'active' : ''}"
       onclick={() => shareStore.setSelectionMode('show')}
       title="Show only selected elements"
@@ -36,14 +44,6 @@
       aria-pressed={shareStore.selectionMode === 'hide'}
     >
       Hide
-    </button>
-    <button
-      class="mode-btn {shareStore.selectionMode === 'highlight' ? 'active' : ''}"
-      onclick={() => shareStore.setSelectionMode('highlight')}
-      title="Highlight selected elements"
-      aria-pressed={shareStore.selectionMode === 'highlight'}
-    >
-      Highlight
     </button>
   </div>
 

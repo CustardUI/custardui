@@ -17,7 +17,7 @@ export type SelectionMode = 'show' | 'hide' | 'highlight';
 
 export class ShareStore {
   isActive = $state(false);
-  selectionMode = $state<SelectionMode>('show');
+  selectionMode = $state<SelectionMode>('highlight');
   selectedElements = $state<SvelteSet<HTMLElement>>(new SvelteSet<HTMLElement>());
   currentHoverTarget = $state<HTMLElement | null>(null);
   highlightColors = new SvelteMap<HTMLElement, HighlightColorKey>();

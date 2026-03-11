@@ -82,7 +82,7 @@
     showToast('Settings reset to default');
   }
 
-  function handleStartShare(mode: SelectionMode = 'show') {
+  function handleStartShare(mode: SelectionMode = 'highlight') {
     closeModal();
     focusStore.exit();
     shareStore.setSelectionMode(mode);
