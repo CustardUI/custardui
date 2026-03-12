@@ -93,7 +93,7 @@
     {#if preview}
       <span class="cv-annotation-tab-preview">{preview}</span>
     {:else}
-      <span class="cv-annotation-tab-icon">+ note</span>
+      <span class="cv-annotation-tab-icon">{isExpanded ? '- note' : '+ note'}</span>
     {/if}
   </button>
 
