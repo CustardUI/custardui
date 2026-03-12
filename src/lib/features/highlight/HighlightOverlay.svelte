@@ -29,12 +29,14 @@
       <div class="cv-highlight-marker"></div>
       {#if rects.length > 1}
         <button
+          type="button"
           class="cv-nav-arrow cv-nav-arrow--up"
           class:cv-nav-arrow--hidden={i === 0}
           onclick={() => scrollToRect(rects[i - 1]!)}
           aria-label="Previous highlight"
         >↑</button>
         <button
+          type="button"
           class="cv-nav-arrow cv-nav-arrow--down"
           class:cv-nav-arrow--hidden={i === rects.length - 1}
           onclick={() => scrollToRect(rects[i + 1]!)}

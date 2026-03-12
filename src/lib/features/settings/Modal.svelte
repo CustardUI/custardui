@@ -184,7 +184,7 @@
         </div>
         <div class="title">{title}</div>
       </div>
-      <button class="close-btn" aria-label="Close modal" onclick={onclose}>
+      <button type="button" class="close-btn" aria-label="Close modal" onclick={onclose}>
         <IconClose />
       </button>
     </header>
@@ -199,11 +199,13 @@
       <div class="tabs">
         {#if hasCustomizeContent}
           <button
+            type="button"
             class="tab {activeTab === 'customize' ? 'active' : ''}"
             onclick={() => (activeTab = 'customize')}>Customize</button
           >
         {/if}
         <button
+          type="button"
           class="tab {activeTab === 'share' ? 'active' : ''}"
           onclick={() => (activeTab = 'share')}>Share</button
         >
@@ -315,7 +317,7 @@
               the page to share.
             </div>
 
-            <button class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
+            <button type="button" class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
               <span class="btn-icon"
                 ><IconShare /></span
               >
@@ -323,7 +325,7 @@
             </button>
 
             {#if hasCustomizeContent}
-              <button class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
+              <button type="button" class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
                 <span class="btn-icon">
                   {#if copySuccess}
                     <IconCheck />
@@ -347,7 +349,7 @@
 
     <footer class="footer">
       {#if showReset}
-        <button class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
+        <button type="button" class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
       {:else}
         <div></div>
       {/if}
@@ -356,7 +358,7 @@
         custardui.js.org
       </a>
 
-      <button class="done-btn" onclick={onclose}>Done</button>
+      <button type="button" class="done-btn" onclick={onclose}>Done</button>
     </footer>
   </div>
 </div>

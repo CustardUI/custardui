@@ -83,6 +83,7 @@
 
 <div class="cv-annotation-editor" style={tabStyle} role="none">
   <button
+    type="button"
     class="cv-annotation-tab"
     class:cv-annotation-tab--has-text={localText.length > 0}
     onclick={handleTabClick}
@@ -111,6 +112,7 @@
         <div class="cv-corner-selector" role="group" aria-label="Anchor corner">
           {#each CORNER_ICONS as { key, icon } (key)}
             <button
+              type="button"
               class="cv-corner-btn"
               class:active={localCorner === key}
               onclick={(e) => {

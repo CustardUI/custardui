@@ -67,6 +67,7 @@
   role="none"
 >
   <button
+    type="button"
     class="cv-color-trigger"
     onclick={handleTriggerClick}
     title="Choose highlight color"
@@ -79,6 +80,7 @@
     <div class="cv-color-swatches" role="none">
       {#each HIGHLIGHT_COLORS as color}
         <button
+          type="button"
           class="cv-color-swatch"
           class:active={currentColorKey === color.key}
           style="background: {color.hex};"
