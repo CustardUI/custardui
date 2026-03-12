@@ -179,7 +179,7 @@
   .cv-highlight-pill {
     position: absolute;
     z-index: 10;
-    bottom: -4px;
+    bottom: -2px;
     right: 14px;
     background: white;
     height: 14px;
