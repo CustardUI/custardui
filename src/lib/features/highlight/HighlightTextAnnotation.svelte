@@ -19,16 +19,22 @@
       case 'tr': return 'top: 6px; right: 6px;';
       case 'bl': return 'bottom: 6px; left: 6px;';
       case 'br': return 'bottom: 6px; right: 6px;';
+      default: {
+        const exhaustiveCheck: never = corner;
+        throw new Error(`Unhandled corner case: ${exhaustiveCheck}`);
+      }
     }
   }
 </script>
 
 <button
+  type="button"
   class="cv-annotation-badge"
   class:cv-annotation-badge--expanded={expanded}
   style={getBadgeStyle(annotationCorner ?? DEFAULT_ANNOTATION_CORNER)}
   onclick={(e) => { e.stopPropagation(); toggle(); }}
   aria-label={expanded ? 'Collapse annotation' : 'Expand annotation'}
+  aria-expanded={expanded}
 >
   {#if expanded}
     <span class="cv-annotation-text">{annotation}</span>

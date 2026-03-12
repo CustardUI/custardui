@@ -120,9 +120,9 @@ export class FocusService {
       this.applyHideMode(hideDescriptors, highlightTargets);
     }
 
-    // Apply highlight independently — can coexist with show/hide.
-    // Call highlightService.apply() directly to skip applyHighlightMode()'s guard,
-    // which would otherwise see BODY_SHOW_CLASS and clear the show mode above.
+    // Call highlightService.applyEncodedHighlights() directly with the encoded descriptors
+    // to skip applyHighlightMode()'s guard, which would otherwise see BODY_SHOW_CLASS
+    // and clear the show mode above.
     if (highlightDescriptors) {
       this.highlightService.applyEncodedHighlights(highlightDescriptors);
     }
