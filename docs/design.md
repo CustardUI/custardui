@@ -14,5 +14,6 @@
 --UIWord: #d79921;
 --CustardUIBackground: #fef6e3;
 
+Additional color inspiration from gruvbox dark theme (vim).
 
 ![colors](images/colors.jpg)

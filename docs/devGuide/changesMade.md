@@ -7,6 +7,8 @@
 
 ## Changelog
 
+Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
+
 ### v2.0.0 
 
 **Rename from `customviews` to `custardui`**
@@ -15,9 +17,11 @@
 * Update the cdn link from `https://unpkg.com/@customviews-js/customviews@v1` to `https://unpkg.com/@custardui/custardui`
 * (Optional) change `customviews.js` filename to `custardui.js`, and update `site.json` plugins array from `customviews` to `custardui`
 
-**By default, the settings panel is now disabled.**
-* Need to add settingsEnabled: true for settings, if not already present. See [settings configuration reference](../authorGuide/components/settings.md#configuration)
+**Updates to the default `custardui.config.json`**
+* By default, the settings panel is now disabled: To show the settings panel, add `settingsEnabled: true` to `custardui.config.json`. See [settings configuration reference](../authorGuide/components/settings.md#configuration)
+* `showURL` option in `.json` file has been removed. Functionality to persistently show settings configuration in URL has been removed.
 
+### Features Added
 **Readable/Programmable URL for Settings Sharing:**
 * For tabs, can refer to [tabs url sharing](../authorGuide/components/tabs.md#shareable-url)
 * For toggles, can refer to [toggles url sharing](../authorGuide/components/toggles.md#shareable-url)
