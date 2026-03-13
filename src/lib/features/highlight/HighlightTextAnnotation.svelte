@@ -13,16 +13,14 @@
     expanded = !expanded;
   }
 
-  function getBadgeStyle(corner: AnnotationCorner): string {
+  function getBadgeStyle(corner: AnnotationCorner | string): string {
     switch (corner) {
-      case 'tl': return 'top: 6px; left: 6px;';
       case 'tr': return 'top: 6px; right: 6px;';
       case 'bl': return 'bottom: 6px; left: 6px;';
       case 'br': return 'bottom: 6px; right: 6px;';
-      default: {
-        const exhaustiveCheck: never = corner;
-        throw new Error(`Unhandled corner case: ${exhaustiveCheck}`);
-      }
+      case 'tl':
+      default:
+        return 'top: 6px; left: 6px;';
     }
   }
 </script>
