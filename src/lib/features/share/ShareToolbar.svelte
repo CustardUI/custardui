@@ -22,6 +22,16 @@
 <div class="floating-bar" transition:fly={{ y: 50, duration: 200 }}>
   <div class="mode-toggle">
     <button
+      type="button"
+      class="mode-btn {shareStore.selectionMode === 'highlight' ? 'active' : ''}"
+      onclick={() => shareStore.setSelectionMode('highlight')}
+      title="Highlight selected elements"
+      aria-pressed={shareStore.selectionMode === 'highlight'}
+    >
+      Highlight
+    </button>
+    <button
+      type="button"
       class="mode-btn {shareStore.selectionMode === 'show' ? 'active' : ''}"
       onclick={() => shareStore.setSelectionMode('show')}
       title="Show only selected elements"
@@ -30,20 +40,13 @@
       Show
     </button>
     <button
+      type="button"
       class="mode-btn {shareStore.selectionMode === 'hide' ? 'active' : ''}"
       onclick={() => shareStore.setSelectionMode('hide')}
       title="Hide selected elements"
       aria-pressed={shareStore.selectionMode === 'hide'}
     >
       Hide
-    </button>
-    <button
-      class="mode-btn {shareStore.selectionMode === 'highlight' ? 'active' : ''}"
-      onclick={() => shareStore.setSelectionMode('highlight')}
-      title="Highlight selected elements"
-      aria-pressed={shareStore.selectionMode === 'highlight'}
-    >
-      Highlight
     </button>
   </div>
 
@@ -57,10 +60,10 @@
     }
   </span>
 
-  <button class="btn clear" onclick={handleClear}>Clear</button>
-  <button class="btn preview" onclick={handlePreview}>Preview</button>
-  <button class="btn generate" onclick={handleGenerate}>Copy Link</button>
-  <button class="btn exit" onclick={handleExit}>Exit</button>
+  <button type="button" class="btn clear" onclick={handleClear}>Clear</button>
+  <button type="button" class="btn preview" onclick={handlePreview}>Preview</button>
+  <button type="button" class="btn generate" onclick={handleGenerate}>Copy Link</button>
+  <button type="button" class="btn exit" onclick={handleExit}>Exit</button>
 </div>
 
 <style>

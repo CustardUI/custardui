@@ -21,6 +21,7 @@
     <div class="segmented" role="group" aria-label="Visibility">
       {#each (['hide', 'peek', 'show'] as const) as option (option)}
         <button
+          type="button"
           class="segment-btn {value === option ? 'active' : ''}"
           onclick={() => { value = option; onchange({ toggleId: toggle.toggleId, value: option }); }}
           aria-pressed={value === option}

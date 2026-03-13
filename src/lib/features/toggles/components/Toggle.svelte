@@ -208,6 +208,7 @@
 
   {#if peekState && !isSmallContent}
     <button
+      type="button"
       class="cv-expand-btn"
       aria-label={localExpanded ? 'Collapse content' : 'Expand content'}
       onclick={toggleExpand}

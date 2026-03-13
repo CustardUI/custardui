@@ -94,16 +94,16 @@ describe('DomElementLocator', () => {
 
     it('should serialize and deserialize new metadata formats accurately', () => {
       const descriptors = [
-        { elementId: 'id1', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, color: 'red' as const },
+        { elementId: 'id1', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, color: 'blue' as const },
         { elementId: 'id2', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, annotation: 'My note!', annotationCorner: 'br' as const },
         { elementId: 'id3', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, color: 'blue' as const, annotation: 'Multi note: with colon', annotationCorner: 'tr' as const }
       ];
 
       const serialized = DomElementLocator.serialize(descriptors);
       
-      // Expected string format: id1:red,id2::br:My%20note!,id3:blue:tr:Multi%20note%3A%20with%20colon
+      // Expected string format: id1:blue,id2::br:My%20note!,id3:blue:tr:Multi%20note%3A%20with%20colon
       expect(typeof serialized).toBe('string');
-      expect(serialized.includes('id1:red')).toBe(true);
+      expect(serialized.includes('id1:blue')).toBe(true);
       expect(serialized.includes('id2::br')).toBe(true);
 
       const deserializedList = DomElementLocator.deserialize(serialized);
@@ -112,7 +112,7 @@ describe('DomElementLocator', () => {
       
       // First object: color only
       expect(deserializedList[0]!.elementId).toBe('id1');
-      expect(deserializedList[0]!.color).toBe('red');
+      expect(deserializedList[0]!.color).toBe('blue');
       expect(deserializedList[0]!.annotation).toBeUndefined();
 
       // Second object: note only

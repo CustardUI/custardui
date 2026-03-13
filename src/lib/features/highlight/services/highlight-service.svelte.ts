@@ -47,7 +47,7 @@ export class HighlightService {
     return targets;
   }
 
-  public apply(encodedDescriptors: string): void {
+  public applyEncodedHighlights(encodedDescriptors: string): void {
     const descriptors = DomElementLocator.deserialize(encodedDescriptors);
     if (!descriptors || descriptors.length === 0) return;
 
