@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
   getScrollTopOffset, 
   captureScrollAnchor, 
@@ -12,6 +12,10 @@ describe('scroll-utils', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
     vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    setFrameScheduler(null);
   });
 
   describe('captureScrollAnchor', () => {
