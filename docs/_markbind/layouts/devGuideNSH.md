@@ -8,15 +8,7 @@
     <div class="nav-component slim-scroll">
       <site-nav>
 * [Contributing]({{baseUrl}}/devGuide/devGuide.html)
-* [Framework]({{baseUrl}}/devGuide/framework.html)
-* [Git Workflow]({{baseUrl}}/devGuide/gitWorkflow.html)
-* [Making Releases]({{baseUrl}}/devGuide/releases.html)
-* [How Components Work]({{baseUrl}}/devGuide/componentWorkings.html)
 * Tests
-  * [Local Components]({{baseUrl}}/devGuide/tests/localComponents.html)
-  * [Test Tabs]({{baseUrl}}/devGuide/tests/tabs.html)
-  * [Focus and Sharing]({{baseUrl}}/devGuide/tests/focus-test.html)
-  * [Placeholders]({{baseUrl}}/devGuide/tests/placeholders.html)
   * [Non Sticky Header]({{baseUrl}}/devGuide/tests/nonStickyHeader.html)
       </site-nav>
     </div>
