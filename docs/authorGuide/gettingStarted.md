@@ -9,16 +9,29 @@
 
 # {{ title }}
 
-## What is CustardUI?
+Thanks for taking the time to set up CustardUI on your site. This guide covers everything you need to go from a blank config to a fully personalized, reader-adaptive site.
 
-CustardUI is a lightweight JavaScript add-on that brings **dynamic personalization** to static websites — no backend required. Readers can customize what they see: toggling platform-specific instructions, selecting tabs, filling in their own values, and sharing focused views — all persisted automatically in their browser.
+CustardUI is designed to stay out of your way — you write your content as normal, and wrap or annotate the parts that should adapt. No build steps, no backend, no framework lock-in.
 
-**Common use cases:**
+---
 
-- Platform-specific docs (macOS, Windows, Linux steps on the same page)
-- Multi-language tutorials (Python, Java, JavaScript side by side)
-- Personalized content using reader-supplied values (username, API key, etc.)
-- Shareable focused views that highlight specific sections
+## What's in this guide
+
+- **[Getting Started](gettingStarted.md)** — install the script, create your config, and add your first component
+- **[Configuration](configuration.md)** — full reference for `config.json`, including toggles, tab groups, placeholders, and adaptations
+- **Components** — detailed docs for each component:
+  - [Toggles](components/toggles.md) — show, hide, or peek content sections
+  - [Tabs](components/tabs.md) — synced tab groups that remember the reader's choice
+  - [Placeholders](components/placeholders.md) — reader-defined values substituted into your content
+  - [Settings Panel](components/settings.md) — the built-in UI your readers use to manage their preferences
+  - [Focus & Share](components/share.md) — shareable deep links that highlight any element on the page
+- **[URL Sharing](urlSharing.md)** — how the highlight parameter works and how to construct share links
+- **[Adaptations](adaptations.md)** — serve different audiences from a single deployment
+- **Integrations:**
+  - [MarkBind Setup](integrations/setupWithMarkbind.md)
+
+
+If something isn't working as expected or you want to request a feature, open an issue on [GitHub](https://github.com/custardui/custardui).
 
 ---
 
