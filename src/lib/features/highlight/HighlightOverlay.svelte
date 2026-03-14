@@ -2,6 +2,7 @@
   import { type RectData } from '$features/highlight/services/highlight-types';
   import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
   import HighlightTextAnnotation from '$features/highlight/HighlightTextAnnotation.svelte';
+  import HighlightEmptyAnnotation from '$features/highlight/HighlightEmptyAnnotation.svelte';
 
   interface Props {
     box: { rects: RectData[] };
@@ -48,11 +49,13 @@
           Annotated by: CustardUI↗
         </a>
       </div>
-      {#if rect.annotation}
+      {#if rect.annotation !== undefined && rect.annotation.length > 0}
         <HighlightTextAnnotation
           annotation={rect.annotation}
           annotationCorner={rect.annotationCorner}
         />
+      {:else}
+        <HighlightEmptyAnnotation annotationCorner={rect.annotationCorner} />
       {/if}
     </div>
   {/each}
