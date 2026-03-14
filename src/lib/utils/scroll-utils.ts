@@ -87,7 +87,13 @@ const defaultScheduler: FrameScheduler = (cb) => {
   if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
     return window.requestAnimationFrame(cb);
   }
-  return setTimeout(() => cb(performance.now()), 16) as unknown as number;
+  return setTimeout(() => {
+    const now =
+      typeof performance !== 'undefined' && typeof performance.now === 'function'
+        ? performance.now()
+        : Date.now();
+    cb(now);
+  }, 16) as unknown as number;
 };
 
 /** Internal scheduler. Can be overridden in tests via setFrameScheduler. */
