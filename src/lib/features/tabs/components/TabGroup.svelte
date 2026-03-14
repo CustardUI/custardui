@@ -3,6 +3,7 @@
     tag: 'cv-tabgroup',
     props: {
       groupId: { reflect: true, type: 'String', attribute: 'group-id' },
+      stabilizeScroll: { reflect: true, type: 'Boolean', attribute: 'stabilize-scroll' },
     },
   }}
 />
@@ -245,34 +246,36 @@
         {@const isActive = splitIds.includes(localActiveTabId)}
         {@const isMarked = markedTab && splitIds.includes(markedTab)}
         <li class="cv-tabgroup-item">
-          <a
-            class="cv-tabgroup-link"
-            href={'#' + tab.id}
-            class:active={isActive}
-            role="tab"
-            aria-selected={isActive}
-            onclick={(e) => handleTabClick(tab.id, e)}
-            ondblclick={(e) => handleTabDoubleClick(tab.id, e)}
-            title="Double-click a tab to 'mark' it in all similar tab groups."
-            data-tab-id={tab.id}
-            data-raw-tab-id={tab.rawId}
-            data-group-id={groupId}
-          >
-            <span class="cv-tab-header-container">
-              <span class="cv-tab-header-text"
-                ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html tab.header}</span
-              >
-              <!-- svelte-ignore a11y_click_events_have_key_events, a11y_interactive_supports_focus -->
-              <span class="cv-tab-marked-icon" class:is-marked={isMarked}
-                role="button"
-                title="Click to mark this tab"
-                onclick={(e) => handleMarkClick(tab.id, e)}
-                ondblclick={(e) => { e.stopPropagation(); }}
-                ><IconMark isMarked={isMarked} /></span
-              >
-            </span>
-          </a>
+          <div class="cv-tab-wrapper" class:active={isActive}>
+            <a
+              class="cv-tabgroup-link"
+              href={'#' + tab.id}
+              class:active={isActive}
+              role="tab"
+              aria-selected={isActive}
+              onclick={(e) => handleTabClick(tab.id, e)}
+              ondblclick={(e) => handleTabDoubleClick(tab.id, e)}
+              title="Double-click a tab to 'mark' it in all similar tab groups."
+              data-tab-id={tab.id}
+              data-raw-tab-id={tab.rawId}
+              data-group-id={groupId}
+            >
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              <span class="cv-tab-header-text">{@html tab.header}</span>
+            </a>
+            <button
+              type="button"
+              class="cv-tab-marked-icon"
+              class:is-marked={isMarked}
+              title={isMarked ? "Unmark this tab" : "Mark this tab"}
+              aria-label={isMarked ? "Unmark this tab" : "Mark this tab"}
+              aria-pressed={!!isMarked}
+              onclick={(e) => handleMarkClick(tab.id, e)}
+              ondblclick={(e) => { e.stopPropagation(); }}
+            >
+              <IconMark {isMarked} />
+            </button>
+          </div>
         </li>
       {/each}
     </ul>
@@ -351,7 +354,6 @@
 
   .cv-tabgroup-link.active {
     opacity: 1;
-    border-bottom-color: currentColor;
     background-color: transparent !important;
   }
 
@@ -359,27 +361,45 @@
     outline: 0;
   }
 
-  .cv-tab-header-container {
+  .cv-tab-wrapper {
     display: flex;
     align-items: center;
-    gap: 6px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.15s ease-in-out;
+  }
+
+  .cv-tab-wrapper:hover,
+  .cv-tab-wrapper:focus-within {
+    border-bottom-color: var(--cv-border, rgba(128, 128, 128, 0.3));
+  }
+
+  .cv-tab-wrapper.active {
+    border-bottom-color: currentColor;
   }
 
   .cv-tab-header-text {
-    flex: 1;
+    line-height: 1;
   }
 
   .cv-tab-marked-icon {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     line-height: 0;
     flex-shrink: 0;
     opacity: 0;
     transition: opacity 0.15s ease-out;
+    background: none;
+    border: none;
+    padding: 0 8px 0 0;
+    margin: 0;
+    cursor: pointer;
+    color: inherit;
+    height: 100%;
   }
 
-  .cv-tabgroup-link:hover .cv-tab-marked-icon,
-  .cv-tabgroup-link:focus .cv-tab-marked-icon,
+  .cv-tab-wrapper:hover .cv-tab-marked-icon,
+  .cv-tab-wrapper:focus-within .cv-tab-marked-icon,
   .cv-tab-marked-icon.is-marked {
     opacity: 1;
   }
