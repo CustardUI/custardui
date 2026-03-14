@@ -1,98 +1,108 @@
 /**
+ * A captured scroll anchor — a snapshot of an element's viewport position before
+ * a layout-shifting operation. Pass to `restoreScrollAnchor` afterwards to compensate.
+ */
+export interface ScrollAnchor {
+  element: HTMLElement;
+  /** The element's `getBoundingClientRect().top` at capture time. */
+  top: number;
+}
+
+/**
+ * Captures the current viewport-relative position of a given element.
+ * Call this *before* a layout-shifting operation, then pass the result to `restoreScrollAnchor`.
+ *
+ * @param element The element to anchor to.
+ * @returns A `ScrollAnchor` snapshot.
+ */
+export function captureScrollAnchor(element: HTMLElement): ScrollAnchor {
+  return { element, top: element.getBoundingClientRect().top };
+}
+
+/**
  * Calculates the total height of fixed or sticky elements at the top of the viewport.
- * This includes the standard site header and any custom elements marked with [data-cv-scroll-offset].
- * Used to offset scroll positions so content isn't hidden behind these fixed elements.
+ * This includes the standard site header and any custom elements marked with
+ * `[data-cv-scroll-offset]`. Used to offset scroll positions so content isn't
+ * hidden behind these fixed elements.
  */
 export function getScrollTopOffset(): number {
   let headerHeight = 0;
   let customOffset = 0;
 
-  // 1. Standard Site Header if applicable
-  const headerEl = document.querySelector('header');
+  const headerEl = document.querySelector<HTMLElement>('header');
   if (headerEl) {
-    const headerStyle = window.getComputedStyle(headerEl);
-    const isHeaderFixedOrSticky = ['fixed', 'sticky'].includes(headerStyle.position);
-    if (isHeaderFixedOrSticky) {
+    const { position } = window.getComputedStyle(headerEl);
+    if (position === 'fixed' || position === 'sticky') {
       headerHeight = headerEl.getBoundingClientRect().height;
     }
   }
 
-  // 2. Custom Views Fixed Elements (e.g. Focus Banner)
-  // Elements with [data-cv-scroll-offset] are considered fixed/sticky obstructions.
-  // We use scrollHeight to get the full height even during animations (like slide transition).
-  document.querySelectorAll('[data-cv-scroll-offset]').forEach((el) => {
-    // We assume these elements overlap at the top (top: 0) unless a stacking context is managed.
-    // Taking the MAX ensures we clear the tallest obstruction without over-counting.
+  // Elements with [data-cv-scroll-offset] are treated as fixed/sticky obstructions at the top.
+  // We use scrollHeight to account for elements mid-transition.
+  document.querySelectorAll<HTMLElement>('[data-cv-scroll-offset]').forEach((el) => {
     customOffset = Math.max(customOffset, el.scrollHeight);
   });
 
-  // Custom elements overlay the standard header.
-  // Avoid double-counting while ensuring visibility.
+  // Custom elements overlay the standard header — avoid double-counting.
   return Math.max(headerHeight, customOffset);
 }
 
 /**
- * Finds the highest element matching the selector that is currently in the viewport.
- * @param selector The CSS selector to match elements against.
- * @returns The HTMLElement of the highest visible element, or null if none are found.
+ * Returns the highest element matching a CSS selector that is visible in the
+ * current viewport (below any fixed/sticky header).
+ *
+ * @param selector CSS selector to match elements.
+ * @returns The highest visible matching element, or `null` if none found.
  */
 export function findHighestVisibleElement(selector: string): HTMLElement | null {
-  const headerOffset = getScrollTopOffset();
-  const contentTop = headerOffset; // Viewport-relative position where content begins.
+  const topOffset = getScrollTopOffset();
+  const viewportBottom = window.innerHeight;
 
-  // 1. Find all matching elements, filtering out any inside the main header (if fixed/sticky).
-  const allElements = Array.from(document.querySelectorAll<HTMLElement>(selector));
   const headerEl = document.querySelector('header');
 
-  const candidateElements = allElements.filter((el) => {
-    // If header is sticky/fixed, ignore elements inside it to avoid false positives
-    if (headerOffset > 0 && headerEl && el.closest('header') === headerEl) {
-      return false;
-    }
-    return true;
-  });
+  let best: HTMLElement | null = null;
+  let bestTop = Infinity;
 
-  // 2. Find the highest element visible in the content area.
-  let highestVisibleEl: HTMLElement | null = null;
-  let highestVisibleTop = Infinity;
+  for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+    // Ignore elements inside a sticky/fixed header
+    if (topOffset > 0 && headerEl && el.closest('header') === headerEl) continue;
 
-  for (const el of candidateElements) {
-    const rect = el.getBoundingClientRect();
-    // Visible if not completely above content area and not completely below viewport
-    const isVisibleInContentArea = rect.bottom > contentTop && rect.top < window.innerHeight;
+    const { top, bottom } = el.getBoundingClientRect();
+    const isVisible = bottom > topOffset && top < viewportBottom;
 
-    if (isVisibleInContentArea) {
-      // We want the one closest to the top
-      if (rect.top < highestVisibleTop) {
-        highestVisibleEl = el;
-        highestVisibleTop = rect.top;
-      }
+    if (isVisible && top < bestTop) {
+      best = el;
+      bestTop = top;
     }
   }
 
-  return highestVisibleEl;
+  return best;
 }
 
 /**
- * Adjusts the scroll position to keep a specific element in the same visual location.
- * Useful when content additions/removals above might cause jumps.
+ * Restores the visual scroll position after a layout-shifting operation.
+ *
+ * Pass a `ScrollAnchor` captured *before* the layout change.
+ * Uses two `requestAnimationFrame` ticks to ensure the browser has fully
+ * reflowed the page before measuring and correcting.
+ *
+ * Note: When calling from a Svelte component, prefer using `tick()` before
+ * calling this function so Svelte's DOM updates are applied first.
+ *
+ * @param anchor A `ScrollAnchor` captured before the layout change.
  */
-export function handleScrollAnchor(scrollAnchor: { element: HTMLElement; top: number }): void {
+export function restoreScrollAnchor(anchor: ScrollAnchor): void {
+  // Double-rAF: first frame commits the paint, second ensures layout is stable.
   requestAnimationFrame(() => {
-    const { element, top: initialTop } = scrollAnchor;
+    requestAnimationFrame(() => {
+      // Use isConnected instead of document.contains() — the latter returns false
+      // for elements inside Shadow DOM trees, which would silently skip restoration.
+      if (!anchor.element.isConnected) return;
 
-    // Check if element is still in document
-    if (!element || !document.contains(element)) return;
-
-    const newTop = element.getBoundingClientRect().top;
-    const scrollDelta = newTop - initialTop;
-
-    // Only scroll if there's a noticeable change
-    if (Math.abs(scrollDelta) > 1) {
-      window.scrollBy({
-        top: scrollDelta,
-        behavior: 'instant',
-      });
-    }
+      const delta = anchor.element.getBoundingClientRect().top - anchor.top;
+      if (Math.abs(delta) > 1) {
+        window.scrollBy({ top: delta, behavior: 'instant' });
+      }
+    });
   });
 }

@@ -8,14 +8,15 @@
 />
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import IconMark from '$lib/app/icons/IconMark.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
+  import { captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
 
   //  ID of the tabgroup Group
-  let { groupId } = $props<{ groupId?: string }>();
+  let { groupId, stabilizeScroll = true } = $props<{ groupId?: string; stabilizeScroll?: boolean }>();
   $effect(() => {
     if (groupId) elementStore.registerTabGroup(groupId);
   });
@@ -27,6 +28,7 @@
     element: HTMLElement;
   }> = $state([]);
 
+  let containerEl: HTMLDivElement | undefined = $state();
   let contentWrapper: HTMLElement | undefined = $state();
   let slotEl: HTMLSlotElement | null = $state(null);
   let initialized = $state(false);
@@ -43,16 +45,16 @@
   // Track the last seen store state to detect real changes
   let lastSeenStoreState = $state<string | null>(null);
 
-  // Authoritative Sync: Only sync when store actually changes
+  // Authoritative Sync: Only sync when store actually changes.
+  // NOTE: Scroll stabilization is NOT done here — it's the responsibility of
+  // the initiating action (handleTabDoubleClick, handleMarkClick, or Modal).
+  // If this $effect also stabilized, its rAF would compete with the initiator's
+  // rAF and undo the correction.
   $effect(() => {
-    // If store state has changed from what we last saw
-    // Note: strict inequality works here because both are strings or null
     if (markedTab !== lastSeenStoreState) {
       lastSeenStoreState = markedTab;
 
-      // If there is a marked tab, it overrides local state
       if (markedTab) {
-        // Check if we actually need to update (avoid redundant DOM work)
         if (localActiveTabId !== markedTab) {
           localActiveTabId = markedTab;
           updateVisibility();
@@ -176,41 +178,65 @@
   function handleTabClick(tabId: string, event: MouseEvent) {
     event.preventDefault();
 
-    // Optimistic Update: Update local state immediately
     if (localActiveTabId !== tabId) {
+      const anchor = stabilizeScroll && containerEl
+        ? captureScrollAnchor(containerEl)
+        : null;
+
       localActiveTabId = tabId;
       updateVisibility();
+
+      if (anchor) restoreScrollAnchor(anchor);
     }
   }
 
   /**
    * Handles double-click events on the navigation tabs.
    * Updates the store to "mark" the tab globally across all tab groups with the same ID.
+   * Stabilizes scroll position because syncing may change height of OTHER groups above.
    */
-  function handleTabDoubleClick(tabId: string, event: MouseEvent) {
+  async function handleTabDoubleClick(tabId: string, event: MouseEvent) {
     event.preventDefault();
 
     if (!groupId) return;
 
-    // Update store directly - this will sync to all tab groups with same group-id
+    const anchor = stabilizeScroll && containerEl
+      ? captureScrollAnchor(containerEl)
+      : null;
+
     activeStateStore.setMarkedTab(groupId, tabId);
+
+    if (anchor) {
+      await tick();
+      restoreScrollAnchor(anchor);
+    }
   }
 
   /**
    * Handles click events specifically on the mark icon.
+   * Stabilizes scroll position because syncing may change height of OTHER groups above.
    */
-  function handleMarkClick(tabId: string, event: MouseEvent) {
+  async function handleMarkClick(tabId: string, event: MouseEvent) {
     event.preventDefault();
-    event.stopPropagation(); // Prevent the tab's click handler from firing
+    event.stopPropagation();
 
     if (!groupId) return;
 
+    const anchor = stabilizeScroll && containerEl
+      ? captureScrollAnchor(containerEl)
+      : null;
+
     activeStateStore.setMarkedTab(groupId, tabId);
+
+    if (anchor) {
+      await tick();
+      restoreScrollAnchor(anchor);
+    }
   }
 </script>
 
 <!-- Container for the tab group -->
-<div class="cv-tabgroup-container">
+<div class="cv-tabgroup-container" bind:this={containerEl}>
   <!-- Nav -->
   {#if tabs.length > 0 && navHeadingVisible}
     <ul class="cv-tabgroup-nav" role="tablist">
