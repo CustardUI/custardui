@@ -10,7 +10,7 @@ import * as DomElementLocator from '../../src/lib/utils/dom-element-locator';
  * remains backward compatible. It verifies that a fixed, static HTML structure produces
  * specific descriptors, AND that specific legacy descriptors can resolve back to the correct elements.
  *
- * If these tests fail, it means we have broken existing share links (e.g. pinned tabs, deep links).
+ * If these tests fail, it means we have broken existing share links (e.g. marked tabs, deep links).
  */
 describe('Fingerprint Regression', () => {
   let container: HTMLElement;

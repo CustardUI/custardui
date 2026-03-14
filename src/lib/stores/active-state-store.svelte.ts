@@ -24,7 +24,7 @@ export class ActiveStateStore {
 
   /**
    * Mutable application state representing user choices.
-   * Use actions like `setPinnedTab` or `setToggles` to modify this.
+   * Use actions like `setMarkedTab` or `setToggles` to modify this.
    */
   state = $state<State>({
     shownToggles: [],
@@ -62,12 +62,12 @@ export class ActiveStateStore {
   // --- Actions ---
 
   /**
-   * Set the pinned tab for a specific tab group.
+   * Set the marked tab for a specific tab group.
    * This syncs across all tab groups with the same ID.
    * @param groupId The ID of the tab group.
-   * @param tabId The ID of the tab to pin.
+   * @param tabId The ID of the tab to mark.
    */
-  setPinnedTab(groupId: string, tabId: string) {
+  setMarkedTab(groupId: string, tabId: string) {
     if (!this.state.tabs) this.state.tabs = {};
     this.state.tabs[groupId] = tabId;
     

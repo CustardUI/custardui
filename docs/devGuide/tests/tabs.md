@@ -242,3 +242,31 @@ Pear types include the **Asian pear** and the **European pear**
 </cv-tab-body>
 </cv-tab>
 </cv-tabgroup>
+
+## Color Schemes
+
+The redesigned `TabGroup` and `Tab` use generic colors (`currentColor`, `transparent`, and `opacity`) and no longer hardcode white backgrounds. This allows the tabs to adapt perfectly to differently colored parent containers.
+
+<div style="background-color: #f8dbdb; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; color: #842029;">
+  <h4 style="margin-top: 0">Red Background Test</h4>
+  <cv-tabgroup group-id="red-test">
+    <cv-tab tab-id="r1" header="First Tab">Testing on a light red background.</cv-tab>
+    <cv-tab tab-id="r2" header="Second Tab">Notice how the active tab has no white background block, and the text color inherits naturally!</cv-tab>
+  </cv-tabgroup>
+</div>
+
+<div style="background-color: #052c65; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; color: #cfe2ff;">
+  <h4 style="margin-top: 0">Dark Navy Background Test</h4>
+  <cv-tabgroup group-id="navy-test">
+    <cv-tab tab-id="n1" header="Intro">Testing on a dark navy background.</cv-tab>
+    <cv-tab tab-id="n2" header="Details">The generic border fallback `rgba(128,128,128,0.3)` and text inheritance keeps this legible.</cv-tab>
+  </cv-tabgroup>
+</div>
+
+<div style="background-color: #d1e7dd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; color: #0f5132;">
+  <h4 style="margin-top: 0">Green Background Test</h4>
+  <cv-tabgroup group-id="green-test">
+    <cv-tab tab-id="g1" header="Setup">Testing on a light green background.</cv-tab>
+    <cv-tab tab-id="g2" header="Config">Tabs blend seamlessly into entirely different sections without needing specific `--cv-*` overwrites.</cv-tab>
+  </cv-tabgroup>
+</div>

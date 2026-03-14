@@ -17,7 +17,7 @@
   import { URLStateManager } from '$features/url/url-state-manager';
   import { showToast } from '$features/notifications/stores/toast-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-  import { findHighestVisibleElement, handleScrollAnchor } from '$lib/utils/scroll-utils';
+  import { findHighestVisibleElement, captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
 
   import ToggleItem from './ToggleItem.svelte';
   import TabGroupItem from './TabGroupItem.svelte';
@@ -112,17 +112,13 @@
 
   function handleTabGroupChange(detail: any) {
     const { groupId, tabId } = detail;
-    // Capture element and its current visual position before state change
     const anchorEl = findHighestVisibleElement('cv-tabgroup');
-    const scrollAnchor = anchorEl
-      ? { element: anchorEl, top: anchorEl.getBoundingClientRect().top }
-      : null;
+    const scrollAnchor = anchorEl ? captureScrollAnchor(anchorEl) : null;
 
-    activeStateStore.setPinnedTab(groupId, tabId);
+    activeStateStore.setMarkedTab(groupId, tabId);
 
-    // Restore visual position after layout shift
     if (scrollAnchor) {
-      handleScrollAnchor(scrollAnchor);
+      restoreScrollAnchor(scrollAnchor);
     }
   }
 
