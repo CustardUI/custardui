@@ -15,7 +15,7 @@ const ARROW_OVERLAY_ID = 'cv-highlight-overlay';
 
 import { type RectData } from './highlight-types';
 import { type HighlightColorKey } from './highlight-colors';
-import { type AnnotationCorner } from './highlight-annotations';
+import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from './highlight-annotations';
 
 export class HighlightState {
   rects = $state<RectData[]>([]);
@@ -61,9 +61,12 @@ export class HighlightService {
         if (desc.color) {
           matchingEls.forEach((el) => colors.set(el, desc.color!));
         }
-        if (desc.annotation && desc.annotationCorner) {
+        if (desc.annotation || desc.annotationCorner) {
           matchingEls.forEach((el) =>
-            annotations.set(el, { text: desc.annotation!, corner: desc.annotationCorner! }),
+            annotations.set(el, {
+              text: desc.annotation ?? '',
+              corner: desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER,
+            }),
           );
         }
       }

@@ -91,10 +91,8 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
     h: d.textHash,
     id: d.elementId,
     ...(d.color && d.color !== DEFAULT_COLOR_KEY ? { c: d.color } : {}),
+    ...(d.annotationCorner && d.annotationCorner !== DEFAULT_ANNOTATION_CORNER ? { nc: d.annotationCorner } : {}),
     ...(d.annotation ? { n: d.annotation } : {}),
-    ...(d.annotation && d.annotationCorner && d.annotationCorner !== DEFAULT_ANNOTATION_CORNER
-      ? { nc: d.annotationCorner }
-      : {}),
   }));
 
   // When all elements have stable IDs, use a human-readable format.
@@ -178,6 +176,8 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
       if (m.n) {
         descriptor.annotation = m.n as string;
         descriptor.annotationCorner = (m.nc ?? DEFAULT_ANNOTATION_CORNER) as AnnotationCorner;
+      } else if (m.nc) {
+        descriptor.annotationCorner = m.nc as AnnotationCorner;
       }
       return descriptor;
     });

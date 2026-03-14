@@ -52,9 +52,7 @@
 
   function setCorner(c: AnnotationCorner) {
     localCorner = c;
-    if (localText.trim().length > 0) {
-      shareStore.setAnnotation(element, localText, c);
-    }
+    shareStore.setAnnotation(element, localText, c);
   }
 
   function handleTabClick(e: MouseEvent) {

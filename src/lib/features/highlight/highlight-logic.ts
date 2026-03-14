@@ -154,7 +154,7 @@ function addMergedRect(
   if (color !== undefined) rect.color = color;
   const annotation = annotationMap?.get(elements[0]!);
   if (annotation !== undefined) {
-    rect.annotation = annotation.text;
+    if (annotation.text.length > 0) rect.annotation = annotation.text;
     rect.annotationCorner = annotation.corner;
   }
   resultList.push(rect);
