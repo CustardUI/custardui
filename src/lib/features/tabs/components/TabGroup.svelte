@@ -268,6 +268,7 @@
                 role="button"
                 title="Click to mark this tab"
                 onclick={(e) => handleMarkClick(tab.id, e)}
+                ondblclick={(e) => { e.stopPropagation(); }}
                 ><IconMark isMarked={isMarked} /></span
               >
             </span>
