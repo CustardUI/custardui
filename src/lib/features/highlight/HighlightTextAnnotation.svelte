@@ -167,6 +167,7 @@
       class="cv-annotation-ribbon"
       class:cv-annotation-ribbon--empty={!hasText}
       class:cv-annotation-ribbon--right={isRightCorner}
+      class:cv-annotation-ribbon--expandable={!isShort}
       class:cv-annotation-ribbon--intro={!introAnimationDone}
       class:cv-annotation-ribbon--periodic={introAnimationDone}
       style="clip-path: {getRibbonClipPath(corner)};"
@@ -179,7 +180,7 @@
         {#if isRightCorner}
           <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
           {#if !isShort}
-            <span class="cv-ribbon-chevron">▾</span>
+            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}>▾</span>
           {/if}
           <span class="cv-ribbon-text cv-ribbon-text--right">
             {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
@@ -200,7 +201,7 @@
             {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
           </span>
           {#if !isShort}
-            <span class="cv-ribbon-chevron">▾</span>
+            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}>▾</span>
           {/if}
         {/if}
       {/if}
@@ -279,6 +280,14 @@
     padding: 6px 16px 6px 8px;
   }
 
+  .cv-annotation-ribbon--expandable {
+    cursor: pointer;
+  }
+
+  .cv-annotation-ribbon--expandable:hover {
+    filter: brightness(1.1);
+  }
+
   /* ==============================
      RIBBON TEXT (single line)
      ============================== */
@@ -301,12 +310,16 @@
   }
 
   .cv-ribbon-chevron {
-    font-size: 15px;
+    font-size: 22px;
     opacity: 1;
     flex-shrink: 0;
     line-height: 1;
     color: #fff;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .cv-ribbon-chevron--bounce {
+    animation: cv-chevron-bounce 3s ease-in-out infinite;
   }
 
   /* ==============================
@@ -405,5 +418,12 @@
   @keyframes cv-cardPop {
     from { opacity: 0; transform: scale(0.9) translateY(5px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes cv-chevron-bounce {
+    0%, 70%, 100% { transform: translateY(0); }
+    78%           { transform: translateY(-3px); }
+    86%           { transform: translateY(1px); }
+    93%           { transform: translateY(-1.5px); }
   }
 </style>
