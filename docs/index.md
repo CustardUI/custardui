@@ -47,7 +47,7 @@ _Your name is remembered across every page on this site — set it once, see it 
 
 ---
 
-<cv-toggle toggle-id="prerequisites" show-label>
+<cv-toggle toggle-id="prerequisites" show-label show-inline-control>
 
 <br> 
 

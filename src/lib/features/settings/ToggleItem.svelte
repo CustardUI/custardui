@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { ToggleConfig } from '$lib/types/index';
+  import IconEye from '$lib/app/icons/IconEye.svelte';
+  import IconEyeSlash from '$lib/app/icons/IconEyeSlash.svelte';
 
   interface Props {
     toggle: ToggleConfig;
@@ -8,6 +10,8 @@
   }
 
   let { toggle, value = $bindable('show'), onchange = () => {} }: Props = $props();
+
+  const icons: Record<'hide' | 'show', typeof IconEye> = { hide: IconEyeSlash, show: IconEye };
 </script>
 
 <div class="card">
@@ -25,7 +29,16 @@
           class="segment-btn {value === option ? 'active' : ''}"
           onclick={() => { value = option; onchange({ toggleId: toggle.toggleId, value: option }); }}
           aria-pressed={value === option}
-        >{option.charAt(0).toUpperCase() + option.slice(1)}</button>
+          title={option.charAt(0).toUpperCase() + option.slice(1)}
+        >
+          {#if (option === 'hide' || option === 'show')}
+            {@const IconComponent = icons[option]}
+            <span class="segment-icon">
+              <IconComponent />
+            </span>
+          {/if}
+          <span class="segment-label">{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+        </button>
       {/each}
     </div>
   </div>
@@ -72,6 +85,9 @@
   }
 
   .segment-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
     background: transparent;
     border: none;
     border-left: 1px solid var(--cv-border);
@@ -83,6 +99,24 @@
     transition: background 0.15s ease, color 0.15s ease;
     font-family: inherit;
     line-height: 1;
+  }
+
+  .segment-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .segment-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .segment-label {
+    font-size: 0.75rem;
   }
 
   .segment-btn:first-child {

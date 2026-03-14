@@ -55,6 +55,26 @@ We recommend `show-label` to add a label to the toggle, so users know what it is
 </cv-toggle>
 ```
 
+### Inline Controls
+
+You can enable an **inline control** that allows users to switch between visibility states (Hide · Peek · Show) directly on the page without opening the Settings modal.
+
+Use the `show-inline-control` attribute to enable a 3-dot state indicator:
+
+- **Visible / Peek States**: A floating 3-dot indicator appears in the top-right corner on hover.
+- **Hidden State**: A thin placeholder bar (~24px) remains visible, showing the toggle label and 3 dots. This ensures users can always bring content back.
+
+```html
+<cv-toggle toggle-id="important-note" show-inline-control>
+  <p>This note can be toggled by the dots in the corner.</p>
+</cv-toggle>
+```
+
+<box type="tip">
+
+**Accessibility Note:** The dots are designed with an expanded interactive hit target for easier clicking/tapping. They also include `aria-label` and `title` attributes for screen readers.
+</box>
+
 **Precedence Behaviour**:
 
 When multiple IDs are used, the effective visibility is determined by the most "positive" state among all matching IDs. The order of precedence is:
@@ -83,7 +103,8 @@ This means that "Show" overrides "Peek", and "Peek" overrides "Hide". Explicit i
 | toggle-id        | `string`  | **required** | Defines the category for the cv-toggle element. Example: `toggle-id="mac"`.                                                                                                                                                                                                    |
 | asset-id         | `string`  | -            | ID for dynamic asset rendering. When the toggle becomes visible, matching assets from `assets.json` will be automatically rendered into the toggle content. Example: `asset-id="mac-assets"`.                                                                                  |
 | show-peek-border | `boolean` | `false`      | If present, adds a subtle border to the top and sides of the toggle content. The border is only applied while the toggle is in Peek mode (whether collapsed or user‑expanded). When the toggle is fully shown (non‑Peek), no border is rendered even if this attribute is set. |
-| show-label       | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle.                                                                                                                                                                                   |
+| show-label        | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle.                                                                                                                                                                                   |
+| show-inline-control | `boolean` | `false`      | If present, enables a 3-dot inline state indicator in the corner. Allows direct switching between Hide, Peek, and Show states. Shows a minimal placeholder bar when hidden. |
 
 ## Configuration
 
