@@ -100,6 +100,8 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
   // Format per element:
   //   no color, no note  → "id"
   //   color only         → "id:color"
+  //   corner only        → "id::corner"
+  //   color + corner     → "id:color:corner"
   //   color + note       → "id:color:corner:encodedNote"  (always 4 parts)
   //   note, no color     → "id::corner:encodedNote"
   const allHaveIds = minified.every((m) => !!m.id);
@@ -108,9 +110,12 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
       const id = m.id!;
       const c = (m as { c?: string }).c ?? '';
       const n = (m as { n?: string }).n;
-      const nc = (m as { nc?: string }).nc ?? DEFAULT_ANNOTATION_CORNER;
+      const nc = (m as { nc?: string }).nc;
       if (n) {
-        return `${id}:${c}:${nc}:${encodeURIComponent(n)}`;
+        return `${id}:${c}:${nc ?? DEFAULT_ANNOTATION_CORNER}:${encodeURIComponent(n)}`;
+      }
+      if (nc) {
+        return `${id}:${c}:${nc}`;
       }
       return c ? `${id}:${c}` : id;
     }).join(',');
@@ -195,6 +200,8 @@ const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
  * Supports:
  *   "id"                        — ID only
  *   "id:color"                  — with color
+ *   "id:color:corner"           — color + corner, no note
+ *   "id::corner"                — corner only, no color, no note
  *   "id:color:corner:note"      — with color + annotation (note is percent-encoded)
  *   "id::corner:note"           — annotation, no color
  */
@@ -224,6 +231,13 @@ function parseIds(encoded: string): AnchorDescriptor[] {
       } catch {
         annotation = noteSeg;
       }
+    } else if (segs.length === 3) {
+      // "id:color:corner" — corner without note
+      id = segs[0]!;
+      const colorSeg = segs[1]!;
+      const cornerSeg = segs[2]!;
+      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as HighlightColorKey;
+      if (CORNER_KEYS.has(cornerSeg)) annotationCorner = cornerSeg as AnnotationCorner;
     } else if (segs.length === 2) {
       // "id:color"
       const colorSeg = segs[1]!;
@@ -241,10 +255,8 @@ function parseIds(encoded: string): AnchorDescriptor[] {
       elementId: id,
     };
     if (color !== undefined) descriptor.color = color;
-    if (annotation !== undefined && annotationCorner !== undefined) {
-      descriptor.annotation = annotation;
-      descriptor.annotationCorner = annotationCorner;
-    }
+    if (annotation !== undefined) descriptor.annotation = annotation;
+    if (annotationCorner !== undefined) descriptor.annotationCorner = annotationCorner;
     return descriptor;
   });
 }
