@@ -205,13 +205,14 @@
     {#if labelText}
       <span class="cv-placeholder-label">{labelText}</span>
     {/if}
-    <div class="cv-state-dots" role="radiogroup" aria-label="Visibility">
+    <div class="cv-state-dots" role="group" aria-label="Visibility states">
       {#each (['hide', 'peek', 'show'] as const) as dotState}
         <button
           type="button"
           class="cv-dot {currentInlineState === dotState ? 'active' : ''}"
           aria-label={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
           title={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
+          aria-pressed={currentInlineState === dotState}
           onclick={(e) => setToggleState(e, dotState)}
         ></button>
       {/each}
@@ -233,13 +234,14 @@
   {/if}
 
   {#if showInlineControl && !isPlaceholderMode && !isHidden}
-    <div class="cv-state-dots cv-state-dots--floating" role="radiogroup" aria-label="Visibility">
+    <div class="cv-state-dots cv-state-dots--floating" role="group" aria-label="Visibility states">
       {#each (['hide', 'peek', 'show'] as const) as dotState}
         <button
           type="button"
           class="cv-dot {currentInlineState === dotState ? 'active' : ''}"
           aria-label={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
           title={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
+          aria-pressed={currentInlineState === dotState}
           onclick={(e) => setToggleState(e, dotState)}
         ></button>
       {/each}
@@ -438,6 +440,7 @@
   }
 
   .cv-dot {
+    position: relative;
     width: 7px;
     height: 7px;
     border-radius: 50%;
@@ -447,6 +450,18 @@
     cursor: pointer;
     transition: all 0.15s ease;
     flex-shrink: 0;
+  }
+
+  /* Expand tap target to ~20px while keeping dot visually small */
+  .cv-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
   }
 
   .cv-dot:hover {

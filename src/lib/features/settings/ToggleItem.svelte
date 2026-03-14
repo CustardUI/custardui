@@ -11,7 +11,7 @@
 
   let { toggle, value = $bindable('show'), onchange = () => {} }: Props = $props();
 
-  const icons: Record<'hide' | 'show', any> = { hide: IconEyeSlash, show: IconEye };
+  const icons: Record<'hide' | 'show', typeof IconEye> = { hide: IconEyeSlash, show: IconEye };
 </script>
 
 <div class="card">
