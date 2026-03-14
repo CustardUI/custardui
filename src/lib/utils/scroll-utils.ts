@@ -79,6 +79,28 @@ export function findHighestVisibleElement(selector: string): HTMLElement | null 
   return best;
 }
 
+/** Function signature for requestAnimationFrame-like schedulers. */
+export type FrameScheduler = (callback: FrameRequestCallback) => number;
+
+/** Default implementation with SSR fallback. */
+const defaultScheduler: FrameScheduler = (cb) => {
+  if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+    return window.requestAnimationFrame(cb);
+  }
+  return setTimeout(() => cb(performance.now()), 16) as unknown as number;
+};
+
+/** Internal scheduler. Can be overridden in tests via setFrameScheduler. */
+let frameScheduler: FrameScheduler = defaultScheduler;
+
+/**
+ * Allows tests to override the frame scheduler used by `restoreScrollAnchor`.
+ * Pass `null` to reset to the default implementation.
+ */
+export function setFrameScheduler(scheduler: FrameScheduler | null): void {
+  frameScheduler = scheduler || defaultScheduler;
+}
+
 /**
  * Restores the visual scroll position after a layout-shifting operation.
  *
@@ -93,8 +115,8 @@ export function findHighestVisibleElement(selector: string): HTMLElement | null 
  */
 export function restoreScrollAnchor(anchor: ScrollAnchor): void {
   // Double-rAF: first frame commits the paint, second ensures layout is stable.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
+  frameScheduler(() => {
+    frameScheduler(() => {
       // Use isConnected instead of document.contains() — the latter returns false
       // for elements inside Shadow DOM trees, which would silently skip restoration.
       if (!anchor.element.isConnected) return;

@@ -4,7 +4,8 @@ import {
   getScrollTopOffset, 
   captureScrollAnchor, 
   findHighestVisibleElement, 
-  restoreScrollAnchor 
+  restoreScrollAnchor,
+  setFrameScheduler
 } from '../../../src/lib/utils/scroll-utils';
 
 describe('scroll-utils', () => {
@@ -202,28 +203,29 @@ describe('scroll-utils', () => {
       document.body.appendChild(el);
       const scrollBySpy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
       
-      // Initial position was 100. New position is 150. Delta = 50.
       const anchor = { element: el, top: 100 };
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({ top: 150 } as DOMRect);
 
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: any) => cb());
+      // Manual control: execute callbacks synchronously to verify double-rAF
+      setFrameScheduler((cb: any) => { cb(); return 0; });
 
       restoreScrollAnchor(anchor);
 
       expect(scrollBySpy).toHaveBeenCalledWith({ top: 50, behavior: 'instant' });
+      setFrameScheduler(null); // Reset
     });
 
     it('does nothing if the element is no longer connected to the DOM', () => {
       const el = document.createElement('div');
-      // NOT appended to body
       const scrollBySpy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
       const anchor = { element: el, top: 100 };
       
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: any) => cb());
+      setFrameScheduler((cb: any) => { cb(); return 0; });
 
       restoreScrollAnchor(anchor);
 
       expect(scrollBySpy).not.toHaveBeenCalled();
+      setFrameScheduler(null);
     });
 
     it('does nothing if the delta is insignificant (<= 1px)', () => {
@@ -234,11 +236,12 @@ describe('scroll-utils', () => {
       const anchor = { element: el, top: 100 };
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({ top: 100.5 } as DOMRect);
 
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: any) => cb());
+      setFrameScheduler((cb: any) => { cb(); return 0; });
 
       restoreScrollAnchor(anchor);
 
       expect(scrollBySpy).not.toHaveBeenCalled();
+      setFrameScheduler(null);
     });
   });
 });
