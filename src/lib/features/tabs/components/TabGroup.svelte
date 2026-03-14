@@ -9,7 +9,7 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import IconPin from '$lib/app/icons/IconPin.svelte';
+  import IconMark from '$lib/app/icons/IconMark.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
@@ -34,8 +34,8 @@
   // Local active tab state (independent per group instance)
   let localActiveTabId = $state('');
 
-  // Derive pinnedTab from store (shared across groups with same ID)
-  let pinnedTab = $derived.by(() => {
+  // Derive markedTab from store (shared across groups with same ID)
+  let markedTab = $derived.by(() => {
     const tabs$ = activeStateStore.state.tabs ?? {};
     return groupId && tabs$[groupId] ? tabs$[groupId] : null;
   });
@@ -47,14 +47,14 @@
   $effect(() => {
     // If store state has changed from what we last saw
     // Note: strict inequality works here because both are strings or null
-    if (pinnedTab !== lastSeenStoreState) {
-      lastSeenStoreState = pinnedTab;
+    if (markedTab !== lastSeenStoreState) {
+      lastSeenStoreState = markedTab;
 
-      // If there is a pinned tab, it overrides local state
-      if (pinnedTab) {
+      // If there is a marked tab, it overrides local state
+      if (markedTab) {
         // Check if we actually need to update (avoid redundant DOM work)
-        if (localActiveTabId !== pinnedTab) {
-          localActiveTabId = pinnedTab;
+        if (localActiveTabId !== markedTab) {
+          localActiveTabId = markedTab;
           updateVisibility();
         }
       }
@@ -185,7 +185,7 @@
 
   /**
    * Handles double-click events on the navigation tabs.
-   * Updates the store to "pin" the tab globally across all tab groups with the same ID.
+   * Updates the store to "mark" the tab globally across all tab groups with the same ID.
    */
   function handleTabDoubleClick(tabId: string, event: MouseEvent) {
     event.preventDefault();
@@ -193,7 +193,19 @@
     if (!groupId) return;
 
     // Update store directly - this will sync to all tab groups with same group-id
-    activeStateStore.setPinnedTab(groupId, tabId);
+    activeStateStore.setMarkedTab(groupId, tabId);
+  }
+
+  /**
+   * Handles click events specifically on the mark icon.
+   */
+  function handleMarkClick(tabId: string, event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation(); // Prevent the tab's click handler from firing
+
+    if (!groupId) return;
+
+    activeStateStore.setMarkedTab(groupId, tabId);
   }
 </script>
 
@@ -201,21 +213,21 @@
 <div class="cv-tabgroup-container">
   <!-- Nav -->
   {#if tabs.length > 0 && navHeadingVisible}
-    <ul class="cv-tabs-nav nav-tabs" role="tablist">
+    <ul class="cv-tabgroup-nav" role="tablist">
       {#each tabs as tab (tab.id)}
         {@const splitIds = splitTabIds(tab.rawId)}
         {@const isActive = splitIds.includes(localActiveTabId)}
-        {@const isPinned = pinnedTab && splitIds.includes(pinnedTab)}
-        <li class="nav-item">
+        {@const isMarked = markedTab && splitIds.includes(markedTab)}
+        <li class="cv-tabgroup-item">
           <a
-            class="nav-link"
+            class="cv-tabgroup-link"
             href={'#' + tab.id}
             class:active={isActive}
             role="tab"
             aria-selected={isActive}
             onclick={(e) => handleTabClick(tab.id, e)}
             ondblclick={(e) => handleTabDoubleClick(tab.id, e)}
-            title="Double-click a tab to 'pin' it in all similar tab groups."
+            title="Double-click a tab to 'mark' it in all similar tab groups."
             data-tab-id={tab.id}
             data-raw-tab-id={tab.rawId}
             data-group-id={groupId}
@@ -225,8 +237,12 @@
                 ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html tab.header}</span
               >
-              <span class="cv-tab-pin-icon" style:display={isPinned ? 'inline-flex' : 'none'}
-                ><IconPin {isPinned} /></span
+              <!-- svelte-ignore a11y_click_events_have_key_events, a11y_interactive_supports_focus -->
+              <span class="cv-tab-marked-icon" class:is-marked={isMarked}
+                role="button"
+                title="Click to mark this tab"
+                onclick={(e) => handleMarkClick(tab.id, e)}
+                ><IconMark isMarked={isMarked} /></span
               >
             </span>
           </a>
@@ -255,62 +271,64 @@
   }
 
   /* Tab navigation styles */
-  ul.nav-tabs {
+  ul.cv-tabgroup-nav {
     display: flex;
     flex-wrap: wrap;
     padding-left: 0;
     margin-top: 0.5rem;
     margin-bottom: 0;
     list-style: none;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--cv-border, rgba(128, 128, 128, 0.3));
     align-items: stretch;
+    gap: 0.5rem;
   }
 
-  .nav-item {
+  .cv-tabgroup-item {
     margin-bottom: -1px;
     list-style: none;
     display: flex;
     align-items: stretch;
   }
 
-  .nav-link {
+  .cv-tabgroup-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1rem;
-    color: #495057;
+    padding: 0.5rem 0.75rem;
+    color: inherit;
+    opacity: 0.7;
     text-decoration: none;
-    background-color: transparent;
-    border: 1px solid transparent;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
+    background-color: transparent !important;
+    border: none;
+    border-bottom: 2px solid transparent;
     transition:
-      color 0.15s ease-in-out,
-      background-color 0.15s ease-in-out,
+      opacity 0.15s ease-in-out,
       border-color 0.15s ease-in-out;
     cursor: pointer;
     min-height: 2.5rem;
     box-sizing: border-box;
+    font-weight: 500;
   }
 
-  .nav-link :global(p) {
+  .cv-tabgroup-link :global(p) {
     margin: 0;
     display: inline;
   }
 
-  .nav-link:hover,
-  .nav-link:focus {
-    border-color: #e9ecef #e9ecef #dee2e6;
+  .cv-tabgroup-link:hover,
+  .cv-tabgroup-link:focus {
+    opacity: 1;
+    border-bottom-color: var(--cv-border, rgba(128, 128, 128, 0.3));
     isolation: isolate;
   }
 
-  .nav-link.active {
-    color: #495057;
-    background-color: #fff;
-    border-color: #dee2e6 #dee2e6 #fff;
+  .cv-tabgroup-link.active {
+    opacity: 1;
+    border-bottom-color: currentColor;
+    background-color: transparent !important;
   }
 
-  .nav-link:focus {
+  .cv-tabgroup-link:focus {
     outline: 0;
   }
 
@@ -324,25 +342,33 @@
     flex: 1;
   }
 
-  .cv-tab-pin-icon {
+  .cv-tab-marked-icon {
     display: inline-flex;
     align-items: center;
     line-height: 0;
     flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
   }
 
-  .cv-tab-pin-icon :global(svg) {
+  .cv-tabgroup-link:hover .cv-tab-marked-icon,
+  .cv-tabgroup-link:focus .cv-tab-marked-icon,
+  .cv-tab-marked-icon.is-marked {
+    opacity: 1;
+  }
+
+  .cv-tab-marked-icon :global(svg) {
     vertical-align: middle;
     width: 14px;
     height: 14px;
   }
 
   .cv-tabgroup-bottom-border {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--cv-border, rgba(128, 128, 128, 0.3));
   }
 
   @media print {
-    ul.cv-tabs-nav {
+    ul.cv-tabgroup-nav {
       display: none !important;
     }
   }

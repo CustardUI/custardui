@@ -118,7 +118,7 @@
       ? { element: anchorEl, top: anchorEl.getBoundingClientRect().top }
       : null;
 
-    activeStateStore.setPinnedTab(groupId, tabId);
+    activeStateStore.setMarkedTab(groupId, tabId);
 
     // Restore visual position after layout shift
     if (scrollAnchor) {
