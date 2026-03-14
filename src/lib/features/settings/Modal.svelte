@@ -350,9 +350,12 @@
         <div></div>
       {/if}
 
-      <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
-        custardui.js.org
-      </a>
+      <div class="footer-attribution">
+        <span class="footer-tagline">Browser-side page customisations provided by</span>
+        <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
+          custardui.js.org
+        </a>
+      </div>
 
       <button type="button" class="done-btn" onclick={onclose}>Done</button>
     </footer>
@@ -652,20 +655,37 @@
     border-bottom-right-radius: var(--cv-modal-radius, 0.75rem);
   }
 
+  .footer-attribution {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.1rem;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+  }
+
+  .footer-attribution:hover {
+    opacity: 1;
+  }
+
+  .footer-tagline {
+    font-size: 0.6rem;
+    color: var(--cv-text-secondary);
+    letter-spacing: 0.04em;
+  }
+
   .footer-link {
-    align-self: flex-end;
     color: var(--cv-text-secondary);
     text-decoration: none;
     font-size: 0.68rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.08em;
-    opacity: 0.5;
-    transition: color 0.15s ease, opacity 0.15s ease;
+    transition: color 0.15s ease;
   }
 
   .footer-link:hover {
     color: var(--cv-primary);
-    opacity: 1;
   }
 
   .reset-btn {
