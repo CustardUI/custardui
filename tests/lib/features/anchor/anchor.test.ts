@@ -1,10 +1,8 @@
 // @vitest-environment jsdom
-import * as DomElementLocator from '../../../src/lib/utils/dom-element-locator';
+import * as Anchor from '$features/anchor';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-// Mock DOM environment is assumed (jsdom)
-
-describe('DomElementLocator', () => {
+describe('Anchor', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -25,7 +23,7 @@ describe('DomElementLocator', () => {
                 <p>Third paragraph</p>
             `;
       const target = document.getElementById('target')!;
-      const descriptor = DomElementLocator.createDescriptor(target);
+      const descriptor = Anchor.createDescriptor(target);
 
       expect(descriptor.tag).toBe('P');
       expect(descriptor.index).toBe(1); // 0-indexed, so 2nd p is index 1
@@ -44,7 +42,7 @@ describe('DomElementLocator', () => {
                 </div>
             `;
       const target = document.getElementById('target')!;
-      const descriptor = DomElementLocator.createDescriptor(target);
+      const descriptor = Anchor.createDescriptor(target);
 
       expect(descriptor.parentId).toBe('wrapper');
     });
@@ -54,7 +52,7 @@ describe('DomElementLocator', () => {
                 <p id="target">  Lots   of    spaces   </p>
             `;
       const target = document.getElementById('target')!;
-      const descriptor = DomElementLocator.createDescriptor(target);
+      const descriptor = Anchor.createDescriptor(target);
 
       expect(descriptor.textSnippet).toBe('Lots of spaces');
     });
@@ -70,8 +68,8 @@ describe('DomElementLocator', () => {
         textHash: 123456,
       };
 
-      const serialized = DomElementLocator.serialize([original]);
-      const deserializedList = DomElementLocator.deserialize(serialized);
+      const serialized = Anchor.serialize([original]);
+      const deserializedList = Anchor.deserialize(serialized);
 
       expect(deserializedList).toHaveLength(1);
       expect(deserializedList[0]).toEqual(original);
@@ -86,8 +84,8 @@ describe('DomElementLocator', () => {
         textHash: 123,
       };
 
-      const serialized = DomElementLocator.serialize([original]);
-      const deserializedList = DomElementLocator.deserialize(serialized);
+      const serialized = Anchor.serialize([original]);
+      const deserializedList = Anchor.deserialize(serialized);
 
       expect(deserializedList[0]!.textSnippet).toBe('Hello 🌍');
     });
@@ -99,17 +97,17 @@ describe('DomElementLocator', () => {
         { elementId: 'id3', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, color: 'blue' as const, annotation: 'Multi note: with colon', annotationCorner: 'tr' as const }
       ];
 
-      const serialized = DomElementLocator.serialize(descriptors);
-      
+      const serialized = Anchor.serialize(descriptors);
+
       // Expected string format: id1:blue,id2::br:My%20note!,id3:blue:tr:Multi%20note%3A%20with%20colon
       expect(typeof serialized).toBe('string');
       expect(serialized.includes('id1:blue')).toBe(true);
       expect(serialized.includes('id2::br')).toBe(true);
 
-      const deserializedList = DomElementLocator.deserialize(serialized);
+      const deserializedList = Anchor.deserialize(serialized);
 
       expect(deserializedList).toHaveLength(3);
-      
+
       // First object: color only
       expect(deserializedList[0]!.elementId).toBe('id1');
       expect(deserializedList[0]!.color).toBe('blue');
@@ -134,12 +132,12 @@ describe('DomElementLocator', () => {
       it('A1: hydrated placeholder produces canonical hash', () => {
         container.innerHTML = `<p id="target">Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const target = document.getElementById('target')!;
-        const descriptor = DomElementLocator.createDescriptor(target);
+        const descriptor = Anchor.createDescriptor(target);
 
         // Build a reference descriptor from the canonical raw-token form
         const refDiv = document.createElement('div');
         refDiv.innerHTML = `<p>Hello [[username]]!</p>`;
-        const refDescriptor = DomElementLocator.createDescriptor(refDiv.querySelector('p')!);
+        const refDescriptor = Anchor.createDescriptor(refDiv.querySelector('p')!);
 
         expect(descriptor.textHash).toBe(refDescriptor.textHash);
         expect(descriptor.textSnippet).toBe(refDescriptor.textSnippet);
@@ -148,11 +146,11 @@ describe('DomElementLocator', () => {
       it('A2: different runtime values produce identical hash and snippet', () => {
         container.innerHTML = `<p id="a">Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const elA = document.getElementById('a')!;
-        const descriptorA = DomElementLocator.createDescriptor(elA);
+        const descriptorA = Anchor.createDescriptor(elA);
 
         container.innerHTML = `<p id="b">Hello <cv-placeholder name="username">bob</cv-placeholder>!</p>`;
         const elB = document.getElementById('b')!;
-        const descriptorB = DomElementLocator.createDescriptor(elB);
+        const descriptorB = Anchor.createDescriptor(elB);
 
         expect(descriptorA.textHash).toBe(descriptorB.textHash);
         expect(descriptorA.textSnippet).toBe(descriptorB.textSnippet);
@@ -161,11 +159,11 @@ describe('DomElementLocator', () => {
       it('A3: un-hydrated raw token produces same hash as hydrated', () => {
         container.innerHTML = `<p id="hydrated">Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const hydratedEl = document.getElementById('hydrated')!;
-        const hydratedDescriptor = DomElementLocator.createDescriptor(hydratedEl);
+        const hydratedDescriptor = Anchor.createDescriptor(hydratedEl);
 
         container.innerHTML = `<p id="raw">Hello [[ username ]]!</p>`;
         const rawEl = document.getElementById('raw')!;
-        const rawDescriptor = DomElementLocator.createDescriptor(rawEl);
+        const rawDescriptor = Anchor.createDescriptor(rawEl);
 
         expect(hydratedDescriptor.textHash).toBe(rawDescriptor.textHash);
         expect(hydratedDescriptor.textSnippet).toBe(rawDescriptor.textSnippet);
@@ -174,11 +172,11 @@ describe('DomElementLocator', () => {
       it('A4: raw token with fallback produces same hash as bare raw token', () => {
         container.innerHTML = `<p id="fallback">Hello [[ username : Guest ]]!</p>`;
         const fallbackEl = document.getElementById('fallback')!;
-        const fallbackDescriptor = DomElementLocator.createDescriptor(fallbackEl);
+        const fallbackDescriptor = Anchor.createDescriptor(fallbackEl);
 
         container.innerHTML = `<p id="bare">Hello [[ username ]]!</p>`;
         const bareEl = document.getElementById('bare')!;
-        const bareDescriptor = DomElementLocator.createDescriptor(bareEl);
+        const bareDescriptor = Anchor.createDescriptor(bareEl);
 
         expect(fallbackDescriptor.textHash).toBe(bareDescriptor.textHash);
         expect(fallbackDescriptor.textSnippet).toBe(bareDescriptor.textSnippet);
@@ -187,11 +185,11 @@ describe('DomElementLocator', () => {
       it('A5: multiple placeholders each normalized independently', () => {
         container.innerHTML = `<p id="hydrated">Dear <cv-placeholder name="first">John</cv-placeholder> <cv-placeholder name="last">Doe</cv-placeholder>!</p>`;
         const hydratedEl = document.getElementById('hydrated')!;
-        const hydratedDescriptor = DomElementLocator.createDescriptor(hydratedEl);
+        const hydratedDescriptor = Anchor.createDescriptor(hydratedEl);
 
         container.innerHTML = `<p id="raw">Dear [[ first ]] [[ last ]]!</p>`;
         const rawEl = document.getElementById('raw')!;
-        const rawDescriptor = DomElementLocator.createDescriptor(rawEl);
+        const rawDescriptor = Anchor.createDescriptor(rawEl);
 
         expect(hydratedDescriptor.textHash).toBe(rawDescriptor.textHash);
         expect(hydratedDescriptor.textSnippet).toBe(rawDescriptor.textSnippet);
@@ -200,7 +198,7 @@ describe('DomElementLocator', () => {
       it('A6: plain text (no placeholders) fast path unchanged', () => {
         container.innerHTML = `<p id="target">No placeholders here</p>`;
         const target = document.getElementById('target')!;
-        const descriptor = DomElementLocator.createDescriptor(target);
+        const descriptor = Anchor.createDescriptor(target);
 
         expect(descriptor.textHash).not.toBe(0);
         expect(descriptor.textSnippet).toBe('No placeholders here');
@@ -211,9 +209,9 @@ describe('DomElementLocator', () => {
         ph.setAttribute('name', 'username');
         ph.textContent = 'alice'; // runtime resolved value
         container.appendChild(ph);
-        const descriptor = DomElementLocator.createDescriptor(ph);
+        const descriptor = Anchor.createDescriptor(ph);
 
-        expect(descriptor.textHash).toBe(DomElementLocator.createDescriptor(
+        expect(descriptor.textHash).toBe(Anchor.createDescriptor(
           Object.assign(document.createElement('div'), { textContent: '[[username]]' })
         ).textHash);
         expect(descriptor.textSnippet).toBe('[[username]]');
@@ -223,13 +221,13 @@ describe('DomElementLocator', () => {
         // Raw DOM: escaped token \[[ username ]] — before PlaceholderBinder runs
         container.innerHTML = `<p id="raw">Hello \\[[ username ]]!</p>`;
         const rawEl = document.getElementById('raw')!;
-        const rawDescriptor = DomElementLocator.createDescriptor(rawEl);
+        const rawDescriptor = Anchor.createDescriptor(rawEl);
 
         // Hydrated DOM: PlaceholderBinder strips the backslash via fullMatch.slice(1),
         // leaving the literal text [[ username ]] (with original spacing)
         container.innerHTML = `<p id="hydrated">Hello [[ username ]]!</p>`;
         const hydratedEl = document.getElementById('hydrated')!;
-        const hydratedDescriptor = DomElementLocator.createDescriptor(hydratedEl);
+        const hydratedDescriptor = Anchor.createDescriptor(hydratedEl);
 
         expect(rawDescriptor.textHash).toBe(hydratedDescriptor.textHash);
       });
@@ -239,12 +237,12 @@ describe('DomElementLocator', () => {
       it('B1: descriptor from hydrated element resolves against differently-hydrated DOM', () => {
         container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const sourceEl = container.querySelector('p')!;
-        const descriptor = DomElementLocator.createDescriptor(sourceEl);
+        const descriptor = Anchor.createDescriptor(sourceEl);
 
         container.innerHTML = `<p>Hello <cv-placeholder name="username">bob</cv-placeholder>!</p>`;
         const targetEl = container.querySelector('p')!;
 
-        const resolved = DomElementLocator.resolve(container, descriptor);
+        const resolved = Anchor.resolve(container, descriptor);
         expect(resolved).toHaveLength(1);
         expect(resolved[0]).toBe(targetEl);
       });
@@ -252,12 +250,12 @@ describe('DomElementLocator', () => {
       it('B2: descriptor from hydrated element resolves against un-hydrated DOM', () => {
         container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const sourceEl = container.querySelector('p')!;
-        const descriptor = DomElementLocator.createDescriptor(sourceEl);
+        const descriptor = Anchor.createDescriptor(sourceEl);
 
         container.innerHTML = `<p>Hello [[ username ]]!</p>`;
         const targetEl = container.querySelector('p')!;
 
-        const resolved = DomElementLocator.resolve(container, descriptor);
+        const resolved = Anchor.resolve(container, descriptor);
         expect(resolved).toHaveLength(1);
         expect(resolved[0]).toBe(targetEl);
       });
@@ -265,12 +263,12 @@ describe('DomElementLocator', () => {
       it('B3: descriptor from un-hydrated DOM resolves against hydrated DOM', () => {
         container.innerHTML = `<p>Hello [[ username ]]!</p>`;
         const sourceEl = container.querySelector('p')!;
-        const descriptor = DomElementLocator.createDescriptor(sourceEl);
+        const descriptor = Anchor.createDescriptor(sourceEl);
 
         container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const targetEl = container.querySelector('p')!;
 
-        const resolved = DomElementLocator.resolve(container, descriptor);
+        const resolved = Anchor.resolve(container, descriptor);
         expect(resolved).toHaveLength(1);
         expect(resolved[0]).toBe(targetEl);
       });
@@ -286,9 +284,9 @@ describe('DomElementLocator', () => {
             `;
       const targetEl = container.querySelectorAll('p')[1] as HTMLElement;
       // Manually creating descriptor to simulate "previous state"
-      const descriptor = DomElementLocator.createDescriptor(targetEl);
+      const descriptor = Anchor.createDescriptor(targetEl);
 
-      const resolved = DomElementLocator.resolve(container, descriptor);
+      const resolved = Anchor.resolve(container, descriptor);
       expect(resolved).toHaveLength(1);
       expect(resolved[0]).toBe(targetEl);
     });
@@ -305,7 +303,7 @@ describe('DomElementLocator', () => {
       // We create a temporary element to get a valid hash/snippet
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = '<p>Correct One</p>';
-      const baseDescriptor = DomElementLocator.createDescriptor(tempDiv.querySelector('p')!);
+      const baseDescriptor = Anchor.createDescriptor(tempDiv.querySelector('p')!);
 
       const descriptor = {
         ...baseDescriptor,
@@ -313,7 +311,7 @@ describe('DomElementLocator', () => {
         parentId: 'test-container',
       };
 
-      const resolved = DomElementLocator.resolve(container, descriptor);
+      const resolved = Anchor.resolve(container, descriptor);
 
       // Should still find it because content match
       expect(resolved).toHaveLength(1);
@@ -329,7 +327,7 @@ describe('DomElementLocator', () => {
         textSnippet: 'Missing content',
         textHash: 99999,
       };
-      const resolved = DomElementLocator.resolve(container, descriptor);
+      const resolved = Anchor.resolve(container, descriptor);
       expect(resolved).toHaveLength(0);
     });
   });
