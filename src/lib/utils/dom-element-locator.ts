@@ -39,12 +39,89 @@ function normalizeText(text: string): string {
 }
 
 /**
+ * Matches raw (un-hydrated) placeholder tokens in text content, including
+ * escaped forms like \[[ name ]]:
+ *   [[ name ]], [[ name : fallback ]], [[ name ? truthy : falsy ]], \[[ name ]]
+ * Captures the placeholder name in group 1. Used to normalize tokens before hashing.
+ *
+ * The optional `(?:\\)?` prefix intentionally consumes the leading backslash so that
+ * \[[ name ]] normalizes to [[name]] — the same canonical form that PlaceholderBinder
+ * emits for escaped tokens ([[ name ]] literal text). This keeps the hash stable
+ * across raw and hydrated DOM states.
+ */
+const RAW_PLACEHOLDER_RE = /(?:\\)?\[\[\s*([a-zA-Z0-9_-]+)[^\]]*\]\]/g;
+
+/**
+ * Recursively walks `node`, appending stable placeholder-canonical text to `parts`.
+ * - Text nodes: raw [[ ... ]] tokens are normalized to [[name]] before appending.
+ * - <cv-placeholder> elements: appends [[name]] from the `name` attribute; skips children
+ *   (children hold the live resolved value, not the canonical template form).
+ * - All other elements: recurse into children.
+ */
+function collectStableText(node: Node, parts: string[]): void {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.nodeValue || '';
+    parts.push(text.replace(RAW_PLACEHOLDER_RE, '[[$1]]'));
+  } else if (node.nodeType === Node.ELEMENT_NODE) {
+    const el = node as HTMLElement;
+    if (el.tagName === 'CV-PLACEHOLDER') {
+      parts.push(`[[${el.getAttribute('name') || ''}]]`);
+      return; // Skip children — they contain the resolved runtime value
+    }
+    for (let i = 0; i < el.childNodes.length; i++) {
+      collectStableText(el.childNodes[i]!, parts);
+    }
+  }
+}
+
+/**
+ * Returns the text content of an element with all <cv-placeholder> custom elements
+ * replaced by their canonical [[name]] template form.
+ *
+ * This produces a stable string regardless of the placeholder's current resolved value
+ * or whether it has been hydrated yet — enabling consistent hashing across share and load time.
+ *
+ * Without this, an element containing [[username]] resolved to "alice" would hash as
+ * "Hello alice!" at share-time but "Hello [[username]]!" at load-time, causing resolution to fail.
+ */
+function getStableTextContent(el: HTMLElement): string {
+  // Special case: el itself is a <cv-placeholder> — return canonical form directly.
+  if (el.tagName === 'CV-PLACEHOLDER') {
+    return `[[${el.getAttribute('name') || ''}]]`;
+  }
+  // Fast path: if no raw [[ tokens and no <cv-placeholder> descendants,
+  // there are no placeholders — return textContent directly (native, no allocation).
+  // Check textContent first to avoid the querySelector when raw tokens are present
+  // (raw DOM elements with [[ tokens always need the slow path).
+  const rawText = el.textContent || '';
+  if (!rawText.includes('[[')) {
+    const hasHydrated = el.querySelector('cv-placeholder') !== null;
+    if (!hasHydrated) {
+      return rawText;
+    }
+  }
+  // Slow path: walk the DOM to canonicalize all placeholder forms.
+  const parts: string[] = [];
+  for (let i = 0; i < el.childNodes.length; i++) {
+    collectStableText(el.childNodes[i]!, parts);
+  }
+  return parts.join('');
+}
+
+/**
+ * Combines getStableTextContent and normalizeText into a single call.
+ * Used wherever element text is computed for hashing or comparison.
+ */
+function getStableNormalizedText(el: HTMLElement): string {
+  return normalizeText(getStableTextContent(el));
+}
+
+/**
  * Creates an AnchorDescriptor for a given DOM element.
  */
 export function createDescriptor(el: HTMLElement): AnchorDescriptor {
   const tag = el.tagName;
-  const textContent = el.textContent || '';
-  const normalizedText = normalizeText(textContent);
+  const normalizedText = getStableNormalizedText(el);
 
   // Find nearest parent with an ID
   let parentId: string | undefined;
@@ -305,13 +382,15 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   // Optimization: Structural Check First (Fastest)
   // If we trust the structure hasn't changed, the element at the specific index
   // is effectively O(1) access if we assume `querySelectorAll` order is stable.
+  // Cache the computed text so the full scan can reuse it if this check fails.
+  let indexCandidateText: string | null = null;
   if (candidates[descriptor.index]) {
     const candidate = candidates[descriptor.index] as HTMLElement;
-    const text = normalizeText(candidate.textContent || '');
+    indexCandidateText = getStableNormalizedText(candidate);
 
     // Perfect Match Check: If index + hash match, it's virtually guaranteed.
     // This avoids checking every other candidate.
-    if (hashCode(text) === descriptor.textHash) {
+    if (hashCode(indexCandidateText) === descriptor.textHash) {
       return [candidate];
     }
   }
@@ -324,7 +403,10 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   for (let i = 0; i < candidates.length; i++) {
     const candidate = candidates[i] as HTMLElement;
     let score = 0;
-    const text = normalizeText(candidate.textContent || '');
+    // Reuse already-computed text for the index candidate to avoid duplicate DOM walk.
+    const text = i === descriptor.index && indexCandidateText !== null
+      ? indexCandidateText
+      : getStableNormalizedText(candidate);
 
     // Content Match
     if (hashCode(text) === descriptor.textHash) {
