@@ -39,6 +39,36 @@ function normalizeText(text: string): string {
 }
 
 /**
+ * Matches raw (un-hydrated) placeholder tokens in text content:
+ *   [[ name ]], [[ name : fallback ]], [[ name ? truthy : falsy ]], \[[ name ]]
+ * Captures the placeholder name in group 1. Used to normalize tokens before hashing.
+ */
+const RAW_PLACEHOLDER_RE = /(?:\\)?\[\[\s*([a-zA-Z0-9_-]+)[^\]]*\]\]/g;
+
+/**
+ * Recursively walks `node`, appending stable placeholder-canonical text to `parts`.
+ * - Text nodes: raw [[ ... ]] tokens are normalized to [[name]] before appending.
+ * - <cv-placeholder> elements: appends [[name]] from the `name` attribute; skips children
+ *   (children hold the live resolved value, not the canonical template form).
+ * - All other elements: recurse into children.
+ */
+function collectStableText(node: Node, parts: string[]): void {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.nodeValue || '';
+    parts.push(text.replace(RAW_PLACEHOLDER_RE, '[[$1]]'));
+  } else if (node.nodeType === Node.ELEMENT_NODE) {
+    const el = node as HTMLElement;
+    if (el.tagName === 'CV-PLACEHOLDER') {
+      parts.push(`[[${el.getAttribute('name') || ''}]]`);
+      return; // Skip children — they contain the resolved runtime value
+    }
+    for (let i = 0; i < el.childNodes.length; i++) {
+      collectStableText(el.childNodes[i]!, parts);
+    }
+  }
+}
+
+/**
  * Returns the text content of an element with all <cv-placeholder> custom elements
  * replaced by their canonical [[name]] template form.
  *
@@ -49,12 +79,19 @@ function normalizeText(text: string): string {
  * "Hello alice!" at share-time but "Hello [[username]]!" at load-time, causing resolution to fail.
  */
 function getStableTextContent(el: HTMLElement): string {
-  const clone = el.cloneNode(true) as HTMLElement;
-  clone.querySelectorAll('cv-placeholder').forEach((ph) => {
-    const name = ph.getAttribute('name') || '';
-    ph.replaceWith(document.createTextNode(`[[${name}]]`));
-  });
-  return clone.textContent || '';
+  // Fast path: if no <cv-placeholder> descendants and no raw [[ tokens,
+  // there are no placeholders — return textContent directly (native, no allocation).
+  const hasHydrated = el.querySelector('cv-placeholder') !== null;
+  const rawText = el.textContent || '';
+  if (!hasHydrated && !rawText.includes('[[')) {
+    return rawText;
+  }
+  // Slow path: walk the DOM to canonicalize all placeholder forms.
+  const parts: string[] = [];
+  for (let i = 0; i < el.childNodes.length; i++) {
+    collectStableText(el.childNodes[i]!, parts);
+  }
+  return parts.join('');
 }
 
 /**
