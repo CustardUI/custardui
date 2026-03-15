@@ -2,7 +2,7 @@
 import { mount, unmount } from 'svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
-import * as DomElementLocator from '$lib/features/anchor';
+import * as DomElementLocator from '$features/anchor';
 import { activeStateStore } from '$lib/stores/active-state-store.svelte';
 import { derivedStore } from '$lib/stores/derived-store.svelte';
 import HighlightOverlay from '$features/highlight/HighlightOverlay.svelte';
