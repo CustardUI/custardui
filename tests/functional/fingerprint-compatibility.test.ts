@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import * as DomElementLocator from '../../src/lib/utils/dom-element-locator';
+import * as DomElementLocator from '../../src/lib/features/anchor';
 
 /**
  * Fingerprint Regression Test
