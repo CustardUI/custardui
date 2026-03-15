@@ -2,7 +2,7 @@ import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { type HighlightColorKey } from '$features/highlight/services/highlight-colors';
 import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER, MAX_ANNOTATION_LENGTH } from '$features/highlight/services/highlight-annotations';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
-import * as DomElementLocator from '$lib/utils/dom-element-locator';
+import * as DomElementLocator from '$features/anchor';
 import {
   calculateNewSelection,
   SELECTED_CLASS,
