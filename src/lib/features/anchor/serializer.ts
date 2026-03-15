@@ -3,8 +3,8 @@ import { type HighlightColorKey, DEFAULT_COLOR_KEY, HIGHLIGHT_COLORS } from '$fe
 import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER, ANNOTATION_CORNERS } from '$features/highlight/services/highlight-annotations';
 import { type AnchorDescriptor } from './types';
 
-export const COLOR_KEYS = new Set<string>(HIGHLIGHT_COLORS.map((c) => c.key));
-export const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
+const COLOR_KEYS = new Set<string>(HIGHLIGHT_COLORS.map((c) => c.key));
+const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
 
 /**
  * Serializes a list of AnchorDescriptors into a URL-safe string.
