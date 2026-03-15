@@ -62,7 +62,7 @@ If the user has not set a value for `email`, "support@example.com" will be displ
 1. **User-set value** — what the user typed into the Settings widget or a `<cv-placeholder-input>`.
 2. **Inline fallback** — the value after `:` in the syntax (e.g., `support@example.com`).
 3. **Registry `defaultValue`** — the `defaultValue` field in `custardui.config.json`.
-4. **Raw placeholder name** — `[[name]]` as literal text, signalling that no fallback was provided.
+4. **Raw placeholder name** — `\[[name]]` as literal text, signalling that no fallback was provided.
 
 > User-set empty strings (`""`) are treated as "not set" and fall through to the inline fallback, instead of displaying nothing. Use `\[[email : ]]` to explicitly show nothing as the fallback.
 
