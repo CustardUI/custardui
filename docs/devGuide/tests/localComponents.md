@@ -17,23 +17,17 @@ This page is for testing local toggles and local tabgroups.
 
 Open the widget to toggle this local toggle:
 
-<box data-cv-toggle="lt">
-
-Local Toggle content
-
-</box>
-
 ### Local Tab Groups
 
-<cv-tabgroup group-id="ltabs">
-<cv-tab tab-id="lt1">
-  Tab 1
+<cv-tabgroup group-id="localTabGroup">
+<cv-tab tab-id="a">
+  Alpha
 </cv-tab>
-<cv-tab tab-id="lt2">
-  Tab 2
+<cv-tab tab-id="b">
+  Beta
 </cv-tab>
-<cv-tab tab-id="lt3">
-  Tab 3
+<cv-tab tab-id="c">
+  Charlie
 </cv-tab>
 </cv-tabgroup>
 

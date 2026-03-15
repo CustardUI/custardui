@@ -1,7 +1,6 @@
 {
   "config": {
     "toggles": [
-      { "toggleId": "lt", "label": "Local Toggle", "isLocal": true },
       {
         "toggleId": "prerequisites",
         "label": "Prerequisites",
@@ -71,18 +70,6 @@
           { "tabId": "npm", "label": "npm" },
           { "tabId": "yarn", "label": "yarn" },
           { "tabId": "pnpm", "label": "pnpm" }
-        ]
-      },
-      {
-        "groupId": "ltab",
-        "label": "Local Tab Configuration",
-        "description": "This is a local tab group, that only appears on pages where it's used.",
-        "isLocal": true,
-        "default": "lt1",
-        "tabs": [
-          { "tabId": "lt1", "label": "Tab Option 1" },
-          { "tabId": "lt2", "label": "Tab Option 2" },
-          { "tabId": "lt3", "label": "Tab Option 3" }
         ]
       },
       {
