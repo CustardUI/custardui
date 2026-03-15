@@ -39,11 +39,17 @@ function normalizeText(text: string): string {
 }
 
 /**
- * Matches raw (un-hydrated) placeholder tokens in text content:
+ * Matches raw (un-hydrated) placeholder tokens in text content, including
+ * escaped forms like \[[ name ]]:
  *   [[ name ]], [[ name : fallback ]], [[ name ? truthy : falsy ]], \[[ name ]]
  * Captures the placeholder name in group 1. Used to normalize tokens before hashing.
+ *
+ * The optional `(?:\\)?` prefix intentionally consumes the leading backslash so that
+ * \[[ name ]] normalizes to [[name]] — the same canonical form that PlaceholderBinder
+ * emits for escaped tokens ([[ name ]] literal text). This keeps the hash stable
+ * across raw and hydrated DOM states.
  */
-const RAW_PLACEHOLDER_RE = /(?<!\\)\[\[\s*([a-zA-Z0-9_-]+)[^\]]*\]\]/g;
+const RAW_PLACEHOLDER_RE = /(?:\\)?\[\[\s*([a-zA-Z0-9_-]+)[^\]]*\]\]/g;
 
 /**
  * Recursively walks `node`, appending stable placeholder-canonical text to `parts`.
@@ -83,12 +89,16 @@ function getStableTextContent(el: HTMLElement): string {
   if (el.tagName === 'CV-PLACEHOLDER') {
     return `[[${el.getAttribute('name') || ''}]]`;
   }
-  // Fast path: if no <cv-placeholder> descendants and no raw [[ tokens,
+  // Fast path: if no raw [[ tokens and no <cv-placeholder> descendants,
   // there are no placeholders — return textContent directly (native, no allocation).
-  const hasHydrated = el.querySelector('cv-placeholder') !== null;
+  // Check textContent first to avoid the querySelector when raw tokens are present
+  // (raw DOM elements with [[ tokens always need the slow path).
   const rawText = el.textContent || '';
-  if (!hasHydrated && !rawText.includes('[[')) {
-    return rawText;
+  if (!rawText.includes('[[')) {
+    const hasHydrated = el.querySelector('cv-placeholder') !== null;
+    if (!hasHydrated) {
+      return rawText;
+    }
   }
   // Slow path: walk the DOM to canonicalize all placeholder forms.
   const parts: string[] = [];
@@ -372,13 +382,15 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   // Optimization: Structural Check First (Fastest)
   // If we trust the structure hasn't changed, the element at the specific index
   // is effectively O(1) access if we assume `querySelectorAll` order is stable.
+  // Cache the computed text so the full scan can reuse it if this check fails.
+  let indexCandidateText: string | null = null;
   if (candidates[descriptor.index]) {
     const candidate = candidates[descriptor.index] as HTMLElement;
-    const text = getStableNormalizedText(candidate);
+    indexCandidateText = getStableNormalizedText(candidate);
 
     // Perfect Match Check: If index + hash match, it's virtually guaranteed.
     // This avoids checking every other candidate.
-    if (hashCode(text) === descriptor.textHash) {
+    if (hashCode(indexCandidateText) === descriptor.textHash) {
       return [candidate];
     }
   }
@@ -391,7 +403,10 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   for (let i = 0; i < candidates.length; i++) {
     const candidate = candidates[i] as HTMLElement;
     let score = 0;
-    const text = getStableNormalizedText(candidate);
+    // Reuse already-computed text for the index candidate to avoid duplicate DOM walk.
+    const text = i === descriptor.index && indexCandidateText !== null
+      ? indexCandidateText
+      : getStableNormalizedText(candidate);
 
     // Content Match
     if (hashCode(text) === descriptor.textHash) {

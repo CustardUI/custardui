@@ -219,16 +219,19 @@ describe('DomElementLocator', () => {
         expect(descriptor.textSnippet).toBe('[[username]]');
       });
 
-      it('A7: escaped raw token hashes differently from real placeholder', () => {
-        container.innerHTML = `<p id="escaped">Hello \\[[ username ]]!</p>`;
-        const escapedEl = document.getElementById('escaped')!;
-        const escapedDescriptor = DomElementLocator.createDescriptor(escapedEl);
+      it('A7: escaped raw token has same hash as its post-PlaceholderBinder literal form', () => {
+        // Raw DOM: escaped token \[[ username ]] — before PlaceholderBinder runs
+        container.innerHTML = `<p id="raw">Hello \\[[ username ]]!</p>`;
+        const rawEl = document.getElementById('raw')!;
+        const rawDescriptor = DomElementLocator.createDescriptor(rawEl);
 
-        container.innerHTML = `<p id="real">Hello [[ username ]]!</p>`;
-        const realEl = document.getElementById('real')!;
-        const realDescriptor = DomElementLocator.createDescriptor(realEl);
+        // Hydrated DOM: PlaceholderBinder strips the backslash via fullMatch.slice(1),
+        // leaving the literal text [[ username ]] (with original spacing)
+        container.innerHTML = `<p id="hydrated">Hello [[ username ]]!</p>`;
+        const hydratedEl = document.getElementById('hydrated')!;
+        const hydratedDescriptor = DomElementLocator.createDescriptor(hydratedEl);
 
-        expect(escapedDescriptor.textHash).not.toBe(realDescriptor.textHash);
+        expect(rawDescriptor.textHash).toBe(hydratedDescriptor.textHash);
       });
     });
 
