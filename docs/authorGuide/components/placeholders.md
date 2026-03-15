@@ -5,6 +5,9 @@
   pageNavTitle: "Topics"
 </frontmatter>
 
+<!-- For this page, ignore escaped placeholders, this is because we are serving this site -->
+<!-- So the placeholders are not replaced by the plugin, we need to escape them to show them as is -->
+
 ## Simple Placeholders (Variable Interpolation)
 
 `\[[ variable_name ]]`, `<cv-placeholder/>`, `<cv-placeholder-input/>`
@@ -54,10 +57,14 @@ Contact us at \[[ email : support@example.com ]]
 Contact us at [[email : support@example.com]]
 ```
 
-If the user has not set a value for `email`, "support@example.com" will be displayed. Placeholders first use user-set values if available, inline fallbacks, registry defaults and lastly raw placeholder names, i.e. `\[[name]]` (to warn authors that no fallback value was provided).
-* Use `\[[email : ]]` 
+If the user has not set a value for `email`, "support@example.com" will be displayed. The resolution order is:
 
- User set empty strings (`""`) are treated as "not set" and show inline fallbacks, instead of showing nothing.
+1. **User-set value** — what the user typed into the Settings widget or a `<cv-placeholder-input>`.
+2. **Inline fallback** — the value after `:` in the syntax (e.g., `support@example.com`).
+3. **Registry `defaultValue`** — the `defaultValue` field in `custardui.config.json`.
+4. **Raw placeholder name** — `[[name]]` as literal text, signalling that no fallback was provided.
+
+> User-set empty strings (`""`) are treated as "not set" and fall through to the inline fallback, instead of displaying nothing. Use `\[[email : ]]` to explicitly show nothing as the fallback.
 
 
 ## Conditional Syntax (Fall-Forward)
@@ -81,19 +88,26 @@ When `username` is unset, nothing is shown. When `username` is `alice`, it rende
 
 ### User-Set vs. Any Resolved Value
 
-By default, the conditional triggers only when the **user has explicitly entered a value**, and registry `defaultValue` are ignored. Append `*` to the name to also trigger on registry defaults:
+By default, the conditional triggers only when the **user has explicitly entered a value** — a registry `defaultValue` is only a display fallback and does **not** count as "set". Append `*` to the name to also trigger on registry defaults:
 
 | Syntax | Triggers truthy when… |
 | :--- | :--- |
-| `[[name ? truthy : falsy]]` | User has explicitly entered a value (registry `defaultValue` ignored) |
-| `[[name* ? truthy : falsy]]` | Any resolved value exists (user-set **or** registry `defaultValue`) |
+| `\[[name ? truthy : falsy]]` | User has explicitly entered a value (registry `defaultValue` ignored) |
+| `\[[name* ? truthy : falsy]]` | Any resolved value exists (user-set **or** registry `defaultValue`) |
 
 **Example with `defaultValue: "Guest"` and no user input:**
 
 * `\[[username ? Hi, $! : ]]` → "" (falsy — user-set only, default ignored)
 * `\[[username* ? Hi, $! : ]]` → "Hi, Guest!" (any-value — default fires truthy)
 
-Regular display syntax (`[[name]]`, `\[[name : fallback]]`) is unchanged and always uses the full resolution chain.
+Test it out here:
+
+* `\[[username]]`: [[username]]
+* `\[[username : fallback]]`: [[username : fallback]]
+* `\[[username ? Hi, $! : ]]`: [[username ? Hi, $! : ]]
+* `\[[username* ? Hi, $! : ]]`: [[username* ? Hi, $! : ]]
+
+Regular display syntax (`\[[name]]`, `\[[name : fallback]]`) is unchanged and always uses the full resolution chain.
 
 For attributes with `class="cv-bind"`:
 
@@ -235,7 +249,7 @@ My username is <cv-placeholder-input name="username" layout="inline" appearance=
 | name          | `string`  | **Required**. Unique identifier (e.g., `api_key`).                                                             |
 | settingsLabel | `string`  | Display label in Settings.                                                                                     |
 | settingsHint  | `string`  | Helper text in input field.                                                                                    |
-| defaultValue  | `string`  | Initial value if unset.                                                                                        |
+| defaultValue  | `string`  | Display fallback when no user value or inline fallback is provided. Does **not** count as "user-set" — conditional syntax (`?`) treats it as unset unless `*` is appended. |
 | isLocal       | `boolean` | If `true`, the input field only appears in Settings when the placeholder is actually used on the current page. |
 
 Example:
