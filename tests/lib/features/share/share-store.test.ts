@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ShareStore } from '$features/share/stores/share-store.svelte';
 
-import * as DomElementLocator from '$lib/features/anchor';
+import * as DomElementLocator from '$features/anchor';
 
 describe('ShareStore', () => {
   let store: ShareStore;
