@@ -39,12 +39,38 @@ function normalizeText(text: string): string {
 }
 
 /**
+ * Returns the text content of an element with all <cv-placeholder> custom elements
+ * replaced by their canonical [[name]] template form.
+ *
+ * This produces a stable string regardless of the placeholder's current resolved value
+ * or whether it has been hydrated yet — enabling consistent hashing across share and load time.
+ *
+ * Without this, an element containing [[username]] resolved to "alice" would hash as
+ * "Hello alice!" at share-time but "Hello [[username]]!" at load-time, causing resolution to fail.
+ */
+function getStableTextContent(el: HTMLElement): string {
+  const clone = el.cloneNode(true) as HTMLElement;
+  clone.querySelectorAll('cv-placeholder').forEach((ph) => {
+    const name = ph.getAttribute('name') || '';
+    ph.replaceWith(document.createTextNode(`[[${name}]]`));
+  });
+  return clone.textContent || '';
+}
+
+/**
+ * Combines getStableTextContent and normalizeText into a single call.
+ * Used wherever element text is computed for hashing or comparison.
+ */
+function getStableNormalizedText(el: HTMLElement): string {
+  return normalizeText(getStableTextContent(el));
+}
+
+/**
  * Creates an AnchorDescriptor for a given DOM element.
  */
 export function createDescriptor(el: HTMLElement): AnchorDescriptor {
   const tag = el.tagName;
-  const textContent = el.textContent || '';
-  const normalizedText = normalizeText(textContent);
+  const normalizedText = getStableNormalizedText(el);
 
   // Find nearest parent with an ID
   let parentId: string | undefined;
@@ -307,7 +333,7 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   // is effectively O(1) access if we assume `querySelectorAll` order is stable.
   if (candidates[descriptor.index]) {
     const candidate = candidates[descriptor.index] as HTMLElement;
-    const text = normalizeText(candidate.textContent || '');
+    const text = getStableNormalizedText(candidate);
 
     // Perfect Match Check: If index + hash match, it's virtually guaranteed.
     // This avoids checking every other candidate.
@@ -324,7 +350,7 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   for (let i = 0; i < candidates.length; i++) {
     const candidate = candidates[i] as HTMLElement;
     let score = 0;
-    const text = normalizeText(candidate.textContent || '');
+    const text = getStableNormalizedText(candidate);
 
     // Content Match
     if (hashCode(text) === descriptor.textHash) {
