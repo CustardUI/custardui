@@ -2,7 +2,7 @@
 import { mount, unmount } from 'svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
-import * as DomElementLocator from '$lib/features/anchor';
+import * as DomElementLocator from '$features/anchor';
 import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
 import { SvelteSet } from 'svelte/reactivity';
