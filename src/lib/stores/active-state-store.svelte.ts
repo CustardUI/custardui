@@ -205,14 +205,7 @@ export class ActiveStateStore {
     const tabs: Record<string, string> = {};
     const placeholders: Record<string, string> = {};
 
-    // 1. Process global placeholders
-    for (const p of (this.config.placeholders ?? [])) {
-      if (p.defaultValue !== undefined) {
-        placeholders[p.name] = p.defaultValue;
-      }
-    }
-
-    // 2. Process toggles
+    // 1. Process toggles
     for (const toggle of (this.config.toggles ?? [])) {
       if (toggle.default === 'peek') {
         peekToggles.push(toggle.toggleId);
@@ -223,7 +216,7 @@ export class ActiveStateStore {
       }
     }
 
-    // 3. Process tab groups
+    // 2. Process tab groups
     for (const group of (this.config.tabGroups ?? [])) {
       let defaultTabId = group.default;
       if (!defaultTabId) {
