@@ -71,8 +71,8 @@ graph TD
     G --> H(Deserialize from URL)
     H --> I(Resolve descriptor → DOM element)
     I --> J{Match strategy}
-    J -- Own ID present --> K[Direct getElementById]
-    J -- Index + hash match --> L[O 1 structural lookup]
+    J -- Own ID present --> K[ID lookup via querySelectorAll]
+    J -- Index + hash match --> L[O-1 structural lookup]
     J -- Fallback --> M[Scored full scan]
     K --> N[Apply feature: highlight / focus / share]
     L --> N
