@@ -103,7 +103,7 @@ describe('Fingerprint Regression', () => {
    * (We don't use the library's hash function in the test data to ensure the ALGORITHM
    * itself hasn't changed in a way that produces different hashes for the same text).
    *
-   * Located in @dom-element-locator.ts
+   * Implemented in the Anchor feature (see src/lib/features/anchor/stable-text.ts).
    */
   function manualHash(str: string): number {
     let hash = 0;
