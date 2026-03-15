@@ -129,6 +129,126 @@ describe('DomElementLocator', () => {
     });
   });
 
+  describe('placeholder hashing stability', () => {
+    describe('createDescriptor hash stability', () => {
+      it('A1: hydrated placeholder produces canonical hash', () => {
+        container.innerHTML = `<p id="target">Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
+        const target = document.getElementById('target')!;
+        const descriptor = DomElementLocator.createDescriptor(target);
+
+        // Build a reference descriptor from the canonical raw-token form
+        const refDiv = document.createElement('div');
+        refDiv.innerHTML = `<p>Hello [[username]]!</p>`;
+        const refDescriptor = DomElementLocator.createDescriptor(refDiv.querySelector('p')!);
+
+        expect(descriptor.textHash).toBe(refDescriptor.textHash);
+        expect(descriptor.textSnippet).toBe(refDescriptor.textSnippet);
+      });
+
+      it('A2: different runtime values produce identical hash and snippet', () => {
+        container.innerHTML = `<p id="a">Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
+        const elA = document.getElementById('a')!;
+        const descriptorA = DomElementLocator.createDescriptor(elA);
+
+        container.innerHTML = `<p id="b">Hello <cv-placeholder name="username">bob</cv-placeholder>!</p>`;
+        const elB = document.getElementById('b')!;
+        const descriptorB = DomElementLocator.createDescriptor(elB);
+
+        expect(descriptorA.textHash).toBe(descriptorB.textHash);
+        expect(descriptorA.textSnippet).toBe(descriptorB.textSnippet);
+      });
+
+      it('A3: un-hydrated raw token produces same hash as hydrated', () => {
+        container.innerHTML = `<p id="hydrated">Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
+        const hydratedEl = document.getElementById('hydrated')!;
+        const hydratedDescriptor = DomElementLocator.createDescriptor(hydratedEl);
+
+        container.innerHTML = `<p id="raw">Hello [[ username ]]!</p>`;
+        const rawEl = document.getElementById('raw')!;
+        const rawDescriptor = DomElementLocator.createDescriptor(rawEl);
+
+        expect(hydratedDescriptor.textHash).toBe(rawDescriptor.textHash);
+        expect(hydratedDescriptor.textSnippet).toBe(rawDescriptor.textSnippet);
+      });
+
+      it('A4: raw token with fallback produces same hash as bare raw token', () => {
+        container.innerHTML = `<p id="fallback">Hello [[ username : Guest ]]!</p>`;
+        const fallbackEl = document.getElementById('fallback')!;
+        const fallbackDescriptor = DomElementLocator.createDescriptor(fallbackEl);
+
+        container.innerHTML = `<p id="bare">Hello [[ username ]]!</p>`;
+        const bareEl = document.getElementById('bare')!;
+        const bareDescriptor = DomElementLocator.createDescriptor(bareEl);
+
+        expect(fallbackDescriptor.textHash).toBe(bareDescriptor.textHash);
+        expect(fallbackDescriptor.textSnippet).toBe(bareDescriptor.textSnippet);
+      });
+
+      it('A5: multiple placeholders each normalized independently', () => {
+        container.innerHTML = `<p id="hydrated">Dear <cv-placeholder name="first">John</cv-placeholder> <cv-placeholder name="last">Doe</cv-placeholder>!</p>`;
+        const hydratedEl = document.getElementById('hydrated')!;
+        const hydratedDescriptor = DomElementLocator.createDescriptor(hydratedEl);
+
+        container.innerHTML = `<p id="raw">Dear [[ first ]] [[ last ]]!</p>`;
+        const rawEl = document.getElementById('raw')!;
+        const rawDescriptor = DomElementLocator.createDescriptor(rawEl);
+
+        expect(hydratedDescriptor.textHash).toBe(rawDescriptor.textHash);
+        expect(hydratedDescriptor.textSnippet).toBe(rawDescriptor.textSnippet);
+      });
+
+      it('A6: plain text (no placeholders) fast path unchanged', () => {
+        container.innerHTML = `<p id="target">No placeholders here</p>`;
+        const target = document.getElementById('target')!;
+        const descriptor = DomElementLocator.createDescriptor(target);
+
+        expect(descriptor.textHash).not.toBe(0);
+        expect(descriptor.textSnippet).toBe('No placeholders here');
+      });
+    });
+
+    describe('resolve cross-state resolution', () => {
+      it('B1: descriptor from hydrated element resolves against differently-hydrated DOM', () => {
+        container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
+        const sourceEl = container.querySelector('p')!;
+        const descriptor = DomElementLocator.createDescriptor(sourceEl);
+
+        container.innerHTML = `<p>Hello <cv-placeholder name="username">bob</cv-placeholder>!</p>`;
+        const targetEl = container.querySelector('p')!;
+
+        const resolved = DomElementLocator.resolve(container, descriptor);
+        expect(resolved).toHaveLength(1);
+        expect(resolved[0]).toBe(targetEl);
+      });
+
+      it('B2: descriptor from hydrated element resolves against un-hydrated DOM', () => {
+        container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
+        const sourceEl = container.querySelector('p')!;
+        const descriptor = DomElementLocator.createDescriptor(sourceEl);
+
+        container.innerHTML = `<p>Hello [[ username ]]!</p>`;
+        const targetEl = container.querySelector('p')!;
+
+        const resolved = DomElementLocator.resolve(container, descriptor);
+        expect(resolved).toHaveLength(1);
+        expect(resolved[0]).toBe(targetEl);
+      });
+
+      it('B3: descriptor from un-hydrated DOM resolves against hydrated DOM', () => {
+        container.innerHTML = `<p>Hello [[ username ]]!</p>`;
+        const sourceEl = container.querySelector('p')!;
+        const descriptor = DomElementLocator.createDescriptor(sourceEl);
+
+        container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
+        const targetEl = container.querySelector('p')!;
+
+        const resolved = DomElementLocator.resolve(container, descriptor);
+        expect(resolved).toHaveLength(1);
+        expect(resolved[0]).toBe(targetEl);
+      });
+    });
+  });
+
   describe('resolve', () => {
     it('should resolve exact match with high score', () => {
       container.innerHTML = `
