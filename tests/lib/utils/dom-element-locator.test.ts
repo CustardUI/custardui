@@ -205,6 +205,31 @@ describe('DomElementLocator', () => {
         expect(descriptor.textHash).not.toBe(0);
         expect(descriptor.textSnippet).toBe('No placeholders here');
       });
+
+      it('A8: createDescriptor on cv-placeholder element itself produces canonical hash', () => {
+        const ph = document.createElement('cv-placeholder') as HTMLElement;
+        ph.setAttribute('name', 'username');
+        ph.textContent = 'alice'; // runtime resolved value
+        container.appendChild(ph);
+        const descriptor = DomElementLocator.createDescriptor(ph);
+
+        expect(descriptor.textHash).toBe(DomElementLocator.createDescriptor(
+          Object.assign(document.createElement('div'), { textContent: '[[username]]' })
+        ).textHash);
+        expect(descriptor.textSnippet).toBe('[[username]]');
+      });
+
+      it('A7: escaped raw token hashes differently from real placeholder', () => {
+        container.innerHTML = `<p id="escaped">Hello \\[[ username ]]!</p>`;
+        const escapedEl = document.getElementById('escaped')!;
+        const escapedDescriptor = DomElementLocator.createDescriptor(escapedEl);
+
+        container.innerHTML = `<p id="real">Hello [[ username ]]!</p>`;
+        const realEl = document.getElementById('real')!;
+        const realDescriptor = DomElementLocator.createDescriptor(realEl);
+
+        expect(escapedDescriptor.textHash).not.toBe(realDescriptor.textHash);
+      });
     });
 
     describe('resolve cross-state resolution', () => {

@@ -43,7 +43,7 @@ function normalizeText(text: string): string {
  *   [[ name ]], [[ name : fallback ]], [[ name ? truthy : falsy ]], \[[ name ]]
  * Captures the placeholder name in group 1. Used to normalize tokens before hashing.
  */
-const RAW_PLACEHOLDER_RE = /(?:\\)?\[\[\s*([a-zA-Z0-9_-]+)[^\]]*\]\]/g;
+const RAW_PLACEHOLDER_RE = /(?<!\\)\[\[\s*([a-zA-Z0-9_-]+)[^\]]*\]\]/g;
 
 /**
  * Recursively walks `node`, appending stable placeholder-canonical text to `parts`.
@@ -79,6 +79,10 @@ function collectStableText(node: Node, parts: string[]): void {
  * "Hello alice!" at share-time but "Hello [[username]]!" at load-time, causing resolution to fail.
  */
 function getStableTextContent(el: HTMLElement): string {
+  // Special case: el itself is a <cv-placeholder> — return canonical form directly.
+  if (el.tagName === 'CV-PLACEHOLDER') {
+    return `[[${el.getAttribute('name') || ''}]]`;
+  }
   // Fast path: if no <cv-placeholder> descendants and no raw [[ tokens,
   // there are no placeholders — return textContent directly (native, no allocation).
   const hasHydrated = el.querySelector('cv-placeholder') !== null;
