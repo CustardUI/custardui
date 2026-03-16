@@ -240,6 +240,15 @@ export class ActiveStateStore {
       }
     }
 
+    // 3. Seed author-controlled (adaptationPlaceholder) defaults.
+    // These are set by adaptations when active, and fall back to defaultValue when no adaptation is active.
+    // This is intentionally separate from regular user-settable placeholder defaults (see PR #206).
+    for (const def of placeholderRegistryStore.definitions) {
+      if (def.adaptationPlaceholder && def.defaultValue !== undefined && def.defaultValue !== '') {
+        placeholders[def.name] = def.defaultValue;
+      }
+    }
+
     return { shownToggles, peekToggles, tabs, placeholders };
   }
 

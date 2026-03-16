@@ -47,6 +47,20 @@ describe('AdaptationManager', () => {
   });
 
   describe('init()', () => {
+    it('should wipe custardUI-state and cv-tab-navs-visible when ?adapt=clear is passed', async () => {
+      mockLocation('http://localhost/?adapt=clear');
+      localStorage.setItem('cv-adaptation', 'nus');
+      localStorage.setItem('custardUI-state', JSON.stringify({ placeholders: { institutionName: 'NUS Institution' } }));
+      localStorage.setItem('cv-tab-navs-visible', 'true');
+
+      const result = await AdaptationManager.init('');
+
+      expect(result).toBeNull();
+      expect(localStorage.removeItem).toHaveBeenCalledWith('custardUI-state');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('cv-tab-navs-visible');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+    });
+
     it('should clear stored id when ?adapt=clear is passed', async () => {
       mockLocation('http://localhost/?adapt=clear');
       localStorage.setItem('cv-adaptation', 'some-id');
