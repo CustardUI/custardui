@@ -15,6 +15,7 @@ vi.mock('../../../src/lib/features/placeholder/stores/placeholder-registry-store
     has: vi.fn().mockReturnValue(false),
     get: vi.fn().mockReturnValue(undefined),
     register: vi.fn(),
+    definitions: [],
   },
 }));
 
