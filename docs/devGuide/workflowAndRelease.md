@@ -158,6 +158,8 @@ Use the following commands and CDN links to manage and consume releases.
 ### CDN Usage
 
 To use CustardUI via CDN, update your script tags to the appropriate version tag.
+* For quick updates, it is recommended to use unpkg as it updates and reflects the latest version faster than jsDelivr. (for usage without `@latest` annotation)
+* For production, it may be recommended to use jsDelivr as it is purportedly more reliable and has better caching.
 
 **unpkg:**
 ```html
