@@ -30,7 +30,11 @@
 
   #cv-exit-focus-banner {
     color: #2c1a0e;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    gap: 16px;
   }
 
   button {
