@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import * as DomElementLocator from '../../src/lib/utils/dom-element-locator';
+import * as DomElementLocator from '../../src/lib/features/anchor';
 
 /**
  * Fingerprint Regression Test
@@ -10,7 +10,7 @@ import * as DomElementLocator from '../../src/lib/utils/dom-element-locator';
  * remains backward compatible. It verifies that a fixed, static HTML structure produces
  * specific descriptors, AND that specific legacy descriptors can resolve back to the correct elements.
  *
- * If these tests fail, it means we have broken existing share links (e.g. pinned tabs, deep links).
+ * If these tests fail, it means we have broken existing share links (e.g. marked tabs, deep links).
  */
 describe('Fingerprint Regression', () => {
   let container: HTMLElement;
@@ -103,7 +103,7 @@ describe('Fingerprint Regression', () => {
    * (We don't use the library's hash function in the test data to ensure the ALGORITHM
    * itself hasn't changed in a way that produces different hashes for the same text).
    *
-   * Located in @dom-element-locator.ts
+   * Implemented in the Anchor feature (see src/lib/features/anchor/stable-text.ts).
    */
   function manualHash(str: string): number {
     let hash = 0;

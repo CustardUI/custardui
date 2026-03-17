@@ -98,6 +98,7 @@
     </div>
 
     <button
+      type="button"
       class="action-btn {isSelected ? 'deselect' : 'select'}"
       title={isSelected ? 'Deselect' : 'Select'}
       onclick={handleSelect}
@@ -106,7 +107,7 @@
     </button>
 
     {#if canGoUp}
-      <button class="action-btn up" title="Select Parent" onclick={handleSelectParent}> ↰ </button>
+      <button type="button" class="action-btn up" title="Select Parent" onclick={handleSelectParent}> ↰ </button>
     {/if}
   </div>
 {/if}

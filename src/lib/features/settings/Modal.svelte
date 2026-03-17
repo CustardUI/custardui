@@ -17,7 +17,7 @@
   import { URLStateManager } from '$features/url/url-state-manager';
   import { showToast } from '$features/notifications/stores/toast-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-  import { findHighestVisibleElement, handleScrollAnchor } from '$lib/utils/scroll-utils';
+  import { findHighestVisibleElement, captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
 
   import ToggleItem from './ToggleItem.svelte';
   import TabGroupItem from './TabGroupItem.svelte';
@@ -112,17 +112,13 @@
 
   function handleTabGroupChange(detail: any) {
     const { groupId, tabId } = detail;
-    // Capture element and its current visual position before state change
     const anchorEl = findHighestVisibleElement('cv-tabgroup');
-    const scrollAnchor = anchorEl
-      ? { element: anchorEl, top: anchorEl.getBoundingClientRect().top }
-      : null;
+    const scrollAnchor = anchorEl ? captureScrollAnchor(anchorEl) : null;
 
-    activeStateStore.setPinnedTab(groupId, tabId);
+    activeStateStore.setMarkedTab(groupId, tabId);
 
-    // Restore visual position after layout shift
     if (scrollAnchor) {
-      handleScrollAnchor(scrollAnchor);
+      restoreScrollAnchor(scrollAnchor);
     }
   }
 
@@ -184,7 +180,7 @@
         </div>
         <div class="title">{title}</div>
       </div>
-      <button class="close-btn" aria-label="Close modal" onclick={onclose}>
+      <button type="button" class="close-btn" aria-label="Close modal" onclick={onclose}>
         <IconClose />
       </button>
     </header>
@@ -199,11 +195,13 @@
       <div class="tabs">
         {#if hasCustomizeContent}
           <button
+            type="button"
             class="tab {activeTab === 'customize' ? 'active' : ''}"
             onclick={() => (activeTab = 'customize')}>Customize</button
           >
         {/if}
         <button
+          type="button"
           class="tab {activeTab === 'share' ? 'active' : ''}"
           onclick={() => (activeTab = 'share')}>Share</button
         >
@@ -315,7 +313,7 @@
               the page to share.
             </div>
 
-            <button class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
+            <button type="button" class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
               <span class="btn-icon"
                 ><IconShare /></span
               >
@@ -323,7 +321,7 @@
             </button>
 
             {#if hasCustomizeContent}
-              <button class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
+              <button type="button" class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
                 <span class="btn-icon">
                   {#if copySuccess}
                     <IconCheck />
@@ -347,16 +345,19 @@
 
     <footer class="footer">
       {#if showReset}
-        <button class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
+        <button type="button" class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
       {:else}
         <div></div>
       {/if}
 
-      <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
-        custardui.js.org
-      </a>
+      <div class="footer-attribution">
+        <span class="footer-tagline">Browser-side page customisations provided by</span>
+        <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
+          custardui.js.org
+        </a>
+      </div>
 
-      <button class="done-btn" onclick={onclose}>Done</button>
+      <button type="button" class="done-btn" onclick={onclose}>Done</button>
     </footer>
   </div>
 </div>
@@ -654,20 +655,37 @@
     border-bottom-right-radius: var(--cv-modal-radius, 0.75rem);
   }
 
+  .footer-attribution {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.1rem;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+  }
+
+  .footer-attribution:hover {
+    opacity: 1;
+  }
+
+  .footer-tagline {
+    font-size: 0.6rem;
+    color: var(--cv-text-secondary);
+    letter-spacing: 0.04em;
+  }
+
   .footer-link {
-    align-self: flex-end;
     color: var(--cv-text-secondary);
     text-decoration: none;
     font-size: 0.68rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.08em;
-    opacity: 0.5;
-    transition: color 0.15s ease, opacity 0.15s ease;
+    transition: color 0.15s ease;
   }
 
   .footer-link:hover {
     color: var(--cv-primary);
-    opacity: 1;
   }
 
   .reset-btn {

@@ -149,74 +149,58 @@ margin-bottom: 2rem;
 
 /* ===== DEMO SECTION ===== */
 .cv-demo-wrapper {
-background: var(--custard-cream);
-border: 1px solid rgba(129,76,32,0.15);
-border-radius: 16px;
-padding: 2rem 2.5rem;
-margin-bottom: 3rem;
+  border-top: 2px solid var(--custard-yellow);
+  padding-top: 1.75rem;
+  margin-bottom: 3rem;
 }
 
 .cv-demo-header {
-display: flex;
-align-items: center;
-gap: 12px;
-margin-bottom: 1.5rem;
-padding-bottom: 1rem;
-border-bottom: 1px dashed rgba(129,76,32,0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
 }
 
 .cv-demo-dot {
-width: 10px; height: 10px;
-border-radius: 50%;
-background: var(--custard-yellow);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--custard-yellow);
+  flex-shrink: 0;
 }
 
 .cv-demo-label {
-font-size: 0.78rem;
-font-weight: 700;
-letter-spacing: 0.1em;
-text-transform: uppercase;
-color: var(--custard-muted);
-}
-
-/* ===== RECIPE INGREDIENTS ===== */
-.cv-ingredient-list {
-  list-style: none;
-  padding: 0.5rem 0.75rem;
-  margin: 0.5rem 0 1rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 1.5rem;
-}
-
-.cv-ingredient-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 0.35rem 0;
-  border-bottom: 1px dashed rgba(129,76,32,0.12);
-  font-size: 0.88rem;
-  gap: 0.5rem;
-}
-
-.cv-ingredient-list li:last-child,
-.cv-ingredient-list li:nth-last-child(2):nth-child(odd) {
-  border-bottom: none;
-}
-
-.cv-ingredient-name {
-  color: var(--custard-dark);
-  font-weight: 400;
-  font-style: italic;
-}
-
-.cv-ingredient-amount {
-  color: var(--custard-brown);
+  font-size: 0.72rem;
   font-weight: 700;
-  white-space: nowrap;
-  font-size: 0.85rem;
-  flex-shrink: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--custard-muted);
 }
+
+.cv-demo-intro {
+  background: rgba(243, 203, 82, 0.07);
+  border-left: 3px solid var(--custard-yellow);
+  padding: 0.9rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 1.75rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+/* ===== DEMO ANNOTATIONS ===== */
+.cv-sticky-note {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--custard-muted);
+  font-style: italic;
+  margin: 0.4rem 0 1.2rem 0;
+  padding: 4px 12px;
+  border-left: 2px solid rgba(243, 203, 82, 0.7);
+  background: rgba(243, 203, 82, 0.05);
+  border-radius: 0 4px 4px 0;
+  line-height: 1.6;
+}
+
 /* ===== HIGHLIGHT (Focus & Share) ===== */
 .highlight-target {
 border-left: 3px solid var(--custard-yellow);

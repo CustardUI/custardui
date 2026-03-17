@@ -1,6 +1,6 @@
 {
   "name": "@custardui/custardui",
-  "version": "2.0.0",
+  "version": "2.0.1-beta.0",
   "description": "A JavaScript dynamic custom views Library.",
   "type": "module",
   "main": "dist/custardui.min.js",
@@ -26,7 +26,7 @@
     "bump:patch": "npm version patch",
     "bump:minor": "npm version minor",
     "bump:major": "npm version major",
-    "deploydocs:stable": "cd docs && markbind deploy -s stable-site.json",
+    "deploydocs:prod": "cd docs && markbind deploy -s prod-site.json",
     "deploydocs": "cd docs && markbind deploy -s site.json",
     "dev": "rollup -c -w",
     "watch": "rollup -c -w",

@@ -1,104 +1,259 @@
 <frontmatter>
-  title: CustardUI - Personalized, Interactive Static Websites
+  title: CustardUI - Your docs, shaped for every reader
 </frontmatter>
 
 <div class="cv-hero-badge">✦ Open Source · Lightweight · Framework-Agnostic</div>
 
-<img src="{{baseUrl}}/images/custardUI.png" height="100">
+<h1 class="display-3"><md>**CustardUI**</md></h1>
 
 <div class="lead">
 
-++**Generate <tooltip content="level up your website!">_more interactive_</tooltip> websites.**++
-Personalized for any reader. Optimized for interacting with any kind of text-based websites %%e.g., eLearning websites, online instruction manuals, project documentation etc.%%
+**Your docs, shaped for every reader.**
+Memory-persistent interactivity for static sites — no backend required.
+
 </div>
 
-CustardUI (formerly named CustomViews) adds dynamic, memory-persistent interactivity to static websites — no backend required. Built for educational sites, documentation portals, and course textbooks.
+CustardUI adds tabs that sync across pages, content that hides until needed, and shareable deep links — all from a single script tag. Built for educational sites, documentation portals, and course textbooks.
 
 <div class="cv-hero-actions">
   <a href="{{baseUrl}}/authorGuide/gettingStarted.html" class="cv-btn-secondary"><md>:fa-solid-book:</md> Read the Docs</a>
   <a href="https://github.com/custardui/custardui" class="cv-btn-secondary"><md>:fa-brands-github:</md> View on GitHub</a>
 </div>
 
-<!-- ═══════════════════════════════════════════════ -->
-<!--  WHAT IS CUSTARDUI                              -->
-<!-- ═══════════════════════════════════════════════ -->
-
-<p class="cv-section-eyebrow">The problem it solves</p>
-<h2 class="cv-section-title">One site. Many readers. Zero compromise.</h2>
-<p class="cv-section-lead">
-
-Text-heavy educational websites serve students, instructors, and whole organizations — all with different needs. CustardUI lets a single static site adapt to each of them, without duplicate pages or complex servers. Think of it as a <tooltip content="Rich, layered, and smooth — just like the dessert.">rich layer of interactivity</tooltip> poured over any existing site.
-</p>
+---
 
 <!-- ═══════════════════════════════════════════════ -->
-<!--  FEATURE CARDS                                  -->
+<!--  LIVE DEMO                                      -->
 <!-- ═══════════════════════════════════════════════ -->
 
-<div class="cv-features-grid">
-<div class="cv-feature-card">
-<div class="cv-feature-icon"><md>:fa-solid-table-columns:</md></div>
+<p class="cv-section-eyebrow">See it in action</p>
+<h2 class="cv-section-title">Static sites don't have to be static.</h2>
 
-### Memory-Persistent Tabs
+The demo below is a live CustardUI-powered page. Try interacting with the tabs, toggles, and placeholders to see how they work.
 
-Tab selections sync across the entire site and are remembered across visits. A student who prefers the CLI view never has to switch back.
+<div class="cv-demo-wrapper">
+<div class="cv-demo-header">
+  <div class="cv-demo-dot"></div>
+  <span class="cv-demo-label">Live Demo — Project Setup Guide</span>
+</div>
+<div class="cv-demo-intro">
+
+++**Hey, [[username]]!**++ Let's get your project set up.
+_Your name is remembered across every page on this site — set it once, see it everywhere._
+
+<cv-placeholder-input name="username" />
 
 </div>
-<div class="cv-feature-card">
-<div class="cv-feature-icon"><md>:fa-solid-eye:</md></div>
 
-### Content Toggles
+---
 
-Show, hide, or "peek" sections based on reader preferences. Perfect for optional deep-dives, platform-specific steps, or progressive disclosure.
+<cv-toggle toggle-id="prerequisites" show-label show-inline-control>
+
+<br> 
+
+#### Prerequisites
+
+Make sure these are installed before continuing.
+
+<cv-tabgroup group-id="os" nav="auto">
+  <cv-tab tab-id="macos" header="macOS">
+
+```bash
+brew install node git
+```
+
+  </cv-tab>
+  <cv-tab tab-id="windows" header="Windows">
+
+```bash
+winget install OpenJS.NodeJS Git.Git
+```
+
+  </cv-tab>
+  <cv-tab tab-id="linux" header="Linux">
+
+```bash
+sudo apt install nodejs git
+```
+
+  </cv-tab>
+</cv-tabgroup>
+
+</cv-toggle>
+
+<span class="cv-sticky-note">↑ _peeked by default_ — visible enough to know it's there, collapsed until you actually need it</span>
+
+---
+
+<cv-toggle toggle-id="installation" show-label>
+
+<br> 
+
+#### Installation
+
+<cv-tabgroup group-id="pkg" nav="auto">
+  <cv-tab tab-id="npm" header="npm">
+
+```bash
+npm install custardui
+```
+
+  </cv-tab>
+  <cv-tab tab-id="yarn" header="yarn">
+
+```bash
+yarn add custardui
+```
+
+  </cv-tab>
+  <cv-tab tab-id="pnpm" header="pnpm">
+
+```bash
+pnpm add custardui
+```
+
+  </cv-tab>
+</cv-tabgroup>
+
+</cv-toggle>
+
+---
+
+<cv-toggle toggle-id="configuration" show-label>
+
+<br> 
+
+#### Configuration
+
+Config file location varies by OS:
+
+<cv-tabgroup group-id="os" nav="auto">
+  <cv-tab tab-id="macos" header="macOS">
+
+```
+~/.config/custardui/config.json
+```
+
+  </cv-tab>
+  <cv-tab tab-id="windows" header="Windows">
+
+```
+%APPDATA%\custardui\config.json
+```
+
+  </cv-tab>
+  <cv-tab tab-id="linux" header="Linux">
+
+```
+~/.config/custardui/config.json
+```
+
+  </cv-tab>
+</cv-tabgroup>
+
+<span class="cv-sticky-note">↑ _synced with Prerequisites_ — switching OS above updates this automatically. No extra clicks.</span>
+
+<div id="demo-config-step">
+<div class="highlight-target">
+
+Set `"theme": "auto"` to follow the reader's system preference. This is the most commonly missed config option. <a href="?cv-highlight=demo-config-step"> :fa-solid-link: Share this step</a>
 
 </div>
-<div class="cv-feature-card">
-<div class="cv-feature-icon"><md>:fa-solid-user-pen:</md></div>
-
-### Dynamic Placeholders
-
-Personalize text with reader-defined values — greet students by name, pre-fill their team ID, or adapt instructions to their context.
-
 </div>
-<div class="cv-feature-card">
-<div class="cv-feature-icon"><md>:fa-solid-link:</md></div>
 
-### Focus & Share
+</cv-toggle>
 
-Highlight and link directly to any content block on the page. TAs can share a URL that lands readers on exactly the right paragraph.
+---
 
-</div>
-<div class="cv-feature-card">
-<div class="cv-feature-icon"><md>:fa-solid-layer-group:</md></div>
+<cv-toggle toggle-id="run-project" show-label>
 
-### Adaptations
+<br> 
 
-Serve entirely different audiences from a single deployment. Swap images, links, and text so the same resource feels native to each organization.
+#### Running the Project
 
-</div>
-<div class="cv-feature-card">
-<div class="cv-feature-icon"><md>:fa-solid-bolt:</md></div>
+<cv-tabgroup group-id="pkg" nav="auto">
+  <cv-tab tab-id="npm" header="npm">
 
-### Zero Backend, Any Site
+```bash
+npm run dev
+```
 
-Works with MarkBind, Jekyll, plain HTML — anything. One script tag and a config file is all it takes to get started.
+  </cv-tab>
+  <cv-tab tab-id="yarn" header="yarn">
 
-</div>
+```bash
+yarn dev
+```
+
+  </cv-tab>
+  <cv-tab tab-id="pnpm" header="pnpm">
+
+```bash
+pnpm dev
+```
+
+  </cv-tab>
+</cv-tabgroup>
+
+<span class="cv-sticky-note">↑ _synced with Installation_ — pick your package manager once, every code block on the site follows</span>
+
+</cv-toggle>
+
+---
+
+<cv-toggle toggle-id="troubleshooting-setup" show-label show-peek-border>
+
+<br> 
+
+#### Troubleshooting
+
+**Port already in use?** Kill the process on port 3000:
+
+<cv-tabgroup group-id="os" nav="auto">
+  <cv-tab tab-id="macos" header="macOS">
+
+```bash
+lsof -ti:3000 | xargs kill
+```
+
+  </cv-tab>
+  <cv-tab tab-id="windows" header="Windows">
+
+```bash
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+```
+
+  </cv-tab>
+  <cv-tab tab-id="linux" header="Linux">
+
+```bash
+fuser -k 3000/tcp
+```
+
+  </cv-tab>
+</cv-tabgroup>
+
+</cv-toggle>
+
+<span class="cv-sticky-note">↑ _peeked by default_ — troubleshooting is there when you need it, invisible when you don't</span>
+
 </div>
 
 ---
 
 <!-- ═══════════════════════════════════════════════ -->
-<!--  FOCUS & SHARE CALLOUT                          -->
+<!--  FOCUS & SHARE                                  -->
 <!-- ═══════════════════════════════════════════════ -->
 
 <p class="cv-section-eyebrow">Focus & Share</p>
 <h2 class="cv-section-title">Answer questions with a link.</h2>
 
-Did you notice the **Share this tip** link in Step 3 above? That's Focus & Share in action. Any element on the page, with or without an `id`, can become a shareable, highlighted anchor. No more "scroll down and find the paragraph about tempering eggs." You can even share this text paragraph [here](?cv-highlight=W3sidCI6IlAiLCJpIjoyOSwicCI6ImNvbnRlbnQtd3JhcHBlciIsInMiOiJEaWQgeW91IG5vdGljZSB0aGUgU2hhcmUgdGhpcyB0aSIsImgiOjg0Mzk0NDcxNywiaWQiOiIifV0%3D)!
+Did you notice the **Share this step** link in the demo above? Any element on the page can become a shareable, highlighted anchor — with or without an existing `id`. No more "scroll down and find the paragraph about the config file." You can even share this paragraph [right here](?cv-highlight=W3sidCI6IlAiLCJpIjoyOSwicCI6ImNvbnRlbnQtd3JhcHBlciIsInMiOiJEaWQgeW91IG5vdGljZSB0aGUgU2hhcmUgdGhpcyB0aSIsImgiOjg0Mzk0NDcxNywiaWQiOiIifV0%3D).
 
 <box type="info">
 
-**How it works for TAs and instructors:** When a student asks a forum question, instead of typing out an explanation, a TA can share a URL like:
+**For TAs and instructors:** When a student asks a question that's already answered on the site, share a URL like:
 
 ```
 https://your-course-site.com/textbook?cv-highlight=the-element-id
@@ -138,7 +293,7 @@ The same guide, but with their own branding, a different recommended branching m
 
 <box type="tip">
 
-This is how **[git-mastery.org](https://git-mastery.org/)** will use CustardUI — a single site serving multiple audiences with zero backend infrastructure.
+This is how **[git-mastery.org](https://git-mastery.org/)** uses CustardUI — a single site serving multiple audiences with zero backend infrastructure.
 
 </box>
 
@@ -151,7 +306,7 @@ This is how **[git-mastery.org](https://git-mastery.org/)** will use CustardUI �
 <p class="cv-section-eyebrow">Getting started</p>
 <h2 class="cv-section-title">Up and running in minutes.</h2>
 
-CustardUI works with any static site. There's no build step, no npm install, and no server to manage.
+No build step, no server to manage. Works with MarkBind, Jekyll, plain HTML — anything.
 
 <div class="cv-setup-steps">
   <div class="cv-setup-step">
@@ -191,197 +346,47 @@ Wrap content with `<cv-toggle>`, `<cv-tabgroup>`, and add `[[placeholders]]` any
   "config": {
     "toggles": [
       {
-        "toggleId": "nutrition",
-        "label": "Nutrition",
+        "toggleId": "prerequisites",
+        "label": "Prerequisites",
         "isLocal": true,
         "default": "peek"
       },
       ...
     ],
     "tabgroups": [
-    {
-      "groupId": "units",
-      "tabs": [
-        { "tabId": "metric", "label": "Metric" },
-        { "tabId": "imperial", "label": "Imperial" }
-      ],
-      ...
-    }
-   ],
-   "placeholders": [
-    {
-      "name": "username",
-      "defaultValue": "Guest",
-      ...
-    }
-   ]
+      {
+        "groupId": "os",
+        "tabs": [
+          { "tabId": "macos", "label": "macOS" },
+          { "tabId": "windows", "label": "Windows" },
+          { "tabId": "linux", "label": "Linux" }
+        ],
+        ...
+      }
+    ],
+    "placeholders": [
+      {
+        "name": "username",
+        "defaultValue": "there",
+        ...
+      }
+    ]
   },
   ...
 }
 ```
 
-
 [:fa-solid-book: Full documentation →]({{baseUrl}}/authorGuide/gettingStarted.html)
 
 
 <!-- ═══════════════════════════════════════════════ -->
-<!--  LIVE DEMO                                      -->
+<!--  CTA                                            -->
 <!-- ═══════════════════════════════════════════════ -->
-
-<p class="cv-section-eyebrow">See it in action</p>
-<h2 class="cv-section-title">A taste of CustardUI</h2>
-  
-This demo page _is itself_ a CustardUI-powered site. The recipe below uses live tabs, toggles, and placeholders — exactly as your readers would experience them.
-
-Before you continue, you can update your **username** here: <cv-placeholder-input name="username" /> to see how CustardUI adapts the page in real-time. Click <a href="https://www.google.com/search?q=[[username]] is awesome!" class="cv-bind">
-here
-</a> for a surprise!
-
-<div class="cv-demo-wrapper">
-  <div class="cv-demo-header">
-    <div class="cv-demo-dot"></div>
-    <span class="cv-demo-label">Live Demo — Classic Custard Pudding Recipe</span>
-  </div>
-
-<img src="{{baseUrl}}/images/custardUI.png" height="56" style="margin-bottom: 1rem; display: block;">
-
-++**Hello, [[username]]!**++ Welcome to your personalized recipe card. %%(Your name is set via the CustardUI settings panel — try it!)%%
-
----
-
-<cv-toggle toggle-id="ingredients">
-
-#### Ingredients
-
-Select your preferred units — this preference will be remembered across the whole site. Double-click a tab to "pin" your preference, or set it via the settings panel.
-
-#### :fa-solid-fire: Caramel Sauce
-
-<cv-tabgroup group-id="units" nav="auto">
-  <cv-tab tab-id="metric" header="Metric">
-<ul class="cv-ingredient-list">
-  <li><span class="cv-ingredient-name">Granulated sugar</span><span class="cv-ingredient-amount">70 g</span></li>
-  <li><span class="cv-ingredient-name">Water, room temp</span><span class="cv-ingredient-amount">1 Tbsp</span></li>
-  <li><span class="cv-ingredient-name">Hot water</span><span class="cv-ingredient-amount">1 Tbsp</span></li>
-</ul>
-  </cv-tab>
-  <cv-tab tab-id="imperial" header="Imperial">
-<ul class="cv-ingredient-list">
-  <li><span class="cv-ingredient-name">Granulated sugar</span><span class="cv-ingredient-amount">5 Tbsp</span></li>
-  <li><span class="cv-ingredient-name">Water, room temp</span><span class="cv-ingredient-amount">1 Tbsp</span></li>
-  <li><span class="cv-ingredient-name">Hot water</span><span class="cv-ingredient-amount">1 Tbsp</span></li>
-</ul>
-  </cv-tab>
-</cv-tabgroup>
-
-#### :fa-solid-egg: Custard
-
-<cv-tabgroup group-id="units" nav="auto">
-  <cv-tab tab-id="metric" header="Metric">
-<ul class="cv-ingredient-list">
-  <li><span class="cv-ingredient-name">Whole milk</span><span class="cv-ingredient-amount">400 ml</span></li>
-  <li><span class="cv-ingredient-name">Heavy whipping cream</span><span class="cv-ingredient-amount">100 ml</span></li>
-  <li><span class="cv-ingredient-name">Pure vanilla extract</span><span class="cv-ingredient-amount">½ tsp</span></li>
-  <li><span class="cv-ingredient-name">Large eggs</span><span class="cv-ingredient-amount">3</span></li>
-  <li><span class="cv-ingredient-name">Sugar</span><span class="cv-ingredient-amount">70 g</span></li>
-</ul>
-  </cv-tab>
-  <cv-tab tab-id="imperial" header="Imperial">
-<ul class="cv-ingredient-list">
-  <li><span class="cv-ingredient-name">Whole milk</span><span class="cv-ingredient-amount">1⅔ cups</span></li>
-  <li><span class="cv-ingredient-name">Heavy whipping cream</span><span class="cv-ingredient-amount">6 Tbsp + 2 tsp</span></li>
-  <li><span class="cv-ingredient-name">Pure vanilla extract</span><span class="cv-ingredient-amount">½ tsp</span></li>
-  <li><span class="cv-ingredient-name">Large eggs</span><span class="cv-ingredient-amount">3</span></li>
-  <li><span class="cv-ingredient-name">Sugar</span><span class="cv-ingredient-amount">5 Tbsp</span></li>
-</ul>
-  </cv-tab>
-</cv-tabgroup>
-
-</cv-toggle>
-
-<cv-toggle toggle-id="instructions">
-
-#### Cooking Instructions
-
-**Step 1.** Whisk the egg yolks and sugar together until pale and slightly thickened.
-
-**Step 2.** Heat the milk and cream in a saucepan over medium heat until just steaming — do not boil.
-
-**Step 3.** Slowly pour the hot milk into the egg mixture, whisking constantly to temper the eggs.
-
-<div id="demo-tempering-step">
-
-<div class="highlight-target">
-
-**Tip — Why tempering matters:** Adding hot liquid to eggs too quickly will scramble them. Pour in a thin, steady stream while whisking vigorously. This is the most important step for a silky custard. <a href="?cv-highlight=demo-tempering-step"> :fa-solid-link: Share this tip</a>
-
-</div>
-
-</div>
-
-**Step 4.** Return the mixture to the saucepan. Stir over low heat until thickened, about 8–10 minutes.
-
-**Step 5.** Pour into ramekins and chill for at least 2 hours.
-
-</cv-toggle>
-
-<cv-toggle toggle-id="tips" show-label show-peek-border>
-
-#### ✨ Optional Finishing Touches
-
-Try these out if you'd like to go the extra mile:
-
-<box type="tip">
-
-**Vanilla Bean Upgrade**
-
-Swap vanilla extract for a split vanilla pod steeped in the warm milk. Remove before tempering. The flavour difference is remarkable.
-
-</box>
-
-
-<box type="tip">
-
-**Crème Brûlée Finish** 
-
-Once chilled, sprinkle 1 tsp of caster sugar over each ramekin and torch until caramelised. Crack through that golden crust for a satisfying moment.
-
-</box>
-
-</cv-toggle>
-
-<cv-toggle toggle-id="nutrition" show-label show-peek-border>
-
-#### :fa-solid-heart-pulse: Nutrition %%per serving%%
-
-<ul class="cv-ingredient-list">
-  <li><span class="cv-ingredient-name">Calories</span><span class="cv-ingredient-amount">268 kcal</span></li>
-  <li><span class="cv-ingredient-name">Carbohydrates</span><span class="cv-ingredient-amount">32 g</span></li>
-  <li><span class="cv-ingredient-name">Protein</span><span class="cv-ingredient-amount">7 g</span></li>
-  <li><span class="cv-ingredient-name">Fat</span><span class="cv-ingredient-amount">13 g</span></li>
-  <li><span class="cv-ingredient-name">Saturated Fat</span><span class="cv-ingredient-amount">7 g</span></li>
-  <li><span class="cv-ingredient-name">Polyunsaturated Fat</span><span class="cv-ingredient-amount">1 g</span></li>
-  <li><span class="cv-ingredient-name">Monounsaturated Fat</span><span class="cv-ingredient-amount">3 g</span></li>
-  <li><span class="cv-ingredient-name">Trans Fat</span><span class="cv-ingredient-amount">0.01 g</span></li>
-  <li><span class="cv-ingredient-name">Cholesterol</span><span class="cv-ingredient-amount">144 mg</span></li>
-  <li><span class="cv-ingredient-name">Sodium</span><span class="cv-ingredient-amount">79 mg</span></li>
-  <li><span class="cv-ingredient-name">Potassium</span><span class="cv-ingredient-amount">181 mg</span></li>
-  <li><span class="cv-ingredient-name">Sugar</span><span class="cv-ingredient-amount">33 g</span></li>
-  <li><span class="cv-ingredient-name">Vitamin A</span><span class="cv-ingredient-amount">585 IU</span></li>
-  <li><span class="cv-ingredient-name">Vitamin C</span><span class="cv-ingredient-amount">0.1 mg</span></li>
-  <li><span class="cv-ingredient-name">Calcium</span><span class="cv-ingredient-amount">129 mg</span></li>
-  <li><span class="cv-ingredient-name">Iron</span><span class="cv-ingredient-amount">1 mg</span></li>
-</ul>
-
-</cv-toggle>
-
-</div>
-
 
 <div class="cv-cta">
 <div class="cv-cta-body">
 
-## Make your site work for every reader.
+## Your docs, shaped for every reader.
 
 CustardUI is open source, free to use, and designed to slot into your existing workflow with minimal effort.
 
@@ -407,5 +412,3 @@ CustardUI is open source, free to use, and designed to slot into your existing w
 </div>
 
 <br>
-
-

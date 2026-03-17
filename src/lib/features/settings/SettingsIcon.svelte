@@ -235,6 +235,7 @@
   style:cursor={isDragging ? 'grabbing' : isCollapsed ? 'pointer' : 'grab'}
 >
   <button
+    type="button"
     class="cv-settings-main-btn"
     {title}
     aria-label={isCollapsed ? 'Expand settings' : 'Open Custom Views Settings'}
@@ -245,6 +246,7 @@
 
   <!-- Collapse tab: outer (screen-edge) side, always visible -->
   <button
+    type="button"
     class="cv-collapse-btn"
     data-side={isRight ? 'right' : 'left'}
     onclick={handleCollapse}
@@ -257,6 +259,7 @@
   <!-- Dismiss button: shown above peek strip when collapsed -->
   {#if isCollapsed}
     <button
+      type="button"
       class="cv-dismiss-btn"
       data-side={isRight ? 'left' : 'right'}
       onclick={(e) => { e.stopPropagation(); iconSettingsStore.dismiss(); }}

@@ -35,7 +35,8 @@ export class AdaptationManager {
 
     // 2. Handle ?adapt=clear
     if (queryParamValue === 'clear') {
-      this.clearStoredId(persistence);
+      persistence.clearAll();              // wipe custardUI-state and tab nav prefs
+      persistence.removeItem(STORAGE_KEY); // wipe the adaptation ID itself
       if (this.hasHashAdaptationId(url.hash)) {
         this.stripHashFromUrl(url);
       }
@@ -75,7 +76,12 @@ export class AdaptationManager {
       }
     }
 
-    // 7. Persist namespace
+    // 7. Persist namespace — clear old state if explicitly switching to a different adaptation
+    const previousId = persistence.getItem(STORAGE_KEY);
+    const isExplicitUrlSwitch = queryParamValue !== null; // ?adapt= was in the URL
+    if (isExplicitUrlSwitch && previousId !== null && previousId !== id) {
+      persistence.clearAll(); // Remove custardUI-state so new adaptation starts fresh
+    }
     persistence.setItem(STORAGE_KEY, id);
 
     // 8. Apply theme synchronously (FOUC prevention)
@@ -99,11 +105,15 @@ export class AdaptationManager {
   static rewriteUrlIndicator(adaptationId: string): void {
     const url = new URL(window.location.href);
     const targetHash = this.getHashUrlIndicator(adaptationId);
-    
-    if (url.hash === targetHash) return;
 
-    if (url.hash === '') {
+    const hashCorrect = url.hash === targetHash;
+    const noStaleParam = !url.searchParams.has(this.QUERY_PARAM);
+    if (hashCorrect && noStaleParam) return; // Already in correct state
+
+    if (url.hash === '' || url.hash === targetHash) {
+      // Hash is free — use #/id and remove any stale ?adapt= param
       url.hash = targetHash;
+      url.searchParams.delete(this.QUERY_PARAM);
     } else {
       // Hash is occupied (page anchor, #cv-open, etc.), use query param
       if (url.searchParams.get(this.QUERY_PARAM) === adaptationId) return;

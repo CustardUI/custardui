@@ -2,7 +2,7 @@
 import { mount, unmount } from 'svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
-import * as DomElementLocator from '$lib/utils/dom-element-locator';
+import * as DomElementLocator from '$features/anchor';
 import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
 import { SvelteSet } from 'svelte/reactivity';
@@ -120,11 +120,11 @@ export class FocusService {
       this.applyHideMode(hideDescriptors, highlightTargets);
     }
 
-    // Apply highlight independently — can coexist with show/hide.
-    // Call highlightService.apply() directly to skip applyHighlightMode()'s guard,
-    // which would otherwise see BODY_SHOW_CLASS and clear the show mode above.
+    // Call highlightService.applyEncodedHighlights() directly with the encoded descriptors
+    // to skip applyHighlightMode()'s guard, which would otherwise see BODY_SHOW_CLASS
+    // and clear the show mode above.
     if (highlightDescriptors) {
-      this.highlightService.apply(highlightDescriptors);
+      this.highlightService.applyEncodedHighlights(highlightDescriptors);
     }
   }
 
@@ -222,7 +222,7 @@ export class FocusService {
     ) {
       this.exitShowMode(false);
     }
-    this.highlightService.apply(encodedDescriptors);
+    this.highlightService.applyEncodedHighlights(encodedDescriptors);
   }
 
   private renderHiddenView(targets: HTMLElement[]): void {

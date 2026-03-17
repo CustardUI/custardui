@@ -24,7 +24,7 @@ export class ActiveStateStore {
 
   /**
    * Mutable application state representing user choices.
-   * Use actions like `setPinnedTab` or `setToggles` to modify this.
+   * Use actions like `setMarkedTab` or `setToggles` to modify this.
    */
   state = $state<State>({
     shownToggles: [],
@@ -62,12 +62,12 @@ export class ActiveStateStore {
   // --- Actions ---
 
   /**
-   * Set the pinned tab for a specific tab group.
+   * Set the marked tab for a specific tab group.
    * This syncs across all tab groups with the same ID.
    * @param groupId The ID of the tab group.
-   * @param tabId The ID of the tab to pin.
+   * @param tabId The ID of the tab to mark.
    */
-  setPinnedTab(groupId: string, tabId: string) {
+  setMarkedTab(groupId: string, tabId: string) {
     if (!this.state.tabs) this.state.tabs = {};
     this.state.tabs[groupId] = tabId;
     
@@ -205,14 +205,7 @@ export class ActiveStateStore {
     const tabs: Record<string, string> = {};
     const placeholders: Record<string, string> = {};
 
-    // 1. Process global placeholders
-    for (const p of (this.config.placeholders ?? [])) {
-      if (p.defaultValue !== undefined) {
-        placeholders[p.name] = p.defaultValue;
-      }
-    }
-
-    // 2. Process toggles
+    // 1. Process toggles
     for (const toggle of (this.config.toggles ?? [])) {
       if (toggle.default === 'peek') {
         peekToggles.push(toggle.toggleId);
@@ -223,7 +216,7 @@ export class ActiveStateStore {
       }
     }
 
-    // 3. Process tab groups
+    // 2. Process tab groups
     for (const group of (this.config.tabGroups ?? [])) {
       let defaultTabId = group.default;
       if (!defaultTabId) {
@@ -244,6 +237,15 @@ export class ActiveStateStore {
       const tabConfig = group.tabs.find((t) => t.tabId === defaultTabId);
       if (tabConfig && placeholders[group.placeholderId] === undefined) {
         placeholders[group.placeholderId] = tabConfig.placeholderValue ?? '';
+      }
+    }
+
+    // 3. Seed author-controlled (adaptationPlaceholder) defaults.
+    // These are set by adaptations when active, and fall back to defaultValue when no adaptation is active.
+    // This is intentionally separate from regular user-settable placeholder defaults (see PR #206).
+    for (const def of placeholderRegistryStore.definitions) {
+      if (def.adaptationPlaceholder && def.defaultValue !== undefined && def.defaultValue !== '') {
+        placeholders[def.name] = def.defaultValue;
       }
     }
 

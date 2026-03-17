@@ -9,8 +9,8 @@
 
 # {{ title }}
 
-Hello
-
 This is a single developer project for now, with support from Prof Damith. :pray:
+
+Please do take a look around, and feel free to raise issues for suggestions or bugs, or even contribute by opening PRs!
 
 **We look forward to your PR! Happy coding! :smile:**

@@ -13,12 +13,9 @@ For the latest stable release, visit [here](https://custardui.github.io).**</md>
     <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/authorGuide/index.html" class="nav-link">AUTHOR GUIDE</a></li>
     <li><a highlight-on="sibling-or-child" href="{{baseUrl}}/devGuide/index.html" class="nav-link">DEVELOPER GUIDE</a></li>
     <li><a highlight-on="exact" href="{{baseUrl}}/about.html" class="nav-link">ABOUT</a></li>
-    <li>
-      <a href="https://github.com/custardui/custardui" target="_blank" class="nav-link"><md>:fab-github:</md></a>
-    </li>
-    <li>
-      <a href="#cv-open" class="nav-link">OPEN DIALOG</a>
-    </li>
+    <li><a href="https://github.com/custardui/custardui" target="_blank" class="nav-link"><md>:fab-github:</md></a></li>
+    <li><a highlight-on="none" href="#cv-open" class="nav-link">Settings</a></li>
+    <li><a highlight-on="none" href="#cv-share" class="nav-link">Share</a></li>
     <li slot="right">
       <form class="navbar-form">
         <searchbar :data="searchData" placeholder="Search" :on-hit="searchCallback" menu-align-right></searchbar>

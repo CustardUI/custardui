@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ShareStore } from '$features/share/stores/share-store.svelte';
 
-import * as DomElementLocator from '$lib/utils/dom-element-locator';
+import * as DomElementLocator from '$features/anchor';
 
 describe('ShareStore', () => {
   let store: ShareStore;
@@ -20,18 +20,18 @@ describe('ShareStore', () => {
 
   it('should initialize inactive', () => {
     expect(store.isActive).toBe(false);
-    expect(store.selectionMode).toBe('show');
+    expect(store.selectionMode).toBe('highlight');
     expect(store.selectedElements.size).toBe(0);
   });
 
   it('should activate and deactivate', () => {
     store.toggleActive(true);
     expect(store.isActive).toBe(true);
-    expect(document.body.classList.contains('cv-share-active-show')).toBe(true);
+    expect(document.body.classList.contains('cv-share-active-highlight')).toBe(true);
 
     store.toggleActive(false);
     expect(store.isActive).toBe(false);
-    expect(document.body.classList.contains('cv-share-active-show')).toBe(false);
+    expect(document.body.classList.contains('cv-share-active-highlight')).toBe(false);
   });
 
   it('should change selection mode', () => {
@@ -47,7 +47,7 @@ describe('ShareStore', () => {
     store.toggleElementSelection(el);
 
     expect(store.selectedElements.has(el)).toBe(true);
-    expect(el.classList.contains('cv-share-selected')).toBe(true);
+    expect(el.classList.contains('cv-share-selected-highlight')).toBe(true);
   });
 
   it('should toggle selection off', () => {
@@ -102,7 +102,7 @@ describe('ShareStore', () => {
     await store.generateLink();
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('cv-show=serialized-id'),
+      expect.stringContaining('cv-highlight=serialized-id'),
     );
   });
 

@@ -607,3 +607,27 @@ For example, to make the local tab groups with IDs `OS` and `language` available
 ```
 
 This will ensure that the specified local tab groups appear in the configuration settings, allowing users to control them even if they are not immediately visible on the page.
+
+# Shareable URL
+
+Active tab selections can be encoded in a URL using the `tabs` parameter. The format is a comma-separated list of `groupId:tabId` pairs, where each group ID and tab ID is individually encoded with `encodeURIComponent`.
+
+| Parameter | Format | Example |
+|-----------|--------|---------|
+| `tabs`    | Comma-separated `groupId:tabId` pairs | `?tabs=os:linux,lang:python` |
+
+```
+?tabs=os:linux,lang:python
+```
+
+Only the tab groups explicitly listed are affected; all others retain the visitor's saved selection or the configured default.
+
+**Constructing the URL in JavaScript:**
+
+```js
+const tabs  = { os: 'linux', lang: 'python' };
+const param = Object.entries(tabs)
+  .map(([g, t]) => `${encodeURIComponent(g)}:${encodeURIComponent(t)}`)
+  .join(',');
+const url = `https://yoursite.com/guide.html?tabs=${param}`;
+```

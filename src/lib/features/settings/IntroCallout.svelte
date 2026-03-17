@@ -40,7 +40,7 @@
     style:--cv-callout-bg={backgroundColor}
     style:--cv-callout-text={textColor}
   >
-    <button class="close-btn" aria-label="Dismiss intro" onclick={onclose}> × </button>
+    <button type="button" class="close-btn" aria-label="Dismiss intro" onclick={onclose}> × </button>
     <p class="text">{message}</p>
   </div>
 </div>

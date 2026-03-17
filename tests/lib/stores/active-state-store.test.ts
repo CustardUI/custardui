@@ -15,6 +15,7 @@ vi.mock('../../../src/lib/features/placeholder/stores/placeholder-registry-store
     has: vi.fn().mockReturnValue(false),
     get: vi.fn().mockReturnValue(undefined),
     register: vi.fn(),
+    definitions: [],
   },
 }));
 
@@ -37,11 +38,11 @@ describe('ActiveStateStore', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // setPinnedTab
+  // setMarkedTab
   // ---------------------------------------------------------------------------
 
-  describe('setPinnedTab', () => {
-    it('should update placeholder value when tab is pinned', () => {
+  describe('setMarkedTab', () => {
+    it('should update placeholder value when tab is marked', () => {
       const config = {
         tabGroups: [
           {
@@ -56,7 +57,7 @@ describe('ActiveStateStore', () => {
       };
 
       store.init(config);
-      store.setPinnedTab('group1', 't2');
+      store.setMarkedTab('group1', 't2');
 
       expect(placeholderManager.calculatePlaceholderFromTabSelected).toHaveBeenCalledWith(
         'group1',
@@ -77,7 +78,7 @@ describe('ActiveStateStore', () => {
       };
 
       store.init(config);
-      store.setPinnedTab('group1', 't1');
+      store.setMarkedTab('group1', 't1');
 
       expect(placeholderManager.calculatePlaceholderFromTabSelected).toHaveBeenCalled();
     });
@@ -94,7 +95,7 @@ describe('ActiveStateStore', () => {
       };
 
       store.init(config);
-      store.setPinnedTab('group1', 't1');
+      store.setMarkedTab('group1', 't1');
 
       expect(placeholderManager.calculatePlaceholderFromTabSelected).toHaveBeenCalled();
     });
@@ -111,7 +112,7 @@ describe('ActiveStateStore', () => {
       };
 
       store.init(config);
-      store.setPinnedTab('group1', 't1');
+      store.setMarkedTab('group1', 't1');
 
       expect(placeholderManager.calculatePlaceholderFromTabSelected).toHaveBeenCalled();
     });

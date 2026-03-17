@@ -2,7 +2,7 @@
 import { mount, unmount } from 'svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
-import * as DomElementLocator from '$lib/utils/dom-element-locator';
+import * as DomElementLocator from '$features/anchor';
 import { activeStateStore } from '$lib/stores/active-state-store.svelte';
 import { derivedStore } from '$lib/stores/derived-store.svelte';
 import HighlightOverlay from '$features/highlight/HighlightOverlay.svelte';
@@ -15,7 +15,7 @@ const ARROW_OVERLAY_ID = 'cv-highlight-overlay';
 
 import { type RectData } from './highlight-types';
 import { type HighlightColorKey } from './highlight-colors';
-import { type AnnotationCorner } from './highlight-annotations';
+import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from './highlight-annotations';
 
 export class HighlightState {
   rects = $state<RectData[]>([]);
@@ -47,7 +47,7 @@ export class HighlightService {
     return targets;
   }
 
-  public apply(encodedDescriptors: string): void {
+  public applyEncodedHighlights(encodedDescriptors: string): void {
     const descriptors = DomElementLocator.deserialize(encodedDescriptors);
     if (!descriptors || descriptors.length === 0) return;
 
@@ -61,9 +61,12 @@ export class HighlightService {
         if (desc.color) {
           matchingEls.forEach((el) => colors.set(el, desc.color!));
         }
-        if (desc.annotation && desc.annotationCorner) {
+        if (desc.annotation || desc.annotationCorner) {
           matchingEls.forEach((el) =>
-            annotations.set(el, { text: desc.annotation!, corner: desc.annotationCorner! }),
+            annotations.set(el, {
+              text: desc.annotation ?? '',
+              corner: desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER,
+            }),
           );
         }
       }
