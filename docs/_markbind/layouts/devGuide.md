@@ -9,8 +9,7 @@
       <site-nav>
 * [Contributing]({{baseUrl}}/devGuide/devGuide.html)
 * [Framework]({{baseUrl}}/devGuide/framework.html)
-* [Git Workflow]({{baseUrl}}/devGuide/gitWorkflow.html)
-* [Making Releases]({{baseUrl}}/devGuide/releases.html)
+* [Workflow and Release]({{baseUrl}}/devGuide/workflowAndRelease.html)
 * [How Components Work]({{baseUrl}}/devGuide/componentWorkings.html) :expanded:
   * [Tab Logic]({{baseUrl}}/devGuide/components/tabLogic.html)
   * [DOM Element Anchors]({{baseUrl}}/devGuide/components/anchor.html)

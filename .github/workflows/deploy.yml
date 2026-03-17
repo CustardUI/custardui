@@ -1,0 +1,63 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - '[0-9]*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      # If you merge multiple PRs quickly, this keeps them in order
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v2
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # STEP 1: DEPLOY TO DEVDOCS (Unstable)
+      # Triggered only when a PR is merged into develop OR a direct push happens
+      - name: Build and Deploy Dev Docs
+        if: github.ref == 'refs/heads/develop' && github.ref_type != 'tag'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploydocs:dev
+
+      # STEP 2: DEPLOY TO BETADOCS (Manual Beta Release)
+      # Triggered only when you push a tag like 2.1.0-beta.1
+      - name: Deploy Beta Docs
+        if: github.ref_type == 'tag' && contains(github.ref, '-beta.')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploydocs:beta
+
+      # STEP 3: DEPLOY TO STABLE (Official Release)
+      # Triggered when a PR is merged into main OR a stable tag is pushed
+      - name: Deploy Stable Docs
+        if: github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && !contains(github.ref, '-beta.'))
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploydocs:stable

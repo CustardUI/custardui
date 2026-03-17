@@ -6,6 +6,10 @@
 <div tags="beta-release" class="w-100 p-1 bg-warning text-center d-print-none"><md>**This site documents the features of CustardUI in development and possible beta breaking changes.
 For the latest stable release, visit [here](https://custardui.github.io).**</md></div>
 
+<div tags="dev-release" class="w-100 p-1 bg-info text-center d-print-none"><md>**This site documents developmental features of CustardUI (head of develop branch) and possible breaking changes.
+For the latest stable release, visit [here](https://custardui.github.io).**</md></div>
+
+
 <header>
   <navbar type="dark">
     <a slot="brand" href="{{baseUrl}}/index.html" title="Home" class="navbar-brand">CustardUI</a>

@@ -8,8 +8,8 @@
 // Markbind Deployment: Use unpkg CDN
 function getScripts() {
 	return [
-		// Latest Stable Release
-		'<script src="https://cdn.jsdelivr.net/npm/@custardui/custardui@latest" data-base-url="/"></script>'
+		// Latest Beta Release
+		'<script src="https://unpkg.com/@custardui/custardui@beta" data-base-url="/betadocs"></script>'
 	];
 }
 
