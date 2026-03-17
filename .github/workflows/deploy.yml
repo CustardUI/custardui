@@ -7,15 +7,12 @@ on:
       - develop
     tags:
       - '[0-9]*'
-  # Also run on Pull Requests to develop so you can preview them
-  pull_request:
-    branches:
-      - develop
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     concurrency:
+      # If you merge multiple PRs quickly, this keeps them in order
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
     
@@ -41,24 +38,24 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # STEP 1: DEPLOY TO DEVDOCS (Unstable/Bleeding Edge)
-      # Triggered by ANY push or PR merge to develop
+      # STEP 1: DEPLOY TO DEVDOCS (Unstable)
+      # Triggered only when a PR is merged into develop OR a direct push happens
       - name: Build and Deploy Dev Docs
-        if: github.ref == 'refs/heads/develop' || github.event_name == 'pull_request'
+        if: github.ref == 'refs/heads/develop' && github.ref_type != 'tag'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run deploydocs:dev
 
       # STEP 2: DEPLOY TO BETADOCS (Manual Beta Release)
-      # Only triggered when you specifically push a beta tag
+      # Triggered only when you push a tag like 2.1.0-beta.1
       - name: Deploy Beta Docs
-        if: contains(github.ref, '-beta.')
+        if: github.ref_type == 'tag' && contains(github.ref, '-beta.')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run deploydocs:beta
 
       # STEP 3: DEPLOY TO STABLE (Official Release)
-      # Triggered by main branch or stable version tags
+      # Triggered when a PR is merged into main OR a stable tag is pushed
       - name: Deploy Stable Docs
         if: github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && !contains(github.ref, '-beta.'))
         env:
