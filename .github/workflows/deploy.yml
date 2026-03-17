@@ -1,0 +1,66 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - '[0-9]*'
+  # Also run on Pull Requests to develop so you can preview them
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v2
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # STEP 1: DEPLOY TO DEVDOCS (Unstable/Bleeding Edge)
+      # Triggered by ANY push or PR merge to develop
+      - name: Build and Deploy Dev Docs
+        if: github.ref == 'refs/heads/develop' || github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploydocs:dev
+
+      # STEP 2: DEPLOY TO BETADOCS (Manual Beta Release)
+      # Only triggered when you specifically push a beta tag
+      - name: Deploy Beta Docs
+        if: contains(github.ref, '-beta.')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploydocs:beta
+
+      # STEP 3: DEPLOY TO STABLE (Official Release)
+      # Triggered by main branch or stable version tags
+      - name: Deploy Stable Docs
+        if: github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && !contains(github.ref, '-beta.'))
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploydocs:stable
