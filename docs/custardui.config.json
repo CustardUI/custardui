@@ -124,7 +124,7 @@
       }
     ]
   },
-  "baseUrl": "/custard",
+  "baseUrl": "/",
   "storageKey": "cv-docs-beta",
   "settings": {
     "enabled": true,
