@@ -38,6 +38,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Install MarkBind CLI
+        run: npm i -g markbind-cli
+
       # STEP 1: DEPLOY TO DEVDOCS (Unstable)
       # Triggered only when a PR is merged into develop OR a direct push happens
       - name: Build and Deploy Dev Docs
