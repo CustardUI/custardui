@@ -27,6 +27,7 @@
     "bump:major": "npm version major",
     "deploydocs:prod": "cd docs && markbind deploy -s site-prod.json",
     "deploydocs:beta": "cd docs && markbind deploy -s site-beta.json",
+    "deploydocs:dev": "npm run build && cd docs && markbind deploy -s site.json",
     "dev": "rollup -c -w",
     "watch": "rollup -c -w",
     "lint": "eslint .",

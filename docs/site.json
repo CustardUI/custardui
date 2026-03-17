@@ -1,5 +1,5 @@
 {
-  "baseUrl": "/local-dev",
+  "baseUrl": "/devdocs",
   "timeZone": "Asia/Singapore",
   "titlePrefix": "",
   "titleSuffix": "",
@@ -29,15 +29,20 @@
     "codeTheme": "light"
   },
   "plugins": [
-    "custardui-localdev",
+    "custardui-devdocs",
     "filterTags",
     "codeBlockCopyButtons",
     "codeBlockWrapButtons",
     "mermaid"
   ],
+  "pluginsContext": {
+    "filterTags": {
+      "tags": ["dev-release"]
+    }
+  },
   "deploy": {
     "message": "Site Update.",
-    "repo": "https://github.com/custardUI/betadocs.git",
+    "repo": "https://github.com/custardUI/devdocs.git",
     "branch": "master"
   }
 }

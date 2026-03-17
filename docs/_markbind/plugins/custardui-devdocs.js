@@ -9,7 +9,7 @@
 function getScripts() {
 	return [
 		// Local Development
-		'<script src="../../../dist/custardui.js" data-base-url="/local-dev"></script>'
+		'<script src="../../../dist/custardui.js" data-base-url="/devdocs"></script>'
 	];
 }
 
