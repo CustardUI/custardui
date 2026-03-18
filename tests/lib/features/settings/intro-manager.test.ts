@@ -30,7 +30,7 @@ describe('IntroManager', () => {
   });
 
   it('should not show callout if not initialized with page elements', () => {
-    introManager.init(false, true); // hasPageElements = false
+    introManager.init(false, true); // hasElementsOnCurrentPage = false
     vi.advanceTimersByTime(2000);
     expect(introManager.showCallout).toBe(false);
   });
