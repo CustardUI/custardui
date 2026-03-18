@@ -15,13 +15,17 @@ export interface ElementsOnCurrentPage {
  * - Tab-group-derived placeholders (source: 'tabgroup') — implied by ?tabs=
  * - Adaptation-only placeholders (adaptationPlaceholder: true) — author-controlled, not shareable
  */
-export function stripNonShareablePlaceholders(placeholders: Record<string, string>): Record<string, string> {
+export function stripNonShareablePlaceholders(placeholders: Record<string, string>, config: Config): Record<string, string> {
   const shareable: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(placeholders)) {
-    const definition = placeholderRegistryStore.get(key);
-    if (definition?.source === 'tabgroup') continue;      // implied by ?tabs=
-    if (definition?.adaptationPlaceholder) continue;      // author-only, not shareable
+    const definition = placeholderRegistryStore.get(key) || config.placeholders?.find(p => p.name === key);
+    if (!definition) continue;                            // skip unknown keys (injection prevention)
+    
+    // Note: PlaceholderDefinition from registry has 'source', but config doesn't.
+    // That's fine as 'tabgroup' placeholders are mostly a runtime artifact.
+    if ('source' in definition && definition.source === 'tabgroup') continue; // implied by ?tabs=
+    if ('adaptationPlaceholder' in definition && definition.adaptationPlaceholder) continue; // author-only
     shareable[key] = value;
   }
 
@@ -36,14 +40,25 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
   const currentShown = currentState.shownToggles ?? [];
   const currentPeek  = currentState.peekToggles  ?? [];
 
-  const isToggleRelevant = (id: string): boolean => {
-    if (pageTogglesSet.has(id)) return true;
+  const shouldInclude = (id: string): boolean => {
     const toggleConfig = config.toggles?.find(t => t.toggleId === id);
-    return toggleConfig ? !toggleConfig.isLocal : true;
+
+    // Case 1: Not found in configuration
+    if (!toggleConfig) {
+      return pageTogglesSet.has(id);
+    }
+
+    // Case 2: Configured as Global
+    if (!toggleConfig.isLocal) {
+      return true;
+    }
+
+    // Case 3: Configured as Local
+    return pageTogglesSet.has(id);
   };
 
-  const shareableShown = currentShown.filter(isToggleRelevant);
-  const shareablePeek = currentPeek.filter(isToggleRelevant);
+  const shareableShown = currentShown.filter(shouldInclude);
+  const shareablePeek = currentPeek.filter(shouldInclude);
 
   const shownSet = new Set(shareableShown);
   const peekSet  = new Set(shareablePeek);
@@ -74,11 +89,23 @@ export function getShareableTabs(currentState: State, pageTabGroupsSet: Set<stri
   if (!currentState.tabs) return {};
 
   const shareableTabs: Record<string, string> = {};
+
   for (const [groupId, tabId] of Object.entries(currentState.tabs)) {
     const groupConfig = config.tabGroups?.find(g => g.groupId === groupId);
-    const isGlobal = groupConfig ? !groupConfig.isLocal : true;
-    
-    if (pageTabGroupsSet.has(groupId) || isGlobal) {
+    let shouldInclude = false;
+
+    if (!groupConfig) {
+      // Unknown group: Only include if explicitly detected on page to prevent injection
+      shouldInclude = pageTabGroupsSet.has(groupId);
+    } else if (!groupConfig.isLocal) {
+      // Global group: Always include
+      shouldInclude = true;
+    } else {
+      // Local group: Only include if detected on page
+      shouldInclude = pageTabGroupsSet.has(groupId);
+    }
+
+    if (shouldInclude) {
       shareableTabs[groupId] = tabId;
     }
   }
@@ -88,16 +115,28 @@ export function getShareableTabs(currentState: State, pageTabGroupsSet: Set<stri
 /**
  * Filters the custom placeholder values for the shareable URL.
  */
-export function getShareablePlaceholders(currentState: State, pagePlaceholdersSet: Set<string>): Pick<State, 'placeholders'> {
+export function getShareablePlaceholders(currentState: State, pagePlaceholdersSet: Set<string>, config: Config): Pick<State, 'placeholders'> {
   if (!currentState.placeholders) return {};
 
-  const strippedPlaceholders = stripNonShareablePlaceholders(currentState.placeholders);
+  const strippedPlaceholders = stripNonShareablePlaceholders(currentState.placeholders, config);
   const shareablePlaceholders: Record<string, string> = {};
   for (const [key, value] of Object.entries(strippedPlaceholders)) {
-    const definition = placeholderRegistryStore.get(key);
-    const isGlobal = definition ? !definition.isLocal : true;
+    const definition = placeholderRegistryStore.get(key) || config.placeholders?.find(p => p.name === key);
+    let shouldInclude = false;
 
-    if (pagePlaceholdersSet.has(key) || isGlobal) {
+    if (!definition) {
+      // Note: definition is guaranteed to exist here due to stripNonShareablePlaceholders,
+      // but we handle it explicitly for clarity and future-proofing.
+      shouldInclude = pagePlaceholdersSet.has(key);
+    } else if (!definition.isLocal) {
+      // Global placeholder: Always include
+      shouldInclude = true;
+    } else {
+      // Local placeholder: Only include if detected on page
+      shouldInclude = pagePlaceholdersSet.has(key);
+    }
+
+    if (shouldInclude) {
       shareablePlaceholders[key] = value;
     }
   }
@@ -135,6 +174,6 @@ export function computeShareableSettingState(
   return {
     ...getShareableToggles(currentState, pageTogglesSet, config),
     ...getShareableTabs(currentState, pageTabGroupsSet, config),
-    ...getShareablePlaceholders(currentState, pagePlaceholdersSet),
+    ...getShareablePlaceholders(currentState, pagePlaceholdersSet, config),
   };
 }
