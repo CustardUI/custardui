@@ -9,6 +9,25 @@
 
 Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
 
+### v2.1.*
+
+**User Facing Changes**:
+
+* feat: update feature styling (updates share default to highlight mode, update wordings, default highlight color)
+* feat: Improve tabgroups style 
+* feat: Add attribution text to modal, update toggle stylings
+* feat: Enhance text annotations in highlights styling (Add homeplate shaping)
+* fix: Fix scroll logic to fix issues with window jumping around
+* fix: Align placeholder defaultValue handling with conditional logic
+* fix: Fix adaptation bug, where ?adapt=clear now wipes full user state including placeholders
+* fix: Implement stable element text hashing for placeholders, now fingerprints for elements containing placeholders work properly.
+* docs: Update documentation site for v2, adding URL-sharing documentation for placeholders, toggles, and tabs)
+
+**Developer Facing Changes**:
+
+* feat: Add semver label workflow (GitHub actions)
+* refactor: Refactor dom-element-locator to own feature
+
 ### v2.0.0 
 
 **Rename from `customviews` to `custardui`**
