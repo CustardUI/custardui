@@ -61,7 +61,7 @@
   // --- Effects ---
 
   $effect(() => {
-    introManager.init(elementStore.hasPageElements, settingsEnabled);
+    introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
   // --- Modal Actions ---

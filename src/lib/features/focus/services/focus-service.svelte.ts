@@ -7,17 +7,12 @@ import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
 import { SvelteSet } from 'svelte/reactivity';
 
-const SHOW_PARAM = 'cv-show';
-const HIDE_PARAM = 'cv-hide';
+import { HighlightService, BODY_HIGHLIGHT_CLASS } from '$features/highlight/services/highlight-service.svelte';
+import { PARAM_CV_SHOW, PARAM_CV_HIDE, PARAM_CV_HIGHLIGHT } from '$features/url/url-constants';
+
 const BODY_SHOW_CLASS = 'cv-show-mode';
 const HIDDEN_CLASS = 'cv-hidden';
 const SHOW_ELEMENT_CLASS = 'cv-show-element';
-
-import {
-  HighlightService,
-  BODY_HIGHLIGHT_CLASS,
-  HIGHLIGHT_PARAM,
-} from '$features/highlight/services/highlight-service.svelte';
 
 import { DEFAULT_EXCLUDED_IDS, DEFAULT_EXCLUDED_TAGS } from '$features/share/constants';
 import type { ShareExclusions } from '$features/share/types';
@@ -83,9 +78,9 @@ export class FocusService {
   private applyModesFromUrl() {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const url = new URL(window.location.href);
-    const showDescriptors = url.searchParams.get(SHOW_PARAM);
-    const hideDescriptors = url.searchParams.get(HIDE_PARAM);
-    const highlightDescriptors = url.searchParams.get(HIGHLIGHT_PARAM);
+    const showDescriptors = url.searchParams.get(PARAM_CV_SHOW);
+    const hideDescriptors = url.searchParams.get(PARAM_CV_HIDE);
+    const highlightDescriptors = url.searchParams.get(PARAM_CV_HIGHLIGHT);
 
     const hasAnyMode = showDescriptors || hideDescriptors || highlightDescriptors;
 
@@ -366,16 +361,16 @@ export class FocusService {
       // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const url = new URL(window.location.href);
       let changed = false;
-      if (url.searchParams.has(SHOW_PARAM)) {
-        url.searchParams.delete(SHOW_PARAM);
+      if (url.searchParams.has(PARAM_CV_SHOW)) {
+        url.searchParams.delete(PARAM_CV_SHOW);
         changed = true;
       }
-      if (url.searchParams.has(HIDE_PARAM)) {
-        url.searchParams.delete(HIDE_PARAM);
+      if (url.searchParams.has(PARAM_CV_HIDE)) {
+        url.searchParams.delete(PARAM_CV_HIDE);
         changed = true;
       }
-      if (url.searchParams.has(HIGHLIGHT_PARAM)) {
-        url.searchParams.delete(HIGHLIGHT_PARAM);
+      if (url.searchParams.has(PARAM_CV_HIGHLIGHT)) {
+        url.searchParams.delete(PARAM_CV_HIGHLIGHT);
         changed = true;
       }
       if (changed) {
