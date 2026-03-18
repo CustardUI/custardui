@@ -136,13 +136,18 @@ describe('URLStateManager', () => {
         tabs: { os: 'linux' },
         placeholders: { myKey: 'Hello World' },
       };
+      const config: Config = {
+        toggles: [{ toggleId: 'A' }, { toggleId: 'B' }, { toggleId: 'P1' }, { toggleId: 'HIDDEN' }],
+        tabGroups: [{ groupId: 'os', tabs: [{ tabId: 'linux' }] }],
+        placeholders: [{ name: 'myKey' }],
+      };
       const allIds = {
         toggles: ['A', 'B', 'P1', 'HIDDEN'],
         tabGroups: ['os'],
         placeholders: ['myKey'],
       };
 
-      const shareUrl = URLStateManager.generateShareableURL(current, {}, allIds);
+      const shareUrl = URLStateManager.generateShareableURL(current, config, allIds);
       (window as any).location.search = new URL(shareUrl).search;
       const parsed = URLStateManager.parseURL();
 
@@ -163,7 +168,11 @@ describe('URLStateManager', () => {
         },
       };
 
-      const shareUrl = URLStateManager.generateShareableURL(current, {}, {
+      const config: Config = {
+        placeholders: [{ name: 'key1' }, { name: 'key2' }]
+      };
+
+      const shareUrl = URLStateManager.generateShareableURL(current, config, {
         toggles: [],
         tabGroups: [],
         placeholders: ['key1', 'key2'],
@@ -287,9 +296,11 @@ describe('URLStateManager', () => {
       afterEach(() => { vi.clearAllMocks(); });
 
       it('excludes adaptationPlaceholder: true entries from the URL', () => {
-        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
-          key === 'instName' ? { name: 'instName', adaptationPlaceholder: true } : undefined
-        );
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
+          if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          if (key === 'user') return { name: 'user', isLocal: false };
+          return undefined;
+        });
 
         const url = URLStateManager.generateShareableURL(
           { placeholders: { instName: 'NUS', user: 'Alice' } },
@@ -302,7 +313,7 @@ describe('URLStateManager', () => {
       });
 
       it('includes normal (non-adaptation) placeholders in the URL', () => {
-        vi.mocked(placeholderRegistryStore.get).mockReturnValue(undefined);
+        vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'user', isLocal: false });
 
         const url = URLStateManager.generateShareableURL(
           { placeholders: { user: 'Alice' } },
@@ -317,6 +328,7 @@ describe('URLStateManager', () => {
         vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
           if (key === 'fruit') return { name: 'fruit', source: 'tabgroup' };
           if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          if (key === 'user') return { name: 'user', isLocal: false };
           return undefined;
         });
 
@@ -331,6 +343,63 @@ describe('URLStateManager', () => {
         expect(url).toContain('user:Alice');
       });
     });
+
+    describe('robustness and injection prevention', () => {
+      beforeEach(freshLocation);
+      afterEach(() => { vi.clearAllMocks(); });
+
+      it('strips unknown toggles that are not in config and not on page', () => {
+        const config: Config = { toggles: [{ toggleId: 'known' }] };
+        const state: State = { shownToggles: ['known', 'unknown_injected'] };
+        const url = URLStateManager.generateShareableURL(state, config, { toggles: ['known'], tabGroups: [], placeholders: [] });
+        
+        expect(url).toContain(`${PARAM_SHOW_TOGGLE}=known`);
+        expect(url).not.toContain('unknown_injected');
+      });
+
+      it('strips unknown tab groups that are not in config and not on page', () => {
+        const config: Config = { tabGroups: [{ groupId: 'known', tabs: [{ tabId: 't1' }] }] };
+        const state: State = { tabs: { known: 't1', unknown_injected: 'val' } };
+        const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: ['known'], placeholders: [] });
+        
+        expect(url).toContain(`${PARAM_TABS}=known:t1`);
+        expect(url).not.toContain('unknown_injected');
+      });
+
+      it('strips unknown placeholders that are not in registry and not on page', () => {
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => 
+          key === 'known' ? { name: 'known', isLocal: false } : undefined
+        );
+
+        const state: State = { placeholders: { known: 'val1', unknown_injected: 'val2' } };
+        const url = URLStateManager.generateShareableURL(state, {}, { toggles: [], tabGroups: [], placeholders: ['known'] });
+        
+        expect(url).toContain(`${PARAM_PH}=known:val1`);
+        expect(url).not.toContain('unknown_injected');
+      });
+
+      it('strips local elements if they are not on the current page', () => {
+        const config: Config = { 
+          toggles: [{ toggleId: 'localT', isLocal: true }],
+          tabGroups: [{ groupId: 'localG', isLocal: true, tabs: [{ tabId: 't1' }] }]
+        };
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => 
+          key === 'localP' ? { name: 'localP', isLocal: true } : undefined
+        );
+
+        const state: State = { 
+          shownToggles: ['localT'], 
+          tabs: { localG: 't1' },
+          placeholders: { localP: 'val' }
+        };
+        // empty page elements
+        const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
+        
+        expect(url).not.toContain('localT');
+        expect(url).not.toContain('localG');
+        expect(url).not.toContain('localP');
+      });
+    });
   });
 
   // ==========================================================================
@@ -339,11 +408,11 @@ describe('URLStateManager', () => {
   describe('clearURL', () => {
     beforeEach(() => {
       freshLocation();
-      vi.stubGlobal('history', { replaceState: vi.fn() });
+      vi.spyOn(window.history, 'replaceState').mockImplementation(() => {});
     });
 
     afterEach(() => {
-      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
     });
 
     it('clears all managed params but leaves focus params', () => {
