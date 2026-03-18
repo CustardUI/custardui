@@ -8,8 +8,6 @@ import { derivedStore } from '$lib/stores/derived-store.svelte';
 import HighlightOverlay from '$features/highlight/HighlightOverlay.svelte';
 import { groupSiblings, calculateMergedRects } from '../highlight-logic';
 
-export const HIGHLIGHT_PARAM = 'cv-highlight';
-
 export const BODY_HIGHLIGHT_CLASS = 'cv-highlight-mode';
 const ARROW_OVERLAY_ID = 'cv-highlight-overlay';
 

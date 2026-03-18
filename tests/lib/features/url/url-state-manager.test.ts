@@ -6,7 +6,17 @@ vi.mock('../../../../src/lib/features/placeholder/stores/placeholder-registry-st
   placeholderRegistryStore: { get: vi.fn() },
 }));
 
-import { URLStateManager } from '../../../../src/lib/features/url/url-state-manager';
+import { URLStateManager, FOCUS_PARAMS, MANAGED_PARAMS } from '../../../../src/lib/features/url/url-state-manager';
+import { 
+  PARAM_SHOW_TOGGLE, 
+  PARAM_PEEK_TOGGLE, 
+  PARAM_HIDE_TOGGLE, 
+  PARAM_TABS, 
+  PARAM_PH, 
+  PARAM_CV_SHOW, 
+  PARAM_CV_HIDE, 
+  PARAM_CV_HIGHLIGHT 
+} from '../../../../src/lib/features/url/url-constants';
 import type { Config, State } from '../../../../src/lib/types/index';
 import { placeholderRegistryStore } from '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte';
 
@@ -42,55 +52,55 @@ describe('URLStateManager', () => {
     });
 
     it('returns null when only focus params are present', () => {
-      setLocation('?cv-show=elem1&cv-hide=elem2');
+      setLocation(`?${PARAM_CV_SHOW}=elem1&${PARAM_CV_HIDE}=elem2`);
       expect(URLStateManager.parseURL()).toBeNull();
     });
 
-    it('parses ?t-show=A,B into shownToggles', () => {
-      setLocation('?t-show=advanced,expert');
+    it(`parses ?${PARAM_SHOW_TOGGLE}=A,B into shownToggles`, () => {
+      setLocation(`?${PARAM_SHOW_TOGGLE}=advanced,expert`);
       const result = URLStateManager.parseURL();
       expect(result).not.toBeNull();
       expect(result!.shownToggles).toEqual(['advanced', 'expert']);
     });
 
-    it('parses ?t-peek=C into peekToggles', () => {
-      setLocation('?t-peek=intermediate');
+    it(`parses ?${PARAM_PEEK_TOGGLE}=C into peekToggles`, () => {
+      setLocation(`?${PARAM_PEEK_TOGGLE}=intermediate`);
       const result = URLStateManager.parseURL();
       expect(result!.peekToggles).toEqual(['intermediate']);
     });
 
-    it('parses ?t-hide=D into hiddenToggles', () => {
-      setLocation('?t-hide=secret');
+    it(`parses ?${PARAM_HIDE_TOGGLE}=D into hiddenToggles`, () => {
+      setLocation(`?${PARAM_HIDE_TOGGLE}=secret`);
       const result = URLStateManager.parseURL();
       expect(result!.hiddenToggles).toEqual(['secret']);
     });
 
-    it('parses ?tabs=g1:t1,g2:t2 into tabs record', () => {
-      setLocation('?tabs=os:linux,lang:python');
+    it(`parses ?${PARAM_TABS}=g1:t1,g2:t2 into tabs record`, () => {
+      setLocation(`?${PARAM_TABS}=os:linux,lang:python`);
       const result = URLStateManager.parseURL();
       expect(result!.tabs).toEqual({ os: 'linux', lang: 'python' });
     });
 
     it('splits tabs on first colon only', () => {
-      setLocation('?tabs=grp:tab:with:colons');
+      setLocation(`?${PARAM_TABS}=grp:tab:with:colons`);
       const result = URLStateManager.parseURL();
       expect(result!.tabs).toEqual({ grp: 'tab:with:colons' });
     });
 
-    it('parses ?ph=key:value and decodes encoded values', () => {
-      setLocation('?ph=language:Python%20Docs');
+    it(`parses ?${PARAM_PH}=key:value and decodes encoded values`, () => {
+      setLocation(`?${PARAM_PH}=language:Python%20Docs`);
       const result = URLStateManager.parseURL();
       expect(result!.placeholders).toEqual({ language: 'Python Docs' });
     });
 
     it('splits ph on first colon only', () => {
-      setLocation('?ph=key:val%3Awith%3Acolons');
+      setLocation(`?${PARAM_PH}=key:val%3Awith%3Acolons`);
       const result = URLStateManager.parseURL();
       expect(result!.placeholders).toEqual({ key: 'val:with:colons' });
     });
 
     it('parses all params together', () => {
-      setLocation('?t-show=t1&t-peek=p1&t-hide=h1&tabs=g1:tab1&ph=myKey:Hello%20World');
+      setLocation(`?${PARAM_SHOW_TOGGLE}=t1&${PARAM_PEEK_TOGGLE}=p1&${PARAM_HIDE_TOGGLE}=h1&${PARAM_TABS}=g1:tab1&${PARAM_PH}=myKey:Hello%20World`);
       const result = URLStateManager.parseURL();
       expect(result).not.toBeNull();
       expect(result!.shownToggles).toEqual(['t1']);
@@ -101,13 +111,13 @@ describe('URLStateManager', () => {
     });
 
     it('ignores malformed tab entries without a colon', () => {
-      setLocation('?tabs=malformed,g1:tab1');
+      setLocation(`?${PARAM_TABS}=malformed,g1:tab1`);
       const result = URLStateManager.parseURL();
       expect(result!.tabs).toEqual({ g1: 'tab1' });
     });
 
     it('ignores malformed ph entries without a colon', () => {
-      setLocation('?ph=noColon,key:value');
+      setLocation(`?${PARAM_PH}=noColon,key:value`);
       const result = URLStateManager.parseURL();
       expect(result!.placeholders).toEqual({ key: 'value' });
     });
@@ -189,37 +199,43 @@ describe('URLStateManager', () => {
         config,
         { toggles: ['A', 'NEW', 'HIDDEN_DEFAULT'], tabGroups: ['g1'], placeholders: [] },
       );
-      expect(url).toContain('t-show=A,NEW');
-      expect(url).toContain('tabs=g1:tabA');
-      expect(url).toContain('t-hide=HIDDEN_DEFAULT');
+      expect(url).toContain(`${PARAM_SHOW_TOGGLE}=A,NEW`);
+      expect(url).toContain(`${PARAM_TABS}=g1:tabA`);
+      expect(url).toContain(`${PARAM_HIDE_TOGGLE}=HIDDEN_DEFAULT`);
     });
 
     it('returns clean URL for null state', () => {
-      setLocation('?t-show=t1');
+      setLocation(`?${PARAM_SHOW_TOGGLE}=t1`);
       const url = URLStateManager.generateShareableURL(null, {});
-      expect(url).not.toContain('t-show=');
+      expect(url).not.toContain(`${PARAM_SHOW_TOGGLE}=`);
     });
 
     it('preserves cv-show / cv-hide params', () => {
-      setLocation('?cv-show=el1');
-      const config: Config = { toggles: [{ toggleId: 't1' }, { toggleId: 'other' }] };
-      const url = URLStateManager.generateShareableURL(
-        { shownToggles: ['t1'] },
-        config,
-        { toggles: ['t1', 'other'], tabGroups: [], placeholders: [] },
-      );
-      expect(url).toContain('cv-show=el1');
+      setLocation(`?${PARAM_CV_SHOW}=el1`);
+      
+      const config: Config = { toggles: [{ toggleId: 't1', isLocal: false }] };
+      const currentState: State = { shownToggles: ['t1'] };
+      const pageElements = { toggles: ['t1'], tabGroups: [], placeholders: [] };
+
+      const url = URLStateManager.generateShareableURL(currentState, config, pageElements);
+      expect(url).toContain(`${PARAM_CV_SHOW}=el1`);
+      expect(url).toContain(`${PARAM_SHOW_TOGGLE}=t1`);
     });
 
-    it('encodes t-hide for all toggles not shown or peeked', () => {
+    it('preserves cv-highlight params', () => {
+      setLocation(`?${PARAM_CV_HIGHLIGHT}=desc1`);
+      const url = URLStateManager.generateShareableURL({}, {}, { toggles: [], tabGroups: [], placeholders: [] });
+      expect(url).toContain(`${PARAM_CV_HIGHLIGHT}=desc1`);
+    });
+    it(`encodes ${PARAM_HIDE_TOGGLE} for all toggles not shown or peeked`, () => {
       const config: Config = { toggles: [{ toggleId: 'A' }, { toggleId: 'B' }] };
       const url = URLStateManager.generateShareableURL(
         { shownToggles: [], peekToggles: [] },
         config,
         { toggles: ['A', 'B'], tabGroups: [], placeholders: [] },
       );
-      expect(url).toContain('t-hide=A,B');
-      expect(url).not.toContain('t-show=');
+      expect(url).toContain(`${PARAM_HIDE_TOGGLE}=A,B`);
+      expect(url).not.toContain(`${PARAM_SHOW_TOGGLE}=`);
     });
 
     it('includes global (non-local) configurations even if not on page', () => {
@@ -236,9 +252,9 @@ describe('URLStateManager', () => {
       // pageElements is empty
       const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
       
-      expect(url).toContain('t-show=globalToggle');
-      expect(url).toContain('tabs=globalGroup:t1');
-      expect(url).toContain('ph=globalPH:val1');
+      expect(url).toContain(`${PARAM_SHOW_TOGGLE}=globalToggle`);
+      expect(url).toContain(`${PARAM_TABS}=globalGroup:t1`);
+      expect(url).toContain(`${PARAM_PH}=globalPH:val1`);
     });
 
     it('filters out local configurations if not on page', () => {
@@ -314,6 +330,43 @@ describe('URLStateManager', () => {
         expect(url).not.toContain('instName');
         expect(url).toContain('user:Alice');
       });
+    });
+  });
+
+  // ==========================================================================
+  // clearURL
+  // ==========================================================================
+  describe('clearURL', () => {
+    beforeEach(() => {
+      freshLocation();
+      vi.stubGlobal('history', { replaceState: vi.fn() });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('clears all managed params but leaves focus params', () => {
+      // Setup URL with both managed and focus params
+      const managed = `${PARAM_SHOW_TOGGLE}=t1&${PARAM_TABS}=g1:tab1`;
+      const focus = `${PARAM_CV_SHOW}=el1&${PARAM_CV_HIDE}=el2&${PARAM_CV_HIGHLIGHT}=hl1`;
+      setLocation(`?${managed}&${focus}`);
+
+      URLStateManager.clearURL();
+
+      // Verify history.replaceState was called with a URL that only has focus params
+      expect(window.history.replaceState).toHaveBeenCalled();
+      const call = vi.mocked(window.history.replaceState).mock.calls[0]!;
+      const resultUrl = new URL(call[2] as string, 'http://localhost');
+      
+      MANAGED_PARAMS.forEach(p => expect(resultUrl.searchParams.has(p)).toBe(false));
+      FOCUS_PARAMS.forEach(p => expect(resultUrl.searchParams.has(p)).toBe(true));
+    });
+
+    it('does nothing if no managed params are present', () => {
+      setLocation(`?${PARAM_CV_SHOW}=el1`);
+      URLStateManager.clearURL();
+      expect(window.history.replaceState).not.toHaveBeenCalled();
     });
   });
 });
