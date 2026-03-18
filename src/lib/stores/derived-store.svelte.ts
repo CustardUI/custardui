@@ -1,15 +1,12 @@
-import type { AssetsManager } from '$features/render/assets';
 import { elementStore } from './element-store.svelte';
 import { activeStateStore } from './active-state-store.svelte';
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 
 /**
  * Cross-cutting derived state that combines data from multiple sub-stores.
- * Holds only computed/derived values and assetsManager — no mutable application state.
+ * Holds only computed/derived values — no mutable application state.
  */
 class DerivedStateStore {
-  assetsManager = $state<AssetsManager | undefined>(undefined);
-
   // Menu toggles are those that are either global or
   // local but present and registered in the DOM
   menuToggles = $derived.by(() => {
@@ -50,9 +47,6 @@ class DerivedStateStore {
       this.hasVisiblePlaceholders,
   );
 
-  setAssetsManager(manager: AssetsManager) {
-    this.assetsManager = manager;
-  }
 }
 
 export const derivedStore = new DerivedStateStore();

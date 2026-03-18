@@ -3,7 +3,6 @@
     tag: 'cv-toggle',
     props: {
       toggleId: { reflect: true, type: 'String', attribute: 'toggle-id' },
-      assetId: { reflect: true, type: 'String', attribute: 'asset-id' },
       showPeekBorder: { reflect: true, type: 'Boolean', attribute: 'show-peek-border' },
       showLabel: { reflect: true, type: 'Boolean', attribute: 'show-label' },
       showInlineControl: { reflect: true, type: 'Boolean', attribute: 'show-inline-control' },
@@ -17,21 +16,17 @@
   import IconChevronUp from '$lib/app/icons/IconChevronUp.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
-  import { derivedStore } from '$lib/stores/derived-store.svelte';
   import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
-  import { renderAssetInto } from '$features/render/render';
 
   // Props using Svelte 5 runes
   let {
     toggleId = '',
-    assetId = '',
     showPeekBorder = false,
     showLabel = false,
     showInlineControl = false,
     placeholderId = '',
   }: {
     toggleId?: string;
-    assetId?: string;
     showPeekBorder?: boolean;
     showLabel?: boolean;
     showInlineControl?: boolean;
@@ -77,7 +72,6 @@
 
   let localExpanded = $state(false);
   let isUnconstrained = $state(false); /* New state to track if we can release max-height */
-  let hasRendered = $state(false);
   let contentEl: HTMLDivElement;
   let innerEl: HTMLDivElement;
   let scrollHeight = $state(0);
@@ -190,13 +184,7 @@
     toggleIds.forEach((id) => activeStateStore.updateToggleState(id, targetState));
   }
 
-  // Reactive asset rendering - renders assets when toggle becomes visible
-  $effect(() => {
-    if (showFullContent && assetId && !hasRendered && derivedStore.assetsManager && contentEl) {
-      renderAssetInto(contentEl, assetId, derivedStore.assetsManager);
-      hasRendered = true;
-    }
-  });
+
 </script>
 
 {#if showInlineControl && !isPlaceholderMode && isHidden}
