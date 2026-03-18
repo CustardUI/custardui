@@ -15,7 +15,7 @@ export interface ScriptAttributes {
  */
 export function getScriptAttributes(): ScriptAttributes {
   let scriptTag = document.currentScript as HTMLScriptElement | null;
-  const defaults = { baseURL: '', configPath: '/custardui.config.json' };
+  const defaults = { baseURL: '/', configPath: '/custardui.config.json' };
 
   if (!scriptTag || !scriptTag.hasAttribute('data-base-url')) {
     const dataAttrMatch = document.querySelector(

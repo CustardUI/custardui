@@ -108,7 +108,7 @@ When using auto-initialization via script tag, you can override configuration:
 ></script>
 ```
 
-| Attribute          | Description                                                                                                                                                                                                                         |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data-base-url`    | Specifies the website's base URL (for example `/docs`). This value is used to resolve relative paths in features such as adaptation.                                                                                                 |
-| `data-config-path` | Path to the config file to use for auto-initialization (default: `/custardui.config.json`). Provide an absolute or site-relative path if your config is located elsewhere  |
+| Attribute          | Default                    | Description                                                                                                          |
+| ------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `data-base-url`    | `/`                        | Specifies the website's base URL (for example `/docs`). Used to resolve relative paths in features such as adaptation. |
+| `data-config-path` | `/custardui.config.json`   | Path to the config file for auto-initialization. Provide an absolute or site-relative path if your config is elsewhere. |
