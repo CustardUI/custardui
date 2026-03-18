@@ -8,20 +8,23 @@ on:
     tags:
       - '[0-9]*'
 
+concurrency:
+  # If you merge multiple PRs quickly, this keeps them in order
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    concurrency:
-      # If you merge multiple PRs quickly, this keeps them in order
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
-    
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'npm'
@@ -46,7 +49,7 @@ jobs:
       - name: Build and Deploy Dev Docs
         if: github.ref == 'refs/heads/develop' && github.ref_type != 'tag'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
         run: npm run deploydocs:dev
 
       # STEP 2: DEPLOY TO BETADOCS (Manual Beta Release)
@@ -54,7 +57,7 @@ jobs:
       - name: Deploy Beta Docs
         if: github.ref_type == 'tag' && contains(github.ref, '-beta.')
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
         run: npm run deploydocs:beta
 
       # STEP 3: DEPLOY TO STABLE (Official Release)
@@ -62,5 +65,5 @@ jobs:
       - name: Deploy Stable Docs
         if: github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && !contains(github.ref, '-beta.'))
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
         run: npm run deploydocs:stable

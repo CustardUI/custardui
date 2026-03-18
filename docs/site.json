@@ -41,8 +41,8 @@
     }
   },
   "deploy": {
-    "message": "Site Update.",
-    "repo": "https://github.com/custardUI/devdocs.git",
+    "message": "Site Update from develop branch.",
+    "repo": "https://github.com/CustardUI/devdocs.git",
     "branch": "master"
   }
 }
