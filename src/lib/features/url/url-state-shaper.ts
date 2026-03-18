@@ -4,7 +4,7 @@ import type { Config, State } from '$lib/types/index';
 /**
  * Elements currently present and tracked on the page.
  */
-export interface PageElements {
+export interface ElementsOnCurrentPage {
   toggles: Iterable<string>;
   tabGroups: Iterable<string>;
   placeholders: Iterable<string>;
@@ -120,17 +120,17 @@ export function getShareablePlaceholders(currentState: State, pagePlaceholdersSe
  * Tab-group-derived placeholders are omitted — the `?tabs=` param is their source of truth.
  *
  * @param currentState The current application state.
- * @param pageElements The active elements detected on the current page.
+ * @param elementsOnCurrentPage The active elements detected on the current page.
  * @param config The application configuration.
  */
 export function computeShareableSettingState(
   currentState: State,
-  pageElements: PageElements,
+  elementsOnCurrentPage: ElementsOnCurrentPage,
   config: Config
 ): State {
-  const pageTogglesSet = new Set(pageElements.toggles);
-  const pageTabGroupsSet = new Set(pageElements.tabGroups);
-  const pagePlaceholdersSet = new Set(pageElements.placeholders);
+  const pageTogglesSet = new Set(elementsOnCurrentPage.toggles);
+  const pageTabGroupsSet = new Set(elementsOnCurrentPage.tabGroups);
+  const pagePlaceholdersSet = new Set(elementsOnCurrentPage.placeholders);
 
   return {
     ...getShareableToggles(currentState, pageTogglesSet, config),

@@ -1,7 +1,7 @@
 import type { Config, State } from '$lib/types/index';
 import { MANAGED_PARAMS } from './url-constants';
 import { parseTogglesFromURL, parseTabsFromURL, parsePlaceholdersFromURL } from './url-state-parser';
-import { computeShareableSettingState, type PageElements } from './url-state-shaper';
+import { computeShareableSettingState, type ElementsOnCurrentPage } from './url-state-shaper';
 import { generateManagedQuery, buildFullUrl } from './url-state-generator';
 
 /**
@@ -49,25 +49,16 @@ export class URLStateManager {
   }
 
   /**
-   * Generates a shareable URL that encodes the full current state.
-   *
-   * Encodes every toggle on the page explicitly (shown, peeked, or hidden)
-   * so the recipient sees the exact same view regardless of their local settings.
-   *
-   * Tab-group-derived placeholders are omitted from the URL — they are implied
-   * by the `?tabs=` parameter and will be re-derived by the recipient's store.
-   *
-   * Toggles, tabs, and placeholders NOT present on the current page are omitted,
-   * preventing cross-page state pollution.
+   * Generates a shareable URL that encodes the current state based on Config and State.
    *
    * @param currentState The full application state to encode.
    * @param config The application configuration.
-   * @param pageElements The active elements detected on the current page.
+   * @param elementsOnCurrentPage The active elements detected on the current page.
    */
   public static generateShareableURL(
     currentState: State | null | undefined,
     config: Config,
-    pageElements: PageElements = { toggles: [], tabGroups: [], placeholders: [] },
+    elementsOnCurrentPage: ElementsOnCurrentPage = { toggles: [], tabGroups: [], placeholders: [] },
   ): string {
     const url = new URL(window.location.href);
 
@@ -77,7 +68,7 @@ export class URLStateManager {
 
     let managedQuery = '';
     if (currentState) {
-      const shareable = computeShareableSettingState(currentState, pageElements, config);
+      const shareable = computeShareableSettingState(currentState, elementsOnCurrentPage, config);
       managedQuery = generateManagedQuery(shareable);
     }
 
@@ -112,4 +103,4 @@ export class URLStateManager {
 export { FOCUS_PARAMS } from './url-constants';
 // Re-export for convenience and compatibility
 export { MANAGED_PARAMS } from './url-constants';
-export type { PageElements } from './url-state-shaper';
+export type { ElementsOnCurrentPage } from './url-state-shaper';

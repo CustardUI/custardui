@@ -215,9 +215,9 @@ describe('URLStateManager', () => {
       
       const config: Config = { toggles: [{ toggleId: 't1', isLocal: false }] };
       const currentState: State = { shownToggles: ['t1'] };
-      const pageElements = { toggles: ['t1'], tabGroups: [], placeholders: [] };
+      const elementsOnCurrentPage = { toggles: ['t1'], tabGroups: [], placeholders: [] };
 
-      const url = URLStateManager.generateShareableURL(currentState, config, pageElements);
+      const url = URLStateManager.generateShareableURL(currentState, config, elementsOnCurrentPage);
       expect(url).toContain(`${PARAM_CV_SHOW}=el1`);
       expect(url).toContain(`${PARAM_SHOW_TOGGLE}=t1`);
     });
@@ -249,7 +249,7 @@ describe('URLStateManager', () => {
         tabs: { globalGroup: 't1' },
         placeholders: { globalPH: 'val1' }
       };
-      // pageElements is empty
+      // elementsOnCurrentPage is empty
       const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
       
       expect(url).toContain(`${PARAM_SHOW_TOGGLE}=globalToggle`);
@@ -274,7 +274,7 @@ describe('URLStateManager', () => {
         return undefined;
       });
 
-      // pageElements is empty
+      // elementsOnCurrentPage is empty
       const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
       
       expect(url).not.toContain('localToggle');
