@@ -1,5 +1,5 @@
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-import type { State } from '$lib/types/index';
+import type { Config, State } from '$lib/types/index';
 
 const PARAM_SHOW_TOGGLE = 't-show';
 const PARAM_PEEK_TOGGLE = 't-peek';
@@ -200,74 +200,112 @@ export interface PageElements {
 /**
  * Computes a shareable state object from the current state.
  *
- * Every toggle known to the page is explicitly encoded as shown, peeked, or hidden,
- * so the recipient's view exactly matches the sender's regardless of their local settings.
+ * Toggles, tabs, and placeholders marked as `isLocal: true` are only included
+ * if they are present on the current page.
  *
- * Toggles, tabs, and placeholders NOT present on the current page are omitted,
- * preventing cross-page state pollution.
+ * Global elements (not `isLocal`) are always included regardless of whether
+ * they are detected on the current page.
+ *
+ * Every toggle known to the page (or global) is explicitly encoded as shown,
+ * peeked, or hidden, so the recipient's view exactly matches the sender's
+ * regardless of their local settings.
  *
  * Tab-group-derived placeholders are omitted — the `?tabs=` param is their source of truth.
  *
  * @param currentState The current application state.
  * @param pageElements The active elements detected on the current page.
+ * @param config The application configuration.
  */
-function computeShareableState(currentState: State, pageElements: PageElements): State {
-  const currentShown = currentState.shownToggles ?? [];
-  const currentPeek  = currentState.peekToggles  ?? [];
-
+function computeShareableSettingState(
+  currentState: State,
+  pageElements: PageElements,
+  config: Config
+): State {
   const pageTogglesSet = new Set(pageElements.toggles);
   const pageTabGroupsSet = new Set(pageElements.tabGroups);
   const pagePlaceholdersSet = new Set(pageElements.placeholders);
 
-  // 1. Filter toggles to only those present on the page
-  const pageShown = currentShown.filter((id) => pageTogglesSet.has(id));
-  const pagePeek = currentPeek.filter((id) => pageTogglesSet.has(id));
+  return {
+    ...getShareableToggles(currentState, pageTogglesSet, config),
+    ...getShareableTabs(currentState, pageTabGroupsSet, config),
+    ...getShareablePlaceholders(currentState, pagePlaceholdersSet),
+  };
+}
 
-  const shownSet = new Set(pageShown);
-  const peekSet  = new Set(pagePeek);
+/**
+ * Filters the current toggle state (shown, peeked) and derives the explicit 
+ * hidden list for the shareable URL.
+ */
+function getShareableToggles(currentState: State, pageTogglesSet: Set<string>, config: Config): Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> {
+  const currentShown = currentState.shownToggles ?? [];
+  const currentPeek  = currentState.peekToggles  ?? [];
 
-  // Every toggle on the page that isn't shown or peeked must be explicitly hidden.
+  const isToggleRelevant = (id: string): boolean => {
+    if (pageTogglesSet.has(id)) return true;
+    const toggleConfig = config.toggles?.find(t => t.toggleId === id);
+    return toggleConfig ? !toggleConfig.isLocal : true;
+  };
+
+  const shareableShown = currentShown.filter(isToggleRelevant);
+  const shareablePeek = currentPeek.filter(isToggleRelevant);
+
+  const shownSet = new Set(shareableShown);
+  const peekSet  = new Set(shareablePeek);
+
   const absoluteHide: string[] = [];
-  for (const id of pageTogglesSet) {
-    if (!shownSet.has(id as string) && !peekSet.has(id as string)) {
-      absoluteHide.push(id as string);
+  const relevantToggles = new Set(pageTogglesSet);
+  for (const t of (config.toggles ?? [])) {
+    if (!t.isLocal) relevantToggles.add(t.toggleId);
+  }
+
+  for (const id of relevantToggles) {
+    if (!shownSet.has(id) && !peekSet.has(id)) {
+      absoluteHide.push(id);
     }
   }
 
-  const shareable: State = {};
+  const result: Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> = {};
+  if (shareableShown.length > 0) result.shownToggles = shareableShown;
+  if (shareablePeek.length  > 0) result.peekToggles  = shareablePeek;
+  if (absoluteHide.length > 0) result.hiddenToggles = absoluteHide;
+  return result;
+}
 
-  if (pageShown.length > 0) shareable.shownToggles = pageShown;
-  if (pagePeek.length  > 0) shareable.peekToggles  = pagePeek;
-  if (absoluteHide.length > 0) shareable.hiddenToggles = absoluteHide;
+/**
+ * Filters the active tab selections for the shareable URL.
+ */
+function getShareableTabs(currentState: State, pageTabGroupsSet: Set<string>, config: Config): Pick<State, 'tabs'> {
+  if (!currentState.tabs) return {};
 
-  // 2. Filter tabs to only those present on the page
-  if (currentState.tabs) {
-    const pageTabs: Record<string, string> = {};
-    for (const [groupId, tabId] of Object.entries(currentState.tabs)) {
-      if (pageTabGroupsSet.has(groupId)) {
-        pageTabs[groupId] = tabId;
-      }
-    }
-    if (Object.keys(pageTabs).length > 0) {
-      shareable.tabs = pageTabs;
-    }
-  }
-
-  // 3. Filter placeholders to only those present on the page
-  if (currentState.placeholders) {
-    const shareablePlaceholders = stripNonShareablePlaceholders(currentState.placeholders);
-    const pagePlaceholders: Record<string, string> = {};
-    for (const [key, value] of Object.entries(shareablePlaceholders)) {
-      if (pagePlaceholdersSet.has(key)) {
-        pagePlaceholders[key] = value;
-      }
-    }
-    if (Object.keys(pagePlaceholders).length > 0) {
-      shareable.placeholders = pagePlaceholders;
+  const shareableTabs: Record<string, string> = {};
+  for (const [groupId, tabId] of Object.entries(currentState.tabs)) {
+    const groupConfig = config.tabGroups?.find(g => g.groupId === groupId);
+    const isGlobal = groupConfig ? !groupConfig.isLocal : true;
+    
+    if (pageTabGroupsSet.has(groupId) || isGlobal) {
+      shareableTabs[groupId] = tabId;
     }
   }
+  return Object.keys(shareableTabs).length > 0 ? { tabs: shareableTabs } : {};
+}
 
-  return shareable;
+/**
+ * Filters the custom placeholder values for the shareable URL.
+ */
+function getShareablePlaceholders(currentState: State, pagePlaceholdersSet: Set<string>): Pick<State, 'placeholders'> {
+  if (!currentState.placeholders) return {};
+
+  const strippedPlaceholders = stripNonShareablePlaceholders(currentState.placeholders);
+  const shareablePlaceholders: Record<string, string> = {};
+  for (const [key, value] of Object.entries(strippedPlaceholders)) {
+    const definition = placeholderRegistryStore.get(key);
+    const isGlobal = definition ? !definition.isLocal : true;
+
+    if (pagePlaceholdersSet.has(key) || isGlobal) {
+      shareablePlaceholders[key] = value;
+    }
+  }
+  return Object.keys(shareablePlaceholders).length > 0 ? { placeholders: shareablePlaceholders } : {};
 }
 
 // --- URL State Manager ---
@@ -333,6 +371,7 @@ export class URLStateManager {
    */
   public static generateShareableURL(
     currentState: State | null | undefined,
+    config: Config,
     pageElements: PageElements = { toggles: [], tabGroups: [], placeholders: [] },
   ): string {
     const url = new URL(window.location.href);
@@ -343,7 +382,7 @@ export class URLStateManager {
 
     let managedSearch = '';
     if (currentState) {
-      const shareable = computeShareableState(currentState, pageElements);
+      const shareable = computeShareableSettingState(currentState, pageElements, config);
       managedSearch = buildManagedSearch(shareable);
     }
 

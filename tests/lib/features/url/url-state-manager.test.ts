@@ -7,7 +7,7 @@ vi.mock('../../../../src/lib/features/placeholder/stores/placeholder-registry-st
 }));
 
 import { URLStateManager } from '../../../../src/lib/features/url/url-state-manager';
-import type { State } from '../../../../src/lib/types/index';
+import type { Config, State } from '../../../../src/lib/types/index';
 import { placeholderRegistryStore } from '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte';
 
 // --- Test Helpers ---
@@ -132,7 +132,7 @@ describe('URLStateManager', () => {
         placeholders: ['myKey'],
       };
 
-      const shareUrl = URLStateManager.generateShareableURL(current, allIds);
+      const shareUrl = URLStateManager.generateShareableURL(current, {}, allIds);
       (window as any).location.search = new URL(shareUrl).search;
       const parsed = URLStateManager.parseURL();
 
@@ -153,7 +153,7 @@ describe('URLStateManager', () => {
         },
       };
 
-      const shareUrl = URLStateManager.generateShareableURL(current, {
+      const shareUrl = URLStateManager.generateShareableURL(current, {}, {
         toggles: [],
         tabGroups: [],
         placeholders: ['key1', 'key2'],
@@ -174,8 +174,19 @@ describe('URLStateManager', () => {
     beforeEach(freshLocation);
 
     it('encodes all active toggles and explicitly hides the rest', () => {
+      const config: Config = {
+        toggles: [
+          { toggleId: 'A' },
+          { toggleId: 'NEW' },
+          { toggleId: 'HIDDEN_DEFAULT' }
+        ],
+        tabGroups: [
+          { groupId: 'g1', tabs: [{ tabId: 'tabA' }] }
+        ]
+      };
       const url = URLStateManager.generateShareableURL(
         { shownToggles: ['A', 'NEW'], peekToggles: [], tabs: { g1: 'tabA' } },
+        config,
         { toggles: ['A', 'NEW', 'HIDDEN_DEFAULT'], tabGroups: ['g1'], placeholders: [] },
       );
       expect(url).toContain('t-show=A,NEW');
@@ -185,26 +196,74 @@ describe('URLStateManager', () => {
 
     it('returns clean URL for null state', () => {
       setLocation('?t-show=t1');
-      const url = URLStateManager.generateShareableURL(null);
+      const url = URLStateManager.generateShareableURL(null, {});
       expect(url).not.toContain('t-show=');
     });
 
     it('preserves cv-show / cv-hide params', () => {
       setLocation('?cv-show=el1');
+      const config: Config = { toggles: [{ toggleId: 't1' }, { toggleId: 'other' }] };
       const url = URLStateManager.generateShareableURL(
         { shownToggles: ['t1'] },
+        config,
         { toggles: ['t1', 'other'], tabGroups: [], placeholders: [] },
       );
       expect(url).toContain('cv-show=el1');
     });
 
     it('encodes t-hide for all toggles not shown or peeked', () => {
+      const config: Config = { toggles: [{ toggleId: 'A' }, { toggleId: 'B' }] };
       const url = URLStateManager.generateShareableURL(
         { shownToggles: [], peekToggles: [] },
+        config,
         { toggles: ['A', 'B'], tabGroups: [], placeholders: [] },
       );
       expect(url).toContain('t-hide=A,B');
       expect(url).not.toContain('t-show=');
+    });
+
+    it('includes global (non-local) configurations even if not on page', () => {
+      const config: Config = {
+        toggles: [{ toggleId: 'globalToggle', isLocal: false }],
+        tabGroups: [{ groupId: 'globalGroup', isLocal: false, tabs: [{ tabId: 't1' }] }],
+        placeholders: [{ name: 'globalPH', isLocal: false }]
+      };
+      const state: State = {
+        shownToggles: ['globalToggle'],
+        tabs: { globalGroup: 't1' },
+        placeholders: { globalPH: 'val1' }
+      };
+      // pageElements is empty
+      const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
+      
+      expect(url).toContain('t-show=globalToggle');
+      expect(url).toContain('tabs=globalGroup:t1');
+      expect(url).toContain('ph=globalPH:val1');
+    });
+
+    it('filters out local configurations if not on page', () => {
+      const config: Config = {
+        toggles: [{ toggleId: 'localToggle', isLocal: true }],
+        tabGroups: [{ groupId: 'localGroup', isLocal: true, tabs: [{ tabId: 't1' }] }],
+        placeholders: [{ name: 'localPH', isLocal: true }]
+      };
+      const state: State = {
+        shownToggles: ['localToggle'],
+        tabs: { localGroup: 't1' },
+        placeholders: { localPH: 'val1' }
+      };
+      // Mock registry to return a local definition for localPH
+      vi.mocked(placeholderRegistryStore.get).mockImplementation((name) => {
+        if (name === 'localPH') return { name: 'localPH', isLocal: true };
+        return undefined;
+      });
+
+      // pageElements is empty
+      const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
+      
+      expect(url).not.toContain('localToggle');
+      expect(url).not.toContain('localGroup');
+      expect(url).not.toContain('localPH');
     });
 
     describe('generateShareableURL — adaptationPlaceholder', () => {
@@ -218,6 +277,7 @@ describe('URLStateManager', () => {
 
         const url = URLStateManager.generateShareableURL(
           { placeholders: { instName: 'NUS', user: 'Alice' } },
+          {},
           { toggles: [], tabGroups: [], placeholders: ['instName', 'user'] }
         );
 
@@ -230,6 +290,7 @@ describe('URLStateManager', () => {
 
         const url = URLStateManager.generateShareableURL(
           { placeholders: { user: 'Alice' } },
+          {},
           { toggles: [], tabGroups: [], placeholders: ['user'] }
         );
 
@@ -245,6 +306,7 @@ describe('URLStateManager', () => {
 
         const url = URLStateManager.generateShareableURL(
           { placeholders: { fruit: 'apple', instName: 'NUS', user: 'Alice' } },
+          {},
           { toggles: [], tabGroups: [], placeholders: ['fruit', 'instName', 'user'] }
         );
 
