@@ -1,5 +1,4 @@
 import type { ConfigFile, State } from '$lib/types/index';
-import type { AssetsManager } from '$features/render/assets';
 import type { AdaptationConfig } from '$features/adaptation/types';
 
 import { PersistenceManager } from './utils/persistence';
@@ -11,7 +10,6 @@ import { FocusService } from '$features/focus/services/focus-service.svelte';
 import { activeStateStore } from './stores/active-state-store.svelte';
 import { elementStore } from './stores/element-store.svelte';
 import { uiStore } from './stores/ui-store.svelte';
-import { derivedStore } from './stores/derived-store.svelte';
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
@@ -32,7 +30,6 @@ function stripAdaptationPlaceholders(state: State): State {
 }
 
 export interface RuntimeOptions {
-  assetsManager: AssetsManager;
   configFile: ConfigFile;
   rootEl?: HTMLElement | undefined;
   storageKey?: string | undefined;
@@ -64,9 +61,6 @@ export class AppRuntime {
 
     // Initialize adaptation store
     adaptationStore.init(opt.adaptationConfig ?? null);
-
-    // Store assetsManager for component access
-    derivedStore.setAssetsManager(opt.assetsManager);
 
     // Initial State Resolution:
     // URL (Sparse Override) > Persistence (Full) > Adaptation Defaults > Config Default

@@ -32,10 +32,6 @@ export interface Config {
 export interface ConfigFile {
   /** Core configuration object with toggles and defaultState */
   config?: Config;
-  /** Path to the assets JSON file */
-  assetsJsonPath?: string;
-  /** Base URL for all paths */
-  baseUrl?: string;
   /** Optional key to namespace localStorage items for isolation */
   storageKey?: string;
   /** Widget configuration options */

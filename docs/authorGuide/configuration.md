@@ -12,7 +12,7 @@
 
 ## Configuration File (`custardui.config.json`)
 
-CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, assets, and widget settings.
+CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, placeholders, and widget settings.
 
 ### Basic Structure
 
@@ -23,7 +23,6 @@ CustardUI is configured via a JSON file, typically named `custardui.config.json`
     "tabGroups": [...],
     "placeholders": [...]
   },
-  "baseUrl": "/website-baseUrl",
   ...
 }
 ```
@@ -46,10 +45,9 @@ Refer to individual components for more details on each configuration option.
 
 ## Global Options
 
-| Field          | Type      | Default | Description                                                                                                            |
-| -------------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
-| baseUrl        | `string`  | `/`     | Base URL for resolving relative paths (can also be `baseURL`). Specifies the website's base URL (for example `/docs`). |
-| storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`).   |
+| Field          | Type      | Default | Description                                                                                                          |
+| -------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
+| storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
 
 ### Settings Configuration in `config.json`: (`settings`)
 
@@ -110,7 +108,7 @@ When using auto-initialization via script tag, you can override configuration:
 ></script>
 ```
 
-| Attribute          | Description                                                                                                                                                                                                                         |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data-base-url`    | Specifies the website's base URL (for example `/docs`). This value is used to resolve relative asset paths and, when provided on the script tag, takes precedence over the `baseURL` in the config file.                            |
-| `data-config-path` | Path to the config file to use for auto-initialization (default: `/custardui.config.json`). Provide an absolute or site-relative path if your config is located elsewhere  |
+| Attribute          | Default                    | Description                                                                                                          |
+| ------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `data-base-url`    | `/`                        | Specifies the website's base URL (for example `/docs`). Used to resolve relative paths in features such as adaptation. |
+| `data-config-path` | `/custardui.config.json`   | Path to the config file for auto-initialization. Provide an absolute or site-relative path if your config is elsewhere. |
