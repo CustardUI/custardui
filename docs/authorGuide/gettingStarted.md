@@ -26,7 +26,7 @@ CustardUI is designed to stay out of your way — you write your content as norm
   - [Settings Panel](components/settings.md) — the built-in UI your readers use to manage their preferences
   - [Focus & Share](components/share.md) — shareable deep links that highlight any element on the page
 - **[URL Sharing](urlSharing.md)** — how the highlight parameter works and how to construct share links
-- **[Adaptations](adaptations.md)** — serve different audiences from a single deployment
+- **[Adaptations](adaptations/adaptations.md)** — serve different audiences from a single deployment
 - **Integrations:**
   - [MarkBind Setup](integrations/setupWithMarkbind.md)
 
