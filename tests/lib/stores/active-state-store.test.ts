@@ -392,10 +392,10 @@ describe('ActiveStateStore', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // applyState — adaptationPlaceholder
+  // applyState — siteManaged
   // ---------------------------------------------------------------------------
 
-  describe('applyState — adaptationPlaceholder', () => {
+  describe('applyState — siteManaged', () => {
     it('blocks persisted adaptation placeholder from overriding state', () => {
       vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({});
 
@@ -413,10 +413,10 @@ describe('ActiveStateStore', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // applyDifferenceInState — adaptationPlaceholder
+  // applyDifferenceInState — siteManaged
   // ---------------------------------------------------------------------------
 
-  describe('applyDifferenceInState — adaptationPlaceholder', () => {
+  describe('applyDifferenceInState — siteManaged', () => {
     it('blocks URL delta from overriding an adaptation placeholder', () => {
       vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({});
 

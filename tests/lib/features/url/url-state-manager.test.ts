@@ -291,13 +291,13 @@ describe('URLStateManager', () => {
       expect(url).not.toContain('localPH');
     });
 
-    describe('generateShareableURL — adaptationPlaceholder', () => {
+    describe('generateShareableURL — siteManaged', () => {
       beforeEach(freshLocation);
       afterEach(() => { vi.clearAllMocks(); });
 
-      it('excludes adaptationPlaceholder: true entries from the URL', () => {
+      it('excludes siteManaged: true entries from the URL', () => {
         vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
-          if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          if (key === 'instName') return { name: 'instName', siteManaged: true };
           if (key === 'user') return { name: 'user', isLocal: false };
           return undefined;
         });
@@ -327,7 +327,7 @@ describe('URLStateManager', () => {
       it('excludes both tabgroup-derived and adaptation-only placeholders', () => {
         vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
           if (key === 'fruit') return { name: 'fruit', source: 'tabgroup' };
-          if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          if (key === 'instName') return { name: 'instName', siteManaged: true };
           if (key === 'user') return { name: 'user', isLocal: false };
           return undefined;
         });

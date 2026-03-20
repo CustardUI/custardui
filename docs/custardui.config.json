@@ -120,7 +120,7 @@
       {
         "name": "institutionName",
         "defaultValue": "Generic University",
-        "adaptationPlaceholder": true
+        "siteManaged": true
       }
     ]
   },

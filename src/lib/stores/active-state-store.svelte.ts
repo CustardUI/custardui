@@ -172,20 +172,20 @@ export class ActiveStateStore {
   }
 
   /**
-   * Applies adaptation defaults on top of the config defaults, before persisted state.
+   * Applies adaptation preset on top of the config defaults, before persisted state.
    * User choices applied later via applyState() will override these.
    *
-   * @param defaults The defaults section from the adaptation config
+   * @param preset The preset section from the adaptation config
    */
-  applyAdaptationDefaults(defaults: AdaptationConfig['defaults']): void {
-    if (!defaults) return;
+  applyAdaptationDefaults(preset: AdaptationConfig['preset']): void {
+    if (!preset) return;
 
-    if (defaults.toggles) {
-      this.applyToggleMap(defaults.toggles);
+    if (preset.toggles) {
+      this.applyToggleMap(preset.toggles);
     }
 
-    if (defaults.placeholders) {
-      const validated = placeholderManager.filterValidPlaceholders(defaults.placeholders);
+    if (preset.placeholders) {
+      const validated = placeholderManager.filterValidPlaceholders(preset.placeholders);
       if (!this.state.placeholders) this.state.placeholders = {};
       Object.assign(this.state.placeholders, validated);
     }
@@ -240,11 +240,11 @@ export class ActiveStateStore {
       }
     }
 
-    // 3. Seed author-controlled (adaptationPlaceholder) defaults.
+    // 3. Seed site-managed (siteManaged) defaults.
     // These are set by adaptations when active, and fall back to defaultValue when no adaptation is active.
     // This is intentionally separate from regular user-settable placeholder defaults (see PR #206).
     for (const def of placeholderRegistryStore.definitions) {
-      if (def.adaptationPlaceholder && def.defaultValue !== undefined && def.defaultValue !== '') {
+      if (def.siteManaged && def.defaultValue !== undefined && def.defaultValue !== '') {
         placeholders[def.name] = def.defaultValue;
       }
     }

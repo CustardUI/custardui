@@ -110,6 +110,47 @@ The meta tag wins over `localStorage` but not over `?adapt=clear`. A visitor who
 
 ---
 
+## Activation Landing Page
+
+`{id}/index.md` is the page users reach when they navigate directly to `/{baseUrl}/{id}/` — for example, from a shared institution link or a navbar entry. Without it, the SSG serves a 404 or an empty page.
+
+The recommended pattern is:
+
+1. A **meta tag** in the page activates the adaptation (highest priority, fires before any `localStorage` value).
+2. A **client-side JS redirect** immediately sends the user to the main content page.
+
+Because the meta tag is processed before the redirect fires, the adaptation is already persisted to `localStorage` by the time the user arrives on the main page — so they see the correct theme without any flicker or extra round-trip.
+
+**MarkBind example**
+
+Create a layout file that injects the meta tag:
+
+`_markbind/layouts/nus.md`
+```html
+<head-bottom>
+  <meta name="cv-adapt" content="nus">
+</head-bottom>
+```
+
+Then use that layout in the landing page and add the redirect:
+
+`docs/nus/index.md`
+```html
+<frontmatter>
+  layout: nus.md
+</frontmatter>
+
+<script>
+  window.location.href = "../index.html"
+</script>
+```
+
+**Alternative: real landing page**
+
+If you want users to actually land on `/{id}/` rather than be redirected, omit the `<script>` block and put your content directly in `index.md`. The meta tag alone is enough to activate the adaptation.
+
+---
+
 ## Clearing an Adaptation
 
 To deactivate the current adaptation and return to the site defaults, link to `?adapt=clear`:

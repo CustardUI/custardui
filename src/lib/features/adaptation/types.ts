@@ -5,7 +5,7 @@ export interface AdaptationConfig {
     cssVariables?: Record<string, string>;
     cssFile?: string;
   };
-  defaults?: {
+  preset?: {
     toggles?: Record<string, 'show' | 'hide' | 'peek'>;
     placeholders?: Record<string, string>;
   };

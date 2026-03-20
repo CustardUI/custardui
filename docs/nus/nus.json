@@ -9,7 +9,7 @@
       "--cv-icon-color": "#ffffff"
     }
   },
-  "defaults": {
+  "preset": {
     "toggles": {
       "linux": "show",
       "windows": "hide"

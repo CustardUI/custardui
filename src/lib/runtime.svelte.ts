@@ -16,15 +16,15 @@ import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
 
 /**
- * Strips adaptation-only placeholder keys from the state before persisting.
- * These should never accumulate in localStorage, as they are controlled by adaptations.
+ * Strips site-managed placeholder keys from the state before persisting.
+ * These should never accumulate in localStorage, as they are controlled by the site.
  */
-function stripAdaptationPlaceholders(state: State): State {
+function stripSiteManagedPlaceholders(state: State): State {
   if (!state.placeholders) return state;
   const filtered: Record<string, string> = {};
   for (const [key, value] of Object.entries(state.placeholders)) {
     const def = placeholderRegistryStore.get(key);
-    if (!def?.adaptationPlaceholder) filtered[key] = value;
+    if (!def?.siteManaged) filtered[key] = value;
   }
   return { ...state, placeholders: filtered };
 }
@@ -63,7 +63,7 @@ export class AppRuntime {
     adaptationStore.init(opt.adaptationConfig ?? null);
 
     // Initial State Resolution:
-    // URL (Sparse Override) > Persistence (Full) > Adaptation Defaults > Config Default
+    // URL (Sparse Override) > Persistence (Full) > Adaptation Preset > Config Default
     this.resolveInitialState(opt.adaptationConfig ?? null);
 
     // Resolve Exclusions
@@ -102,7 +102,7 @@ export class AppRuntime {
    * Resolves the starting application state by layering sources:
    *
    * 1. **Baseline**: `ActiveStateStore` initializes with defaults from the config file.
-   * 2. **Adaptation Defaults**: If an adaptation is active, its defaults are applied
+   * 2. **Adaptation Preset**: If an adaptation is active, its preset is applied
    *    on top of the config defaults (before persisted state, so user choices can win).
    * 3. **Persistence**: If local storage has a saved state, it replaces the baseline (`applyState`).
    * 4. **URL Overrides**: If the URL contains parameters (`?t-show=X`), these are applied
@@ -110,9 +110,9 @@ export class AppRuntime {
    *    retain their values from persistence/defaults.
    */
   private resolveInitialState(adaptationConfig: AdaptationConfig | null) {
-    // 1. Apply adaptation defaults on top of config defaults (before persisted state)
-    if (adaptationConfig?.defaults) {
-      activeStateStore.applyAdaptationDefaults(adaptationConfig.defaults);
+    // 1. Apply adaptation preset on top of config defaults (before persisted state)
+    if (adaptationConfig?.preset) {
+      activeStateStore.applyAdaptationDefaults(adaptationConfig.preset);
     }
 
     // 2. Apply persisted base state on top of defaults (user choices win over adaptation defaults).
@@ -165,7 +165,7 @@ export class AppRuntime {
     this.destroyEffectRoot = $effect.root(() => {
       // Automatic Persistence
       $effect(() => {
-        this.persistenceManager.persistState(stripAdaptationPlaceholders(activeStateStore.state));
+        this.persistenceManager.persistState(stripSiteManagedPlaceholders(activeStateStore.state));
         this.persistenceManager.persistTabNavVisibility(uiStore.isTabGroupNavHeadingVisible);
       });
 
@@ -238,9 +238,9 @@ export class AppRuntime {
   public resetToDefault() {
     this.persistenceManager.clearAll();
     activeStateStore.reset();
-    // Re-apply adaptation defaults so adaptation-controlled placeholders are not wiped by reset.
-    if (adaptationStore.activeConfig?.defaults) {
-      activeStateStore.applyAdaptationDefaults(adaptationStore.activeConfig.defaults);
+    // Re-apply adaptation preset so adaptation-controlled placeholders are not wiped by reset.
+    if (adaptationStore.activeConfig?.preset) {
+      activeStateStore.applyAdaptationDefaults(adaptationStore.activeConfig.preset);
     }
     uiStore.reset();
     uiStore.isTabGroupNavHeadingVisible = true;
