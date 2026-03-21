@@ -358,7 +358,7 @@ describe('URLStateManager', () => {
         expect(url).toContain('user:Alice');
       });
 
-      it('excludes both tabgroup-derived and adaptation-only placeholders', () => {
+      it('excludes both tabgroup-derived and siteManaged placeholders', () => {
         vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
           if (key === 'fruit') return { name: 'fruit', source: 'tabgroup' };
           if (key === 'instName') return { name: 'instName', siteManaged: true };

@@ -64,6 +64,8 @@
     if (placeholderId) elementStore.registerPlaceholder(placeholderName);
   });
 
+  let isSiteManaged = $derived(toggleConfig?.siteManaged ?? false);
+
   // Derive label text from config
   let labelText = $derived.by(() => {
     if (!toggleConfig) return '';
@@ -187,7 +189,7 @@
 
 </script>
 
-{#if showInlineControl && !isPlaceholderMode && isHidden}
+{#if showInlineControl && !isPlaceholderMode && !isSiteManaged && isHidden}
   <!-- Hidden-state placeholder bar -->
   <div class="cv-toggle-placeholder" role="group" aria-label="Toggle: {labelText}">
     {#if labelText}
@@ -215,13 +217,13 @@
   class:peek-mode={peekState}
   class:hidden={isHidden}
   class:has-border={showPeekBorder && peekState}
-  class:has-inline-control={showInlineControl && !isPlaceholderMode}
+  class:has-inline-control={showInlineControl && !isPlaceholderMode && !isSiteManaged}
 >
   {#if showLabel && labelText && !isHidden}
     <div class="cv-toggle-label">{labelText}</div>
   {/if}
 
-  {#if showInlineControl && !isPlaceholderMode && !isHidden}
+  {#if showInlineControl && !isPlaceholderMode && !isSiteManaged && !isHidden}
     <div class="cv-state-dots cv-state-dots--floating" role="group" aria-label="Visibility states">
       {#each (['hide', 'peek', 'show'] as const) as dotState}
         <button

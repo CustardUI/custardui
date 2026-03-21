@@ -16,7 +16,7 @@ import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
 
 /**
- * Strips site-managed state (toggles, tabs, placeholders) before persisting.
+ * Strips site-managed state (toggles and placeholders) before persisting.
  * Site-managed values are controlled by the site/adaptation and should never
  * accumulate in localStorage.
  */

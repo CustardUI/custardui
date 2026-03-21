@@ -78,7 +78,7 @@ export class PlaceholderManager {
 
   /**
    * Filters a record of incoming placeholders to only those that can be set by users.
-   * Extends filterValidPlaceholders() by also excluding adaptation-only placeholders.
+   * Extends filterValidPlaceholders() by also excluding siteManaged placeholders.
    * Use this for persistence loads and URL delta application.
    */
   filterUserSettablePlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
