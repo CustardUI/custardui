@@ -135,8 +135,8 @@ export class ActiveStateStore {
 
     const validatedTabs = this.filterValidTabs(newState.tabs ?? {});
     const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(newState.placeholders ?? {});
-    const validatedShownToggles = this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []);
-    const validatedPeekToggles = this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []);
+    const validatedShownToggles = this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []));
+    const validatedPeekToggles = this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []));
 
     this.state = {
       shownToggles: validatedShownToggles,
@@ -182,6 +182,12 @@ export class ActiveStateStore {
 
     if (preset.toggles) {
       this.applyToggleMap(preset.toggles);
+    }
+
+    if (preset.tabs) {
+      const validated = this.filterValidTabs(preset.tabs);
+      if (!this.state.tabs) this.state.tabs = {};
+      Object.assign(this.state.tabs, validated);
     }
 
     if (preset.placeholders) {
@@ -299,11 +305,11 @@ export class ActiveStateStore {
    */
   private applyToggleDelta(deltaState: State) {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toShow = new Set(this.filterValidToggles(deltaState.shownToggles ?? []));
+    const toShow = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.shownToggles ?? [])));
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toPeek = new Set(this.filterValidToggles(deltaState.peekToggles ?? []));
+    const toPeek = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.peekToggles ?? [])));
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toHide = new Set(this.filterValidToggles(deltaState.hiddenToggles ?? []));
+    const toHide = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.hiddenToggles ?? [])));
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const allMentioned = new Set([...toShow, ...toPeek, ...toHide]);
 
@@ -345,6 +351,17 @@ export class ActiveStateStore {
 
     if (!this.state.placeholders) this.state.placeholders = {};
     Object.assign(this.state.placeholders, validatedPlaceholders);
+  }
+
+  /**
+   * Removes toggle IDs belonging to siteManaged toggles.
+   * Used to prevent user-supplied state (URL, localStorage) from overriding site-controlled toggles.
+   */
+  private filterNonSiteManagedToggleIds(ids: string[]): string[] {
+    return ids.filter((id) => {
+      const toggle = this.config.toggles?.find((t) => t.toggleId === id);
+      return !toggle?.siteManaged;
+    });
   }
 
   /**

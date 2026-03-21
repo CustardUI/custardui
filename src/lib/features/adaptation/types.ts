@@ -7,6 +7,7 @@ export interface AdaptationConfig {
   };
   preset?: {
     toggles?: Record<string, 'show' | 'hide' | 'peek'>;
+    tabs?: Record<string, string>;
     placeholders?: Record<string, string>;
   };
 }

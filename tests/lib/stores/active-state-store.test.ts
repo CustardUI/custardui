@@ -426,4 +426,74 @@ describe('ActiveStateStore', () => {
       expect(store.state.placeholders?.instName).toBeUndefined();
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // applyState — siteManaged toggles and tabs
+  // ---------------------------------------------------------------------------
+
+  describe('applyState — siteManaged toggles and tabs', () => {
+    it('ignores persisted shownToggles for siteManaged toggles', () => {
+      store.init({
+        toggles: [
+          { toggleId: 'managed', siteManaged: true },
+          { toggleId: 'normal' },
+        ],
+      });
+
+      store.applyState({ shownToggles: ['managed', 'normal'], peekToggles: [] });
+
+      expect(store.state.shownToggles).not.toContain('managed');
+      expect(store.state.shownToggles).toContain('normal');
+    });
+
+    it('ignores persisted peekToggles for siteManaged toggles', () => {
+      store.init({
+        toggles: [
+          { toggleId: 'managed', siteManaged: true },
+          { toggleId: 'normal' },
+        ],
+      });
+
+      store.applyState({ shownToggles: [], peekToggles: ['managed', 'normal'] });
+
+      expect(store.state.peekToggles).not.toContain('managed');
+      expect(store.state.peekToggles).toContain('normal');
+    });
+
+  });
+
+  // ---------------------------------------------------------------------------
+  // applyDifferenceInState — siteManaged toggles and tabs
+  // ---------------------------------------------------------------------------
+
+  describe('applyDifferenceInState — siteManaged toggles and tabs (URL delta)', () => {
+    it('ignores URL delta shownToggles for siteManaged toggles', () => {
+      store.init({
+        toggles: [
+          { toggleId: 'managed', siteManaged: true, default: 'hide' },
+          { toggleId: 'normal', default: 'hide' },
+        ],
+      });
+
+      store.applyDifferenceInState({ shownToggles: ['managed', 'normal'] });
+
+      expect(store.state.shownToggles).not.toContain('managed');
+      expect(store.state.shownToggles).toContain('normal');
+    });
+
+    it('ignores URL delta hiddenToggles for siteManaged toggles', () => {
+      store.init({
+        toggles: [
+          { toggleId: 'managed', siteManaged: true, default: 'show' },
+          { toggleId: 'normal', default: 'show' },
+        ],
+      });
+
+      store.applyDifferenceInState({ hiddenToggles: ['managed', 'normal'] });
+
+      expect(store.state.shownToggles).toContain('managed');
+      expect(store.state.shownToggles).not.toContain('normal');
+    });
+
+  });
 });

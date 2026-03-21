@@ -16,17 +16,28 @@ import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
 
 /**
- * Strips site-managed placeholder keys from the state before persisting.
- * These should never accumulate in localStorage, as they are controlled by the site.
+ * Strips site-managed state (toggles, tabs, placeholders) before persisting.
+ * Site-managed values are controlled by the site/adaptation and should never
+ * accumulate in localStorage.
  */
-function stripSiteManagedPlaceholders(state: State): State {
-  if (!state.placeholders) return state;
-  const filtered: Record<string, string> = {};
-  for (const [key, value] of Object.entries(state.placeholders)) {
+function stripSiteManaged(state: State): State {
+  // Strip siteManaged toggle values
+  const siteManagedToggleIds = new Set(
+    (activeStateStore.config.toggles ?? [])
+      .filter((t) => t.siteManaged)
+      .map((t) => t.toggleId),
+  );
+  const shownToggles = (state.shownToggles ?? []).filter((id) => !siteManagedToggleIds.has(id));
+  const peekToggles = (state.peekToggles ?? []).filter((id) => !siteManagedToggleIds.has(id));
+
+  // Strip siteManaged placeholder keys
+  const placeholders: Record<string, string> = {};
+  for (const [key, value] of Object.entries(state.placeholders ?? {})) {
     const def = placeholderRegistryStore.get(key);
-    if (!def?.siteManaged) filtered[key] = value;
+    if (!def?.siteManaged) placeholders[key] = value;
   }
-  return { ...state, placeholders: filtered };
+
+  return { ...state, shownToggles, peekToggles, placeholders };
 }
 
 export interface RuntimeOptions {
@@ -165,7 +176,7 @@ export class AppRuntime {
     this.destroyEffectRoot = $effect.root(() => {
       // Automatic Persistence
       $effect(() => {
-        this.persistenceManager.persistState(stripSiteManagedPlaceholders(activeStateStore.state));
+        this.persistenceManager.persistState(stripSiteManaged(activeStateStore.state));
         this.persistenceManager.persistTabNavVisibility(uiStore.isTabGroupNavHeadingVisible);
       });
 

@@ -48,6 +48,9 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
       return pageTogglesSet.has(id);
     }
 
+    // Site-managed toggles are never included in shareable URLs
+    if (toggleConfig.siteManaged) return false;
+
     // Case 2: Configured as Global
     if (!toggleConfig.isLocal) {
       return true;
@@ -66,11 +69,16 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
   const absoluteHide: string[] = [];
   const relevantToggles = new Set(pageTogglesSet);
   for (const t of (config.toggles ?? [])) {
-    if (!t.isLocal) relevantToggles.add(t.toggleId);
+    if (!t.isLocal && !t.siteManaged) relevantToggles.add(t.toggleId);
   }
 
+  // Build a set of siteManaged toggle IDs to exclude from absoluteHide
+  const siteManagedToggleIds = new Set(
+    (config.toggles ?? []).filter(t => t.siteManaged).map(t => t.toggleId),
+  );
+
   for (const id of relevantToggles) {
-    if (!shownSet.has(id) && !peekSet.has(id)) {
+    if (!shownSet.has(id) && !peekSet.has(id) && !siteManagedToggleIds.has(id)) {
       absoluteHide.push(id);
     }
   }
