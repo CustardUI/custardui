@@ -34,6 +34,9 @@ const tagConfig = {
 	},
 	'cv-placeholder-input': {
 		isCustomElement: true
+	},
+	'cv-label': {
+		isCustomElement: true
 	}
 };
 

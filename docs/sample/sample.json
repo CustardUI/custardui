@@ -1,0 +1,20 @@
+{
+  "id": "sample",
+  "name": "sample",
+  "preset": {
+    "toggles": {
+      "linux": "show",
+      "windows": "hide"
+    },
+    "placeholders": {
+      "username": "Sample Student",
+      "institutionName": "Sample Institution"
+    },
+    "labels": {
+      "exercise-1": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-2": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-3": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-4": { "value": "COMPULSORY", "color": "#ef4444" }
+    }
+  }
+}

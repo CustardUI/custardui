@@ -1,4 +1,5 @@
 {
+  "colorScheme": "light",
   "config": {
     "toggles": [
       {
@@ -122,6 +123,17 @@
         "defaultValue": "Generic University",
         "siteManaged": true
       }
+    ],
+    "labels": [
+      { "name": "optional", "color": "#3b82f6" },
+      { "name": "key", "value": "★ KEY", "color": "#ef4444" },
+      { "name": "warning", "value": "⚠ WARNING", "color": "#f59e0b" },
+      { "name": "advanced", "color": "#8b5cf6" },
+      { "name": "exercise-1", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-2", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-3", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-4", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "sampleColor" }
     ]
   },
   "baseUrl": "/",

@@ -14,12 +14,14 @@
 * Site Adaptations
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
+  * [Sample]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
 * [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
 * [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
   * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
   * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
   * [Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
+  * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
   * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
       </site-nav>
     </div>

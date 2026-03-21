@@ -12,6 +12,8 @@ import { elementStore } from './stores/element-store.svelte';
 import { uiStore } from './stores/ui-store.svelte';
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
+import { labelManager } from '$features/labels/label-manager';
+import { colorSchemeStore } from '$lib/stores/color-scheme-store.svelte';
 import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
 
@@ -100,6 +102,12 @@ export class AppRuntime {
     // Register tab-group placeholders AFTER global config placeholders to preserve precedence
     placeholderManager.registerTabGroupPlaceholders(config);
 
+    // Register label definitions
+    labelManager.registerConfigLabels(config);
+
+    // Initialize color scheme for site for general color resolution
+    colorSchemeStore.init(configFile.colorScheme ?? 'light');
+
     // Initialize UI Options from Settings
     uiStore.setUIOptions({
       showTabGroups: settings.showTabGroups ?? true,
@@ -124,6 +132,9 @@ export class AppRuntime {
     // 1. Apply adaptation preset on top of config defaults (before persisted state)
     if (adaptationConfig?.preset) {
       activeStateStore.applyAdaptationDefaults(adaptationConfig.preset);
+      if (adaptationConfig.preset.labels) {
+        labelManager.applyAdaptationOverrides(adaptationConfig.preset.labels);
+      }
     }
 
     // 2. Apply persisted base state on top of defaults (user choices win over adaptation defaults).

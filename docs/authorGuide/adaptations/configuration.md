@@ -10,23 +10,6 @@
 
 # {{ title }}
 
-### Placeholder Adaptation Configurations
-
-Adaptations override placeholder values via `preset.placeholders`. The preset is applied before the user's persisted state, so users can still change these values from the settings modal.
-
-To prevent users from ever changing a placeholder — making it fully site-controlled — mark it with `siteManaged: true` in `custardui.config.json`. See [Site-Managed Components](#site-managed-components-sitemanaged) below.
-
-### TabGroup Adaptation Configurations
-
-Adaptations can set an initial tab selection via `preset.tabs`. The preset is applied before the user's persisted state, so users can still change the tab from the settings modal or a shared URL.
-
-### Toggle Adaptation Configurations
-
-Adaptations override toggle visibility via `preset.toggles`. The preset is applied before the user's persisted state, so users can still override toggle states from the settings modal or a shared URL.
-
-To prevent users from ever changing a toggle's state — making it fully site-controlled — mark it with `siteManaged: true` in `custardui.config.json`. See [Site-Managed Components](#site-managed-components-sitemanaged) below.
-
-
 ## Adaptation JSON Schema
 
 ```json
@@ -211,3 +194,20 @@ For example, we want this documentation site to be customized for NUS.
 Students linked to `/nus/` get the NUS theme immediately; the theme persists as they navigate the rest of the site.
 
 See the [live demo](/nus/) for an interactive example.
+
+
+### Placeholder Adaptation Configurations
+
+Adaptations override placeholder values via `preset.placeholders`. The preset is applied before the user's persisted state, so users can still change these values from the settings modal.
+
+To prevent users from ever changing a placeholder — making it fully site-controlled — mark it with `siteManaged: true` in `custardui.config.json`. See [Site-Managed Components](#site-managed-components-sitemanaged) below.
+
+### TabGroup Adaptation Configurations
+
+Adaptations can set an initial tab selection via `preset.tabs`. The preset is applied before the user's persisted state, so users can still change the tab from the settings modal or a shared URL.
+
+### Toggle Adaptation Configurations
+
+Adaptations override toggle visibility via `preset.toggles`. The preset is applied before the user's persisted state, so users can still override toggle states from the settings modal or a shared URL.
+
+To prevent users from ever changing a toggle's state — making it fully site-controlled — mark it with `siteManaged: true` in `custardui.config.json`. See [Site-Managed Components](#site-managed-components-sitemanaged) below.
