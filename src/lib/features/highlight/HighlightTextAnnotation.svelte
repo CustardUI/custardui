@@ -144,9 +144,9 @@
   function getRibbonClipPath(c: AnnotationCorner): string {
     const pointsRight = c === 'tl' || c === 'bl';
     if (pointsRight) {
-      return 'polygon(0% 0%, 80% 0%, 100% 50%, 80% 100%, 0% 100%)';
+      return 'polygon(0% 0%, calc(100% - 14px) 0%, 100% 50%, calc(100% - 14px) 100%, 0% 100%)';
     } else {
-      return 'polygon(20% 0%, 100% 0%, 100% 100%, 20% 100%, 0% 50%)';
+      return 'polygon(14px 0%, 100% 0%, 100% 100%, 14px 100%, 0% 50%)';
     }
   }
 </script>
