@@ -6,13 +6,13 @@ import { placeholderRegistryStore } from '$features/placeholder/stores/placehold
  * Cross-cutting derived state that combines data from multiple sub-stores.
  * Holds only computed/derived values — no mutable application state.
  */
-class DerivedStateStore {
+export class DerivedStateStore {
   // Menu toggles are those that are either global or
   // local but present and registered in the DOM
   menuToggles = $derived.by(() => {
     if (!activeStateStore.config.toggles) return [];
     return activeStateStore.config.toggles.filter(
-      (t) => !t.isLocal || elementStore.detectedToggles.has(t.toggleId),
+      (t) => (!t.isLocal || elementStore.detectedToggles.has(t.toggleId)) && !t.siteManaged,
     );
   });
 

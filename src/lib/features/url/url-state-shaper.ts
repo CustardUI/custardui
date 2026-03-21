@@ -13,7 +13,7 @@ export interface ElementsOnCurrentPage {
 /**
  * Strips placeholder entries that should not appear in shareable URLs:
  * - Tab-group-derived placeholders (source: 'tabgroup') — implied by ?tabs=
- * - Adaptation-only placeholders (adaptationPlaceholder: true) — author-controlled, not shareable
+ * - Site-managed placeholders (siteManaged: true) — site-controlled, not shareable
  */
 export function stripNonShareablePlaceholders(placeholders: Record<string, string>, config: Config): Record<string, string> {
   const shareable: Record<string, string> = {};
@@ -25,7 +25,7 @@ export function stripNonShareablePlaceholders(placeholders: Record<string, strin
     // Note: PlaceholderDefinition from registry has 'source', but config doesn't.
     // That's fine as 'tabgroup' placeholders are mostly a runtime artifact.
     if ('source' in definition && definition.source === 'tabgroup') continue; // implied by ?tabs=
-    if ('adaptationPlaceholder' in definition && definition.adaptationPlaceholder) continue; // author-only
+    if ('siteManaged' in definition && definition.siteManaged) continue; // site-managed, not shareable
     shareable[key] = value;
   }
 
@@ -48,6 +48,9 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
       return pageTogglesSet.has(id);
     }
 
+    // Site-managed toggles are never included in shareable URLs
+    if (toggleConfig.siteManaged) return false;
+
     // Case 2: Configured as Global
     if (!toggleConfig.isLocal) {
       return true;
@@ -66,11 +69,16 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
   const absoluteHide: string[] = [];
   const relevantToggles = new Set(pageTogglesSet);
   for (const t of (config.toggles ?? [])) {
-    if (!t.isLocal) relevantToggles.add(t.toggleId);
+    if (!t.isLocal && !t.siteManaged) relevantToggles.add(t.toggleId);
   }
 
+  // Build a set of siteManaged toggle IDs to exclude from absoluteHide
+  const siteManagedToggleIds = new Set(
+    (config.toggles ?? []).filter(t => t.siteManaged).map(t => t.toggleId),
+  );
+
   for (const id of relevantToggles) {
-    if (!shownSet.has(id) && !peekSet.has(id)) {
+    if (!shownSet.has(id) && !peekSet.has(id) && !siteManagedToggleIds.has(id)) {
       absoluteHide.push(id);
     }
   }

@@ -291,13 +291,47 @@ describe('URLStateManager', () => {
       expect(url).not.toContain('localPH');
     });
 
-    describe('generateShareableURL — adaptationPlaceholder', () => {
+    describe('generateShareableURL — siteManaged', () => {
       beforeEach(freshLocation);
       afterEach(() => { vi.clearAllMocks(); });
 
-      it('excludes adaptationPlaceholder: true entries from the URL', () => {
+      it('excludes siteManaged toggles from shownToggles in the URL', () => {
+        const config: Config = {
+          toggles: [
+            { toggleId: 'managed', siteManaged: true },
+            { toggleId: 'normal' },
+          ],
+        };
+        const url = URLStateManager.generateShareableURL(
+          { shownToggles: ['managed', 'normal'], peekToggles: [] },
+          config,
+          { toggles: ['managed', 'normal'], tabGroups: [], placeholders: [] },
+        );
+
+        expect(url).not.toContain('managed');
+        expect(url).toContain(`${PARAM_SHOW_TOGGLE}=normal`);
+      });
+
+      it('excludes siteManaged toggles from hiddenToggles in the URL', () => {
+        const config: Config = {
+          toggles: [
+            { toggleId: 'managed', siteManaged: true },
+            { toggleId: 'normal' },
+          ],
+        };
+        const url = URLStateManager.generateShareableURL(
+          { shownToggles: [], peekToggles: [] },
+          config,
+          { toggles: ['managed', 'normal'], tabGroups: [], placeholders: [] },
+        );
+
+        expect(url).not.toContain('managed');
+        expect(url).toContain(`${PARAM_HIDE_TOGGLE}=normal`);
+      });
+
+      it('excludes siteManaged: true entries from the URL', () => {
         vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
-          if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          if (key === 'instName') return { name: 'instName', siteManaged: true };
           if (key === 'user') return { name: 'user', isLocal: false };
           return undefined;
         });
@@ -324,10 +358,10 @@ describe('URLStateManager', () => {
         expect(url).toContain('user:Alice');
       });
 
-      it('excludes both tabgroup-derived and adaptation-only placeholders', () => {
+      it('excludes both tabgroup-derived and siteManaged placeholders', () => {
         vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => {
           if (key === 'fruit') return { name: 'fruit', source: 'tabgroup' };
-          if (key === 'instName') return { name: 'instName', adaptationPlaceholder: true };
+          if (key === 'instName') return { name: 'instName', siteManaged: true };
           if (key === 'user') return { name: 'user', isLocal: false };
           return undefined;
         });
