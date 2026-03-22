@@ -15,7 +15,6 @@
 * Site Adaptations
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
-  * [Label Component]({{baseUrl}}/authorGuide/adaptations/labels.html)
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
 * [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
@@ -23,6 +22,7 @@
   * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
   * [Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
   * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
+  * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
       </site-nav>
     </div>
   </nav>
