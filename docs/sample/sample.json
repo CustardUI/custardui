@@ -1,0 +1,22 @@
+{
+  "id": "sample",
+  "name": "sample",
+  "preset": {
+    "toggles": {
+      "linux": "show",
+      "windows": "hide",
+      "sample-resources": "show"
+    },
+    "placeholders": {
+      "username": "Sample Student",
+      "institutionName": "Sample Institution",
+      "institutionLogo": "sample"
+    },
+    "labels": {
+      "exercise-1": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-2": { "value": "OPTIONAL", "color": "#3b82f6" },
+      "exercise-3": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-4": { "value": "OPTIONAL", "color": "#3b82f6" }
+    }
+  }
+}

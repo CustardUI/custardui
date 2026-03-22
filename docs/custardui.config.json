@@ -1,4 +1,5 @@
 {
+  "colorScheme": "light",
   "config": {
     "toggles": [
       {
@@ -45,7 +46,9 @@
         "default": "peek"
       },
       { "toggleId": "linux", "label": "Linux", "isLocal": true, "description": "Show content for Linux users" },
-      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show" }
+      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show" },
+      { "toggleId": "nus-resources", "label": "NUS Resources", "siteManaged": true, "default": "hide", "isLocal": true },
+      { "toggleId": "sample-resources", "label": "Sample Resources", "siteManaged": true, "default": "hide", "isLocal": true }
     ],
     "tabGroups": [
       {
@@ -119,12 +122,22 @@
       },
       {
         "name": "institutionName",
-        "defaultValue": "Generic University",
+        "defaultValue": "CustardUI",
+        "siteManaged": true
+      },
+      {
+        "name": "institutionLogo",
+        "defaultValue": "default",
         "siteManaged": true
       }
+    ],
+    "labels": [
+      { "name": "exercise-1", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-2", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-3", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-4", "value": "OPTIONAL", "color": "#3b82f6" }
     ]
   },
-  "baseUrl": "/",
   "storageKey": "cv-docs-beta",
   "settings": {
     "enabled": true,

@@ -9,5 +9,6 @@ export interface AdaptationConfig {
     toggles?: Record<string, 'show' | 'hide' | 'peek'>;
     tabs?: Record<string, string>;
     placeholders?: Record<string, string>;
+    labels?: Record<string, { value?: string; color?: string }>;
   };
 }

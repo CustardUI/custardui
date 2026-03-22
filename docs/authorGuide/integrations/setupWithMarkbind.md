@@ -33,7 +33,8 @@ const tagConfig = {
   'cv-tab-body': { isCustomElement: true },
   'cv-tab-header': { isCustomElement: true },
   'cv-define-placeholder': { isCustomElement: true },
-  'cv-placeholder-input': { isCustomElement: true }
+  'cv-placeholder-input': { isCustomElement: true },
+  'cv-label': { isCustomElement: true }
 };
 
 module.exports = { getScripts, tagConfig };

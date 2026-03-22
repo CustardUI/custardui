@@ -1,5 +1,5 @@
 <frontmatter>
-  layout: nus.md
+  layout: sample.md
 </frontmatter>
 
 <script>
