@@ -17,6 +17,15 @@
 
   const DEFAULT_COLOR = '#6b7280';
 
+  let hasSlotContent = $state(false);
+
+  $effect(() => {
+    const host = $host<HTMLElement>();
+    hasSlotContent = Array.from(host.childNodes).some(
+      (n) => n.nodeType === Node.ELEMENT_NODE || (n.textContent?.trim() ?? '') !== '',
+    );
+  });
+
   let labelDef = $derived(labelRegistryStore.get(name));
   let rawColor = $derived(labelDef?.color ?? (color || DEFAULT_COLOR));
   let bgColor = $derived(resolveColor(rawColor, colorSchemeStore.isDark));
@@ -31,8 +40,10 @@
       <slot></slot>
     {/if}
   </span>
-{:else}
-  <slot></slot>
+{:else if hasSlotContent}
+  <span class="cv-label" style:background={bgColor} style:color={textColor}>
+    <slot></slot>
+  </span>
 {/if}
 
 <style>

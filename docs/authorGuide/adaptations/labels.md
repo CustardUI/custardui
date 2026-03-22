@@ -7,13 +7,13 @@
 
 ## Label Components
 
-`<cv-label>`
+`<cv-label>` <cv-label> cv-label</cv-label>
 
 Labels are small inline pill badges you can place anywhere in your content. They are meant to be used with adaptations, with no user interaction, no settings modal entry, no persistence. The color is derived from the config, and the displayed text is derived from either the config or the element's own inner content.
 
 ## Usage
 
-### Add the Label Configuration
+### Add the (Optional) Label Configuration
 
 Labels are defined in `custardui.config.json` under the `labels` key. It supports 3 fields: `name`, `value`, and `color`. Only `name` is required — `value` and `color` are both optional.
 
@@ -21,9 +21,10 @@ Labels are defined in `custardui.config.json` under the `labels` key. It support
 {
   "config": {
     "labels": [
-      { "name": "optional", "color": "#3b82f6" },
-      { "name": "key",      "value": "★ KEY",     "color": "#ef4444" },
-      { "name": "warning",  "value": "⚠ WARNING", "color": "#f59e0b" }
+      { "name": "exercise-1", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-2", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-3", "value": "OPTIONAL", "color": "#3b82f6" },
+      { "name": "exercise-4", "value": "OPTIONAL", "color": "#3b82f6" }
     ]
   }
 }
@@ -31,44 +32,22 @@ Labels are defined in `custardui.config.json` under the `labels` key. It support
 
 ### Place Labels in Content
 
-Use `<cv-label name="...">` anywhere in your page. The text inside the element acts as the default value and the fallback. You can also set a `color` directly on the element as a default:
+Use `<cv-label name="...">` anywhere in your page. The text inside the element acts as the default value and the fallback. You can also set a `color` directly on the element as a default. 
+* If the label has a corresponding entry with the same `name` in the config, the `value` and `color` in the config will override the (text) `value` and `color` in the element.
+* If the label has no entry in the config, it will use the inner text as the value and the color attribute as the color. If no color attribute is set, it will use default gray (`#6b7280`).
+* If there is no text inside the element, it will render nothing.
+
 
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
 <variable name="code">
-This step is <cv-label name="optional">OPTIONAL</cv-label> for beginners.
+This step is <cv-label name="optional" color="#3b82f6">OPTIONAL</cv-label> for beginners.
 
-Read the <cv-label name="key">★ KEY</cv-label> sections first.
+Read the <cv-label name="key" color="#ef4444">★ KEY</cv-label> sections first.
 
-Check the <cv-label name="warning">⚠ WARNING</cv-label> boxes carefully.
+Check the <cv-label name="warning" color="#f59e0b">⚠ WARNING</cv-label> boxes carefully.
 
-This is an <cv-label name="advanced">ADVANCED</cv-label> topic.
-</variable>
-</include>
-
-## Value Resolution
-
-Color priority (highest to lowest): **config `color`** → **element `color` attribute** → **default gray (`#6b7280`)**.
-
-When a label renders, it picks its display text in this order:
-
-1. **Config `value`** — if set in `custardui.config.json`, always used (including adaptation overrides)
-2. **Element inner content** — used when config has no `value` (e.g. only `color` is set)
-3. **Plain text fallback** — if the label is not in the config at all, the element's inner content is shown as plain text with no pill styling
-
-<include src="codeAndOutput.md" boilerplate >
-<variable name="highlightStyle">html</variable>
-<variable name="code">
-<!-- Config: { "name": "optional", "color": "#3b82f6" } — no value set -->
-<!-- Slot content "OPTIONAL" is used as the display text -->
-<cv-label name="optional">OPTIONAL</cv-label>
-
-<!-- Config: { "name": "key", "value": "★ KEY", "color": "#ef4444" } -->
-<!-- Config value wins — inner content is ignored -->
-<cv-label name="key">ignored text</cv-label>
-
-<!-- Not in config at all — plain text, no pill -->
-<cv-label name="notInConfig">plain text fallback</cv-label>
+This is an <cv-label name="advanced" color="#8b5cf6">ADVANCED</cv-label> topic.
 </variable>
 </include>
 
@@ -96,18 +75,6 @@ The `color` field (both in config and on the element attribute) accepts single-l
 | `k` | Light grey `#e2e8f0` | Pure black `#0f172a` |
 
 Text color (black or white) is still auto-computed for contrast against the resolved background.
-
-Set `colorScheme` in `custardui.config.json` to control which variant is used:
-
-| Value | Behaviour |
-| :---- | :-------- |
-| `"light"` *(default)* | Always uses the light-mode color |
-| `"dark"` | Always uses the dark-mode color |
-| `"auto"` | Switches based on the visitor's OS preference (`prefers-color-scheme`), reactively |
-
-```json
-{ "colorScheme": "light", "config": { ... } }
-```
 
 ```html
 <!-- Shorthand in the element attribute -->
@@ -151,6 +118,7 @@ Labels can be overridden per adaptation via `preset.labels`. This lets different
 
 **Note:** Adaptation `preset.labels` can only override labels that are already defined in `custardui.config.json`. Unknown names produce a warning and are ignored.
 </box>
+
 
 ### Live Demo
 

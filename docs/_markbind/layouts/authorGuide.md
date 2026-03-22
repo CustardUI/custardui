@@ -11,12 +11,12 @@
 * Site Integrations
   * [MarkBind]({{baseUrl}}/authorGuide/integrations/setupWithMarkbind.html)
 * [Configuration]({{baseUrl}}/authorGuide/configuration.html)
+* [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
 * Site Adaptations
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
-  * [Labels]({{baseUrl}}/authorGuide/adaptations/labels.html)
+  * [Label Component]({{baseUrl}}/authorGuide/adaptations/labels.html)
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
-* [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
 * [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
   * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
