@@ -98,10 +98,10 @@ Refer to individual components for more details on each configuration option.
 
 ### Global Options in `custardui.config.json`
 
-| Field          | Type      | Default | Description                             |
-| -------------- | --------- | ------- | --------------------------------------- |
-| storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
-| colorScheme    | `string`  | `"light"` | Controls which color variant is used: `"light"`, `"dark"`, or `"auto"`. This is intended to match the site's light/dark mode, so a light mode website uses the light variant, and a dark mode website uses the dark variant. Auto switches based on the visitor's OS preference (`prefers-color-scheme`), reactively. |
+| Field          | Type                           | Default   | Description                             |
+| -------------- | ------------------------------ | --------- | --------------------------------------- |
+| storageKey     | `string`                       | `null`    | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
+| colorScheme    | `"light" \| "dark" \| "auto"`  | `"light"` | Controls which color variant is used: `"light"`, `"dark"`, or `"auto"`. This is intended to match the site's light/dark mode, so a light mode website uses the light variant, and a dark mode website uses the dark variant. Auto switches based on the visitor's OS preference (`prefers-color-scheme`), reactively. If any other value is provided, CustardUI falls back to the `"light"` scheme (the default). |
 
 **Example**: 
 ```json
