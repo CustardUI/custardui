@@ -5,17 +5,17 @@
   pageNavTitle: "Topics"
 </frontmatter>
 
-## Labels
+## Label Components
 
 `<cv-label>`
 
-Labels are small inline pill badges you can place anywhere in your content. They are purely decorative — no user interaction, no settings modal entry, no persistence. They get their color from the config, and their displayed text from either the config or the element's own inner content.
+Labels are small inline pill badges you can place anywhere in your content. They are meant to be used with adaptations, with no user interaction, no settings modal entry, no persistence. The color is derived from the config, and the displayed text is derived from either the config or the element's own inner content.
 
 ## Usage
 
 ### Add the Label Configuration
 
-Labels are defined in `custardui.config.json` under the `labels` key. Only `name` is required — `value` and `color` are both optional.
+Labels are defined in `custardui.config.json` under the `labels` key. It supports 3 fields: `name`, `value`, and `color`. Only `name` is required — `value` and `color` are both optional.
 
 ```json
 {
@@ -31,7 +31,7 @@ Labels are defined in `custardui.config.json` under the `labels` key. Only `name
 
 ### Place Labels in Content
 
-Use `<cv-label name="...">` anywhere in your page. Put the display text inside the element — it acts as both the default value and the fallback. You can also set a `color` directly on the element as a default:
+Use `<cv-label name="...">` anywhere in your page. The text inside the element acts as the default value and the fallback. You can also set a `color` directly on the element as a default:
 
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
