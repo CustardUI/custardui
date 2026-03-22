@@ -274,6 +274,7 @@ export class AppRuntime {
     this.observer?.disconnect();
     this.destroyEffectRoot?.();
     this.focusService.destroy();
+    colorSchemeStore.destroy();
     if (this.onHashChange) {
       window.removeEventListener('hashchange', this.onHashChange);
     }

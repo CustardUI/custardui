@@ -32,18 +32,16 @@
   let textColor = $derived(computeTextColor(bgColor));
 </script>
 
-{#if labelDef && (labelDef.value || hasSlotContent)}
+{#if labelDef?.value || hasSlotContent}
   <span class="cv-label" style:background={bgColor} style:color={textColor}>
-    {#if labelDef.value}
+    {#if labelDef?.value}
       {labelDef.value}
     {:else}
       <slot onslotchange={onSlotChange}></slot>
     {/if}
   </span>
-{:else if hasSlotContent}
-  <span class="cv-label" style:background={bgColor} style:color={textColor}>
-    <slot onslotchange={onSlotChange}></slot>
-  </span>
+{:else}
+  <slot onslotchange={onSlotChange}></slot>
 {/if}
 
 <style>
