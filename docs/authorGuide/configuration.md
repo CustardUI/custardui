@@ -96,7 +96,7 @@ Refer to individual components for more details on each configuration option.
 
 
 
-### Global Options in Config.json
+### Global Options in `custardui.config.json`
 
 | Field          | Type      | Default | Description                             |
 | -------------- | --------- | ------- | --------------------------------------- |

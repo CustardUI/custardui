@@ -19,12 +19,12 @@
 
   let hasSlotContent = $state(false);
 
-  $effect(() => {
-    const host = $host<HTMLElement>();
-    hasSlotContent = Array.from(host.childNodes).some(
+  function onSlotChange(e: Event): void {
+    const slot = e.target as HTMLSlotElement;
+    hasSlotContent = slot.assignedNodes({ flatten: true }).some(
       (n) => n.nodeType === Node.ELEMENT_NODE || (n.textContent?.trim() ?? '') !== '',
     );
-  });
+  }
 
   let labelDef = $derived(labelRegistryStore.get(name));
   let rawColor = $derived(labelDef?.color ?? (color || DEFAULT_COLOR));
@@ -37,12 +37,12 @@
     {#if labelDef.value}
       {labelDef.value}
     {:else}
-      <slot></slot>
+      <slot onslotchange={onSlotChange}></slot>
     {/if}
   </span>
 {:else if hasSlotContent}
   <span class="cv-label" style:background={bgColor} style:color={textColor}>
-    <slot></slot>
+    <slot onslotchange={onSlotChange}></slot>
   </span>
 {/if}
 

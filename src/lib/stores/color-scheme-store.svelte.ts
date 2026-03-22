@@ -25,6 +25,11 @@ class ColorSchemeStore {
       return;
     }
     if (scheme === 'auto') {
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+        // SSR or environment without matchMedia — default to light
+        this.isDark = false;
+        return;
+      }
       this.#mq = window.matchMedia('(prefers-color-scheme: dark)');
       this.#handler = (e) => {
         this.isDark = e.matches;

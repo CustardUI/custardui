@@ -35,7 +35,7 @@ Labels are defined in `custardui.config.json` under the `labels` key. It support
 Use `<cv-label name="...">` anywhere in your page. The text inside the element acts as the default value and the fallback. You can also set a `color` directly on the element as a default. 
 * If the label has a corresponding entry with the same `name` in the config, the `value` and `color` in the config will override the (text) `value` and `color` in the element.
 * If the label has no entry in the config, it will use the inner text as the value and the color attribute as the color. If no color attribute is set, it will use default gray (`#6b7280`).
-* If there is no text inside the element, it will render nothing.
+* If there is no text inside the element and no `value` is defined for that label in the config, it will render nothing.
 
 
 <include src="codeAndOutput.md" boilerplate >

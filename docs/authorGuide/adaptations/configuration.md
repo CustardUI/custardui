@@ -210,7 +210,7 @@ To prevent users from ever changing a toggle's state — making it fully site-co
 
 ### Label Adaptation Configurations
 
-Adaptations override label text via `preset.labels`. This means that adapatations can dynamically set the text and color of labels on a page.
+Adaptations override label text via `preset.labels`. This means that adaptations can dynamically set the text and color of labels on a page.
 
 ### TabGroup Adaptation Configurations
 

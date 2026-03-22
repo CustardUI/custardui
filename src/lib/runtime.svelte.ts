@@ -106,6 +106,8 @@ export class AppRuntime {
     labelManager.registerConfigLabels(config);
 
     // Initialize color scheme for site for general color resolution
+    // Ensure any previous listeners cleaned up before re-initializing
+    colorSchemeStore.destroy();
     colorSchemeStore.init(configFile.colorScheme ?? 'light');
 
     // Initialize UI Options from Settings

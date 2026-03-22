@@ -19,9 +19,10 @@ const SHORTHAND_COLORS: Record<string, { light: string; dark: string }> = {
  * Non-shorthand values are returned unchanged.
  */
 export function resolveColor(color: string, isDark: boolean): string {
-  const entry = SHORTHAND_COLORS[color.trim()];
+  const trimmed = color.trim();
+  const entry = SHORTHAND_COLORS[trimmed];
   if (entry) return isDark ? entry.dark : entry.light;
-  return color;
+  return trimmed;
 }
 
 /**
