@@ -3,7 +3,7 @@
  * Drives light/dark variant resolution for shorthand label colors and any other
  * components that need to react to the site's color scheme setting.
  */
-class ColorSchemeStore {
+export class ColorSchemeStore {
   isDark = $state(false);
 
   #mq: MediaQueryList | null = null;
