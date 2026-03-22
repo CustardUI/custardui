@@ -46,7 +46,9 @@
         "default": "peek"
       },
       { "toggleId": "linux", "label": "Linux", "isLocal": true, "description": "Show content for Linux users" },
-      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show" }
+      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show" },
+      { "toggleId": "nus-resources", "label": "NUS Resources", "siteManaged": true, "default": "hide", "isLocal": true },
+      { "toggleId": "sample-resources", "label": "Sample Resources", "siteManaged": true, "default": "hide", "isLocal": true }
     ],
     "tabGroups": [
       {
@@ -121,6 +123,11 @@
       {
         "name": "institutionName",
         "defaultValue": "Generic University",
+        "siteManaged": true
+      },
+      {
+        "name": "institutionLogo",
+        "defaultValue": "default",
         "siteManaged": true
       }
     ],
