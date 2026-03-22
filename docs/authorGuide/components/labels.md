@@ -57,7 +57,7 @@ This is an <cv-label name="advanced" color="#8b5cf6">ADVANCED</cv-label> topic.
 | :------ | :------- | :------- | :---------- |
 | `name`  | `string` | **Yes**  | Unique identifier matching the `name` attribute on `<cv-label>`. |
 | `value` | `string` | No       | Display text. If omitted, the element's inner content is used instead. Can include Unicode/emoji (e.g. `"★ KEY"`, `"⚠ WARNING"`). |
-| `color` | `string` | No       | CSS background color (any valid CSS color: hex, named, etc). Text color (black/white) is auto-computed for contrast. Takes priority over the `color` attribute on `<cv-label>`. Defaults to gray (`#6b7280`) if neither is set. |
+| `color` | `string` | No       | CSS background color. For best results, use a hex color (e.g. `#3b82f6`): only hex colors participate in automatic text contrast (black/white). For non-hex CSS colors (named colors, `rgb()`, etc.), the text color defaults to white and may not meet contrast guidelines. Takes priority over the `color` attribute on `<cv-label>`. Defaults to gray (`#6b7280`) if neither is set. |
 
 ## Shorthand Colors
 
