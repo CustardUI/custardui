@@ -31,7 +31,7 @@ Switch adaptation using the links above to see the labels change. **NUS** makes 
 
 ---
 
-## Exercise 1 — Setting Up Your Environment <cv-label name="exercise-1">OPTIONAL</cv-label>
+## Exercise 1 — Setting Up Your Environment <cv-label name="exercise-1"></cv-label>
 
 Configure your development environment for [[institutionName : this module]].
 
@@ -70,7 +70,7 @@ python3 --version
 
 ---
 
-## Exercise 2 — Writing Your First Program <cv-label name="exercise-2">OPTIONAL</cv-label>
+## Exercise 2 — Writing Your First Program <cv-label name="exercise-2"></cv-label>
 
 Create a file named `hello.py` and write a personalised greeting:
 
@@ -93,7 +93,7 @@ Submit `hello.py` to the **[[institutionName : institution]]** portal once you'r
 
 ---
 
-## Exercise 3 — Advanced Problem Solving <cv-label name="exercise-3">OPTIONAL</cv-label>
+## Exercise 3 — Advanced Problem Solving <cv-label name="exercise-3"></cv-label>
 
 Solve the following problem and submit your solution.
 
@@ -112,7 +112,7 @@ def find_pairs(nums: list[int], target: int) -> list[tuple[int, int]]:
 
 ---
 
-## Exercise 4 — Peer Review & Submission <cv-label name="exercise-4">OPTIONAL</cv-label>
+## Exercise 4 — Peer Review & Submission <cv-label name="exercise-4"></cv-label>
 
 Review a classmate's submission for Exercise 3 and provide structured feedback.
 
