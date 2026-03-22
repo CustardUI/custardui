@@ -5,7 +5,7 @@
   pageNavTitle: "Topics"
 </frontmatter>
 
-## Label Components
+## Label Component
 
 `<cv-label>` <cv-label> cv-label</cv-label>
 
@@ -124,7 +124,7 @@ Labels can be overridden per adaptation via `preset.labels`. This lets different
 
 <span id="adaptation-override-demo"></span>
 
-Switch adaptation: [Sample (COMPULSORY)](./labels.html?adapt=sample#adaptation-override-demo) · [Reset / Default](./labels.html?adapt=clear#adaptation-override-demo)
+Switch adaptation: [Sample Adaptation](./labels.html?adapt=sample#adaptation-override-demo). Click here to [reset Adaptation](./labels.html?adapt=clear#adaptation-override-demo)
 
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
