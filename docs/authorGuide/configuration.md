@@ -4,11 +4,13 @@
 <frontmatter>  
   title: "Author Guide - Configuration"
   layout: authorGuide.md
-  pageNav: 2
+  pageNav: 3
   pageNavTitle: "Topics"
 </frontmatter>
 
 # {{ title }}
+
+This page documents the configuration options available for CustardUI, that go into `custardui.config.json` or are passed as attributes to the script tag when installing CustardUI into a new site.
 
 ## Configuration File (`custardui.config.json`)
 
@@ -31,6 +33,7 @@ CustardUI is configured via a JSON file, typically named `custardui.config.json`
 
 Refer to individual components for more details on each configuration option.
 
+
 ### Core Configuration (`config`)
 
 | Field        | Type       | Required | Description                                                         |
@@ -43,11 +46,6 @@ Refer to individual components for more details on each configuration option.
 - Toggle Configuration Settings, see [here](./components/toggles.md#configuration)
 - Placeholder Configuration Settings, see [here](./components/placeholders.md#placeholder-configuration)
 
-## Global Options
-
-| Field          | Type      | Default | Description                                                                                                          |
-| -------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
 
 ### Settings Configuration in `config.json`: (`settings`)
 
@@ -94,6 +92,25 @@ Refer to individual components for more details on each configuration option.
 | icon.backgroundColor    | `string`  | `null`                                      | Custom background color for the icon.                                                                               |
 | icon.opacity            | `number`  | `null`                                      | Custom opacity (0-1).                                                                                               |
 | icon.scale              | `number`  | `1`                                         | Custom scale factor.                                                                                                |
+
+
+
+### Global Options in Config.json
+
+| Field          | Type      | Default | Description                             |
+| -------------- | --------- | ------- | --------------------------------------- |
+| storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
+| colorScheme    | `string`  | `"light"` | Controls which color variant is used: `"light"`, `"dark"`, or `"auto"`. This is intended to match the site's light/dark mode, so a light mode website uses the light variant, and a dark mode website uses the dark variant. Auto switches based on the visitor's OS preference (`prefers-color-scheme`), reactively. |
+
+**Example**: 
+```json
+{
+  "storageKey": "my-unique-siteName",
+  "colorScheme": "light",
+  "config": {...},
+  "settings": {...}
+}
+```
 
 ## Script Tag Attributes
 
