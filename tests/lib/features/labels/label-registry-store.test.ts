@@ -75,6 +75,7 @@ describe('LabelRegistryStore', () => {
       store.override('ghost', { value: 'GHOST' });
       expect(store.get('ghost')).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('ghost'));
+      warnSpy.mockRestore();
     });
   });
 });

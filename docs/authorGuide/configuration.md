@@ -14,7 +14,7 @@ This page documents the configuration options available for CustardUI, that go i
 
 ## Configuration File (`custardui.config.json`)
 
-CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, placeholders, and widget settings.
+CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, placeholders, labels, and widget settings.
 
 ### Basic Structure
 
@@ -23,7 +23,8 @@ CustardUI is configured via a JSON file, typically named `custardui.config.json`
   "config": {
     "toggles": [...],
     "tabGroups": [...],
-    "placeholders": [...]
+    "placeholders": [...],
+    "labels": [...]
   },
   ...
 }

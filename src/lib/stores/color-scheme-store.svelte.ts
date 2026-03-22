@@ -6,21 +6,39 @@
 class ColorSchemeStore {
   isDark = $state(false);
 
+  #mq: MediaQueryList | null = null;
+  #handler: ((e: MediaQueryListEvent) => void) | null = null;
+
+  #removeListener(): void {
+    if (this.#mq && this.#handler) {
+      this.#mq.removeEventListener('change', this.#handler);
+      this.#mq = null;
+      this.#handler = null;
+    }
+  }
+
   init(scheme: 'light' | 'dark' | 'auto' = 'light'): void {
+    this.#removeListener();
+
     if (scheme === 'dark') {
       this.isDark = true;
       return;
     }
     if (scheme === 'auto') {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      this.isDark = mq.matches;
-      mq.addEventListener('change', (e) => {
+      this.#mq = window.matchMedia('(prefers-color-scheme: dark)');
+      this.#handler = (e) => {
         this.isDark = e.matches;
-      });
+      };
+      this.isDark = this.#mq.matches;
+      this.#mq.addEventListener('change', this.#handler);
       return;
     }
     // 'light' (default)
     this.isDark = false;
+  }
+
+  destroy(): void {
+    this.#removeListener();
   }
 }
 
