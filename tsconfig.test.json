@@ -4,5 +4,6 @@
     "types": ["svelte", "vitest/globals"],
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": ["src", "svelte.config.js", "tests"]
 }
