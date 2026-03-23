@@ -19,12 +19,21 @@
 
   let hasSlotContent = $state(false);
 
-  function onSlotChange(e: Event): void {
-    const slot = e.target as HTMLSlotElement;
-    hasSlotContent = slot.assignedNodes({ flatten: true }).some(
-      (n) => n.nodeType === Node.ELEMENT_NODE || (n.textContent?.trim() ?? '') !== '',
-    );
-  }
+  $effect(() => {
+    const host = $host<HTMLElement>();
+
+    function update() {
+      hasSlotContent = Array.from(host.childNodes).some(
+        (n) => n.nodeType === Node.ELEMENT_NODE || (n.textContent?.trim() ?? '') !== '',
+      );
+    }
+
+    update();
+
+    const observer = new MutationObserver(update);
+    observer.observe(host, { childList: true, characterData: true, subtree: true });
+    return () => observer.disconnect();
+  });
 
   let labelDef = $derived(labelRegistryStore.get(name));
   let rawColor = $derived(labelDef?.color ?? (color || DEFAULT_COLOR));
@@ -37,11 +46,11 @@
     {#if labelDef?.value}
       {labelDef.value}
     {:else}
-      <slot onslotchange={onSlotChange}></slot>
+      <slot></slot>
     {/if}
   </span>
 {:else}
-  <slot onslotchange={onSlotChange}></slot>
+  <slot></slot>
 {/if}
 
 <style>
