@@ -59,6 +59,11 @@ This is an <cv-label name="advanced" color="#8b5cf6">ADVANCED</cv-label> topic.
 | `value` | `string` | No       | Display text. If omitted, the element's inner content is used instead. Can include Unicode/emoji (e.g. `"★ KEY"`, `"⚠ WARNING"`). |
 | `color` | `string` | No       | CSS background color. For best results, use a hex color (e.g. `#3b82f6`): only hex colors participate in automatic text contrast (black/white). For non-hex CSS colors (named colors, `rgb()`, etc.), the text color defaults to white and may not meet contrast guidelines. Takes priority over the `color` attribute on `<cv-label>`. Defaults to gray (`#6b7280`) if neither is set. |
 
+<box type="info">
+
+**Labels are always site-managed.** Unlike toggles and placeholders, there is no user interaction — users cannot change label values, and labels are never saved to localStorage or included in shareable URLs. All label control happens through `custardui.config.json` and adaptation `preset.labels` overrides.
+</box>
+
 ## Shorthand Colors
 
 The `color` field (both in config and on the element attribute) accepts single-letter shorthands as a convenience. Each shorthand has a light and dark variant — which one is used depends on the `colorScheme` setting in `custardui.config.json` (default: `"light"`).

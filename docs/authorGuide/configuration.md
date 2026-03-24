@@ -39,13 +39,15 @@ Refer to individual components for more details on each configuration option.
 
 | Field        | Type       | Required | Description                                                         |
 | ------------ | ---------- | -------- | ------------------------------------------------------------------- |
-| toggles      | `object[]` | No       | Array of toggle configurations. Each object must have a `toggleId`. |
-| tabGroups    | `object[]` | No       | Array of tab group configurations.                                  |
-| placeholders | `object[]` | No       | Array of global placeholder definitions.                            |
+| toggles      | `object[]` | No       | Array of toggle configurations. Each object must have a `toggleId`. Supports `isLocal` and `siteManaged`. |
+| tabGroups    | `object[]` | No       | Array of tab group configurations. Supports `isLocal`.              |
+| placeholders | `object[]` | No       | Array of global placeholder definitions. Supports `isLocal` and `siteManaged`. |
+| labels       | `object[]` | No       | Array of label definitions. Labels are always site-controlled (no user input, no persistence). |
 
 - Tab Group Configuration Settings, see [here](./components/tabs.md#configuration)
-- Toggle Configuration Settings, see [here](./components/toggles.md#configuration)
-- Placeholder Configuration Settings, see [here](./components/placeholders.md#placeholder-configuration)
+- Toggle Configuration Settings (including `siteManaged`), see [here](./components/toggles.md#configuration)
+- Placeholder Configuration Settings (including `siteManaged`), see [here](./components/placeholders.md#placeholder-configuration)
+- Label Configuration Settings, see [here](./components/labels.md#label-configuration)
 
 
 ### Settings Configuration in `config.json`: (`settings`)

@@ -139,13 +139,14 @@ To make toggles discoverable by the settings, you must define them in your `cust
 
 ## Key Configuration Fields in `custardui.config.json` for Toggles
 
-| Name        | Type      | Default      | Description                                                                           |
-| ----------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
-| toggleId    | `string`  | **required** | Defines the category for the cv-toggle element. Example: `toggleId="mac"`.            |
-| label       | `string`  | -            | Label for the toggle in the settings.                                                 |
-| description | `string`  | -            | Description for the toggle in the settings.                                           |
-| default     | `string`  | `show`       | Default state: `"show"`, `"hide"`, or `"peek"`.                                       |
-| isLocal     | `boolean` | false        | Whether the toggle is local (only appears in the settings on pages where it is used). |
+| Name          | Type      | Default      | Description                                                                           |
+| ------------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
+| toggleId      | `string`  | **required** | Defines the category for the cv-toggle element. Example: `toggleId="mac"`.            |
+| label         | `string`  | -            | Label for the toggle in the settings.                                                 |
+| description   | `string`  | -            | Description for the toggle in the settings.                                           |
+| default       | `string`  | `show`       | Default state: `"show"`, `"hide"`, or `"peek"`.                                       |
+| isLocal       | `boolean` | `false`      | Whether the toggle is local (only appears in the settings on pages where it is used). |
+| siteManaged   | `boolean` | `false`      | If `true`, the toggle is fully controlled by the site. It is hidden from the settings modal, excluded from shareable URLs, and immune to user overrides via localStorage or URL params. Its state can only be set by the config `default` or an adaptation `preset.toggles`. |
 
 ### Visibility Resolution Order
 
@@ -209,6 +210,39 @@ Use toggles to separate platform-specific or audience-specific instructions:
   These extra lines ensure the box remains scrollable while conveying useful guidance.
 
 </cv-toggle>
+
+## Site-Managed Toggles
+
+If an adaptation needs to **lock** a toggle — preventing users from changing it via the settings modal, a shared URL, or their saved preferences — mark it with `siteManaged: true`:
+
+```json
+{
+  "config": {
+    "toggles": [
+      { "toggleId": "java",   "label": "Java",   "default": "show", "siteManaged": true },
+      { "toggleId": "python", "label": "Python",  "default": "hide", "siteManaged": true }
+    ]
+  }
+}
+```
+
+The adaptation can then override the default state via `preset.toggles`:
+
+```json
+{
+  "id": "nus",
+  "preset": {
+    "toggles": { "java": "show", "python": "hide" }
+  }
+}
+```
+
+A site-managed toggle:
+- **Does not appear** in the settings modal.
+- **Is not included** in generated shareable URLs.
+- **Ignores** any visibility state stored in localStorage or supplied via URL parameters.
+
+See [Site-Managed Components](../adaptations/configuration.md#site-managed-components-sitemanaged) in the Adaptation Configurations guide for the full picture.
 
 ## Registering Local Toggles for Settings
 
