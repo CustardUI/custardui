@@ -137,7 +137,9 @@ describe('Anchor', () => {
         // Build a reference descriptor from the canonical raw-token form
         const refDiv = document.createElement('div');
         refDiv.innerHTML = `<p>Hello [[username]]!</p>`;
+        document.body.appendChild(refDiv);
         const refDescriptor = Anchor.createDescriptor(refDiv.querySelector('p')!);
+        document.body.removeChild(refDiv);
 
         expect(descriptor.textHash).toBe(refDescriptor.textHash);
         expect(descriptor.textSnippet).toBe(refDescriptor.textSnippet);
@@ -211,9 +213,12 @@ describe('Anchor', () => {
         container.appendChild(ph);
         const descriptor = Anchor.createDescriptor(ph);
 
-        expect(descriptor.textHash).toBe(Anchor.createDescriptor(
-          Object.assign(document.createElement('div'), { textContent: '[[username]]' })
-        ).textHash);
+        const refDiv = Object.assign(document.createElement('div'), { textContent: '[[username]]' });
+        document.body.appendChild(refDiv);
+        const refDescriptor = Anchor.createDescriptor(refDiv);
+        document.body.removeChild(refDiv);
+
+        expect(descriptor.textHash).toBe(refDescriptor.textHash);
         expect(descriptor.textSnippet).toBe('[[username]]');
       });
 

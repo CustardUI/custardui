@@ -162,6 +162,7 @@ describe('ActiveStateStore', () => {
     });
 
     it('should filter out invalid toggle IDs', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const config = {
         toggles: [{ toggleId: 'known' }],
       };
@@ -172,9 +173,12 @@ describe('ActiveStateStore', () => {
       expect(store.state.shownToggles).toContain('known');
       expect(store.state.shownToggles).not.toContain('ghost-show');
       expect(store.state.peekToggles).not.toContain('ghost-peek');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost-show" is not in the config'));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost-peek" is not in the config'));
     });
 
     it('should filter out invalid tab group IDs', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const config = {
         tabGroups: [{ groupId: 'known', tabs: [{ tabId: 't1' }] }],
       };
@@ -184,9 +188,11 @@ describe('ActiveStateStore', () => {
 
       expect(store.state.tabs?.known).toBe('t1');
       expect(store.state.tabs?.ghost).toBeUndefined();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost" is not in the config'));
     });
 
     it('should filter out invalid tab IDs within a known group', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const config = {
         tabGroups: [{ groupId: 'g1', tabs: [{ tabId: 'valid' }] }],
       };
@@ -196,6 +202,7 @@ describe('ActiveStateStore', () => {
 
       // Falls back to default (first tab)
       expect(store.state.tabs?.g1).toBe('valid');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"nonexistent" is not in group'));
     });
 
     it('should sanitize incoming placeholders via filterUserSettablePlaceholders', () => {
@@ -268,6 +275,7 @@ describe('ActiveStateStore', () => {
     });
 
     it('drops nonexistent tab group IDs from the delta', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const config = {
         tabGroups: [{ groupId: 'real', tabs: [{ tabId: 't1' }] }],
       };
@@ -276,9 +284,11 @@ describe('ActiveStateStore', () => {
       store.applyDifferenceInState({ tabs: { ghost: 'tabX' } });
 
       expect(store.state.tabs?.ghost).toBeUndefined();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost" is not in the config'));
     });
 
     it('drops nonexistent tab IDs within a known group', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const config = {
         tabGroups: [{ groupId: 'g1', tabs: [{ tabId: 'valid' }] }],
       };
@@ -289,6 +299,7 @@ describe('ActiveStateStore', () => {
 
       // Should not have accepted the invalid tab
       expect(store.state.tabs?.g1).toBe('valid');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakeTab" is not in group'));
     });
 
     it('only accepts registered placeholder keys (explicit override wins)', () => {
@@ -301,6 +312,7 @@ describe('ActiveStateStore', () => {
     });
 
     it('drops nonexistent toggle IDs from the delta', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const config = {
         toggles: [{ toggleId: 'real' }],
       };
@@ -311,6 +323,9 @@ describe('ActiveStateStore', () => {
       expect(store.state.shownToggles).toContain('real');
       expect(store.state.shownToggles).not.toContain('fakeShow');
       expect(store.state.peekToggles).not.toContain('fakePeek');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakeShow" is not in the config'));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakePeek" is not in the config'));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakeHide" is not in the config'));
     });
   });
 
