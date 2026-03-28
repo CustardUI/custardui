@@ -30,10 +30,7 @@ export class FocusService {
   private unsubscribe: () => void;
   private highlightService: HighlightService;
 
-  constructor(
-    private rootEl: HTMLElement,
-    options: FocusServiceOptions,
-  ) {
+  constructor(options: FocusServiceOptions) {
     const userTags = options.shareExclusions?.tags || [];
     const userIds = options.shareExclusions?.ids || [];
 
@@ -42,7 +39,7 @@ export class FocusService {
     );
     this.excludedIds = new SvelteSet([...DEFAULT_EXCLUDED_IDS, ...userIds]);
 
-    this.highlightService = new HighlightService(this.rootEl);
+    this.highlightService = new HighlightService();
 
     // Subscribe to store for exit signal
     this.unsubscribe = $effect.root(() => {
@@ -144,7 +141,7 @@ export class FocusService {
     // Resolve anchors to DOM elements
     const targets: HTMLElement[] = [];
     descriptors.forEach((desc) => {
-      const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
+      const matchingEls = DomElementLocator.resolve(desc);
       if (matchingEls && matchingEls.length > 0) {
         targets.push(...matchingEls);
       }
@@ -181,7 +178,7 @@ export class FocusService {
 
     const targets: HTMLElement[] = [];
     descriptors.forEach((desc) => {
-      const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
+      const matchingEls = DomElementLocator.resolve(desc);
       if (matchingEls && matchingEls.length > 0) {
         targets.push(...matchingEls);
       }

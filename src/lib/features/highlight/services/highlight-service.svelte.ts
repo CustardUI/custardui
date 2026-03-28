@@ -28,7 +28,7 @@ export class HighlightService {
   private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> = new Map();
   private onWindowResize = () => this.updatePositions();
 
-  constructor(private rootEl: HTMLElement) {
+  constructor() {
     this.resizeObserver = new ResizeObserver(() => {
       this.updatePositions();
     });
@@ -39,7 +39,7 @@ export class HighlightService {
     if (!descriptors || descriptors.length === 0) return [];
     const targets: HTMLElement[] = [];
     descriptors.forEach((desc) => {
-      const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
+      const matchingEls = DomElementLocator.resolve(desc);
       if (matchingEls && matchingEls.length > 0) targets.push(...matchingEls);
     });
     return targets;
@@ -53,7 +53,7 @@ export class HighlightService {
     const colors = new Map<HTMLElement, HighlightColorKey>();
     const annotations = new Map<HTMLElement, { text: string; corner: AnnotationCorner }>();
     descriptors.forEach((desc) => {
-      const matchingEls = DomElementLocator.resolve(this.rootEl, desc);
+      const matchingEls = DomElementLocator.resolve(desc);
       if (matchingEls && matchingEls.length > 0) {
         targets.push(...matchingEls);
         if (desc.color) {

@@ -59,7 +59,7 @@ Deserialization detects which format is present automatically.
 A shared link may contain one or more anchor descriptors, which each match a DOM element. Hence, when a link is opened, each descriptor must be matched back to a live DOM element, in order to highlight, show, or hide the element. Resolution uses a **priority-ordered scoring strategy**:
 
 * **Overview of Resolution Order**: If the descriptor has an `elementId`, the resolver looks it up directly. Next, if `parentId` is set, narrow search scope to that element, else search the whole document. Within the scope, check the element at `index`, if the hash matches, return the element.  If that fails, scan all same-tag descendants in the scope, scoring by hash, snippet prefix and index position. Return best match.
-* **`container`,`scope`**:  When creating the descriptor, if a parent with `.id` is found,  the search scope is set to that element; otherwise the search scope is set to the root. Similar when resolving the descriptor, if `parentId` resolves, scope is set there, else it is set to the root. (TODO: TBC specifics)
+* **Scope**: When creating the descriptor, if a parent with `.id` is found, the index is computed within that element's subtree; otherwise `document.body` is used. When resolving, if `parentId` resolves via `getElementById`, the search is scoped to that element; otherwise the search falls back to `document.body`. Both sides use the same fallback, so the index pool always matches.
 
 ```
 Direct ID lookup  →  Index + hash perfect match  →  Full scored scan  →  No match
@@ -69,7 +69,7 @@ The full scan scores each candidate element by how well its content hash, text p
 
 ### Resolution Algorithm
 
-`resolve(root, descriptor)` attempts four strategies in order of cost, returning as soon as one succeeds.
+`resolve(descriptor)` attempts four strategies in order of cost, returning as soon as one succeeds.
 
 <mermaid>
 flowchart LR
@@ -81,7 +81,7 @@ flowchart LR
     B -- no --> D
 
     D{parentId?} -- yes --> E["getElementById\nscope = parent"]
-    D -- "no / not found" --> F[scope = root]
+    D -- "no / not found" --> F[scope = document.body]
     E --> G
     F --> G
 
