@@ -79,7 +79,7 @@ Refer to individual components for more details on each configuration option.
 
 | Field                   | Type      | Default                                     | Description                                                                                                         |
 | ----------------------- | --------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| enabled                 | `boolean` | `true`                                      | Whether to show the floating settings widget on the page.                                                           |
+| enabled                 | `boolean` | `false`                                     | Whether to show the floating settings widget on the page.                                                           |
 | panel.title             | `string`  | `"Customize View"`                          | Title shown in settings tooltip and modal header.                                                                   |
 | panel.description       | `string`  | `""`                                        | Description text displayed in the settings modal.                                                                   |
 | panel.showTabGroups     | `boolean` | `true`                                      | Whether to show tab groups section in widget.                                                                       |
