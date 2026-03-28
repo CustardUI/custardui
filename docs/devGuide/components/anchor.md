@@ -10,7 +10,7 @@
 
 The **Anchor** system (`src/lib/features/anchor/`) provides a way to durably identify, serialize, and re-locate specific DOM elements, across page reloads and minor content change. It is the backbone of the Share, Highlight, and Focus features, all of which need to encode element selections into URLs and recover them on the next visit.
 
-* A naive approach to ID an DOM element might be to use exact position or a CSS/XPath selector. However, both break easily: e.g. if we add a sentence above or rename a class. The anchor system instead creates a **content fingerprint**, a compact snapshot that combines structural position *and* hashed text content. This makes element identification resilient to surrounding edits while remaining cheap to compute and URL-safe to store. 
+* A naive approach to identify a DOM element might be to use exact position or a CSS/XPath selector. However, both break easily: e.g. if we add a sentence above or rename a class. The anchor system instead creates a **content fingerprint**, a compact snapshot that combines structural position *and* hashed text content. This makes element identification resilient to surrounding edits while remaining cheap to compute and URL-safe to store. 
 
 ## Generating an Anchor Descriptor
 
@@ -41,7 +41,7 @@ In order to create a stable anchor, we need to capture information of the HTML e
 
 ### Stable Text & Placeholder Awareness
 
-Additonally, we need to make sure that the text we use to create the anchor is stable and consistent. This is especially important when dealing with placeholders. Text hashing must be consistent between *share time* (when the page may have live placeholder values) and *load time* (when placeholders may not be resolved yet). The system canonicalizes all `[[placeholder]]` tokens to a fixed form before hashing, so that an element reading *"Hello alice!"* at share time and *"Hello \\[[username]]!"* at load time produce the same hash.
+Additionally, we need to make sure that the text we use to create the anchor is stable and consistent. This is especially important when dealing with placeholders. Text hashing must be consistent between *share time* (when the page may have live placeholder values) and *load time* (when placeholders may not be resolved yet). The system canonicalizes all `[[placeholder]]` tokens to a fixed form before hashing, so that an element reading *"Hello alice!"* at share time and *"Hello \\[[username]]!"* at load time produce the same hash.
 
 ### Serialization
 
