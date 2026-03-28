@@ -137,7 +137,9 @@ describe('Anchor', () => {
         // Build a reference descriptor from the canonical raw-token form
         const refDiv = document.createElement('div');
         refDiv.innerHTML = `<p>Hello [[username]]!</p>`;
+        document.body.appendChild(refDiv);
         const refDescriptor = Anchor.createDescriptor(refDiv.querySelector('p')!);
+        document.body.removeChild(refDiv);
 
         expect(descriptor.textHash).toBe(refDescriptor.textHash);
         expect(descriptor.textSnippet).toBe(refDescriptor.textSnippet);
@@ -211,9 +213,12 @@ describe('Anchor', () => {
         container.appendChild(ph);
         const descriptor = Anchor.createDescriptor(ph);
 
-        expect(descriptor.textHash).toBe(Anchor.createDescriptor(
-          Object.assign(document.createElement('div'), { textContent: '[[username]]' })
-        ).textHash);
+        const refDiv = Object.assign(document.createElement('div'), { textContent: '[[username]]' });
+        document.body.appendChild(refDiv);
+        const refDescriptor = Anchor.createDescriptor(refDiv);
+        document.body.removeChild(refDiv);
+
+        expect(descriptor.textHash).toBe(refDescriptor.textHash);
         expect(descriptor.textSnippet).toBe('[[username]]');
       });
 
@@ -242,7 +247,7 @@ describe('Anchor', () => {
         container.innerHTML = `<p>Hello <cv-placeholder name="username">bob</cv-placeholder>!</p>`;
         const targetEl = container.querySelector('p')!;
 
-        const resolved = Anchor.resolve(container, descriptor);
+        const resolved = Anchor.resolve(descriptor);
         expect(resolved).toHaveLength(1);
         expect(resolved[0]).toBe(targetEl);
       });
@@ -255,7 +260,7 @@ describe('Anchor', () => {
         container.innerHTML = `<p>Hello [[ username ]]!</p>`;
         const targetEl = container.querySelector('p')!;
 
-        const resolved = Anchor.resolve(container, descriptor);
+        const resolved = Anchor.resolve(descriptor);
         expect(resolved).toHaveLength(1);
         expect(resolved[0]).toBe(targetEl);
       });
@@ -268,10 +273,60 @@ describe('Anchor', () => {
         container.innerHTML = `<p>Hello <cv-placeholder name="username">alice</cv-placeholder>!</p>`;
         const targetEl = container.querySelector('p')!;
 
-        const resolved = Anchor.resolve(container, descriptor);
+        const resolved = Anchor.resolve(descriptor);
         expect(resolved).toHaveLength(1);
         expect(resolved[0]).toBe(targetEl);
       });
+    });
+  });
+
+  describe('resolve - CSS-special-character IDs', () => {
+    it('should resolve when parentId contains a dot (e.g. "topic-W10.1d")', () => {
+      // Regression: querySelector(`#topic-W10.1d`) throws SyntaxError — must use getElementById
+      const wrapper = document.createElement('div');
+      wrapper.id = 'topic-W10.1d';
+      container.appendChild(wrapper);
+      wrapper.innerHTML = `<p>Section content</p>`;
+
+      const target = wrapper.querySelector('p') as HTMLElement;
+      const descriptor = Anchor.createDescriptor(target);
+
+      expect(descriptor.parentId).toBe('topic-W10.1d');
+      // Should not throw and should resolve the element
+      expect(() => Anchor.resolve(descriptor)).not.toThrow();
+      const resolved = Anchor.resolve(descriptor);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]).toBe(target);
+    });
+
+    it('should resolve when parentId contains brackets (e.g. "section[1]")', () => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'section[1]';
+      container.appendChild(wrapper);
+      wrapper.innerHTML = `<p>Bracketed section content</p>`;
+
+      const target = wrapper.querySelector('p') as HTMLElement;
+      const descriptor = Anchor.createDescriptor(target);
+
+      expect(() => Anchor.resolve(descriptor)).not.toThrow();
+      const resolved = Anchor.resolve(descriptor);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]).toBe(target);
+    });
+
+    it('should resolve when parentId contains a colon (e.g. "ns:section")', () => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'ns:section';
+      container.appendChild(wrapper);
+      wrapper.innerHTML = `<p>Colon section content</p>`;
+
+      const target = wrapper.querySelector('p') as HTMLElement;
+      const descriptor = Anchor.createDescriptor(target);
+
+      expect(() => Anchor.resolve(descriptor)).not.toThrow();
+      const resolved = Anchor.resolve(descriptor);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]).toBe(target);
     });
   });
 
@@ -286,34 +341,29 @@ describe('Anchor', () => {
       // Manually creating descriptor to simulate "previous state"
       const descriptor = Anchor.createDescriptor(targetEl);
 
-      const resolved = Anchor.resolve(container, descriptor);
+      const resolved = Anchor.resolve(descriptor);
       expect(resolved).toHaveLength(1);
       expect(resolved[0]).toBe(targetEl);
     });
 
     it('should resolve even if index changes (Robustness)', () => {
       container.innerHTML = `
-                <p>New Inserted Paragraph</p>
                 <p>Wrong One</p>
                 <p>Correct One</p>
             `;
-      // Original descriptor was index 1, "Correct One"
-      // Now "Correct One" is index 2.
 
-      // We create a temporary element to get a valid hash/snippet
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = '<p>Correct One</p>';
-      const baseDescriptor = Anchor.createDescriptor(tempDiv.querySelector('p')!);
+      // Capture descriptor while "Correct One" is at index 1 (simulates share-time)
+      const targetEl = container.querySelectorAll('p')[1] as HTMLElement;
+      const descriptor = Anchor.createDescriptor(targetEl);
 
-      const descriptor = {
-        ...baseDescriptor,
-        index: 1, // Old index (where "Wrong One" is now)
-        parentId: 'test-container',
-      };
+      // Simulate DOM change: insert a paragraph before, shifting "Correct One" to index 2
+      const newPara = document.createElement('p');
+      newPara.textContent = 'New Inserted Paragraph';
+      container.insertBefore(newPara, container.querySelector('p'));
 
-      const resolved = Anchor.resolve(container, descriptor);
+      const resolved = Anchor.resolve(descriptor);
 
-      // Should still find it because content match
+      // Should still find it because content hash match despite index shift
       expect(resolved).toHaveLength(1);
       expect(resolved[0]?.textContent).toBe('Correct One');
     });
@@ -327,7 +377,7 @@ describe('Anchor', () => {
         textSnippet: 'Missing content',
         textHash: 99999,
       };
-      const resolved = Anchor.resolve(container, descriptor);
+      const resolved = Anchor.resolve(descriptor);
       expect(resolved).toHaveLength(0);
     });
   });

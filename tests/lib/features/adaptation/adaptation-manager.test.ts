@@ -100,13 +100,15 @@ describe('AdaptationManager', () => {
     });
 
     it('should gracefully handle fetch failure', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockLocation('http://localhost/?adapt=fail-id');
       (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
       await AdaptationManager.init('/docs');
-      
+
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/fail-id/fail-id.json');
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fail-id" failed to fetch'), expect.any(Error), expect.stringContaining('Clearing'));
     });
 
     it('should clear stored id and remove hash when ?adapt=clear with hash indicator is passed', async () => {

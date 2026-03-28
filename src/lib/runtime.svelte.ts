@@ -80,7 +80,7 @@ export class AppRuntime {
     this.resolveInitialState(opt.adaptationConfig ?? null);
 
     // Resolve Exclusions
-    this.focusService = new FocusService(this.rootEl, {
+    this.focusService = new FocusService({
       shareExclusions: opt.configFile.config?.shareExclusions || {},
     });
   }
