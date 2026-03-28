@@ -59,7 +59,10 @@ export async function fetchConfig(configPath: string, baseURL: string): Promise<
 
     if (!response.ok) return FALLBACK_CONFIG;
 
-    return await response.json();
+    const text = await response.text();
+    if (!text.trim()) return FALLBACK_CONFIG;
+
+    return JSON.parse(text);
   } catch (error) {
     console.error('[CustardUI] Error loading config file:', error);
     return FALLBACK_CONFIG;
