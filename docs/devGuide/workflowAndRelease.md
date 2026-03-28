@@ -84,7 +84,7 @@ npm run deploydocs
 
 When `develop` is stable and ready for the public.
 
-1. **Create a PR** from `develop` to `main`.
+1. **Create a PR** from `develop` to `main`, with name e.g. `Release v2.2.0`
 2. **Merge via "Squash and Merge"** on the GitHub UI. 
    > **Important:** Do not use a "Merge Commit" here. Squashing ensures that the messy integration history of `develop` doesn't overwrite your clean production code.
 3. **Finalize the release on your local machine:**

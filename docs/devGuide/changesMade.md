@@ -9,6 +9,27 @@
 
 Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
 
+### v2.2.*
+
+**User Facing Changes**:
+
+* feat: Add new cv-label component (cv-tags) for adaptations usage
+* feat: Update url generation of settings to include all shown in settings panel
+* feat: Add siteManaged property for Adaptation for toggles and placeholder components
+* feat: Update text annotation home plate shape to have fixed triangle shape
+* chore: remove baseURL field from config, source of truth from script baseurl tag
+* fix: Fix anchor descriptor logic and resolution
+* fix: disable settings widget by default 
+
+**Developer Facing Changes**:
+
+* feat: Update release docs and add CICD
+* refactor: Refactor dom-element-locator to own feature
+* refactor: Remove legacy dynamic asset rendering feature, 
+* fix: Additional bug fixes include updating deployment scripts, documentation, edge case for empty config json.
+* fix: Add focus banner hotfix
+
+
 ### v2.1.*
 
 **User Facing Changes**:
@@ -21,7 +42,7 @@ Also refer to [release notes](https://github.com/CustardUI/custardui/releases) t
 * fix: Align placeholder defaultValue handling with conditional logic
 * fix: Fix adaptation bug, where ?adapt=clear now wipes full user state including placeholders
 * fix: Implement stable element text hashing for placeholders, now fingerprints for elements containing placeholders work properly.
-* docs: Update documentation site for v2, adding URL-sharing documentation for placeholders, toggles, and tabs)
+* docs: Update documentation site for v2, adding URL-sharing documentation for placeholders, toggles, and tabs
 
 **Developer Facing Changes**:
 
