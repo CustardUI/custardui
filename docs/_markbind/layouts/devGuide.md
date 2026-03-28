@@ -12,7 +12,7 @@
 * [Workflow and Release]({{baseUrl}}/devGuide/workflowAndRelease.html)
 * [How Components Work]({{baseUrl}}/devGuide/componentWorkings.html) :expanded:
   * [Tab Logic]({{baseUrl}}/devGuide/components/tabLogic.html)
-  * [DOM Element Anchors]({{baseUrl}}/devGuide/components/anchor.html)
+  * [DOM Anchor System]({{baseUrl}}/devGuide/components/anchor.html)
 * Tests :expanded:
   * [Local Components]({{baseUrl}}/devGuide/tests/localComponents.html)
   * [Test Tabs]({{baseUrl}}/devGuide/tests/tabs.html)
