@@ -1,76 +1,67 @@
 import { prependBaseUrl } from './url-utils';
 import type { ConfigFile } from '$lib/types/index';
 
-/**
- * structure for script attributes
- */
 export interface ScriptAttributes {
   baseURL: string;
   configPath: string;
 }
+
+const SCRIPT_ATTRIBUTE_DEFAULTS: ScriptAttributes = {
+  baseURL: '/',
+  configPath: '/custardui.config.json',
+};
+
+const FALLBACK_CONFIG: ConfigFile = {
+  config: {},
+  settings: { enabled: false },
+};
 
 /**
  * Finds the script tag that loaded the library and extracts configuration attributes.
  * Looks for `data-base-url` and `data-config-path`.
  */
 export function getScriptAttributes(): ScriptAttributes {
-  let scriptTag = document.currentScript as HTMLScriptElement | null;
-  const defaults = { baseURL: '/', configPath: '/custardui.config.json' };
+  const scriptTag = findScriptTag();
+  if (!scriptTag) return SCRIPT_ATTRIBUTE_DEFAULTS;
 
-  if (!scriptTag || !scriptTag.hasAttribute('data-base-url')) {
-    const dataAttrMatch = document.querySelector(
-      'script[data-base-url]',
-    ) as HTMLScriptElement | null;
-    if (dataAttrMatch) {
-      scriptTag = dataAttrMatch;
-    } else {
-      // Fallback: try to find script by src pattern
-      for (const script of document.scripts) {
-        const src = script.src || '';
-        if (
-          /(?:custard(?:ui)?|@custardui\/custard(?:ui)?)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(
-            src,
-          )
-        ) {
-          scriptTag = script as HTMLScriptElement;
-          break;
-        }
-      }
+  return {
+    baseURL: scriptTag.getAttribute('data-base-url') || SCRIPT_ATTRIBUTE_DEFAULTS.baseURL,
+    configPath: scriptTag.getAttribute('data-config-path') || SCRIPT_ATTRIBUTE_DEFAULTS.configPath,
+  };
+}
+
+function findScriptTag(): HTMLScriptElement | null {
+  const current = document.currentScript as HTMLScriptElement | null;
+  if (current?.hasAttribute('data-base-url')) return current;
+
+  const byAttr = document.querySelector('script[data-base-url]') as HTMLScriptElement | null;
+  if (byAttr) return byAttr;
+
+  // Fallback: find script by src pattern
+  for (const script of document.scripts) {
+    if (/(?:custard(?:ui)?|@custardui\/custard(?:ui)?)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(script.src)) {
+      return script as HTMLScriptElement;
     }
   }
 
-  if (scriptTag) {
-    return {
-      baseURL: scriptTag.getAttribute('data-base-url') || defaults.baseURL,
-      configPath: scriptTag.getAttribute('data-config-path') || defaults.configPath,
-    };
-  }
-
-  return defaults;
+  return null;
 }
 
 /**
  * Fetches and parses the configuration file.
+ * Returns the fallback config silently if the file is not found (404),
+ * since operating without a config file is a valid use case.
  */
 export async function fetchConfig(configPath: string, baseURL: string): Promise<ConfigFile> {
-  const fallbackMinimalConfig: ConfigFile = {
-    config: {},
-    settings: { enabled: true },
-  };
-
   try {
     const fullConfigPath = prependBaseUrl(configPath, baseURL);
     const response = await fetch(fullConfigPath);
 
-    if (!response.ok) {
-      console.warn(`[CustardUI] Config file not found at ${fullConfigPath}. Using defaults.`);
-      return fallbackMinimalConfig;
-    }
+    if (!response.ok) return FALLBACK_CONFIG;
 
-    const config = await response.json();
-    return config;
+    return await response.json();
   } catch (error) {
     console.error('[CustardUI] Error loading config file:', error);
-    return fallbackMinimalConfig;
+    return FALLBACK_CONFIG;
   }
 }
