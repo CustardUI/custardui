@@ -26,16 +26,11 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   // 1. Determine Scope
   let scope: HTMLElement = root;
 
-  // Optimization: If parentId exists, try to narrow scope immediately
+  // Optimization: If parentId exists, try to narrow scope immediately.
   if (descriptor.parentId) {
-    const foundParent = root.querySelector(`#${descriptor.parentId}`);
+    const foundParent = document.getElementById(descriptor.parentId);
     if (foundParent instanceof HTMLElement) {
       scope = foundParent;
-    } else {
-      const globalParent = document.getElementById(descriptor.parentId);
-      if (globalParent) {
-        scope = globalParent;
-      }
     }
   }
 

@@ -275,6 +275,56 @@ describe('Anchor', () => {
     });
   });
 
+  describe('resolve - CSS-special-character IDs', () => {
+    it('should resolve when parentId contains a dot (e.g. "topic-W10.1d")', () => {
+      // Regression: querySelector(`#topic-W10.1d`) throws SyntaxError — must use getElementById
+      const wrapper = document.createElement('div');
+      wrapper.id = 'topic-W10.1d';
+      container.appendChild(wrapper);
+      wrapper.innerHTML = `<p>Section content</p>`;
+
+      const target = wrapper.querySelector('p') as HTMLElement;
+      const descriptor = Anchor.createDescriptor(target);
+
+      expect(descriptor.parentId).toBe('topic-W10.1d');
+      // Should not throw and should resolve the element
+      expect(() => Anchor.resolve(container, descriptor)).not.toThrow();
+      const resolved = Anchor.resolve(container, descriptor);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]).toBe(target);
+    });
+
+    it('should resolve when parentId contains brackets (e.g. "section[1]")', () => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'section[1]';
+      container.appendChild(wrapper);
+      wrapper.innerHTML = `<p>Bracketed section content</p>`;
+
+      const target = wrapper.querySelector('p') as HTMLElement;
+      const descriptor = Anchor.createDescriptor(target);
+
+      expect(() => Anchor.resolve(container, descriptor)).not.toThrow();
+      const resolved = Anchor.resolve(container, descriptor);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]).toBe(target);
+    });
+
+    it('should resolve when parentId contains a colon (e.g. "ns:section")', () => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'ns:section';
+      container.appendChild(wrapper);
+      wrapper.innerHTML = `<p>Colon section content</p>`;
+
+      const target = wrapper.querySelector('p') as HTMLElement;
+      const descriptor = Anchor.createDescriptor(target);
+
+      expect(() => Anchor.resolve(container, descriptor)).not.toThrow();
+      const resolved = Anchor.resolve(container, descriptor);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]).toBe(target);
+    });
+  });
+
   describe('resolve', () => {
     it('should resolve exact match with high score', () => {
       container.innerHTML = `
