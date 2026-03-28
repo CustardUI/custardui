@@ -61,10 +61,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
         run: npm run deploydocs:beta
 
-      # STEP 3: DEPLOY TO STABLE (Official Release)
+      # STEP 3: DEPLOY TO PRODUCTION (Official Release)
       # Triggered when a PR is merged into main OR a stable tag is pushed
-      - name: Deploy Stable Docs
+      - name: Deploy Production Docs
         if: github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && !contains(github.ref, '-beta.'))
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
-        run: npm run deploydocs:stable
+        run: npm run deploydocs:prod
