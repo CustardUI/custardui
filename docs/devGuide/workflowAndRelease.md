@@ -74,19 +74,17 @@ npm run bump:beta
 npm login
 npm run release:beta
 
-# 3. Deploy Beta Docs
-npm run deploydocs
+# CICD handles deployment of Beta Docs
 ```
-*Beta docs are hosted at `https://custardui.js.org/betadocs`. Ensure the `data-base-url="/betadocs"` is set in your plugin script.*
-- Make sure to update the `data-base-url` in the `custardui` plugin script to make sure that it is the right value i.e. (`data-base-url="/betadocs"`), when deploying documentation.
+*Beta docs are hosted at `https://custardui.js.org/betadocs`.*
 
 ### Step 3: Production Release (Stable)
 
 When `develop` is stable and ready for the public.
 
-1. **Create a PR** from `develop` to `main`.
-2. **Merge via "Squash and Merge"** on the GitHub UI. 
-   > **Important:** Do not use a "Merge Commit" here. Squashing ensures that the messy integration history of `develop` doesn't overwrite your clean production code.
+1. **Create a PR** from `develop` to `main`, with name e.g. `Release v2.2.0`
+2. **Merge via "Create a Merge Commit"** on the GitHub UI.
+    > **AVOID using "Squash and Merge"** Since `develop` is a long-lived branch (Beta channel), squashing creates a "history mismatch." If you squash, `main` and `develop` will have different commit hashes for the same code. This leads to massive, redundant merge conflicts the next time you try to sync them or apply a production hotfix back to the Beta channel. Using a **Merge Commit** (commit has 2 parents) preserves the shared history and allows for easy `git bisect` debugging.
 3. **Finalize the release on your local machine:**
    - Make sure to update the `data-base-url` in the `custardui` plugin script to make sure that it is the right value i.e. (`data-base-url="/betadocs"`), when deploying documentation.
 
@@ -97,15 +95,13 @@ git checkout main
 git pull origin main
 
 # 1. Bump to stable (e.g., 2.1.1-beta.x -> 2.1.1)
-npm run bump:patch # Use :minor or :major if applicable
+npm run bump:X # Use :patch, :minor or :major
 
 # 2. Publish and Tag
 npm login
 npm run release:prod
-git push origin main --tags
 
-# 3. Deploy Stable Docs
-npm run deploydocs:stable
+# CICD handles deployment of Production Docs
 ```
 
 ## Maintenance (Hotfixes)
@@ -113,17 +109,21 @@ npm run deploydocs:stable
 If a critical bug is found on `main` that cannot wait for the next `develop` cycle, follow the hotfix flow to ensure production is patched and development remains in sync.
 
 1. **Branch**: Create a `hotfix/*` branch off `main`.
-2. **Fix**: Apply the critical fix and verify it.
-3. **Merge to Main**: Create a PR into `main`. Use **Squash and Merge**.
-4. **Tag & Release**: Switch to `main`, pull the changes, and run the production release commands (usually a `patch` bump).
-5. **Sync to Develop**: Merge the `hotfix/*` branch (or `main`) back into `develop` immediately. This ensures the fix is not "undone" by the next major release from `develop`.
+2. **Fix**: Apply the critical fix and verify it locally.
+3. **Merge to Main**: Open a PR into `main`. **Merge via "Create a Merge Commit."**
+    > **Crucial:** Do not use "Squash and Merge." Squashing creates a new, unique commit hash on `main` that does not exist on your other branches. This "breaks" the historical link between them and causes massive, redundant merge conflicts when you try to sync the fix back to `develop`.
+4. **Make Release**: Run `npm run bump:patch` and `npm run release:prod` to publish the release.
+5. **Sync to Develop**: Merge **`main`** back into `develop` immediately.
+    * **Why merge `main` instead of merging hotfix branch into `develop`?** Ensures `develop` receives both the code fix AND the automated version bump/tag created by the pipeline. Because we used a **Merge Commit** in Step 3, Git recognizes the shared history, making sync a clean "fast-forward" merge.
+    * **If `develop` has diverged:** You may encounter merge conflicts. This is a critical safety check to ensure the production fix is correctly integrated into your new "Beta" logic.
+    * **If the fix is no longer relevant:** Resolve the conflict by favoring the `develop` changes, but **still complete the merge.** This syncs the version history and prevents "ghost" conflicts in future releases.
 
 <mermaid>
 gitGraph
    commit id: "v2.1.0" tag: "v2.1.0"
    branch develop
    checkout develop
-   commit id: "Next Feature Work"
+   commit id: "Feature Work"
    
    %% Hotfix
    checkout main
@@ -133,11 +133,11 @@ gitGraph
    
    %% Merge to Main (Deploy)
    checkout main
-   merge hotfix/fix-bug id: "Squash to Main" tag: "v2.1.1"
+   merge hotfix/fix-bug id: "Merge to Main" tag: "v2.1.1"
    
-   %% Merge to Develop (Sync)
+   %% Sync to Develop (The proper way)
    checkout develop
-   merge hotfix/fix-bug id: "Sync Fix"
+   merge main id: "Sync Main to Dev"
 </mermaid>
 
 ---
