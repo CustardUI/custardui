@@ -18,7 +18,7 @@
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
 * [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
   * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
-  * [Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
+  * [TabGroups and Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
   * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
   * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)

@@ -297,6 +297,9 @@
 <style>
   :host {
     display: block;
+  }
+
+  .cv-tabgroup-container {
     margin-bottom: 24px;
   }
 
@@ -330,7 +333,6 @@
     text-decoration: none;
     background-color: transparent !important;
     border: none;
-    border-bottom: 2px solid transparent;
     transition:
       opacity 0.15s ease-in-out,
       border-color 0.15s ease-in-out;
