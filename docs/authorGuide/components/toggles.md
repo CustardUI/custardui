@@ -55,26 +55,6 @@ We recommend `show-label` to add a label to the toggle, so users know what it is
 </cv-toggle>
 ```
 
-### Inline Controls
-
-You can enable an **inline control** that allows users to switch between visibility states (Hide · Peek · Show) directly on the page without opening the Settings modal.
-
-Use the `show-inline-control` attribute to enable a 3-dot state indicator:
-
-- **Visible / Peek States**: A floating 3-dot indicator appears in the top-right corner on hover.
-- **Hidden State**: A thin placeholder bar (~24px) remains visible, showing the toggle label and 3 dots. This ensures users can always bring content back.
-
-```html
-<cv-toggle toggle-id="important-note" show-inline-control>
-  <p>This note can be toggled by the dots in the corner.</p>
-</cv-toggle>
-```
-
-<box type="tip">
-
-**Accessibility Note:** The dots are designed with an expanded interactive hit target for easier clicking/tapping. They also include `aria-label` and `title` attributes for screen readers.
-</box>
-
 **Precedence Behaviour**:
 
 When multiple IDs are used, the effective visibility is determined by the most "positive" state among all matching IDs. The order of precedence is:
@@ -103,7 +83,44 @@ This means that "Show" overrides "Peek", and "Peek" overrides "Hide". Explicit i
 | toggle-id        | `string`  | **required** | Defines the category for the cv-toggle element. Example: `toggle-id="mac"`.                                                                                                                                                                                                    |
 | show-peek-border | `boolean` | `false`      | If present, adds a subtle border to the top and sides of the toggle content. The border is only applied while the toggle is in Peek mode (whether collapsed or user‑expanded). When the toggle is fully shown (non‑Peek), no border is rendered even if this attribute is set. |
 | show-label        | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle.                                                                                                                                                                                   |
-| show-inline-control | `boolean` | `false`      | If present, enables a 3-dot inline state indicator in the corner. Allows direct switching between Hide, Peek, and Show states. Shows a minimal placeholder bar when hidden. |
+
+## Toggle Control
+
+`<cv-toggle-control>`
+
+You can place a **toggle control** directly on the page so readers can switch a toggle's visibility state (Hide · Peek · Show) without opening the Settings modal. By default it renders as a card, matching the look of the settings panel, with the toggle's label shown on the left and the segmented control on the right.
+
+* You can place the control anywhere, above the toggle, in a sidebar, or grouped together for multiple toggles.
+* To hide the label and only render the segmented control, use `show-label="false"`.
+* Note: `cv-toggle-control` renders nothing for `siteManaged` toggles, since those states are controlled by the site rather than the reader.
+
+<include src="codeAndOutput.md" boilerplate >
+<variable name="highlightStyle">html</variable>
+<variable name="code">
+
+<cv-toggle-control toggle-id="localToggle"></cv-toggle-control> <br>
+
+Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" show-label="false"/>
+
+<cv-toggle toggle-id="localToggle"> 
+
+**Local Toggle**: Local toggle content
+* Item 1
+* Item 2
+* Item 3
+</cv-toggle>
+
+</variable>
+</include>
+
+
+### Attributes of `<cv-toggle-control>`
+
+| Name       | Type      | Default      | Description                                                        |
+| ---------- | --------- | ------------ | ------------------------------------------------------------------ |
+| toggle-id  | `string`  | **required** | The toggle ID to control. Must match a configured toggle.          |
+| show-label | `boolean` | `true`       | Whether to display the toggle's configured label. Set to `false` to hide it. |
+
 
 ## Configuration
 
