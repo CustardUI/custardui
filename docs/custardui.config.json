@@ -35,6 +35,7 @@
       {
         "toggleId": "localToggle",
         "label": "Local Toggle Label",
+        "description": "Local toggle content for this page",
         "isLocal": true,
         "default": "peek"
       },

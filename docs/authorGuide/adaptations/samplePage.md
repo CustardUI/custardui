@@ -35,7 +35,13 @@ Switch adaptation using the links above to see the labels change. **NUS** makes 
 
 Configure your development environment for [[institutionName : this module]].
 
-<cv-toggle toggle-id="linux" show-label show-peek-border show-inline-control>
+<cv-toggle-control toggle-id="linux"></cv-toggle-control>
+<cv-toggle-control toggle-id="windows"></cv-toggle-control>
+<cv-toggle-control toggle-id="mac"></cv-toggle-control>
+
+<br>
+
+<cv-toggle toggle-id="linux" show-label show-peek-border>
 
 **Linux Setup**
 
@@ -46,7 +52,7 @@ python3 --version
 
 </cv-toggle>
 
-<cv-toggle toggle-id="windows" show-label show-peek-border show-inline-control>
+<cv-toggle toggle-id="windows" show-label show-peek-border>
 
 **Windows Setup**
 
@@ -57,7 +63,7 @@ python --version
 
 </cv-toggle>
 
-<cv-toggle toggle-id="mac" show-label show-peek-border show-inline-control>
+<cv-toggle toggle-id="mac" show-label show-peek-border>
 
 **macOS Setup**
 

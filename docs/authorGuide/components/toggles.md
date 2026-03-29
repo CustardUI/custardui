@@ -100,7 +100,7 @@ You can place a **toggle control** directly on the page so readers can switch a 
 
 <cv-toggle-control toggle-id="localToggle"></cv-toggle-control> <br>
 
-Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" show-label="false"/>
+Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" show-label="false"></cv-toggle-control>
 
 <cv-toggle toggle-id="localToggle"> 
 
@@ -154,7 +154,7 @@ To make toggles discoverable by the settings, you must define them in your `cust
 }
 ```
 
-## Key Configuration Fields in `custardui.config.json` for Toggles
+### Configuration Fields in `custardui.config.json` for Toggles
 
 | Name          | Type      | Default      | Description                                                                           |
 | ------------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
@@ -211,22 +211,31 @@ And present on this page:
 Local Toggle content
 
 Some long long text content to make sure the box is scrollable
-
-Use toggles to separate platform-specific or audience-specific instructions:
-
-- `mac`: Steps tailored for macOS users.
-- `linux`: Commands for common Linux distributions.
-- `windows`: Installer-based setup for Windows.
-  Scroll within this panel to review additional best practices:
-- Keep toggle IDs short, descriptive, and lowercase (e.g. `advanced`, `dark-mode`).
-- Prefer reusing the same toggle IDs across pages for consistency.
-- Avoid introducing toggles that overlap heavily in meaning (users may be confused).
-- Document what each toggle controls in your configuration or contributor guide.
-- Test that content is still understandable when individual toggles are on or off.
-- Consider a sensible default combination of toggles for new visitors.
-  These extra lines ensure the box remains scrollable while conveying useful guidance.
-
+* item 1
+* item 2
+* item 3
+* item 4
 </cv-toggle>
+
+<!-- 
+
+Got removed, but can add back if needed
+
+### Keeping Local Toggles for Settings
+
+You can ensure that specific local toggles are always available in the settings, even if they are not initially visible on the page. This is useful for toggles that are loaded dynamically (e.g., inside a dropdown menu) and might not be detected by the plugin otherwise.
+
+To do this, add a `data-cv-page-local-toggles` attribute to any element (an empty `<div>` is a good choice). The value of this attribute should be a comma-separated list of the local toggle IDs you want to register.
+
+For example, to make the local toggles with IDs `advanced` and `dark-mode` available in the settings, add the following to your page:
+
+```html
+<div data-cv-page-local-toggles="advanced, dark-mode"></div>
+```
+
+This will ensure that the specified local toggles appear in the configuration settings, allowing users to control them even if they are not immediately visible on the page.
+
+-->
 
 ## Site-Managed Toggles
 
@@ -261,19 +270,6 @@ A site-managed toggle:
 
 See [Site-Managed Components](../adaptations/configuration.md#site-managed-components-sitemanaged) in the Adaptation Configurations guide for the full picture.
 
-## Registering Local Toggles for Settings
-
-You can ensure that specific local toggles are always available in the settings, even if they are not initially visible on the page. This is useful for toggles that are loaded dynamically (e.g., inside a dropdown menu) and might not be detected by the plugin otherwise.
-
-To do this, add a `data-cv-page-local-toggles` attribute to any element (an empty `<div>` is a good choice). The value of this attribute should be a comma-separated list of the local toggle IDs you want to register.
-
-For example, to make the local toggles with IDs `advanced` and `dark-mode` available in the settings, add the following to your page:
-
-```html
-<div data-cv-page-local-toggles="advanced, dark-mode"></div>
-```
-
-This will ensure that the specified local toggles appear in the configuration settings, allowing users to control them even if they are not immediately visible on the page.
 
 ## Shareable URL
 
