@@ -9,6 +9,21 @@
 
 Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
 
+### v.next
+
+**User Facing Changes**:
+
+* feat: Add `<cv-toggle-control/>` component
+* feat: Add baseline support for light and dark mode
+
+* chore: Deprecate `show-inline-control` attribute from `<cv-toggle/>`
+* chore: Deprecate and remove `panel.theme` setting, rely on single source of truth (`colorScheme`).
+
+**Developer Facing Changes**:
+
+
+
+
 ### v2.2.*
 
 **User Facing Changes**:

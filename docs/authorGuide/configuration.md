@@ -84,7 +84,6 @@ Refer to individual components for more details on each configuration option.
 | panel.description       | `string`  | `""`                                        | Description text displayed in the settings modal.                                                                   |
 | panel.showTabGroups     | `boolean` | `true`                                      | Whether to show tab groups section in widget.                                                                       |
 | panel.showReset         | `boolean` | `true`                                      | Whether to show the reset to default button.                                                                        |
-| panel.theme             | `string`  | `"light"`                                   | Widget theme: `"light"` or `"dark"`.                                                                                |
 | callout.show            | `boolean` | `false`                                     | Whether to show the callout.                                                                                        |
 | callout.message         | `string`  | `"Customize your reading experience here."` | Message to display in the callout.                                                                                  |
 | callout.enablePulse     | `boolean` | `true`                                      | Whether to enable pulse animation for the callout.                                                                  |
@@ -103,7 +102,7 @@ Refer to individual components for more details on each configuration option.
 | Field          | Type                           | Default   | Description                             |
 | -------------- | ------------------------------ | --------- | --------------------------------------- |
 | storageKey     | `string`                       | `null`    | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
-| colorScheme    | `"light" \| "dark" \| "auto"`  | `"light"` | Controls which color variant is used: `"light"`, `"dark"`, or `"auto"`. This is intended to match the site's light/dark mode, so a light mode website uses the light variant, and a dark mode website uses the dark variant. Auto switches based on the visitor's OS preference (`prefers-color-scheme`), reactively. If any other value is provided, CustardUI falls back to the `"light"` scheme (the default). |
+| colorScheme    | `"light" \| "dark" \| "auto"`  | `"light"` | Controls the color scheme for all CustardUI elements — the settings widget, modal, and on-page components such as `<cv-toggle-control>`. Set to `"light"` or `"dark"` to match your site's color scheme, or `"auto"` to follow the visitor's OS preference (`prefers-color-scheme`) reactively. If any other value is provided, CustardUI falls back to `"light"`. |
 
 **Example**: 
 ```json

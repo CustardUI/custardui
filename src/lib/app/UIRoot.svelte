@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
+  import { onMount, onDestroy, getContext } from 'svelte';
   import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
   import { ICON_SETTINGS_CTX, type IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
@@ -20,6 +20,7 @@
 
   import { UrlActionRouter } from '$features/url/url-action-router.svelte';
   import { IntroManager } from '$features/settings/intro-manager.svelte';
+  import { colorSchemeStore } from '$lib/stores/color-scheme-store.svelte';
 
   let { options } = $props<{
     options: ResolvedUIManagerOptions;
@@ -64,16 +65,13 @@
     introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
-  // Mirror theme to <html> so CV variables 
-  // cascade to on-page custom elements (cv-toggle-control etc.)
+  // onDestroy (not $effect cleanup) so the attribute is never briefly absent during transitions.
   $effect(() => {
-    const theme = options.theme;
-    if (theme === 'dark') {
-      document.documentElement.setAttribute('data-cv-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-cv-theme');
-    }
-    return () => document.documentElement.removeAttribute('data-cv-theme');
+    document.documentElement.setAttribute('data-cv-theme', colorSchemeStore.isDark ? 'dark' : 'light');
+  });
+
+  onDestroy(() => {
+    document.documentElement.removeAttribute('data-cv-theme');
   });
 
   // --- Modal Actions ---
@@ -109,7 +107,7 @@
   );
 </script>
 
-<div class="cv-widget-root" data-theme={options.theme} data-cv-share-ignore>
+<div class="cv-widget-root" data-cv-share-ignore>
   <!-- Intro Callout -->
   {#if introManager.showCallout && settingsEnabled}
     <IntroCallout
@@ -156,7 +154,7 @@
 </div>
 
 <style>
-  /* Light Theme Defaults — on :root so on-page custom elements (cv-toggle-control etc.) inherit them */
+  /* --cv-* defaults (light) — on :root so custom properties cascade into all shadow DOM */
   :global(:root) {
     --cv-bg: white;
     --cv-text: rgba(0, 0, 0, 0.9);
@@ -223,7 +221,7 @@
     --cv-section-label-transform: uppercase;
   }
 
-  /* Root should allow clicks to pass through to the page unless hitting checking/interactive element */
+  /* Fixed zero-size overlay — pointer-events none so clicks pass through to the page */
   :global(.cv-widget-root) {
     position: fixed;
     top: 0;
@@ -231,53 +229,19 @@
     width: 0;
     height: 0;
     z-index: 9999;
-    pointer-events: none; /* Crucial: Allow clicks to pass through */
-    font-family: inherit; /* Inherit font from host */
+    pointer-events: none;
+    font-family: inherit;
   }
 
-  /* But interactive children need pointer-events back */
+  /* Interactive children need pointer-events restored */
   :global(.cv-widget-root > *) {
     pointer-events: auto;
   }
 
-  /* Exception: ShareOverlay manages its own pointer events */
+  /* ShareOverlay manages its own pointer-events internally */
   :global(.cv-widget-root .cv-share-overlay) {
-    pointer-events: none; /* Overlay often passes clicks until specialized handles active */
+    pointer-events: none;
   }
-
-  :global(.cv-widget-root[data-theme='dark']) {
-    /* Dark Theme Overrides */
-    --cv-bg: #101722;
-    --cv-text: #e2e8f0;
-    --cv-text-secondary: rgba(255, 255, 255, 0.6);
-    --cv-border: rgba(255, 255, 255, 0.1);
-    --cv-bg-hover: rgba(255, 255, 255, 0.05);
-
-    --cv-primary: #3e84f4;
-    --cv-primary-hover: #60a5fa;
-
-    --cv-danger: #f87171;
-    --cv-danger-bg: rgba(248, 113, 113, 0.1);
-
-    --cv-shadow: rgba(0, 0, 0, 0.5);
-
-    --cv-input-bg: #1e293b;
-    --cv-input-border: rgba(255, 255, 255, 0.1);
-    --cv-switch-bg: rgba(255, 255, 255, 0.1);
-    --cv-switch-knob: #e2e8f0;
-
-    --cv-modal-icon-bg: rgba(255, 255, 255, 0.08);
-    --cv-icon-bg: #1e293b;
-    --cv-icon-color: #e2e8f0;
-
-    --cv-focus-ring: rgba(62, 132, 244, 0.5);
-    --cv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-
-    --cv-modal-radius: 0.75rem;
-    --cv-card-radius: 0.5rem;
-    --cv-section-label-transform: uppercase;
-  }
-
 
   :global(.cv-hidden) {
     display: none !important;
