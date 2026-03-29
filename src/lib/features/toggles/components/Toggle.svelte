@@ -194,7 +194,7 @@
     </div>
   </div>
 
-  {#if peekState && !isSmallContent}
+  {#if peekState && !isSmallContent && scrollHeight > 0}
     <button
       type="button"
       class="cv-expand-btn"
@@ -228,7 +228,7 @@
   .cv-toggle-wrapper {
     position: relative;
     width: 100%;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 4px;
   }
 
