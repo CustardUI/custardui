@@ -10,8 +10,6 @@ export interface WidgetPanelConfig {
   showTabGroups?: boolean;
   /** Whether to show reset button */
   showReset?: boolean;
-  /** Widget theme */
-  theme?: 'light' | 'dark';
 }
 
 /**

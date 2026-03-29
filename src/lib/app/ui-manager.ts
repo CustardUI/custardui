@@ -23,7 +23,6 @@ export class CustardUIManager {
       callbacks: options.callbacks,
       container: options.container || document.body,
       settingsEnabled: options.settingsEnabled ?? false,
-      theme: options.panel?.theme || 'light',
       callout: {
         show: options.callout?.show ?? false,
         message: options.callout?.message || 'Customize your reading experience here.',

@@ -20,6 +20,7 @@
 
   import { UrlActionRouter } from '$features/url/url-action-router.svelte';
   import { IntroManager } from '$features/settings/intro-manager.svelte';
+  import { colorSchemeStore } from '$lib/stores/color-scheme-store.svelte';
 
   let { options } = $props<{
     options: ResolvedUIManagerOptions;
@@ -64,11 +65,12 @@
     introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
-  // Mirror theme to <html> so CV variables 
-  // cascade to on-page custom elements (cv-toggle-control etc.)
+  // Mirror colorScheme to <html> so --cv-* variables cascade to
+  // on-page custom elements (cv-toggle-control etc.) via :root[data-cv-theme='dark'].
+  // colorSchemeStore is already initialised by AppRuntime before UIRoot mounts
+  // and handles 'auto' (matchMedia) internally.
   $effect(() => {
-    const theme = options.theme;
-    if (theme === 'dark') {
+    if (colorSchemeStore.isDark) {
       document.documentElement.setAttribute('data-cv-theme', 'dark');
     } else {
       document.documentElement.removeAttribute('data-cv-theme');
@@ -109,7 +111,7 @@
   );
 </script>
 
-<div class="cv-widget-root" data-theme={options.theme} data-cv-share-ignore>
+<div class="cv-widget-root" data-cv-share-ignore>
   <!-- Intro Callout -->
   {#if introManager.showCallout && settingsEnabled}
     <IntroCallout
@@ -244,40 +246,6 @@
   :global(.cv-widget-root .cv-share-overlay) {
     pointer-events: none; /* Overlay often passes clicks until specialized handles active */
   }
-
-  :global(.cv-widget-root[data-theme='dark']) {
-    /* Dark Theme Overrides */
-    --cv-bg: #101722;
-    --cv-text: #e2e8f0;
-    --cv-text-secondary: rgba(255, 255, 255, 0.6);
-    --cv-border: rgba(255, 255, 255, 0.1);
-    --cv-bg-hover: rgba(255, 255, 255, 0.05);
-
-    --cv-primary: #3e84f4;
-    --cv-primary-hover: #60a5fa;
-
-    --cv-danger: #f87171;
-    --cv-danger-bg: rgba(248, 113, 113, 0.1);
-
-    --cv-shadow: rgba(0, 0, 0, 0.5);
-
-    --cv-input-bg: #1e293b;
-    --cv-input-border: rgba(255, 255, 255, 0.1);
-    --cv-switch-bg: rgba(255, 255, 255, 0.1);
-    --cv-switch-knob: #e2e8f0;
-
-    --cv-modal-icon-bg: rgba(255, 255, 255, 0.08);
-    --cv-icon-bg: #1e293b;
-    --cv-icon-color: #e2e8f0;
-
-    --cv-focus-ring: rgba(62, 132, 244, 0.5);
-    --cv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-
-    --cv-modal-radius: 0.75rem;
-    --cv-card-radius: 0.5rem;
-    --cv-section-label-transform: uppercase;
-  }
-
 
   :global(.cv-hidden) {
     display: none !important;

@@ -31,7 +31,6 @@ export type ResolvedUIManagerOptions = Omit<
 > & {
   container: HTMLElement;
   settingsEnabled: boolean;
-  theme: 'light' | 'dark';
   callout: Required<Pick<WidgetCalloutConfig, 'show' | 'message' | 'enablePulse'>> & {
     backgroundColor?: string | undefined;
     textColor?: string | undefined;
