@@ -11,22 +11,36 @@
 
 Toggles let you show or hide sections of a page based on a category (for example: `mac`, `linux`, `windows`). They are ideal for platform-specific content, progressive disclosure, or audience-targeted sections.
 
+<cv-toggle-control toggle-id="mac"></cv-toggle-control> 
+<cv-toggle-control toggle-id="linux"></cv-toggle-control> 
+<cv-toggle-control toggle-id="windows"></cv-toggle-control> 
+
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
 <variable name="code">
 <cv-toggle toggle-id="mac">
 
 **macOS**: macOS-specific install steps...
+* Macbook Pro
+* Macbook Air
+* Macbook Neo
 </cv-toggle>
 
 <cv-toggle toggle-id="linux">
 
 **Linux**: Linux-specific install steps...
+* Ubuntu
+* Fedora
+* Arch
 </cv-toggle>
 
 <cv-toggle toggle-id="windows">
 
 **Windows**: Windows-specific install steps...
+* Windows Vista
+* Windows XP
+* Windows 7
+* Windows 11
 </cv-toggle>
 
 </variable>
@@ -34,55 +48,53 @@ Toggles let you show or hide sections of a page based on a category (for example
 
 When the active toggle state includes `mac`, only the `<cv-toggle toggle-id="mac">` element will be visible. The component reactively updates based on the global toggle state.
 
-## Multi-ID Toggles
 
-You can apply multiple toggles to a single element by separating categories with spaces.
-This allows content to appear as long as one toggle category is active.
-
-```html
-<cv-toggle toggle-id="mac linux"> This section appears for both macOS and Linux users. </cv-toggle>
-```
-
-### Toggles with Peek Mode
+### Toggle Peek Mode
 
 You can set a toggle to "peek" mode, where it shows a preview of the content.
 Use `show-peek-border` to add a border to the peek view to make it stand out.
-We recommend `show-label` to add a label to the toggle, so users know what it is.
+Additionally, use `show-label` to add a label to the toggle, so users know what it is.
+* **Short toggle content:** If the content height is less than the peek height (70px), the full content is shown without the "expand" button or fade effect.
+
+<cv-toggle-control toggle-id="localToggle"></cv-toggle-control> 
+<br>
+
+<include src="codeAndOutput.md" boilerplate >
+<variable name="highlightStyle">html</variable>
+<variable name="code">
+
+<cv-toggle toggle-id="localToggle" show-peek-border show-label>
+<br>
+
+**Local Toggle**: Local toggle content
+* Item 1
+* Item 2
+* Item 3
+</cv-toggle>
+
+</variable>
+</include>
+
+
+### Multi-ID Toggles
+
+You can apply multiple toggles to a single element by separating categories with spaces. This allows content to appear as long as one toggle category is active.
+* **Precedence Behaviour**: When multiple IDs are used, it uses the most visible state out of all the IDs.
 
 ```html
-<cv-toggle toggle-id="toggle1" show-peek-border show-label>
-  <p>This content is in peek mode!</p>
+<cv-toggle toggle-id="mac linux">
+  This section appears for both macOS and Linux users.
 </cv-toggle>
 ```
 
-**Precedence Behaviour**:
 
-When multiple IDs are used, the effective visibility is determined by the most "positive" state among all matching IDs. The order of precedence is:
+### Attributes of `<cv-toggle>`
 
-1.  **Show** (Highest)
-2.  **Peek**
-3.  **Hide** (Lowest)
-
-**Logic:**
-
-- If **ANY** of the IDs are set to **Show**, the content is completely **Shown**.
-- If **NONE** show, but **ANY** are **Peek**, the content is shown in **Peek** mode.
-- If **ALL** are **Hide** (or undefined), the content is **Hidden**.
-
-This means that "Show" overrides "Peek", and "Peek" overrides "Hide". Explicit interest always overrides disinterest.
-
-<box type="info">
-
-**Note on Peek Mode:** If the content height is less than the standard peek height (70px), the component will automatically display the full content without the "expand" button or fade effect, even if the result state is "Peek". This ensures that short content isn't unnecessarily obscured.
-</box>
-
-## Attributes & Options of `<cv-toggle>`
-
-| Name             | Type      | Default      | Description                                                                                                                                                                                                                                                                    |
-| ---------------- | --------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| toggle-id        | `string`  | **required** | Defines the category for the cv-toggle element. Example: `toggle-id="mac"`.                                                                                                                                                                                                    |
+| Name     | Type      | Default      | Description                    |
+| -------- | --------- | ------------ | ------------------------------ |
+| toggle-id        | `string`  | **required** | Defines the category for the cv-toggle element. E.g.: `toggle-id="mac"`. |
 | show-peek-border | `boolean` | `false`      | If present, adds a subtle border to the top and sides of the toggle content. The border is only applied while the toggle is in Peek mode (whether collapsed or user‑expanded). When the toggle is fully shown (non‑Peek), no border is rendered even if this attribute is set. |
-| show-label        | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle.                                                                                                                                                                                   |
+| show-label       | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle. |
 
 ## Toggle Control
 
@@ -116,9 +128,9 @@ Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id=
 
 ### Attributes of `<cv-toggle-control>`
 
-| Name       | Type      | Default      | Description                                                        |
-| ---------- | --------- | ------------ | ------------------------------------------------------------------ |
-| toggle-id  | `string`  | **required** | The toggle ID to control. Must match a configured toggle.          |
+| Name       | Type      | Default      | Description      |
+| ---------- | --------- | ------------ | ---------------- |
+| toggle-id  | `string`  | **required** | The toggle ID to control. Must match a configured toggle. Only a single ID is supported (unlike `<cv-toggle>` which accepts space-separated IDs). |
 | show-label | `boolean` | `true`       | Whether to display the toggle's configured label. Set to `false` to hide it. |
 
 
@@ -154,7 +166,7 @@ To make toggles discoverable by the settings, you must define them in your `cust
 }
 ```
 
-### Configuration Fields in `custardui.config.json` for Toggles
+### Configuration Fields in `custardui.config.json`
 
 | Name          | Type      | Default      | Description                                                                           |
 | ------------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
@@ -300,12 +312,6 @@ const url   = `https://yoursite.com/install.html`
 ```
 
 # Troubleshooting
-
-- Toggles not appearing in settings?
-  - Check that your `config.toggles` array is correctly formatted with `toggleId` and `label` for each toggle.
-
-- No effect when toggling?
-  - Ensure the element uses `<cv-toggle toggle-id="...">` and the category matches a configured toggle ID.
-
-- Settings icon not loading?
-  - Verify the script is included and custardui.config.json is accessible.
+* **Toggles not appearing in settings?** Check that your `config.toggles` array is correctly formatted with `toggleId` and `label` for each toggle.
+* **No effect when toggling?** Ensure the element uses `<cv-toggle toggle-id="...">` and the category matches a configured toggle ID.
+* **Settings icon not loading?** Verify the script is included and custardui.config.json is accessible.
