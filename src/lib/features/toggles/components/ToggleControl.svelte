@@ -22,6 +22,7 @@
     showLabel?: string;
   } = $props();
 
+  let configLoaded = $derived(!!activeStateStore.config.toggles);
   let toggleConfig = $derived(activeStateStore.config.toggles?.find((t) => t.toggleId === toggleId));
   let labelText = $derived(toggleConfig?.label || toggleId);
   let isSiteManaged = $derived(toggleConfig?.siteManaged ?? false);
@@ -32,7 +33,15 @@
     if (toggleId) elementStore.registerToggle(toggleId);
   });
 
+  $effect(() => {
+    if (configLoaded && toggleId && !toggleConfig) {
+      console.warn(`[cv-toggle-control] Unknown toggle-id: "${toggleId}". No matching toggle found in config.`);
+    }
+  });
+
+  // Mirror <cv-toggle>: default to 'show' before config loads to avoid mismatch with toggle content visibility
   let currentState = $derived.by((): 'show' | 'peek' | 'hide' => {
+    if (!configLoaded) return 'show';
     const shownToggles = activeStateStore.state.shownToggles ?? [];
     const peekToggles = activeStateStore.state.peekToggles ?? [];
     if (shownToggles.includes(toggleId)) return 'show';
@@ -63,7 +72,7 @@
   </div>
 {/snippet}
 
-{#if !isSiteManaged && toggleId}
+{#if configLoaded && !!toggleConfig && !isSiteManaged}
   {#if shouldShowLabel}
     <div class="card">
       <div class="content">
