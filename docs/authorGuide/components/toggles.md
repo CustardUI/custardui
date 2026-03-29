@@ -219,8 +219,8 @@ Some long long text content to make sure the box is scrollable
 
 ### Keeping Local Toggles in Settings
 
-If you have a specific use case where you may want all local toggles to be available in the settings on a certain page, (e.g. a global settings page), you can add empty `cv-toggle` elements to register the local toggles on that page. That way, the plugin will pick them up and add them to the settings dialog for that page.
-* E.g. `<cv-toggle toggle-id="localToggle"></cv-toggle>`
+If you have a specific use case where you may want all local toggles to be available in the settings on a certain page, (e.g. a global settings page), you can add hidden `cv-toggle` elements to register the local toggles on that page. That way, the plugin will pick them up and add them to the settings dialog for that page without introducing extra spacing in your layout.
+* E.g. `<cv-toggle toggle-id="localToggle" hidden></cv-toggle>`
 
 ## Site-Managed Toggles
 

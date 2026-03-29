@@ -60,7 +60,7 @@
         <ToggleSegmentedControl
           value={currentState}
           onchange={(v) => activeStateStore.updateToggleState(toggleId, v)}
-          ariaLabel="Visibility for {labelText}"
+          ariaLabel={`Visibility for ${labelText}`}
         />
       </div>
     </div>
@@ -68,7 +68,7 @@
     <ToggleSegmentedControl
       value={currentState}
       onchange={(v) => activeStateStore.updateToggleState(toggleId, v)}
-      ariaLabel="Visibility for {labelText}"
+      ariaLabel={`Visibility for ${labelText}`}
       standalone
     />
   {/if}
