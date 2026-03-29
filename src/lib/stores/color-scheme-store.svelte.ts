@@ -1,7 +1,11 @@
 /**
- * App-wide store for color scheme preference.
- * Drives light/dark variant resolution for shorthand label colors and any other
- * components that need to react to the site's color scheme setting.
+ * App-wide store for the site's color scheme preference.
+ * 
+ * Drives the `data-cv-theme` attribute on `<html>` (via UIRoot), which cascades
+ * `--cv-*` CSS custom properties to all CustardUI elements (e.g. settings widget,
+ * modal, on-page custom elements such as `<cv-toggle-control>`).
+ * 
+ * Also used for light/dark variant resolution in label colour logic.
  */
 export class ColorSchemeStore {
   isDark = $state(false);

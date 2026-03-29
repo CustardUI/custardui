@@ -65,16 +65,10 @@
     introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
-  // Mirror colorScheme to <html> so --cv-* variables cascade to
-  // on-page custom elements (cv-toggle-control etc.) via :root[data-cv-theme='dark'].
-  // colorSchemeStore is already initialised by AppRuntime before UIRoot mounts
-  // and handles 'auto' (matchMedia) internally.
+  // Always setAttribute (not removeAttribute) on transitions to avoid a brief FOUC gap.
+  // colorSchemeStore handles 'auto' via matchMedia and is initialised before UIRoot mounts.
   $effect(() => {
-    if (colorSchemeStore.isDark) {
-      document.documentElement.setAttribute('data-cv-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-cv-theme');
-    }
+    document.documentElement.setAttribute('data-cv-theme', colorSchemeStore.isDark ? 'dark' : 'light');
     return () => document.documentElement.removeAttribute('data-cv-theme');
   });
 
@@ -158,7 +152,7 @@
 </div>
 
 <style>
-  /* Light Theme Defaults — on :root so on-page custom elements (cv-toggle-control etc.) inherit them */
+  /* --cv-* defaults (light) — on :root so custom properties cascade into all shadow DOM */
   :global(:root) {
     --cv-bg: white;
     --cv-text: rgba(0, 0, 0, 0.9);
@@ -225,7 +219,7 @@
     --cv-section-label-transform: uppercase;
   }
 
-  /* Root should allow clicks to pass through to the page unless hitting checking/interactive element */
+  /* Fixed zero-size overlay — pointer-events none so clicks pass through to the page */
   :global(.cv-widget-root) {
     position: fixed;
     top: 0;
@@ -233,18 +227,18 @@
     width: 0;
     height: 0;
     z-index: 9999;
-    pointer-events: none; /* Crucial: Allow clicks to pass through */
-    font-family: inherit; /* Inherit font from host */
+    pointer-events: none;
+    font-family: inherit;
   }
 
-  /* But interactive children need pointer-events back */
+  /* Interactive children need pointer-events restored */
   :global(.cv-widget-root > *) {
     pointer-events: auto;
   }
 
-  /* Exception: ShareOverlay manages its own pointer events */
+  /* ShareOverlay manages its own pointer-events internally */
   :global(.cv-widget-root .cv-share-overlay) {
-    pointer-events: none; /* Overlay often passes clicks until specialized handles active */
+    pointer-events: none;
   }
 
   :global(.cv-hidden) {
