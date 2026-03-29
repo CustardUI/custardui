@@ -5,7 +5,7 @@
  * `--cv-*` CSS custom properties to all CustardUI elements (e.g. settings widget,
  * modal, on-page custom elements such as `<cv-toggle-control>`).
  * 
- * Also used for light/dark variant resolution in label colour logic.
+ * Also used for light/dark variant resolution in label color logic.
  */
 export class ColorSchemeStore {
   isDark = $state(false);
