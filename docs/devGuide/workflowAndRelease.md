@@ -13,29 +13,30 @@ This guide covers how code changes is managed in the CustardUI project, and the 
 
 ## Branching Strategy
 
-We use a **Simplified Gitflow** model. This ensures a stable production environment while allowing rapid iteration on features.
+We use a **Simplified Gitflow** model. It differs from the traditional Gitflow by not having a separate `release` branch, and preferring squashes for feature branches, but retaining merge commits for production releases. Using this Gitflow model ensures a stable production environment while allowing rapid iteration on features. 
 
 <mermaid>
 gitGraph
-   %% Setup
-   commit id: "Initial" tag: "v0.1"
+   %% Initial state
+   commit id: "v2.1.0" tag: "v2.1.0"
    branch develop
+   
+   %% Feature Work on Beta Channel
    checkout develop
-   commit id: "Work on Dev"
-
-   %% Feature branch
    branch feature/new-logic
-   checkout feature/new-logic
    commit id: "Feature Work"
    checkout develop
-   merge feature/new-logic id: "Merge to Dev"
-
-   %% Release
+   merge feature/new-logic id: "Squash to Dev"
+   
+   %% Production Release Process
    checkout main
-   merge develop id: "Release 1.0" tag: "v1.0"
-
-   %% Continue on develop
+   merge develop id: "Merge PR #Release-v2.2.0" tag: "v2.2.0"
+   
+   %% CRITICAL: The Sync Back
    checkout develop
+   merge main id: "Sync v2.2.0 to Beta"
+   
+   %% Next cycle continues from the synced state
    commit id: "Next Feature"
 </mermaid>
 
@@ -43,24 +44,20 @@ gitGraph
 
 | Branch | Purpose | Rule |
 | :--- | :--- | :--- |
-| `main` | **Stable Production.** Reflects the current `@latest` NPM release. | No direct commits. Only merge via **Squash PR** from `develop`. Production tags should live in the `main` branch. |
+| `main` | **Stable Production.** Reflects the current `@latest` NPM release. | No direct commits. Only merge via Merge Commit PR from `develop`. Production tags should live in the `main` branch. |
 | `develop` | **Integration & Beta.** Where features are combined and tested. | Primary branch for development. Base for all `@beta` releases. Beta tags should live in the `develop` branch. |
-| `feature/*` | **New Features.** Isolated work on specific tasks. | Must branch off and merge back into `develop`. |
-
-### Why we use "Squash and Merge" for Production
-When merging from `develop` into `main`, **always select "Squash and Merge" on GitHub.**
-
-- **Prevents History Pollution**: Avoids bringing hundreds of "work-in-progress" commits into the production log.
-- **Avoids Silent Reverts**: Standard merges can sometimes "revert" new code if the `main` branch history is stale. A Squash treats the state of `develop` as a single, clean snapshot, ensuring `main` matches exactly what you tested.
+| `feature/*` | **New Features.** Isolated work on specific tasks. | Branch off `develop`, merge via Squash PR into `develop`. |
 
 ## The Development Lifecycle
 
-### Step 1: Feature Development
+### A. Feature Development
 1. Branch off `develop`: `git checkout develop && git pull && git checkout -b feature/my-feature`.
 2. Commit your changes locally.
-3. Open a PR into `develop`. Once approved, merge it (Standard merge or Squash are both fine here).
+3. Open a PR into `develop`. Once approved, merge it (prefer using squash and merge here).
 
-### Step 2: Beta Releases (Experimental)
+*Dev docs are hosted at [https://custardui.js.org/devdocs](https://custardui.js.org/devdocs), and is updated with every commit or PR merge to the `develop` branch.*
+
+### B. Beta Releases (from `develop` branch)
 Use these when features are on `develop` and need to be tested in a non-local environment.
 
 ```sh
@@ -76,18 +73,18 @@ npm run release:beta
 
 # CICD handles deployment of Beta Docs
 ```
-*Beta docs are hosted at `https://custardui.js.org/betadocs`.*
+*Beta docs are hosted at [https://custardui.js.org/betadocs](https://custardui.js.org/betadocs), and is updated on every beta release.*
 
-### Step 3: Production Release (Stable)
+### C. Production Release (from `main` branch)
 
 When `develop` is stable and ready for the public.
 
-1. **Create a PR** from `develop` to `main`, with name e.g. `Release v2.2.0`
-2. **Merge via "Create a Merge Commit"** on the GitHub UI.
-    > **AVOID using "Squash and Merge"** Since `develop` is a long-lived branch (Beta channel), squashing creates a "history mismatch." If you squash, `main` and `develop` will have different commit hashes for the same code. This leads to massive, redundant merge conflicts the next time you try to sync them or apply a production hotfix back to the Beta channel. Using a **Merge Commit** (commit has 2 parents) preserves the shared history and allows for easy `git bisect` debugging.
-3. **Finalize the release on your local machine:**
-   - Make sure to update the `data-base-url` in the `custardui` plugin script to make sure that it is the right value i.e. (`data-base-url="/betadocs"`), when deploying documentation.
+1. **Create a PR** from `develop` to `main`, with name e.g. `Release v2.2.0`. **Merge via "Create a Merge Commit"** on the GitHub UI.
 
+    > **AVOID using "Squash and Merge"** Since `develop` is a long-lived branch, squashing creates a "history mismatch.", with `main` and `develop` having different commit hashes for same code. This causes massive, redundant merge conflicts for the next sync or production hotfix. Using a **Merge Commit** (commit has 2 parents) preserves the shared history and allows for `git bisect` debugging.
+
+2.  **Publish Stable Release on NPM:**
+    * Switch to `main` locally, pull the merge, running the following commands:
 
 ```sh
 # 0. Be on the main branch
@@ -104,7 +101,34 @@ npm run release:prod
 # CICD handles deployment of Production Docs
 ```
 
-## Maintenance (Hotfixes)
+3.  **Sync Back to 'develop' branch:** Open a PR from **`main` back to `develop`**.
+    > **Why?** This ensures the official versioning and the release "node" are integrated into the Beta channel. Because you used a Merge Commit in Step 1, this PR should be conflict-free.
+
+
+<mermaid>
+gitGraph
+   commit id: "v2.1.0" tag: "v2.1.0"
+   branch develop
+   checkout develop
+   commit id: "Feature 1"
+   commit id: "Feature 2"
+   commit id: "Prepare Release"
+   
+   %% The PR from develop to main
+   checkout main
+   merge develop id: "Merge PR #Release-v2.2.0" tag: "v2.2.0"
+   
+   %% The 'Finalize' step (Back-merge)
+   checkout develop
+   merge main id: "Sync v2.2.0 back to Beta"
+   
+   %% Next Beta cycle starts here
+   commit id: "Next Feature Start"
+</mermaid>
+
+*Production docs are hosted at [https://custardui.js.org](https://custardui.js.org), and is updated on every production release.*
+
+### D. Hotfix Releases (from `main` branch)
 
 If a critical bug is found on `main` that cannot wait for the next `develop` cycle, follow the hotfix flow to ensure production is patched and development remains in sync.
 
@@ -140,22 +164,8 @@ gitGraph
    merge main id: "Sync Main to Dev"
 </mermaid>
 
----
 
-##  Summary of Commands & CDNs
-
-Use the following commands and CDN links to manage and consume releases.
-
-### NPM & Deployment Commands
-
-| Target | Bump Command | Release Command | Docs Site |
-| :--- | :--- | :--- | :--- |
-| **Beta** | `npm run bump:beta` | `npm run release:beta` | `custardui.js.org/betadocs` |
-| **Production** | `npm run bump:patch` | `npm run release:prod` | `custardui.js.org` |
-
-> **Note:** The `release:*` commands automatically run `npm run build` before publishing. Ensure you are authenticated via `npm login` before running these.
-
-### CDN Usage
+## CDN Usage
 
 To use CustardUI via CDN, update your script tags to the appropriate version tag.
 * For quick updates, it is recommended to use unpkg as it updates and reflects the latest version faster than jsDelivr. (for usage without `@latest` annotation)
