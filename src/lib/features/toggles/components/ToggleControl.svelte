@@ -3,7 +3,7 @@
     tag: 'cv-toggle-control',
     props: {
       toggleId: { reflect: true, type: 'String', attribute: 'toggle-id' },
-      showLabel: { type: 'String', attribute: 'show-label' },
+      noLabel: { type: 'Boolean', attribute: 'no-label' },
     },
   }}
 />
@@ -16,18 +16,16 @@
 
   let {
     toggleId = '',
-    showLabel = 'true',
+    noLabel = false,
   }: {
     toggleId?: string;
-    showLabel?: string;
+    noLabel?: boolean;
   } = $props();
 
   let configLoaded = $derived(!!activeStateStore.config.toggles);
   let toggleConfig = $derived(activeStateStore.config.toggles?.find((t) => t.toggleId === toggleId));
   let labelText = $derived(toggleConfig?.label || toggleId);
   let isSiteManaged = $derived(toggleConfig?.siteManaged ?? false);
-
-  let shouldShowLabel = $derived(showLabel !== 'false');
 
   $effect(() => {
     if (toggleId) elementStore.registerToggle(toggleId);
@@ -73,7 +71,7 @@
 {/snippet}
 
 {#if configLoaded && !!toggleConfig && !isSiteManaged}
-  {#if shouldShowLabel}
+  {#if !noLabel}
     <div class="card">
       <div class="content">
         <div>

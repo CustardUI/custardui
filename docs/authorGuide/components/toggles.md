@@ -103,7 +103,7 @@ You can apply multiple toggles to a single element by separating categories with
 You can place a **toggle control** directly on the page so readers can switch a toggle's visibility state (Hide · Peek · Show) without opening the Settings modal. By default it renders as a card, matching the look of the settings panel, with the toggle's label shown on the left and the segmented control on the right.
 
 * You can place the control anywhere, above the toggle, in a sidebar, or grouped together for multiple toggles.
-* To hide the label and only render the segmented control, use `show-label="false"`.
+* To hide the label and render only the segmented control inline, add the `no-label` attribute.
 * Note: `cv-toggle-control` renders nothing for `siteManaged` toggles, since those states are controlled by the site rather than the reader.
 
 <include src="codeAndOutput.md" boilerplate >
@@ -112,7 +112,7 @@ You can place a **toggle control** directly on the page so readers can switch a 
 
 <cv-toggle-control toggle-id="localToggle"></cv-toggle-control> <br>
 
-Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" show-label="false"></cv-toggle-control>
+Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" no-label></cv-toggle-control>
 
 <cv-toggle toggle-id="localToggle"> 
 
@@ -131,7 +131,7 @@ Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id=
 | Name       | Type      | Default      | Description      |
 | ---------- | --------- | ------------ | ---------------- |
 | toggle-id  | `string`  | **required** | The toggle ID to control. Must match a configured toggle. Only a single ID is supported (unlike `<cv-toggle>` which accepts space-separated IDs). |
-| show-label | `boolean` | `true`       | Whether to display the toggle's configured label. Set to `false` to hide it. |
+| no-label   | `boolean` | `false`      | If present, hides the label and card styling, rendering only the segmented control inline. |
 
 
 ## Configuration
@@ -229,25 +229,9 @@ Some long long text content to make sure the box is scrollable
 * item 4
 </cv-toggle>
 
-<!-- 
-
-Got removed, but can add back if needed
-
 ### Keeping Local Toggles for Settings
 
-You can ensure that specific local toggles are always available in the settings, even if they are not initially visible on the page. This is useful for toggles that are loaded dynamically (e.g., inside a dropdown menu) and might not be detected by the plugin otherwise.
-
-To do this, add a `data-cv-page-local-toggles` attribute to any element (an empty `<div>` is a good choice). The value of this attribute should be a comma-separated list of the local toggle IDs you want to register.
-
-For example, to make the local toggles with IDs `advanced` and `dark-mode` available in the settings, add the following to your page:
-
-```html
-<div data-cv-page-local-toggles="advanced, dark-mode"></div>
-```
-
-This will ensure that the specified local toggles appear in the configuration settings, allowing users to control them even if they are not immediately visible on the page.
-
--->
+If you have a specific use case where you may want all local toggles to be available in the settings on a certain page, (e.g. a global settings page), you can add empty `cv-toggle` elements to register the local toggles on that page. That way, the plugin will pick them up and add them to the settings dialog for that page.
 
 ## Site-Managed Toggles
 
