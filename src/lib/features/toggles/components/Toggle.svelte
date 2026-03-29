@@ -175,7 +175,7 @@
   class="cv-toggle-wrapper"
   class:expanded={showFullContent && !showPeekContent}
   class:peeking={showPeekContent}
-  class:peek-mode={peekState}
+  class:peek-mode={peekState && !isSmallContent}
   class:hidden={isHidden}
   class:has-border={showPeekBorder && peekState}
 >
