@@ -29,8 +29,6 @@
     element: HTMLElement;
   }> = $state([]);
 
-  let isEmpty = $derived(tabs.length === 0);
-
   let containerEl: HTMLDivElement | undefined = $state();
   let contentWrapper: HTMLElement | undefined = $state();
   let slotEl: HTMLSlotElement | null = $state(null);
@@ -239,7 +237,7 @@
 </script>
 
 <!-- Container for the tab group -->
-<div class="cv-tabgroup-container" class:is-empty={isEmpty} bind:this={containerEl}>
+<div class="cv-tabgroup-container" bind:this={containerEl}>
   <!-- Nav -->
   {#if tabs.length > 0 && navHeadingVisible}
     <ul class="cv-tabgroup-nav" role="tablist">
@@ -293,9 +291,7 @@
     <slot></slot>
   </div>
 
-  {#if !isEmpty}
-    <div class="cv-tabgroup-bottom-border"></div>
-  {/if}
+  <div class="cv-tabgroup-bottom-border"></div>
 </div>
 
 <style>
@@ -305,10 +301,6 @@
 
   .cv-tabgroup-container {
     margin-bottom: 24px;
-  }
-
-  .cv-tabgroup-container.is-empty {
-    margin-bottom: 0;
   }
 
   /* Tab navigation styles */
@@ -341,7 +333,6 @@
     text-decoration: none;
     background-color: transparent !important;
     border: none;
-    border-bottom: 2px solid transparent;
     transition:
       opacity 0.15s ease-in-out,
       border-color 0.15s ease-in-out;
