@@ -168,8 +168,8 @@ Pear types include the **Asian pear** and the **European pear**
 <br>
 
 - **Single-Click:** Clicking once switches tabs locally for that tab group only. 
-- **Double-Click:** Clicking twice synchronizes the tab selection across all tab groups with the same `id` on the page. The state is saved to browser storage and persists across page reloads.
-  - **E.g.:** If you have two tab groups with same `id`, double-clicking will sync both groups to show the same tab and save the state.
+- **Double-Click:** Clicking twice synchronizes the tab selection across all tab groups with the same `group-id` on the page. The state is saved to browser storage and persists across page reloads.
+  - **E.g.:** If you have two tab groups with same `group-id`, double-clicking will sync both groups to show the same tab and save the state.
 
 ### Multi-ID Tabs
 
