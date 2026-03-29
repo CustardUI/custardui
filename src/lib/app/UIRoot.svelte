@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
+  import { onMount, onDestroy, getContext } from 'svelte';
   import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
   import { ICON_SETTINGS_CTX, type IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
@@ -65,11 +65,13 @@
     introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
-  // Always setAttribute (not removeAttribute) on transitions to avoid a brief FOUC gap.
-  // colorSchemeStore handles 'auto' via matchMedia and is initialised before UIRoot mounts.
+  // onDestroy (not $effect cleanup) so the attribute is never briefly absent during transitions.
   $effect(() => {
     document.documentElement.setAttribute('data-cv-theme', colorSchemeStore.isDark ? 'dark' : 'light');
-    return () => document.documentElement.removeAttribute('data-cv-theme');
+  });
+
+  onDestroy(() => {
+    document.documentElement.removeAttribute('data-cv-theme');
   });
 
   // --- Modal Actions ---
