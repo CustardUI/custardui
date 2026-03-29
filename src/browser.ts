@@ -1,9 +1,6 @@
 import { getScriptAttributes, fetchConfig } from '$lib/utils/init-utils';
 import { initUIManager } from '$lib/app/ui-manager';
 import { AppRuntime, type RuntimeOptions } from '$lib/runtime.svelte';
-import { AssetsManager } from '$features/render/assets';
-import type { CustomViewAsset } from '$lib/types/index';
-import { prependBaseUrl } from '$lib/utils/url-utils';
 import { AdaptationManager } from '$features/adaptation/adaptation-manager';
 import '$lib/registry';
 
@@ -35,7 +32,7 @@ export function initializeFromScript(): void {
       const configFile = await fetchConfig(configPath, baseURL);
 
       // Determine effective baseURL (data attribute takes precedence)
-      const effectiveBaseURL = baseURL || configFile.baseUrl || '';
+      const effectiveBaseURL = baseURL;
 
       // Initialize Adaptation early (before AppRuntime):
       // - Theme CSS injected ASAP (FOUC prevention)
@@ -46,25 +43,7 @@ export function initializeFromScript(): void {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
       }
 
-      // Initialize Assets
-      let assetsManager: AssetsManager;
-      if (configFile.assetsJsonPath) {
-        const assetsPath = prependBaseUrl(configFile.assetsJsonPath, effectiveBaseURL);
-        try {
-          const assetsJson: Record<string, CustomViewAsset> = await (
-            await fetch(assetsPath)
-          ).json();
-          assetsManager = new AssetsManager(assetsJson, effectiveBaseURL);
-        } catch (error) {
-          console.error(`[Custard] Failed to load assets JSON from ${assetsPath}:`, error);
-          assetsManager = new AssetsManager({}, effectiveBaseURL);
-        }
-      } else {
-        assetsManager = new AssetsManager({}, effectiveBaseURL);
-      }
-
       const coreOptions: RuntimeOptions = {
-        assetsManager,
         configFile,
         rootEl: document.body,
         storageKey: configFile.storageKey,

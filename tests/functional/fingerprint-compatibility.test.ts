@@ -132,7 +132,7 @@ describe('Fingerprint Regression', () => {
 
   it('should resolve Intro Paragraph 2 from legacy descriptor', () => {
     const { desc, expectedText } = LEGACY_DESCRIPTORS.introPara2;
-    const resolved = DomElementLocator.resolve(container, desc as any);
+    const resolved = DomElementLocator.resolve(desc as any);
 
     expect(resolved).toHaveLength(1);
     expect(resolved[0]!.textContent).toBe(expectedText);
@@ -140,7 +140,7 @@ describe('Fingerprint Regression', () => {
 
   it('should resolve Feature C (Unicode) from legacy descriptor', () => {
     const { desc, expectedText } = LEGACY_DESCRIPTORS.featureC;
-    const resolved = DomElementLocator.resolve(container, desc as any);
+    const resolved = DomElementLocator.resolve(desc as any);
 
     expect(resolved).toHaveLength(1);
     expect(resolved[0]!.textContent).toBe(expectedText);
@@ -148,7 +148,7 @@ describe('Fingerprint Regression', () => {
 
   it('should resolve Sidebar Paragraph from legacy descriptor', () => {
     const { desc, expectedText } = LEGACY_DESCRIPTORS.sidebarPara;
-    const resolved = DomElementLocator.resolve(container, desc as any);
+    const resolved = DomElementLocator.resolve(desc as any);
 
     expect(resolved).toHaveLength(1);
     expect(resolved[0]!.textContent).toBe(expectedText);
@@ -161,7 +161,7 @@ describe('Fingerprint Regression', () => {
       textHash: 12345,
       textSnippet: 'Different snippet content here',
     };
-    const resolved = DomElementLocator.resolve(container, changedDesc as any);
+    const resolved = DomElementLocator.resolve(changedDesc as any);
     // Score: Index(10) + Hash(0) + Snippet(0) = 10.
     // 10 <= threshold(30). Expect no results.
     expect(resolved).toHaveLength(0);
@@ -177,7 +177,7 @@ describe('Fingerprint Regression', () => {
     // Now "Intro paragraph two..." is at index 2, but descriptor says index 1.
 
     const { desc, expectedText } = LEGACY_DESCRIPTORS.introPara2;
-    const resolved = DomElementLocator.resolve(container, desc as any);
+    const resolved = DomElementLocator.resolve(desc as any);
 
     // Should succeed based on High Score from Hash Match (50) + Snippet (30) = 80 > 60 (Perfect)
     expect(resolved).toHaveLength(1);

@@ -1,5 +1,4 @@
 import type { ConfigFile, State } from '$lib/types/index';
-import type { AssetsManager } from '$features/render/assets';
 import type { AdaptationConfig } from '$features/adaptation/types';
 
 import { PersistenceManager } from './utils/persistence';
@@ -11,28 +10,39 @@ import { FocusService } from '$features/focus/services/focus-service.svelte';
 import { activeStateStore } from './stores/active-state-store.svelte';
 import { elementStore } from './stores/element-store.svelte';
 import { uiStore } from './stores/ui-store.svelte';
-import { derivedStore } from './stores/derived-store.svelte';
 import { placeholderManager } from '$features/placeholder/placeholder-manager';
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
+import { labelManager } from '$features/labels/label-manager';
+import { colorSchemeStore } from '$lib/stores/color-scheme-store.svelte';
 import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 import { adaptationStore } from '$features/adaptation/stores/adaptation-store.svelte';
 
 /**
- * Strips adaptation-only placeholder keys from the state before persisting.
- * These should never accumulate in localStorage, as they are controlled by adaptations.
+ * Strips site-managed state (toggles and placeholders) before persisting.
+ * Site-managed values are controlled by the site/adaptation and should never
+ * accumulate in localStorage.
  */
-function stripAdaptationPlaceholders(state: State): State {
-  if (!state.placeholders) return state;
-  const filtered: Record<string, string> = {};
-  for (const [key, value] of Object.entries(state.placeholders)) {
+function stripSiteManaged(state: State): State {
+  // Strip siteManaged toggle values
+  const siteManagedToggleIds = new Set(
+    (activeStateStore.config.toggles ?? [])
+      .filter((t) => t.siteManaged)
+      .map((t) => t.toggleId),
+  );
+  const shownToggles = (state.shownToggles ?? []).filter((id) => !siteManagedToggleIds.has(id));
+  const peekToggles = (state.peekToggles ?? []).filter((id) => !siteManagedToggleIds.has(id));
+
+  // Strip siteManaged placeholder keys
+  const placeholders: Record<string, string> = {};
+  for (const [key, value] of Object.entries(state.placeholders ?? {})) {
     const def = placeholderRegistryStore.get(key);
-    if (!def?.adaptationPlaceholder) filtered[key] = value;
+    if (!def?.siteManaged) placeholders[key] = value;
   }
-  return { ...state, placeholders: filtered };
+
+  return { ...state, shownToggles, peekToggles, placeholders };
 }
 
 export interface RuntimeOptions {
-  assetsManager: AssetsManager;
   configFile: ConfigFile;
   rootEl?: HTMLElement | undefined;
   storageKey?: string | undefined;
@@ -65,15 +75,12 @@ export class AppRuntime {
     // Initialize adaptation store
     adaptationStore.init(opt.adaptationConfig ?? null);
 
-    // Store assetsManager for component access
-    derivedStore.setAssetsManager(opt.assetsManager);
-
     // Initial State Resolution:
-    // URL (Sparse Override) > Persistence (Full) > Adaptation Defaults > Config Default
+    // URL (Sparse Override) > Persistence (Full) > Adaptation Preset > Config Default
     this.resolveInitialState(opt.adaptationConfig ?? null);
 
     // Resolve Exclusions
-    this.focusService = new FocusService(this.rootEl, {
+    this.focusService = new FocusService({
       shareExclusions: opt.configFile.config?.shareExclusions || {},
     });
   }
@@ -95,6 +102,14 @@ export class AppRuntime {
     // Register tab-group placeholders AFTER global config placeholders to preserve precedence
     placeholderManager.registerTabGroupPlaceholders(config);
 
+    // Register label definitions
+    labelManager.registerConfigLabels(config);
+
+    // Initialize color scheme for site for general color resolution
+    // Ensure any previous listeners cleaned up before re-initializing
+    colorSchemeStore.destroy();
+    colorSchemeStore.init(configFile.colorScheme ?? 'light');
+
     // Initialize UI Options from Settings
     uiStore.setUIOptions({
       showTabGroups: settings.showTabGroups ?? true,
@@ -108,7 +123,7 @@ export class AppRuntime {
    * Resolves the starting application state by layering sources:
    *
    * 1. **Baseline**: `ActiveStateStore` initializes with defaults from the config file.
-   * 2. **Adaptation Defaults**: If an adaptation is active, its defaults are applied
+   * 2. **Adaptation Preset**: If an adaptation is active, its preset is applied
    *    on top of the config defaults (before persisted state, so user choices can win).
    * 3. **Persistence**: If local storage has a saved state, it replaces the baseline (`applyState`).
    * 4. **URL Overrides**: If the URL contains parameters (`?t-show=X`), these are applied
@@ -116,9 +131,12 @@ export class AppRuntime {
    *    retain their values from persistence/defaults.
    */
   private resolveInitialState(adaptationConfig: AdaptationConfig | null) {
-    // 1. Apply adaptation defaults on top of config defaults (before persisted state)
-    if (adaptationConfig?.defaults) {
-      activeStateStore.applyAdaptationDefaults(adaptationConfig.defaults);
+    // 1. Apply adaptation preset on top of config defaults (before persisted state)
+    if (adaptationConfig?.preset) {
+      activeStateStore.applyAdaptationDefaults(adaptationConfig.preset);
+      if (adaptationConfig.preset.labels) {
+        labelManager.applyAdaptationOverrides(adaptationConfig.preset.labels);
+      }
     }
 
     // 2. Apply persisted base state on top of defaults (user choices win over adaptation defaults).
@@ -171,7 +189,7 @@ export class AppRuntime {
     this.destroyEffectRoot = $effect.root(() => {
       // Automatic Persistence
       $effect(() => {
-        this.persistenceManager.persistState(stripAdaptationPlaceholders(activeStateStore.state));
+        this.persistenceManager.persistState(stripSiteManaged(activeStateStore.state));
         this.persistenceManager.persistTabNavVisibility(uiStore.isTabGroupNavHeadingVisible);
       });
 
@@ -244,9 +262,9 @@ export class AppRuntime {
   public resetToDefault() {
     this.persistenceManager.clearAll();
     activeStateStore.reset();
-    // Re-apply adaptation defaults so adaptation-controlled placeholders are not wiped by reset.
-    if (adaptationStore.activeConfig?.defaults) {
-      activeStateStore.applyAdaptationDefaults(adaptationStore.activeConfig.defaults);
+    // Re-apply adaptation preset so adaptation-controlled placeholders are not wiped by reset.
+    if (adaptationStore.activeConfig?.preset) {
+      activeStateStore.applyAdaptationDefaults(adaptationStore.activeConfig.preset);
     }
     uiStore.reset();
     uiStore.isTabGroupNavHeadingVisible = true;
@@ -256,6 +274,7 @@ export class AppRuntime {
     this.observer?.disconnect();
     this.destroyEffectRoot?.();
     this.focusService.destroy();
+    colorSchemeStore.destroy();
     if (this.onHashChange) {
       window.removeEventListener('hashchange', this.onHashChange);
     }

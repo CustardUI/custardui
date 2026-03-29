@@ -4,15 +4,17 @@
 <frontmatter>  
   title: "Author Guide - Configuration"
   layout: authorGuide.md
-  pageNav: 2
+  pageNav: 3
   pageNavTitle: "Topics"
 </frontmatter>
 
 # {{ title }}
 
+This page documents the configuration options available for CustardUI, that go into `custardui.config.json` or are passed as attributes to the script tag when installing CustardUI into a new site.
+
 ## Configuration File (`custardui.config.json`)
 
-CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, assets, and widget settings.
+CustardUI is configured via a JSON file, typically named `custardui.config.json`. This file defines toggles, tabs, placeholders, labels, and widget settings.
 
 ### Basic Structure
 
@@ -21,9 +23,9 @@ CustardUI is configured via a JSON file, typically named `custardui.config.json`
   "config": {
     "toggles": [...],
     "tabGroups": [...],
-    "placeholders": [...]
+    "placeholders": [...],
+    "labels": [...]
   },
-  "baseUrl": "/website-baseUrl",
   ...
 }
 ```
@@ -32,24 +34,21 @@ CustardUI is configured via a JSON file, typically named `custardui.config.json`
 
 Refer to individual components for more details on each configuration option.
 
+
 ### Core Configuration (`config`)
 
 | Field        | Type       | Required | Description                                                         |
 | ------------ | ---------- | -------- | ------------------------------------------------------------------- |
-| toggles      | `object[]` | No       | Array of toggle configurations. Each object must have a `toggleId`. |
-| tabGroups    | `object[]` | No       | Array of tab group configurations.                                  |
-| placeholders | `object[]` | No       | Array of global placeholder definitions.                            |
+| toggles      | `object[]` | No       | Array of toggle configurations. Each object must have a `toggleId`. Supports `isLocal` and `siteManaged`. |
+| tabGroups    | `object[]` | No       | Array of tab group configurations. Supports `isLocal`.              |
+| placeholders | `object[]` | No       | Array of global placeholder definitions. Supports `isLocal` and `siteManaged`. |
+| labels       | `object[]` | No       | Array of label definitions. Labels are always site-controlled (no user input, no persistence). |
 
 - Tab Group Configuration Settings, see [here](./components/tabs.md#configuration)
-- Toggle Configuration Settings, see [here](./components/toggles.md#configuration)
-- Placeholder Configuration Settings, see [here](./components/placeholders.md#placeholder-configuration)
+- Toggle Configuration Settings (including `siteManaged`), see [here](./components/toggles.md#configuration)
+- Placeholder Configuration Settings (including `siteManaged`), see [here](./components/placeholders.md#placeholder-configuration)
+- Label Configuration Settings, see [here](./components/labels.md#label-configuration)
 
-## Global Options
-
-| Field          | Type      | Default | Description                                                                                                            |
-| -------------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
-| baseUrl        | `string`  | `/`     | Base URL for resolving relative paths (can also be `baseURL`). Specifies the website's base URL (for example `/docs`). |
-| storageKey     | `string`  | `null`  | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`).   |
 
 ### Settings Configuration in `config.json`: (`settings`)
 
@@ -80,7 +79,7 @@ Refer to individual components for more details on each configuration option.
 
 | Field                   | Type      | Default                                     | Description                                                                                                         |
 | ----------------------- | --------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| enabled                 | `boolean` | `true`                                      | Whether to show the floating settings widget on the page.                                                           |
+| enabled                 | `boolean` | `false`                                     | Whether to show the floating settings widget on the page.                                                           |
 | panel.title             | `string`  | `"Customize View"`                          | Title shown in settings tooltip and modal header.                                                                   |
 | panel.description       | `string`  | `""`                                        | Description text displayed in the settings modal.                                                                   |
 | panel.showTabGroups     | `boolean` | `true`                                      | Whether to show tab groups section in widget.                                                                       |
@@ -97,6 +96,25 @@ Refer to individual components for more details on each configuration option.
 | icon.opacity            | `number`  | `null`                                      | Custom opacity (0-1).                                                                                               |
 | icon.scale              | `number`  | `1`                                         | Custom scale factor.                                                                                                |
 
+
+
+### Global Options in `custardui.config.json`
+
+| Field          | Type                           | Default   | Description                             |
+| -------------- | ------------------------------ | --------- | --------------------------------------- |
+| storageKey     | `string`                       | `null`    | Optional key to isolate localStorage settings across different sites. Used as a prefix (e.g., `my-unique-siteName`). |
+| colorScheme    | `"light" \| "dark" \| "auto"`  | `"light"` | Controls which color variant is used: `"light"`, `"dark"`, or `"auto"`. This is intended to match the site's light/dark mode, so a light mode website uses the light variant, and a dark mode website uses the dark variant. Auto switches based on the visitor's OS preference (`prefers-color-scheme`), reactively. If any other value is provided, CustardUI falls back to the `"light"` scheme (the default). |
+
+**Example**: 
+```json
+{
+  "storageKey": "my-unique-siteName",
+  "colorScheme": "light",
+  "config": {...},
+  "settings": {...}
+}
+```
+
 ## Script Tag Attributes
 
 When using auto-initialization via script tag, you can override configuration:
@@ -110,7 +128,7 @@ When using auto-initialization via script tag, you can override configuration:
 ></script>
 ```
 
-| Attribute          | Description                                                                                                                                                                                                                         |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data-base-url`    | Specifies the website's base URL (for example `/docs`). This value is used to resolve relative asset paths and, when provided on the script tag, takes precedence over the `baseURL` in the config file.                            |
-| `data-config-path` | Path to the config file to use for auto-initialization (default: `/custardui.config.json`). Provide an absolute or site-relative path if your config is located elsewhere  |
+| Attribute          | Default                    | Description                                                                                                          |
+| ------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `data-base-url`    | `/`                        | Specifies the website's base URL (for example `/docs`). Used to resolve relative paths in features such as adaptation. |
+| `data-config-path` | `/custardui.config.json`   | Path to the config file for auto-initialization. Provide an absolute or site-relative path if your config is elsewhere. |

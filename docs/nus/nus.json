@@ -9,14 +9,22 @@
       "--cv-icon-color": "#ffffff"
     }
   },
-  "defaults": {
+  "preset": {
     "toggles": {
       "linux": "show",
-      "windows": "hide"
+      "windows": "hide",
+      "nus-resources": "show"
     },
     "placeholders": {
       "username": "NUS Student",
-      "institutionName": "NUS Institution"
+      "institutionName": "NUS",
+      "institutionLogo": "nus"
+    },
+    "labels": {
+      "exercise-1": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-2": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-3": { "value": "COMPULSORY", "color": "#ef4444" },
+      "exercise-4": { "value": "COMPULSORY", "color": "#ef4444" }
     }
   }
 }

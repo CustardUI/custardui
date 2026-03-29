@@ -62,9 +62,39 @@ Append `?cv-open=true`, or simply `?cv-open` to the URL. Works on page load (rel
 
 The settings panel stays clean by only verifying configured elements:
 
-- **Toggles/Tabs**: Sections appear only if defined in `config`.
+- **Toggles/Tabs/Placeholders**: Sections appear only if defined in `config`.
 - **Order of Sections**: The order of Toggles, Tab Groups, and Placeholders in the modal follows their order in your `custardui.config.json`.
 - **Description**: Appears only if `panel.description` is set.
+
+## Modal Tabs
+
+The settings modal is divided into two main tabs: **Customize** and **Share**.
+
+### Customize Tab
+
+The **Customize** tab is the primary interface for users to adjust their view. It contains:
+
+- **Toggles**: Enable or disable specific content sections.
+- **Placeholders**: Text variables that users can customize (e.g., names, dates, or technical terms).
+- **Tab Groups**: Select which version of a component to display.
+- **Navigation Headers**: A special toggle to show/hide the navigation links for tab groups.
+
+> Elements marked as `isLocal: true` in your configuration will only appear in this tab if they are actually present on the current page. Global elements (where `isLocal` is false or omitted) are always visible.
+
+### Share Tab
+
+The **Share** tab provides tools for users to capture and distribute their specific configuration.
+
+- **Select Elements to Share**: Triggers a selection mode where users can click on specific parts of the page to include in their shareable state.
+- **Copy Shareable URL of Settings**: Generates a URL that encodes the user's current settings.
+
+#### Shareable URL Behavior
+
+When a user clicks "Copy Shareable URL of Settings", CustardUI generates a link that captures:
+1. All **global configurations** (toggles, tab groups, and placeholders not marked as `isLocal`).
+2. All **local configurations** that are currently present on the page.
+
+This ensures that the recipient sees exactly what the sender intended, while preventing "state pollution" from local elements that don't exist on the current page.
 
 ## Configuration
 

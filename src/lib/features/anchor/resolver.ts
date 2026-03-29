@@ -12,7 +12,7 @@ const SCORE_THRESHOLD = 30;
  * Returns an array of elements. For specific descriptors, usually contains 0 or 1 element.
  * For ID-only descriptors (tag='ANY'), may return multiple if duplicates exist.
  */
-export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLElement[] {
+export function resolve(descriptor: AnchorDescriptor): HTMLElement[] {
   // 0. Direct ID Shortcut
   if (descriptor.elementId) {
     // Always support duplicate IDs for consistency, even if technically invalid HTML.
@@ -24,18 +24,15 @@ export function resolve(root: HTMLElement, descriptor: AnchorDescriptor): HTMLEl
   }
 
   // 1. Determine Scope
-  let scope: HTMLElement = root;
+  // Default to document.body so index pool matches descriptor.ts,
+  // which also falls back to document.body when no id-bearing ancestor is found.
+  let scope: HTMLElement = document.body;
 
-  // Optimization: If parentId exists, try to narrow scope immediately
+  // Optimization: If parentId exists, try to narrow scope immediately.
   if (descriptor.parentId) {
-    const foundParent = root.querySelector(`#${descriptor.parentId}`);
+    const foundParent = document.getElementById(descriptor.parentId);
     if (foundParent instanceof HTMLElement) {
       scope = foundParent;
-    } else {
-      const globalParent = document.getElementById(descriptor.parentId);
-      if (globalParent) {
-        scope = globalParent;
-      }
     }
   }
 

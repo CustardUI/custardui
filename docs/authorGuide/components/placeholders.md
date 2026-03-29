@@ -251,6 +251,7 @@ My username is <cv-placeholder-input name="username" layout="inline" appearance=
 | settingsHint  | `string`  | Helper text in input field.                                                                                    |
 | defaultValue  | `string`  | Display fallback when no user value or inline fallback is provided. Does **not** count as "user-set" — conditional syntax (`?`) treats it as unset unless `*` is appended. |
 | isLocal       | `boolean` | If `true`, the input field only appears in Settings when the placeholder is actually used on the current page. |
+| siteManaged   | `boolean` | If `true`, the placeholder is fully controlled by the site. It is hidden from the settings modal, excluded from shareable URLs, and any user-supplied value (from localStorage or URL params) is ignored. Its value can only be set by the config `defaultValue` or an adaptation `preset.placeholders`. Useful for institution names, logos, or any value that must vary per adaptation but never be user-editable. |
 
 Example:
 

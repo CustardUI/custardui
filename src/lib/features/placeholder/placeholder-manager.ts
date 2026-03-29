@@ -11,8 +11,8 @@ export class PlaceholderManager {
       config.placeholders.forEach((def) => {
         placeholderRegistryStore.register({
           ...def,
-          // adaptationPlaceholder implies hidden from user-facing settings
-          hiddenFromSettings: def.adaptationPlaceholder ? true : def.hiddenFromSettings,
+          // siteManaged implies hidden from user-facing settings
+          hiddenFromSettings: def.siteManaged ? true : def.hiddenFromSettings,
           source: 'config',
         });
       });
@@ -78,7 +78,7 @@ export class PlaceholderManager {
 
   /**
    * Filters a record of incoming placeholders to only those that can be set by users.
-   * Extends filterValidPlaceholders() by also excluding adaptation-only placeholders.
+   * Extends filterValidPlaceholders() by also excluding siteManaged placeholders.
    * Use this for persistence loads and URL delta application.
    */
   filterUserSettablePlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
@@ -87,8 +87,8 @@ export class PlaceholderManager {
 
     for (const [key, value] of Object.entries(valid)) {
       const def = placeholderRegistryStore.get(key);
-      if (def?.adaptationPlaceholder) {
-        // Silently skip — adaptation-only placeholders cannot be user-set
+      if (def?.siteManaged) {
+        // Silently skip — site-managed placeholders cannot be user-set
         continue;
       }
       userSettable[key] = value;

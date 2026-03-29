@@ -24,9 +24,13 @@ export class ElementStore {
   detectedPlaceholders = $state<SvelteSet<string>>(new SvelteSet());
 
   /**
-   * Returns true if there are any active components (toggles or tab groups) actually present in the DOM.
+   * Returns true if there are any active components (toggles, tab groups, or placeholders) actually present in the DOM.
    */
-  hasPageElements = $derived(this.detectedToggles.size > 0 || this.detectedTabGroups.size > 0);
+  hasElementsOnCurrentPage = $derived(
+    this.detectedToggles.size > 0 ||
+    this.detectedTabGroups.size > 0 ||
+    this.detectedPlaceholders.size > 0
+  );
 
   // --- Registry Actions ---
 

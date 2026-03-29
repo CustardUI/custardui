@@ -144,26 +144,26 @@ describe('PlaceholderManager', () => {
       });
   });
 
-  describe('registerConfigPlaceholders — adaptationPlaceholder', () => {
-    it('forces hiddenFromSettings: true when adaptationPlaceholder is true', () => {
+  describe('registerConfigPlaceholders — siteManaged', () => {
+    it('forces hiddenFromSettings: true when siteManaged is true', () => {
       manager.registerConfigPlaceholders({
-        placeholders: [{ name: 'instName', adaptationPlaceholder: true }],
+        placeholders: [{ name: 'instName', siteManaged: true }],
       });
       expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
         expect.objectContaining({ hiddenFromSettings: true })
       );
     });
 
-    it('overrides explicit hiddenFromSettings: false when adaptationPlaceholder: true', () => {
+    it('overrides explicit hiddenFromSettings: false when siteManaged: true', () => {
       manager.registerConfigPlaceholders({
-        placeholders: [{ name: 'instName', adaptationPlaceholder: true, hiddenFromSettings: false }],
+        placeholders: [{ name: 'instName', siteManaged: true, hiddenFromSettings: false }],
       });
       expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
         expect.objectContaining({ hiddenFromSettings: true })
       );
     });
 
-    it('preserves hiddenFromSettings when adaptationPlaceholder is not set', () => {
+    it('preserves hiddenFromSettings when siteManaged is not set', () => {
       manager.registerConfigPlaceholders({
         placeholders: [{ name: 'user', hiddenFromSettings: false }],
       });
@@ -182,9 +182,9 @@ describe('PlaceholderManager', () => {
       expect(warnSpy).not.toHaveBeenCalled();
     });
 
-    it('silently drops adaptationPlaceholder: true entries', () => {
+    it('silently drops siteManaged: true entries', () => {
       vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
-      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'instName', adaptationPlaceholder: true });
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'instName', siteManaged: true });
 
       expect(manager.filterUserSettablePlaceholders({ instName: 'NUS' })).toEqual({});
       expect(warnSpy).not.toHaveBeenCalled(); // silent, not a warning
@@ -205,7 +205,7 @@ describe('PlaceholderManager', () => {
       vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
       vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
         key === 'instName'
-          ? { name: 'instName', adaptationPlaceholder: true }
+          ? { name: 'instName', siteManaged: true }
           : { name: key }
       );
 

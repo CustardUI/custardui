@@ -1,6 +1,7 @@
 import type { PlaceholderDefinition } from '../features/placeholder/types';
 import type { TabGroupConfig } from '../features/tabs/types';
 import type { ToggleConfig } from '../features/toggles/types';
+import type { LabelConfig } from '../features/labels/types';
 import type { ShareExclusions } from '../features/share/types';
 import type { WidgetSettings } from '../features/settings/types';
 
@@ -24,6 +25,8 @@ export interface Config {
   shareExclusions?: ShareExclusions;
   /** Global placeholder definitions */
   placeholders?: PlaceholderDefinition[];
+  /** Inline decorative label (badge) definitions */
+  labels?: LabelConfig[];
 }
 
 /**
@@ -32,12 +35,10 @@ export interface Config {
 export interface ConfigFile {
   /** Core configuration object with toggles and defaultState */
   config?: Config;
-  /** Path to the assets JSON file */
-  assetsJsonPath?: string;
-  /** Base URL for all paths */
-  baseUrl?: string;
   /** Optional key to namespace localStorage items for isolation */
   storageKey?: string;
   /** Widget configuration options */
   settings?: WidgetSettings;
+  /** Color scheme used to resolve shorthand label colors. Defaults to 'light'. */
+  colorScheme?: 'light' | 'dark' | 'auto';
 }

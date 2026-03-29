@@ -83,7 +83,8 @@ export function initUIManager(
   runtime: AppRuntime,
   config: ConfigFile,
 ): CustardUIManager | undefined {
-  const settingsEnabled = config.settings?.enabled === true;
+  const { enabled, ...widgetSettings } = config.settings ?? {};
+  const settingsEnabled = enabled === true;
 
   const callbacks: RuntimeCallbacks = {
     resetToDefault: () => runtime.resetToDefault(),
@@ -94,7 +95,7 @@ export function initUIManager(
   const uiManager = new CustardUIManager({
     callbacks,
     settingsEnabled,
-    ...config.settings,
+    ...widgetSettings,
   });
   uiManager.render();
   return uiManager;

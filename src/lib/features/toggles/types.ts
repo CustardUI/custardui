@@ -12,4 +12,9 @@ export interface ToggleConfig {
   description?: string;
   /** Default state for this toggle: 'show', 'hide', or 'peek' */
   default?: 'show' | 'hide' | 'peek';
+  /**
+   * If true, this toggle's state is controlled by the site (via adaptations or config defaults).
+   * It will be hidden from the settings UI, excluded from shareable URLs, and immune to user persistence.
+   */
+  siteManaged?: boolean;
 }

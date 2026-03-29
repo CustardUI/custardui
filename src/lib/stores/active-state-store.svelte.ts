@@ -135,8 +135,8 @@ export class ActiveStateStore {
 
     const validatedTabs = this.filterValidTabs(newState.tabs ?? {});
     const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(newState.placeholders ?? {});
-    const validatedShownToggles = this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []);
-    const validatedPeekToggles = this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []);
+    const validatedShownToggles = this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []));
+    const validatedPeekToggles = this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []));
 
     this.state = {
       shownToggles: validatedShownToggles,
@@ -172,20 +172,26 @@ export class ActiveStateStore {
   }
 
   /**
-   * Applies adaptation defaults on top of the config defaults, before persisted state.
+   * Applies adaptation preset on top of the config defaults, before persisted state.
    * User choices applied later via applyState() will override these.
    *
-   * @param defaults The defaults section from the adaptation config
+   * @param preset The preset section from the adaptation config
    */
-  applyAdaptationDefaults(defaults: AdaptationConfig['defaults']): void {
-    if (!defaults) return;
+  applyAdaptationDefaults(preset: AdaptationConfig['preset']): void {
+    if (!preset) return;
 
-    if (defaults.toggles) {
-      this.applyToggleMap(defaults.toggles);
+    if (preset.toggles) {
+      this.applyToggleMap(preset.toggles);
     }
 
-    if (defaults.placeholders) {
-      const validated = placeholderManager.filterValidPlaceholders(defaults.placeholders);
+    if (preset.tabs) {
+      const validated = this.filterValidTabs(preset.tabs);
+      if (!this.state.tabs) this.state.tabs = {};
+      Object.assign(this.state.tabs, validated);
+    }
+
+    if (preset.placeholders) {
+      const validated = placeholderManager.filterValidPlaceholders(preset.placeholders);
       if (!this.state.placeholders) this.state.placeholders = {};
       Object.assign(this.state.placeholders, validated);
     }
@@ -240,11 +246,11 @@ export class ActiveStateStore {
       }
     }
 
-    // 3. Seed author-controlled (adaptationPlaceholder) defaults.
+    // 3. Seed site-managed (siteManaged) defaults.
     // These are set by adaptations when active, and fall back to defaultValue when no adaptation is active.
     // This is intentionally separate from regular user-settable placeholder defaults (see PR #206).
     for (const def of placeholderRegistryStore.definitions) {
-      if (def.adaptationPlaceholder && def.defaultValue !== undefined && def.defaultValue !== '') {
+      if (def.siteManaged && def.defaultValue !== undefined && def.defaultValue !== '') {
         placeholders[def.name] = def.defaultValue;
       }
     }
@@ -299,11 +305,11 @@ export class ActiveStateStore {
    */
   private applyToggleDelta(deltaState: State) {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toShow = new Set(this.filterValidToggles(deltaState.shownToggles ?? []));
+    const toShow = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.shownToggles ?? [])));
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toPeek = new Set(this.filterValidToggles(deltaState.peekToggles ?? []));
+    const toPeek = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.peekToggles ?? [])));
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toHide = new Set(this.filterValidToggles(deltaState.hiddenToggles ?? []));
+    const toHide = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.hiddenToggles ?? [])));
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const allMentioned = new Set([...toShow, ...toPeek, ...toHide]);
 
@@ -345,6 +351,17 @@ export class ActiveStateStore {
 
     if (!this.state.placeholders) this.state.placeholders = {};
     Object.assign(this.state.placeholders, validatedPlaceholders);
+  }
+
+  /**
+   * Removes toggle IDs belonging to siteManaged toggles.
+   * Used to prevent user-supplied state (URL, localStorage) from overriding site-controlled toggles.
+   */
+  private filterNonSiteManagedToggleIds(ids: string[]): string[] {
+    return ids.filter((id) => {
+      const toggle = this.config.toggles?.find((t) => t.toggleId === id);
+      return !toggle?.siteManaged;
+    });
   }
 
   /**

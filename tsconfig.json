@@ -39,6 +39,6 @@
       "$ui/*": ["./src/lib/components/ui/*"]
     }
   },
-  "include": ["src", "svelte.config.js", "tests"],
+  "include": ["src", "svelte.config.js"],
   "exclude": ["node_modules", "dist", "docs"]
 }

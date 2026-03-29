@@ -129,6 +129,7 @@
   async function copyShareUrl() {
     const url = URLStateManager.generateShareableURL(
       activeStateStore.state,
+      activeStateStore.config,
       {
         toggles: elementStore.detectedToggles,
         tabGroups: elementStore.detectedTabGroups,

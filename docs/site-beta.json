@@ -1,0 +1,48 @@
+{
+  "baseUrl": "/betadocs",
+  "timeZone": "Asia/Singapore",
+  "titlePrefix": "",
+  "titleSuffix": "",
+  "ignore": [
+    "_markbind/layouts/*",
+    "_markbind/logs/*",
+    "_site/*",
+    "site.json",
+    "*.md",
+    "*.njk",
+    ".git/*",
+    ".gitignore",
+    "node_modules/*",
+    "CNAME",
+    "design.md"
+  ],
+  "pagesExclude": ["node_modules/*"],
+  "pages": [
+    {
+      "src": "index.md"
+    },
+    {
+      "glob": ["**/index.md", "**/*.md"]
+    }
+  ],
+  "style": {
+    "codeTheme": "light"
+  },
+  "plugins": [
+    "custardui-betadocs",
+    "filterTags",
+    "codeBlockCopyButtons",
+    "codeBlockWrapButtons",
+    "mermaid"
+  ],
+  "pluginsContext": {
+    "filterTags": {
+      "tags": ["beta-release"]
+    }
+  },
+  "deploy": {
+    "message": "Site Update.",
+    "repo": "https://github.com/custardUI/betadocs.git",
+    "branch": "master"
+  }
+}

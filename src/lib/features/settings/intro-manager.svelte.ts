@@ -32,12 +32,12 @@ export class IntroManager {
 
   /**
    * Initializes the manager. Should be called when the component is ready
-   * and we know there are elements on the page.
+   * and we know there are elements on the current page (toggles, tab groups, or placeholders).
    */
-  public init(hasPageElements: boolean, settingsEnabled: boolean) {
+  public init(hasElementsOnCurrentPage: boolean, settingsEnabled: boolean) {
     const options = this.getOptions();
     if (settingsEnabled && !this.hasChecked && options?.show) {
-      if (hasPageElements) {
+      if (hasElementsOnCurrentPage) {
         this.hasChecked = true;
         this.checkAndShow();
       }
