@@ -252,8 +252,8 @@ To make the "orange" tab selected by default for the "fruit" group:
 
 ### No-ID Tabs
 
-Each tabgroup element should have a parent `id` attribute, while each tab element should have their own tab `id` as well. 
-* However, if a tabgroup element does not have an `id` attribute, the tabgroup and children tabs will function as normal tabs. If the children tabs do not have `id` or `header` attributes, their headers will be enumerated.
+Each `<cv-tabgroup>` element can have an optional `group-id` attribute, and each `<cv-tab>` element can have an optional `tab-id` attribute used to identify and synchronize tabs.
+* However, if a tabgroup element does not have a `group-id` attribute, the tabgroup and its child tabs will function as a normal, isolated tab set. If the child tabs do not have `tab-id` or `header` attributes, their headers will be enumerated.
 
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
