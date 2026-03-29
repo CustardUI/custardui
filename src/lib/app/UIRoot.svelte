@@ -64,6 +64,18 @@
     introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
+  // Mirror theme to <html> so CV variables 
+  // cascade to on-page custom elements (cv-toggle-control etc.)
+  $effect(() => {
+    const theme = options.theme;
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-cv-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-cv-theme');
+    }
+    return () => document.documentElement.removeAttribute('data-cv-theme');
+  });
+
   // --- Modal Actions ---
 
   function openModal() {
@@ -144,17 +156,8 @@
 </div>
 
 <style>
-  /* Root should allow clicks to pass through to the page unless hitting checking/interactive element */
-  :global(.cv-widget-root) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    z-index: 9999;
-    pointer-events: none; /* Crucial: Allow clicks to pass through */
-
-    /* Light Theme Defaults */
+  /* Light Theme Defaults — on :root so on-page custom elements (cv-toggle-control etc.) inherit them */
+  :global(:root) {
     --cv-bg: white;
     --cv-text: rgba(0, 0, 0, 0.9);
     --cv-text-secondary: rgba(0, 0, 0, 0.6);
@@ -185,7 +188,50 @@
     --cv-modal-radius: 0.75rem;
     --cv-card-radius: 0.5rem;
     --cv-section-label-transform: uppercase;
+  }
 
+  /* Dark Theme — triggered by data-cv-theme="dark" on <html> */
+  :global(:root[data-cv-theme='dark']) {
+    --cv-bg: #101722;
+    --cv-text: #e2e8f0;
+    --cv-text-secondary: rgba(255, 255, 255, 0.6);
+    --cv-border: rgba(255, 255, 255, 0.1);
+    --cv-bg-hover: rgba(255, 255, 255, 0.05);
+
+    --cv-primary: #3e84f4;
+    --cv-primary-hover: #60a5fa;
+
+    --cv-danger: #f87171;
+    --cv-danger-bg: rgba(248, 113, 113, 0.1);
+
+    --cv-shadow: rgba(0, 0, 0, 0.5);
+
+    --cv-input-bg: #1e293b;
+    --cv-input-border: rgba(255, 255, 255, 0.1);
+    --cv-switch-bg: rgba(255, 255, 255, 0.1);
+    --cv-switch-knob: #e2e8f0;
+
+    --cv-modal-icon-bg: rgba(255, 255, 255, 0.08);
+    --cv-icon-bg: #1e293b;
+    --cv-icon-color: #e2e8f0;
+
+    --cv-focus-ring: rgba(62, 132, 244, 0.5);
+    --cv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+    --cv-modal-radius: 0.75rem;
+    --cv-card-radius: 0.5rem;
+    --cv-section-label-transform: uppercase;
+  }
+
+  /* Root should allow clicks to pass through to the page unless hitting checking/interactive element */
+  :global(.cv-widget-root) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 9999;
+    pointer-events: none; /* Crucial: Allow clicks to pass through */
     font-family: inherit; /* Inherit font from host */
   }
 

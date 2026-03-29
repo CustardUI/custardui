@@ -17,11 +17,11 @@
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
 * [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
-  * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
-  * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
   * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
   * [Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
   * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
+  * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
+  * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
   * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
       </site-nav>
     </div>

@@ -5,7 +5,6 @@
       toggleId: { reflect: true, type: 'String', attribute: 'toggle-id' },
       showPeekBorder: { reflect: true, type: 'Boolean', attribute: 'show-peek-border' },
       showLabel: { reflect: true, type: 'Boolean', attribute: 'show-label' },
-      showInlineControl: { reflect: true, type: 'Boolean', attribute: 'show-inline-control' },
       placeholderId: { reflect: true, type: 'String', attribute: 'placeholder-id' },
     },
   }}
@@ -23,13 +22,11 @@
     toggleId = '',
     showPeekBorder = false,
     showLabel = false,
-    showInlineControl = false,
     placeholderId = '',
   }: {
     toggleId?: string;
     showPeekBorder?: boolean;
     showLabel?: boolean;
-    showInlineControl?: boolean;
     placeholderId?: string;
   } = $props();
   // Derive toggle IDs from toggle-id prop (can have multiple space-separated IDs)
@@ -63,8 +60,6 @@
     }
     if (placeholderId) elementStore.registerPlaceholder(placeholderName);
   });
-
-  let isSiteManaged = $derived(toggleConfig?.siteManaged ?? false);
 
   // Derive label text from config
   let labelText = $derived.by(() => {
@@ -173,69 +168,19 @@
     localExpanded = !localExpanded;
   }
 
-  // Derive current state for inline 3-dot indicator
-  let currentInlineState = $derived.by((): 'show' | 'peek' | 'hide' => {
-    if (showState) return 'show';
-    if (peekState) return 'peek';
-    return 'hide';
-  });
-
-  // Set toggle to a specific state (used by inline dot controls)
-  function setToggleState(e: MouseEvent, targetState: 'show' | 'peek' | 'hide') {
-    e.stopPropagation();
-    toggleIds.forEach((id) => activeStateStore.updateToggleState(id, targetState));
-  }
-
 
 </script>
-
-{#if showInlineControl && !isPlaceholderMode && !isSiteManaged && isHidden}
-  <!-- Hidden-state placeholder bar -->
-  <div class="cv-toggle-placeholder" role="group" aria-label="Toggle: {labelText}">
-    {#if labelText}
-      <span class="cv-placeholder-label">{labelText}</span>
-    {/if}
-    <div class="cv-state-dots" role="group" aria-label="Visibility states">
-      {#each (['hide', 'peek', 'show'] as const) as dotState}
-        <button
-          type="button"
-          class="cv-dot {currentInlineState === dotState ? 'active' : ''}"
-          aria-label={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
-          title={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
-          aria-pressed={currentInlineState === dotState}
-          onclick={(e) => setToggleState(e, dotState)}
-        ></button>
-      {/each}
-    </div>
-  </div>
-{/if}
 
 <div
   class="cv-toggle-wrapper"
   class:expanded={showFullContent && !showPeekContent}
   class:peeking={showPeekContent}
-  class:peek-mode={peekState}
+  class:peek-mode={peekState && !isSmallContent}
   class:hidden={isHidden}
   class:has-border={showPeekBorder && peekState}
-  class:has-inline-control={showInlineControl && !isPlaceholderMode && !isSiteManaged}
 >
   {#if showLabel && labelText && !isHidden}
     <div class="cv-toggle-label">{labelText}</div>
-  {/if}
-
-  {#if showInlineControl && !isPlaceholderMode && !isSiteManaged && !isHidden}
-    <div class="cv-state-dots cv-state-dots--floating" role="group" aria-label="Visibility states">
-      {#each (['hide', 'peek', 'show'] as const) as dotState}
-        <button
-          type="button"
-          class="cv-dot {currentInlineState === dotState ? 'active' : ''}"
-          aria-label={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
-          title={dotState.charAt(0).toUpperCase() + dotState.slice(1)}
-          aria-pressed={currentInlineState === dotState}
-          onclick={(e) => setToggleState(e, dotState)}
-        ></button>
-      {/each}
-    </div>
   {/if}
 
   <div
@@ -249,7 +194,7 @@
     </div>
   </div>
 
-  {#if peekState && !isSmallContent}
+  {#if peekState && !isSmallContent && scrollHeight > 0}
     <button
       type="button"
       class="cv-expand-btn"
@@ -283,7 +228,7 @@
   .cv-toggle-wrapper {
     position: relative;
     width: 100%;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 4px;
   }
 
@@ -372,100 +317,6 @@
   .has-border .cv-toggle-label {
     top: -10px;
     left: 0;
-  }
-
-  /* Hidden-state placeholder bar */
-  .cv-toggle-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 8px;
-    min-height: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.015);
-    margin-bottom: 4px;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-
-  .cv-toggle-placeholder:hover {
-    border-color: rgba(0, 0, 0, 0.12);
-    background: rgba(0, 0, 0, 0.025);
-  }
-
-  .cv-placeholder-label {
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.35);
-    letter-spacing: 0.02em;
-    user-select: none;
-  }
-
-  /* 3-dot state indicator */
-  .cv-state-dots {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  /* Floating position (top-right of content) */
-  .cv-state-dots--floating {
-    position: absolute;
-    top: -2px;
-    right: 0;
-    z-index: 10;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .cv-toggle-wrapper:hover .cv-state-dots--floating,
-  .cv-state-dots--floating:focus-within {
-    opacity: 1;
-  }
-
-  /* Adjust floating dots when bordered */
-  .has-border .cv-state-dots--floating {
-    top: 4px;
-    right: 8px;
-  }
-
-  .cv-dot {
-    position: relative;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(0, 0, 0, 0.2);
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    flex-shrink: 0;
-  }
-
-  /* Expand tap target to ~20px while keeping dot visually small */
-  .cv-dot::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-  }
-
-  .cv-dot:hover {
-    border-color: rgba(0, 0, 0, 0.5);
-    transform: scale(1.3);
-  }
-
-  .cv-dot.active {
-    background: var(--cv-primary, #3E84F4);
-    border-color: var(--cv-primary, #3E84F4);
-  }
-
-  .cv-dot.active:hover {
-    transform: scale(1.3);
   }
 
   /* Expand Button — upgraded to pill style */

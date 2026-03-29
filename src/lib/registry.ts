@@ -1,4 +1,5 @@
 import '$features/toggles/components/Toggle.svelte';
+import '$features/toggles/components/ToggleControl.svelte';
 import '$features/tabs/components/Tab.svelte';
 import '$features/tabs/components/TabGroup.svelte';
 import '$features/tabs/components/TabHeader.svelte';
