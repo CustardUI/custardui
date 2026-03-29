@@ -12,7 +12,6 @@
 Toggles let you show or hide sections of a page based on a category (for example: `mac`, `linux`, `windows`). They are ideal for platform-specific content, progressive disclosure, or audience-targeted sections.
 
 <cv-toggle-control toggle-id="mac"></cv-toggle-control> 
-<cv-toggle-control toggle-id="linux"></cv-toggle-control> 
 <cv-toggle-control toggle-id="windows"></cv-toggle-control> 
 
 <include src="codeAndOutput.md" boilerplate >
@@ -22,16 +21,7 @@ Toggles let you show or hide sections of a page based on a category (for example
 
 **macOS**: macOS-specific install steps...
 * Macbook Pro
-* Macbook Air
 * Macbook Neo
-</cv-toggle>
-
-<cv-toggle toggle-id="linux">
-
-**Linux**: Linux-specific install steps...
-* Ubuntu
-* Fedora
-* Arch
 </cv-toggle>
 
 <cv-toggle toggle-id="windows">
@@ -39,7 +29,6 @@ Toggles let you show or hide sections of a page based on a category (for example
 **Windows**: Windows-specific install steps...
 * Windows Vista
 * Windows XP
-* Windows 7
 * Windows 11
 </cv-toggle>
 
@@ -63,10 +52,9 @@ Additionally, use `show-label` to add a label to the toggle, so users know what 
 <variable name="highlightStyle">html</variable>
 <variable name="code">
 
-<cv-toggle toggle-id="localToggle" show-peek-border show-label>
-<br>
+<cv-toggle toggle-id="localToggle" show-peek-border show-label><br>
 
-**Local Toggle**: Local toggle content
+**Local toggle content**:
 * Item 1
 * Item 2
 * Item 3
@@ -229,9 +217,10 @@ Some long long text content to make sure the box is scrollable
 * item 4
 </cv-toggle>
 
-### Keeping Local Toggles for Settings
+### Keeping Local Toggles in Settings
 
 If you have a specific use case where you may want all local toggles to be available in the settings on a certain page, (e.g. a global settings page), you can add empty `cv-toggle` elements to register the local toggles on that page. That way, the plugin will pick them up and add them to the settings dialog for that page.
+* E.g. `<cv-toggle toggle-id="localToggle"></cv-toggle>`
 
 ## Site-Managed Toggles
 
