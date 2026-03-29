@@ -18,7 +18,6 @@ export class CustardUIManager {
   private options: ResolvedUIManagerOptions;
 
   constructor(options: UIManagerOptions) {
-    // Set defaults
     this.options = {
       callbacks: options.callbacks,
       container: options.container || document.body,
@@ -49,12 +48,10 @@ export class CustardUIManager {
       return;
     }
 
-    // Map context dependency injection directly into app root
     const rootContext = new Map();
     rootContext.set(ICON_SETTINGS_CTX, this.options.callbacks.iconSettings);
     rootContext.set(RUNTIME_CALLBACKS_CTX, this.options.callbacks);
 
-    // Mount Svelte App using Svelte 5 API
     this.app = mount(UIRoot, {
       target: this.options.container,
       props: {
@@ -82,7 +79,9 @@ export function initUIManager(
   runtime: AppRuntime,
   config: ConfigFile,
 ): CustardUIManager | undefined {
-  const { enabled, ...widgetSettings } = config.settings ?? {};
+  // panel settings (title, description, showTabGroups, showReset) are consumed
+  // exclusively by AppRuntime.initStores() — CustardUIManager only needs callout + icon.
+  const { enabled, panel: _panel, ...managerSettings } = config.settings ?? {};
   const settingsEnabled = enabled === true;
 
   const callbacks: RuntimeCallbacks = {
@@ -94,7 +93,7 @@ export function initUIManager(
   const uiManager = new CustardUIManager({
     callbacks,
     settingsEnabled,
-    ...widgetSettings,
+    ...managerSettings,
   });
   uiManager.render();
   return uiManager;
