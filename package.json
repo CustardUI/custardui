@@ -1,6 +1,6 @@
 {
   "name": "@custardui/custardui",
-  "version": "2.1.2-beta.1",
+  "version": "2.2.0",
   "description": "A JavaScript dynamic custom views Library.",
   "type": "module",
   "main": "dist/custardui.min.js",
