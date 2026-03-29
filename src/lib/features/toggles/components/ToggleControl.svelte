@@ -36,9 +36,7 @@
     }
   });
 
-  // Mirror <cv-toggle>: default to 'show' before config loads to avoid mismatch with toggle content visibility
   let currentState = $derived.by((): 'show' | 'peek' | 'hide' => {
-    if (!configLoaded) return 'show';
     const shownToggles = activeStateStore.state.shownToggles ?? [];
     const peekToggles = activeStateStore.state.peekToggles ?? [];
     if (shownToggles.includes(toggleId)) return 'show';
