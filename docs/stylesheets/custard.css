@@ -12,8 +12,6 @@
   font-family: Georgia, serif;
 }
 
-}
-
 .cv-section-title {
   font-size: 1.8rem;
   font-weight: 800;
@@ -32,8 +30,6 @@
 }
 
 
-
-/* ===== SETUP SECTION ===== */
 .cv-setup-steps {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
