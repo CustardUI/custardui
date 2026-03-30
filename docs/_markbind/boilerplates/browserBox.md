@@ -3,6 +3,20 @@
 <!-- `content` -This variable will appear in the browser window -->
 <!-- `url` -The url that appears in the browser window -->
 
+<!-- 
+To use it, copy this:
+
+<include src="browserBox.md" boilerplate >
+<variable name="url"> https://XXX </variable>
+<variable name="content">
+
+My content here
+
+</variable>
+</include>
+
+-->
+
 <div class="cv-browser-single">
   <div class="cv-browser-single-bar">
     <div class="cv-browser-single-dots">

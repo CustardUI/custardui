@@ -5,6 +5,26 @@
 <!-- `url1` - URL for the left pane -->
 <!-- `url2` - URL for the right pane -->
 
+
+<!-- 
+To use it, copy this:
+
+<include src="browserBoxSplit.md" boilerplate>
+<variable name="url1"> https://XXX </variable>
+<variable name="url2"> https://YYY </variable>
+<variable name="content1">
+
+
+</variable>
+<variable name="content2">
+
+
+</variable>
+</include>
+
+-->
+
+
 <div class="cv-browser-split">
 
   <div class="cv-browser-split-bar">
