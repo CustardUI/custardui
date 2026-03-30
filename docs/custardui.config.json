@@ -3,32 +3,16 @@
   "config": {
     "toggles": [
       {
-        "toggleId": "prerequisites",
-        "label": "Prerequisites",
-        "isLocal": true,
-        "default": "peek"
-      },
-      {
-        "toggleId": "installation",
-        "label": "Installation",
+        "toggleId": "optional-exercises",
+        "label": "Optional Exercises",
+        "description": "Hide or show exercise content.",
         "isLocal": true,
         "default": "show"
       },
       {
-        "toggleId": "configuration",
-        "label": "Configuration",
-        "isLocal": true,
-        "default": "show"
-      },
-      {
-        "toggleId": "run-project",
-        "label": "Running the Project",
-        "isLocal": true,
-        "default": "show"
-      },
-      {
-        "toggleId": "troubleshooting-setup",
-        "label": "Troubleshooting",
+        "toggleId": "additional-info",
+        "label": "Additional Information",
+        "description": "Personalize content visibility!",
         "isLocal": true,
         "default": "peek"
       },
@@ -39,43 +23,13 @@
         "isLocal": true,
         "default": "peek"
       },
-      {
-        "toggleId": "mac",
-        "label": "MacOS",
-        "isLocal": true,
-        "description": "Show content for macOS users",
-        "default": "peek"
-      },
+      { "toggleId": "mac", "label": "MacOS", "isLocal": true, "description": "Show content for macOS users", "default": "peek" },
       { "toggleId": "linux", "label": "Linux", "isLocal": true, "description": "Show content for Linux users" },
       { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show", "description": "Show content for Windows users" },
       { "toggleId": "nus-resources", "label": "NUS Resources", "siteManaged": true, "default": "hide", "isLocal": true },
       { "toggleId": "sample-resources", "label": "Sample Resources", "siteManaged": true, "default": "hide", "isLocal": true }
     ],
     "tabGroups": [
-      {
-        "groupId": "os",
-        "label": "Operating System",
-        "description": "Select your operating system.",
-        "isLocal": true,
-        "default": "macos",
-        "tabs": [
-          { "tabId": "macos", "label": "macOS" },
-          { "tabId": "windows", "label": "Windows" },
-          { "tabId": "linux", "label": "Linux" }
-        ]
-      },
-      {
-        "groupId": "pkg",
-        "label": "Package Manager",
-        "description": "Select your preferred package manager.",
-        "isLocal": true,
-        "default": "npm",
-        "tabs": [
-          { "tabId": "npm", "label": "npm" },
-          { "tabId": "yarn", "label": "yarn" },
-          { "tabId": "pnpm", "label": "pnpm" }
-        ]
-      },
       {
         "groupId": "localTabGroup",
         "label": "Page specific tabgroup",
