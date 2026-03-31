@@ -447,24 +447,41 @@ describe('ActiveStateStore', () => {
   // ---------------------------------------------------------------------------
 
   describe('applyState — siteManaged toggles and tabs', () => {
-    it('ignores persisted shownToggles for siteManaged toggles', () => {
+    it('ignores persisted shownToggles for siteManaged toggles that default to hide', () => {
       store.init({
         toggles: [
-          { toggleId: 'managed', siteManaged: true },
+          { toggleId: 'managed', siteManaged: true, default: 'hide' },
           { toggleId: 'normal' },
         ],
       });
 
+      // Persisted state says 'managed' is shown, but siteManaged says ignore persistence.
+      // Since default is 'hide', it should not be in shownToggles.
       store.applyState({ shownToggles: ['managed', 'normal'], peekToggles: [] });
 
       expect(store.state.shownToggles).not.toContain('managed');
       expect(store.state.shownToggles).toContain('normal');
     });
 
-    it('ignores persisted peekToggles for siteManaged toggles', () => {
+    it('uses default state for siteManaged toggles even if persisted state is provided', () => {
       store.init({
         toggles: [
-          { toggleId: 'managed', siteManaged: true },
+          { toggleId: 'managed-show', siteManaged: true, default: 'show' },
+          { toggleId: 'managed-hide', siteManaged: true, default: 'hide' },
+        ],
+      });
+
+      // Persisted state tries to hide 'managed-show' and show 'managed-hide'
+      store.applyState({ shownToggles: ['managed-hide'], peekToggles: [], hiddenToggles: ['managed-show'] });
+
+      expect(store.state.shownToggles).toContain('managed-show');
+      expect(store.state.shownToggles).not.toContain('managed-hide');
+    });
+
+    it('ignores persisted peekToggles for siteManaged toggles that default to hide', () => {
+      store.init({
+        toggles: [
+          { toggleId: 'managed', siteManaged: true, default: 'hide' },
           { toggleId: 'normal' },
         ],
       });
@@ -473,6 +490,32 @@ describe('ActiveStateStore', () => {
 
       expect(store.state.peekToggles).not.toContain('managed');
       expect(store.state.peekToggles).toContain('normal');
+    });
+
+    it('preserves adaptation-applied siteManaged toggles when applying persistence', () => {
+      store.init({
+        toggles: [
+          { toggleId: 'managed', siteManaged: true, default: 'hide' },
+          { toggleId: 'normal', default: 'hide' },
+        ],
+      });
+
+      // 1. Adaptation sets 'managed' to 'show'
+      store.applyAdaptationDefaults({
+        toggles: { managed: 'show' }
+      });
+      expect(store.state.shownToggles).toContain('managed');
+
+      // 2. Persistence is applied (user tried to peek 'managed' and show 'normal')
+      store.applyState({ 
+        shownToggles: ['normal'], 
+        peekToggles: ['managed'] 
+      });
+
+      // 'managed' should still be 'show' (from adaptation), not 'peek' (from persistence)
+      expect(store.state.shownToggles).toContain('managed');
+      expect(store.state.peekToggles).not.toContain('managed');
+      expect(store.state.shownToggles).toContain('normal');
     });
 
   });
