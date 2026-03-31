@@ -135,8 +135,17 @@ export class ActiveStateStore {
 
     const validatedTabs = this.filterValidTabs(newState.tabs ?? {});
     const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(newState.placeholders ?? {});
-    const validatedShownToggles = this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []));
-    const validatedPeekToggles = this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []));
+    
+    // For site-managed toggles, we use the current state (which includes adaptation defaults).
+    // For user-settable toggles, we use the incoming newState (if present) or fall back to defaults.
+    const validatedShownToggles = [
+      ...this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? [])),
+      ...this.filterSiteManagedToggleIds(this.state.shownToggles ?? []),
+    ];
+    const validatedPeekToggles = [
+      ...this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? [])),
+      ...this.filterSiteManagedToggleIds(this.state.peekToggles ?? []),
+    ];
 
     this.state = {
       shownToggles: validatedShownToggles,
@@ -358,10 +367,22 @@ export class ActiveStateStore {
    * Used to prevent user-supplied state (URL, localStorage) from overriding site-controlled toggles.
    */
   private filterNonSiteManagedToggleIds(ids: string[]): string[] {
-    return ids.filter((id) => {
-      const toggle = this.config.toggles?.find((t) => t.toggleId === id);
-      return !toggle?.siteManaged;
-    });
+    return ids.filter((id) => !this.isSiteManaged(id));
+  }
+
+  /**
+   * Returns only the toggle IDs that are siteManaged.
+   */
+  private filterSiteManagedToggleIds(ids: string[]): string[] {
+    return ids.filter((id) => this.isSiteManaged(id));
+  }
+
+  /**
+   * Checks if a toggle is siteManaged.
+   */
+  private isSiteManaged(toggleId: string): boolean {
+    const toggle = this.config.toggles?.find((t) => t.toggleId === toggleId);
+    return !!toggle?.siteManaged;
   }
 
   /**
