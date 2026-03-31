@@ -291,7 +291,9 @@
     <slot></slot>
   </div>
 
-  <div class="cv-tabgroup-bottom-border"></div>
+  {#if tabs.length > 0 && navHeadingVisible}
+    <div class="cv-tabgroup-bottom-border"></div>
+  {/if}
 </div>
 
 <style>
