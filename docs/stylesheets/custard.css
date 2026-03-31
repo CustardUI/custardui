@@ -21,10 +21,9 @@
 }
 
 .cv-section-header {
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--custard-brown);
   margin-bottom: 0.4rem;
 }
