@@ -3,18 +3,25 @@
   "config": {
     "toggles": [
       {
-        "toggleId": "optional-exercises",
-        "label": "Optional Exercises",
-        "description": "Hide or show exercise content.",
+        "toggleId": "code-example-hide",
+        "label": "Toggle Example 1",
+        "description": "Hide the code example!",
         "isLocal": true,
-        "default": "show"
+        "default": "hide"
       },
       {
-        "toggleId": "additional-info",
-        "label": "Additional Information",
-        "description": "Personalize content visibility!",
+        "toggleId": "code-example-peek",
+        "label": "Toggle Example 2",
+        "description": "Peek at the code example!",
         "isLocal": true,
         "default": "peek"
+      },
+      {
+        "toggleId": "code-example-show",
+        "label": "Toggle Example 3",
+        "description": "Show the code example!",
+        "isLocal": true,
+        "default": "show"
       },
       {
         "toggleId": "localToggle",
@@ -31,14 +38,26 @@
     ],
     "tabGroups": [
       {
-        "groupId": "uml-view",
-        "label": "UML View",
-        "description": "Switch between diagram and text views.",
+        "groupId": "tab-group-example",
+        "label": "Tab Group Example",
+        "description": "Switch between tabs across pages!",
+        "isLocal": true,
+        "default": "javascript",
+        "tabs": [
+          { "tabId": "javascript", "label": "JavaScript" },
+          { "tabId": "java", "label": "Java" },
+          { "tabId": "python", "label": "Python" }
+        ]
+      },
+      {
+        "groupId": "tab-group-test",
+        "label": "Tab Group Test",
+        "description": "Switch between tabs across pages!",
         "isLocal": true,
         "default": "text",
         "tabs": [
-          { "tabId": "diagram", "label": "Diagram" },
-          { "tabId": "text", "label": "Text" }
+          { "tabId": "text", "label": "Text" },
+          { "tabId": "diagram", "label": "Diagram" }
         ]
       },
       {
