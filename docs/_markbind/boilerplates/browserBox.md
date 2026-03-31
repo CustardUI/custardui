@@ -25,6 +25,11 @@ My content here
       <div class="cv-browser-single-dot"></div>
     </div>
     <div class="cv-browser-single-url">{{ url | safe}}</div>
+    <div class="cv-browser-triple-menu">
+      <div class="cv-browser-triple-menu-dot"></div>
+      <div class="cv-browser-triple-menu-dot"></div>
+      <div class="cv-browser-triple-menu-dot"></div>
+    </div>
   </div>
   <div class="cv-browser-single-body">
 
@@ -80,5 +85,24 @@ My content here
 .cv-browser-single-body {
   background: #fff;
   padding: 1.25rem 1.5rem;
+}
+
+.cv-browser-triple-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+  width: 40px;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0.4;
+  padding-right: 4px;
+}
+
+.cv-browser-triple-menu-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--custard-brown);
 }
 </style>

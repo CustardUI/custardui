@@ -2,8 +2,7 @@
   title: CustardUI - Your docs, shaped for every reader
 </frontmatter>
 
-<h1 class="display-3 text-center font-with-serif"><md> **CustardUI** </md></h1>
-
+<h1 class="display-3 text-center"><md> **Custard**<span class="font-with-serif">UI</span> </md></h1>
 
 <!-- Make the top more eye catching -->
 
@@ -30,166 +29,253 @@ Example content should be realistic but also fully disjoint from page content e.
 
 Let readers collapse what they don't need. Their choice sticks across pages and sessions.
 
-<include src="browserBoxSplit.md" boilerplate>
-<variable name="url1">https://nus-cs2103t.github.io/week6/topics</variable>
-<variable name="url2">https://nus-cs2103t.github.io/week7/topics</variable>
+<include src="browserBoxTriple.md" boilerplate>
+<variable name="url">https://cs2103t.github.io/website/textbook</variable>
 <variable name="content1">
 
+#### Dependency Injection
 
-#### Week 6 — Recursion
+**Toggle:** <cv-toggle-control toggle-id="code-example-hide" no-label></cv-toggle-control>
 
-<cv-toggle-control toggle-id="optional-exercises"></cv-toggle-control>
-<br>
+Dependency Injection (DI) is a technique where an object's dependencies are provided externally rather than created by the object itself. This reduces coupling and makes code easier to test.
 
-%%Recursion is a technique where a function calls itself to solve a smaller version of the same problem.%%
+<cv-toggle toggle-id="code-example-hide" show-label show-peek-border>
 
-<cv-toggle toggle-id="optional-exercises">
 
-**Optional Exercises**
+```java
+// Without DI — tightly coupled
+class UserService {
+    private Database db = new Database();
+}
 
-Try these additional problems to reinforce your understanding of recursion.
+// With DI — dependency is injected
+class UserService {
+    private Database db;
 
-1. Implement `fibonacci(n)` recursively.
-2. Write a recursive function to flatten a nested list.
+    public UserService(Database db) {
+        this.db = db;
+    }
+}
+```
 
 </cv-toggle>
 
-<cv-toggle toggle-id="additional-info">
+%%Prefer constructor injection over field injection — it makes dependencies explicit and the class easier to test.%%
 
-**Additional Information**
-
-Recursion can cause a stack overflow if the base case is missing or unreachable. Always verify your base case before testing.
-
-</cv-toggle>
-
-%%The base case is the most important part of any recursive function.%%
 
 
 </variable>
 <variable name="content2">
 
 
-#### Week 7 — Binary Search
+#### Dependency Injection
 
-<cv-toggle-control toggle-id="additional-info"></cv-toggle-control>
-<br>
+**Toggle:** <cv-toggle-control toggle-id="code-example-peek" no-label></cv-toggle-control>
 
-%%Binary search finds an element in a sorted list by repeatedly halving the search space.%%
+Dependency Injection (DI) is a technique where an object's dependencies are provided externally rather than created by the object itself. This reduces coupling and makes code easier to test.
 
-<cv-toggle toggle-id="optional-exercises">
+<cv-toggle toggle-id="code-example-peek" show-label show-peek-border>
 
-**Optional Exercises**
 
-Practice binary search with these problems.
+```java
+// Without DI — tightly coupled
+class UserService {
+    private Database db = new Database();
+}
 
-1. Find the index of a target value in a sorted array.
-2. Implement binary search recursively.
+// With DI — dependency is injected
+class UserService {
+    private Database db;
+
+    public UserService(Database db) {
+        this.db = db;
+    }
+}
+```
 
 </cv-toggle>
 
-<cv-toggle toggle-id="additional-info" show-peek-border>
+%%Prefer constructor injection over field injection — it makes dependencies explicit and the class easier to test.%%
 
-**Additional Information**
 
-Binary search requires the list to be sorted. Applying it to an unsorted list will produce incorrect results.
+</variable>
+<variable name="content3">
+
+
+#### Dependency Injection
+
+**Toggle:** <cv-toggle-control toggle-id="code-example-show" no-label></cv-toggle-control>
+
+Dependency Injection (DI) is a technique where an object's dependencies are provided externally rather than created by the object itself. This reduces coupling and makes code easier to test.
+
+<cv-toggle toggle-id="code-example-show" show-label show-peek-border>
+
+
+```java
+// Without DI — tightly coupled
+class UserService {
+    private Database db = new Database();
+}
+
+// With DI — dependency is injected
+class UserService {
+    private Database db;
+
+    public UserService(Database db) {
+        this.db = db;
+    }
+}
+```
 
 </cv-toggle>
 
-%%Time complexity: O(log n). Space complexity: O(1) for the iterative version.%%
-
+%%Prefer constructor injection over field injection — it makes dependencies explicit and the class easier to test.%%
 
 </variable>
 </include>
 
-
-%%Toggle preferences sync across pages.%%
+%%The same page, three toggle states, where each reader can set their own peferences and see only what they chose to.%%
 
 ---
 
 
+<!-- TABGROUPS -->
+
 <p class="cv-section-header">Set the default tab in tab groups.</p>
 
-Let readers switch to their preferred view for tabgroups once, and it follows them across pages.
+Let readers switch to their preferred view for tabgroups once, and this selection persists across your site.
+
+* Hover and click the &nbsp; :fa-solid-bookmark: &nbsp; icon on any tab, or simply double-click it, to set it as your default across the site.
+* Prefer a cleaner view? Hide the tab bar entirely in the settings modal through the&nbsp; :fa-solid-gear: &nbsp; icon on the left. Click the option to \
+_"show only the selected tab"_ to hide the navigation headers and show only your preferred content!
 
 <include src="browserBoxSplit.md" boilerplate>
-<variable name="url1">https://cs4321.github.io/week6/software-process</variable>
-<variable name="url2">https://cs4321.github.io/week7/networking</variable>
+<variable name="url1">https://course-website.org/textbook/sorting</variable>
+<variable name="url2">https://course-website.org/textbook/searching</variable>
 <variable name="content1">
 
-#### Git Branching Strategy
 
-%%A Git branching strategy defines how branches organise work. In a typical feature branch workflow, changes are developed in isolation and merged back to `main` only after review.%%
+#### Insertion Sort
 
-<cv-tabgroup group-id="uml-view" nav="auto">
-<cv-tab tab-id="text" header="Text">
+%%Insertion Sort builds a sorted array one element at a time by picking each element and placing it in its correct position. Simple and efficient for small or nearly sorted arrays.%%
 
-1. A `feature` branch is created off `main` for new work.
-2. Two commits are made: the login form and its validation.
-3. Meanwhile, a `hotfix` branch is cut from `main` to address a bug.
-4. `hotfix` is merged back into `main` first.
-5. `feature` is then merged into `main` after review.
+<cv-tabgroup group-id="tab-group-example" nav="auto">
+<cv-tab tab-id="javascript" header="JavaScript">
+
+```javascript
+function insertionSort(arr) {
+    for (let i = 1; i < arr.length; i++) {
+        let key = arr[i];
+        let j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+```
 
 </cv-tab>
-<cv-tab tab-id="diagram" header="Diagram">
+<cv-tab tab-id="java" header="Java">
 
-<mermaid>
-%%{init: { 'theme': 'neutral' } }%%
-gitGraph
-  commit id: "Initial"
-  branch feature
-  checkout feature
-  commit id: "Login form"
-  checkout main
-  branch hotfix
-  checkout hotfix
-  commit id: "Fix bug"
-  checkout main
-  merge feature
-</mermaid>
+```java
+void insertionSort(int[] arr) {
+    for (int i = 1; i < arr.length; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+```
+
+</cv-tab>
+<cv-tab tab-id="python" header="Python">
+
+```python
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+```
 
 </cv-tab>
 </cv-tabgroup>
 
-%%Branches should be short-lived. Long-running branches accumulate merge conflicts and slow down the team.%%
+%%Time complexity: O(n²) worst case, O(n) best case on nearly sorted arrays.%%
 
 </variable>
 <variable name="content2">
 
-#### HTTP Request-Response
+#### Binary Search
 
-%%Web interactions involve a client sending a request to a server, which may query a data source to return a structured response.%%
+%%Binary Search finds a target value in a sorted array by repeatedly halving the search space. Far more efficient than linear search for large datasets.%%
 
-<cv-tabgroup group-id="uml-view">
-  <cv-tab tab-id="text" header="Text">
+<cv-tabgroup group-id="tab-group-example" nav="auto">
+<cv-tab tab-id="javascript" header="JavaScript">
 
-1. The **Client** sends a `GET /api/data` request to the **Server**.
-2. The **Server** queries the **Database** using a SQL `SELECT` statement.
-3. The **Database** returns the matching rows to the **Server**.
-4. The **Server** formats the data as JSON and replies with `200 OK`.
+```javascript
+function binarySearch(arr, target) {
+    let left = 0, right = arr.length - 1;
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        if (arr[mid] === target) return mid;
+        else if (arr[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}
+```
+</cv-tab>
+<cv-tab tab-id="java" header="Java">
 
+```java
+int binarySearch(int[] arr, int target) {
+    int left = 0, right = arr.length - 1;
+    while (left <= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] == target) return mid;
+        else if (arr[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}
+```
 
-  </cv-tab>
-  <cv-tab tab-id="diagram" header="Diagram">
+</cv-tab>
+<cv-tab tab-id="python" header="Python">
 
-<mermaid>
-sequenceDiagram
-  Client->>Server: GET /api/data
-  Server->>Database: SELECT * FROM records
-  Database-->>Server: rows[]
-  Server-->>Client: 200 OK, JSON payload
-</mermaid>
+```python
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+```
 
-  </cv-tab>
+</cv-tab>
 </cv-tabgroup>
 
-%%A `404` response means the resource was not found. A `500` response indicates a server-side error. Always handle both in your client code.%%
+%%Time complexity: O(log n). Requires the array to be sorted before searching.%%
 
 </variable>
 </include>
 
-%%Switch between "Diagram" and "Text" on the left — the right pane follows automatically.%%
-
-
+%%Switch to Python on either page, and every code example across the site follows.%%
 
 
 --- 
