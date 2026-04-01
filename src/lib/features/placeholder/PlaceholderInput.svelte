@@ -4,7 +4,7 @@
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 
-  type Layout = 'inline' | 'stacked' | 'horizontal';
+  type Layout = 'inline' | 'stacked' | 'horizontal' | 'card';
   type Appearance = 'outline' | 'underline' | 'ghost';
 
   let {
@@ -45,6 +45,8 @@
     return def?.settingsHint || '';
   });
 
+  let effectiveDescription = $derived(placeholderRegistryStore.get(name)?.description ?? '');
+
   let sanitizedId = $derived(name.replace(/[^a-zA-Z0-9_-]/g, '_'));
 
   function handleInput(e: Event) {
@@ -64,7 +66,14 @@
   class="cv-input-wrapper {effectiveLayout}"
   style:--cv-input-width={width === 'auto-grow' ? 'auto' : width}
 >
-  {#if effectiveLayout !== 'inline' && effectiveLabel}
+  {#if effectiveLayout === 'card' && effectiveLabel}
+    <div class="label-group">
+      <label class="placeholder-label" for="cv-input-{sanitizedId}">{effectiveLabel}</label>
+      {#if effectiveDescription}
+        <p class="placeholder-description">{effectiveDescription}</p>
+      {/if}
+    </div>
+  {:else if effectiveLayout !== 'inline' && effectiveLabel}
     <label class="placeholder-label" for="cv-input-{sanitizedId}">{effectiveLabel}</label>
   {/if}
   <input
@@ -88,7 +97,8 @@
 
   /* Host display overrides based on layout */
   :host([layout='stacked']),
-  :host([layout='horizontal']) {
+  :host([layout='horizontal']),
+  :host([layout='card']) {
     display: block;
     width: 100%;
     margin: 0 0 0.5rem 0; /* Reset margins for block layouts */
@@ -118,6 +128,41 @@
     flex-direction: row;
     align-items: center;
     gap: 0.75rem;
+  }
+
+  /* CARD */
+  .cv-input-wrapper.card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    gap: 0.75rem;
+    background: var(--cv-bg);
+    border: 1px solid var(--cv-border);
+    border-radius: var(--cv-card-radius, 0.5rem);
+    transition: background 0.15s ease;
+  }
+
+  .label-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card .placeholder-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .placeholder-description {
+    font-size: 0.75rem;
+    color: var(--cv-text-secondary);
+    margin: 0.125rem 0 0 0;
+    line-height: 1.4;
+  }
+
+  .card .placeholder-input {
+    width: var(--cv-input-width, 12rem);
+    flex-shrink: 0;
   }
 
   /* Label Styles */
