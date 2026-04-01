@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PlaceholderDefinition } from '$features/placeholder/types';
+  import IconPencil from '$lib/app/icons/IconPencil.svelte';
 
   interface Props {
     definition: PlaceholderDefinition;
@@ -27,24 +28,24 @@
       <p class="placeholder-description">{definition.description}</p>
     {/if}
   </div>
-  <input
-    id={sanitizedId}
-    class="placeholder-input"
-    type="text"
-    placeholder={definition.settingsHint || ''}
-    {value}
-    oninput={handleInput}
-  />
+  <div class="input-container">
+    <input
+      id={sanitizedId}
+      class="placeholder-input"
+      type="text"
+      placeholder={definition.settingsHint || ''}
+      {value}
+      oninput={handleInput}
+    />
+    <span class="edit-icon" aria-hidden="true"><IconPencil /></span>
+  </div>
 </div>
 
 <style>
   .placeholder-item {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
+    flex-direction: column;
+    gap: 0.5rem;
     padding: 0.75rem;
     background: var(--cv-bg);
     border: 1px solid var(--cv-border);
@@ -57,8 +58,6 @@
   }
 
   .label-group {
-    flex: 1;
-    min-width: 8rem;
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
@@ -78,10 +77,34 @@
     line-height: 1.4;
   }
 
+  .input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .edit-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    color: var(--cv-text-secondary);
+    opacity: 0.7;
+  }
+
+  .edit-icon :global(svg) {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
   .placeholder-input {
-    width: 12rem;
-    flex-shrink: 0;
+    width: 100%;
     padding: 0.5rem 0.75rem;
+    padding-right: 1.6rem;
     border: 1px solid var(--cv-input-border);
     border-radius: var(--cv-card-radius, 0.5rem);
     font-size: 0.9rem;
