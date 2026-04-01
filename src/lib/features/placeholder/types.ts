@@ -6,6 +6,7 @@ export interface PlaceholderDefinition {
   name: string;
   settingsLabel?: string | undefined;
   settingsHint?: string | undefined;
+  description?: string | undefined;
   defaultValue?: string | undefined;
   hiddenFromSettings?: boolean | undefined;
   /** If true, this placeholder is only shown in settings if detected on the page */
