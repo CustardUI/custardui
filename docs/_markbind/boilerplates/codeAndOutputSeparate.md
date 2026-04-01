@@ -23,7 +23,7 @@
 
 <div class="indented">
 
-<box border-left-color="grey" background-color="white">
+<box border-left-color="grey">
 
 {{ output | safe }}
 </box>
