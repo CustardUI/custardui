@@ -19,9 +19,14 @@
 </script>
 
 <div class="placeholder-item">
-  <label class="placeholder-label" for={sanitizedId}
-    >{definition.settingsLabel || definition.name}</label
-  >
+  <div class="label-group">
+    <label class="placeholder-label" for={sanitizedId}
+      >{definition.settingsLabel || definition.name}</label
+    >
+    {#if definition.description}
+      <p class="placeholder-description">{definition.description}</p>
+    {/if}
+  </div>
   <input
     id={sanitizedId}
     class="placeholder-input"
@@ -35,17 +40,47 @@
 <style>
   .placeholder-item {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    padding: 0.75rem;
+    background: var(--cv-bg);
+    border: 1px solid var(--cv-border);
+    border-radius: var(--cv-card-radius, 0.5rem);
+    transition: background 0.15s ease;
+  }
+
+  .placeholder-item:hover {
+    background: var(--cv-bg-hover);
+  }
+
+  .label-group {
+    flex: 1;
+    min-width: 8rem;
+    display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.125rem;
   }
 
   .placeholder-label {
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--cv-text);
+    margin: 0;
+  }
+
+  .placeholder-description {
+    font-size: 0.75rem;
+    color: var(--cv-text-secondary);
+    margin: 0;
+    line-height: 1.4;
   }
 
   .placeholder-input {
+    width: 12rem;
+    flex-shrink: 0;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--cv-input-border);
     border-radius: var(--cv-card-radius, 0.5rem);
