@@ -14,6 +14,8 @@ Toggles let you show or hide sections of a page based on a category (for example
 <cv-toggle-control toggle-id="mac"></cv-toggle-control> 
 <cv-toggle-control toggle-id="windows"></cv-toggle-control> 
 
+<br>
+
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
 <variable name="code">
@@ -91,7 +93,7 @@ You can apply multiple toggles to a single element by separating categories with
 You can place a **toggle control** directly on the page so readers can switch a toggle's visibility state (Hide · Peek · Show) without opening the Settings modal. By default it renders as a card, matching the look of the settings panel, with the toggle's label shown on the left and the segmented control on the right.
 
 * You can place the control anywhere, above the toggle, in a sidebar, or grouped together for multiple toggles.
-* To hide the label and render only the segmented control inline, add the `no-label` attribute.
+* To hide the label and render only the segmented control inline, add the `inline` attribute.
 * Note: `cv-toggle-control` renders nothing for `siteManaged` toggles, since those states are controlled by the site rather than the reader.
 
 <include src="codeAndOutput.md" boilerplate >
@@ -100,7 +102,7 @@ You can place a **toggle control** directly on the page so readers can switch a 
 
 <cv-toggle-control toggle-id="localToggle"></cv-toggle-control> <br>
 
-Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" no-label></cv-toggle-control>
+Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id="localToggle" inline></cv-toggle-control>
 
 <cv-toggle toggle-id="localToggle"> 
 
@@ -119,7 +121,7 @@ Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id=
 | Name       | Type      | Default      | Description      |
 | ---------- | --------- | ------------ | ---------------- |
 | toggle-id  | `string`  | **required** | The toggle ID to control. Must match a configured toggle. Only a single ID is supported (unlike `<cv-toggle>` which accepts space-separated IDs). |
-| no-label   | `boolean` | `false`      | If present, hides the label and card styling, rendering only the segmented control inline. |
+| inline     | `boolean` | `false`      | If present, hides the label and card styling, rendering only the segmented control inline. |
 
 
 ## Configuration

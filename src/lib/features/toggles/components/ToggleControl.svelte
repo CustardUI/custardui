@@ -3,7 +3,7 @@
     tag: 'cv-toggle-control',
     props: {
       toggleId: { reflect: true, type: 'String', attribute: 'toggle-id' },
-      noLabel: { type: 'Boolean', attribute: 'no-label' },
+      inline: { type: 'Boolean', attribute: 'inline' },
     },
   }}
 />
@@ -15,10 +15,10 @@
 
   let {
     toggleId = '',
-    noLabel = false,
+    inline = false,
   }: {
     toggleId?: string;
-    noLabel?: boolean;
+    inline?: boolean;
   } = $props();
 
   let configLoaded = $derived(!!activeStateStore.config.toggles);
@@ -46,7 +46,7 @@
 </script>
 
 {#if configLoaded && !!toggleConfig && !isSiteManaged}
-  {#if !noLabel}
+  {#if !inline}
     <div class="card">
       <div class="content">
         <div>
