@@ -5,49 +5,37 @@
   pageNavTitle: "Topics"
 </frontmatter>
 
-<!-- For this page, ignore escaped placeholders, this is because we are serving this site -->
-<!-- So the placeholders are not replaced by the plugin, we need to escape them to show them as is -->
+<!-- For this page, ignore escaped placeholders, this is because we are serving this site, take \[[ XXX ]] as it will appear as [[ ]] in the docs -->
+<!-- So the placeholders are not replaced by the plugin, we need to escape them to show them like this -->
 
-## Simple Placeholders (Variable Interpolation)
+## Placeholders
 
-`\[[ variable_name ]]`, `<cv-placeholder/>`, `<cv-placeholder-input/>`
+`\[[ variable_name ]]`, `<cv-placeholder/>`
 
-Placeholders allow you to create dynamic "Mad Libs" style documentation. Authors can define variable placeholders that readers can customize via the Settings Widget. The values entered by the reader are persisted and automatically update text, code blocks, and other content across the site.
+The **Placeholders** component let readers personalise your site to their own context. Define placeholders once in your [configuration](#configuration), and readers fill it in via the settings panel or an inline input, and every instance across the site updates immediately. Values persist across page reloads and navigation.
 
-## Usage
+<cv-placeholder-input name="username" width="150px" hint="Your Name" appearance="underline"></cv-placeholder-input>
 
-### Add the Placeholder Configuration
 
-Placeholders are defined in your `custardui.config.json` under the `placeholders` key.
+<include src="codeAndOutputSeparate.md" boilerplate >
+<variable name="highlightStyle">md</variable>
+<variable name="code">
 
-```json
-{
-  "config": {
-    "placeholders": [
-      { "name": "username", "settingsLabel": "Your Username", "settingsHint": "Enter username" },
-      { "name": "api_key", "settingsLabel": "API Key", "isLocal": true }
-    ]
-  }
-}
-```
-
-### Use the placeholder
-
-To use the variable in your content, wrap the variable name in double square brackets: `[[ variable_name ]]`.
-
-For example, we write `Hello, \[[username]]` here:
-
-```markdown
 Hello, \[[username]]!
-↓
-Hello, [[username]]!
-```
 
-The system scans the page and replaces these tokens with the current value. When the user updates the value in the settings, all instances on the page update immediately.
+</variable>
+<variable name="output">
+
+Hello, [[username]]!
+</variable>
+</include>
+
+To use the variable in your content, wrap the variable name in double square brackets: `[[ variable_name ]]`. The plugin scans the page and replaces these tokens with the current value. When the user updates the value in the settings, all instances on the page update immediately.
 
 **Manual Component Usage**: You could also use the internal custom element directly, although it is not necessary. `<cv-placeholder name="email" fallback="support@example.com"></cv-placeholder>` is functionally equivalent to `\[[ email : support@example.com ]]` but may be useful for debugging or etc. 
 
-## Inline Fallback
+
+### Inline Fallback
 
 You can provide a fallback value directly in the usage syntax. This is useful if you haven't defined a formal placeholder or want a specific default for one instance.
 
@@ -67,7 +55,7 @@ If the user has not set a value for `email`, "support@example.com" will be displ
 > User-set empty strings (`""`) are treated as "not set" and fall through to the inline fallback, instead of displaying nothing. Use `\[[email : ]]` to explicitly show nothing as the fallback.
 
 
-## Conditional Syntax (Fall-Forward)
+### Conditional Syntax (Fall-Forward)
 
 You can render content **only when** a placeholder has a value using the conditional syntax:
 
@@ -121,7 +109,8 @@ No `user` → `src="https://cdn.example.com"`. With `user=alice` → `src="https
 
 > **Known limitation**: The `:` character cannot appear inside the truthy template (e.g., URLs with ports like `localhost:8080`). Use a regular placeholder or construct the value differently in those cases.
 
-## Placeholder-Driven Toggle Visibility
+
+### Placeholder-Driven Toggle Visibility
 
 You can show or hide a block of content based on whether a placeholder has a value, using the `placeholder-id` attribute on `<cv-toggle>`:
 
@@ -147,7 +136,7 @@ The block is **hidden** when `username` has no value, and **visible** when it do
 Placeholder mode has no peek, label, or border behaviour. `placeholder-id` takes precedence over `toggle-id`, and should not be used on the same element.
 
 
-## HTML Attribute Interpolation
+### HTML Attribute Interpolation
 
 In addition to text, you can interpolate variables into HTML attributes, such as `href` or `src`. This is useful for creating dynamic links or loading images based on user preferences.
 
@@ -188,22 +177,29 @@ If the user sets `searchQuery` to `hello/world`, the link becomes `https://www.g
 <img src="https://example.com/assets/[[theme]].png" class="cv-bind" alt="Theme Preview" />
 ```
 
-## Escaping Syntax
+### Escaping Syntax
 
 You can "escape" the placeholder syntax if you want to display the literal brackets instead of a variable.
 
 - **In Markdown Text**: Use two backslashes: `\\\[[ variable ]]`.
 - **In Code Blocks**: Use one backslash: `\\[[ variable ]]`.
 
-## Inline Editing of Placeholders
- 
+
+
+## Placeholder Input 
+
+`<cv-placeholder-input/>`
+
+To make it better, you can use the `<cv-placeholder-input>` component to allow **inline editing** of placeholders.
+
 You can allow users to edit placeholders directly on the page using the `<cv-placeholder-input>` component. By default, the component renders inline with text. For example, you can update your username placeholder here: <cv-placeholder-input name="username" width="150px" hint="Your Name" appearance="underline"></cv-placeholder-input>, which updates your username: [[username]].
 
 Several attributes control the appearance and behavior of the component:
-* `layout`: The layout to use (inline, stacked, or horizontal).
+* `layout`: The layout to use (inline, stacked, horizontal, or card).
   * `inline` (Default): Component sits in the text flow, and the label is hidden visually.
   * `stacked`: Label sits on top of the input. Input takes full width.
   * `horizontal`: Label sits to the left of the input. Input takes remaining space.
+  * `card`: Styled card matching the look of toggle controls — label on the left, input on the right.
 * `appearance`: The appearance to use (outline, underline, or ghost).
   * `outline` (Default): Standard input box with border.
   * `underline`: Only a bottom border. Great for inline text.
@@ -218,13 +214,23 @@ Several attributes control the appearance and behavior of the component:
 <variable name="code">
 
 <!-- Inline layout -->
-My username is <cv-placeholder-input name="username" layout="inline" appearance="underline" hint="Your Name"></cv-placeholder-input> and it is <cv-placeholder-input name="username" layout="inline" appearance="ghost" width="auto-grow" hint="this auto-grows"></cv-placeholder-input>.
+%%Use the inline layout to edit placeholders directly in the text flow:%%
+
+My username is 'outline': <cv-placeholder-input name="username" appearance="outline"></cv-placeholder-input>, 
+'underline': <cv-placeholder-input name="username" appearance="underline"></cv-placeholder-input>, 
+and 'ghost': <cv-placeholder-input name="username" appearance="ghost" width="auto-grow"></cv-placeholder-input>.
 
 <!-- Stacked layout -->
+%%Alternatively, use the stacked layout:%%
 <cv-placeholder-input name="username" layout="stacked"></cv-placeholder-input>
  
 <!-- Horizontal layout -->
+%%Or the horizontal layout:%%
 <cv-placeholder-input name="username" layout="horizontal" label="Username:"></cv-placeholder-input>
+
+<!-- Card layout -->
+%%Or the card layout, which is great for settings pages:%%
+<cv-placeholder-input name="username" layout="card"></cv-placeholder-input>
 
 </variable>
 </include>
@@ -236,19 +242,38 @@ My username is <cv-placeholder-input name="username" layout="inline" appearance=
 | Attribute | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | name | `string` | - | **Required**. The placeholder name to bind to. |
-| layout | `string` | `inline` | `inline`, `stacked`, `horizontal`. |
+| layout | `string` | `inline` | `inline`, `stacked`, `horizontal`, `card`. |
 | appearance | `string` | `outline` | `outline`, `underline`, `ghost`. |
 | label | `string` | value defined in config | Visual label text (for stacked/horizontal) or `aria-label` (for inline). |
 | hint | `string` | value defined in config | Overrides the placeholder hint/placeholder text. |
 | width | `string` | Varies | `100%` for stacked, `flex-fill` for horizontal, and browser default for inline. Set `auto-grow` to resize based on content (inline only). |
 
-## Placeholder Configuration
+
+
+## Configuration
+
+### Add the Placeholder Configuration
+
+Placeholders are defined in your `custardui.config.json` under the `placeholders` key.
+
+```json
+{
+  "config": {
+    "placeholders": [
+      { "name": "username", "settingsLabel": "Your Username", "settingsHint": "Enter username" },
+      { "name": "api_key", "settingsLabel": "API Key", "isLocal": true }
+    ]
+  }
+}
+```
+
 
 | Field         | Type      | Description                                                                                                    |
 | ------------- | --------- | -------------------------------------------------------------------------------------------------------------- |
 | name          | `string`  | **Required**. Unique identifier (e.g., `api_key`).                                                             |
-| settingsLabel | `string`  | Display label in Settings.                                                                                     |
+| settingsLabel | `string`  | Display label in Settings and card layout.                                                                     |
 | settingsHint  | `string`  | Helper text in input field.                                                                                    |
+| description   | `string`  | Optional description shown below the label in Settings and in the `card` layout.                               |
 | defaultValue  | `string`  | Display fallback when no user value or inline fallback is provided. Does **not** count as "user-set" — conditional syntax (`?`) treats it as unset unless `*` is appended. |
 | isLocal       | `boolean` | If `true`, the input field only appears in Settings when the placeholder is actually used on the current page. |
 | siteManaged   | `boolean` | If `true`, the placeholder is fully controlled by the site. It is hidden from the settings modal, excluded from shareable URLs, and any user-supplied value (from localStorage or URL params) is ignored. Its value can only be set by the config `defaultValue` or an adaptation `preset.placeholders`. Useful for institution names, logos, or any value that must vary per adaptation but never be user-editable. |
@@ -266,7 +291,7 @@ Example:
 }
 ```
 
-## Tab Group Binding & Integration
+### Tab Group Binding & Integration
 
 You can bind a **Tab Group** directly to a placeholder variable in your `custardui.config.json`. This allows the variable to update automatically when the user switches tabs.
 
@@ -327,7 +352,7 @@ My favourite fruit is `[[fruit]]`, and it updates automatically!
 
 </box>
 
-## Persistence
+### Persistence
 
 Values entered by the user are saved in the browser's `localStorage` (key: `cv-user-variables`). This means:
 
