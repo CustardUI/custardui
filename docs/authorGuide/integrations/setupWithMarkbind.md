@@ -27,14 +27,15 @@ function getScripts() {
 }
 
 const tagConfig = {
-  'cv-toggle': { isCustomElement: true },
-  'cv-tabgroup': { isCustomElement: true },
-  'cv-tab': { isCustomElement: true },
-  'cv-tab-body': { isCustomElement: true },
-  'cv-tab-header': { isCustomElement: true },
-  'cv-define-placeholder': { isCustomElement: true },
-  'cv-placeholder-input': { isCustomElement: true },
-  'cv-label': { isCustomElement: true }
+	'cv-toggle': { isCustomElement: true },
+	'cv-toggle-control': { isCustomElement: true },
+	'cv-tabgroup': { isCustomElement: true },
+	'cv-tab': { isCustomElement: true },
+	'cv-tab-body': { isCustomElement: true },
+	'cv-tab-header': { isCustomElement: true },
+	'cv-define-placeholder': { isCustomElement: true },
+	'cv-placeholder-input': { isCustomElement: true },
+	'cv-label': { isCustomElement: true }
 };
 
 module.exports = { getScripts, tagConfig };
