@@ -286,7 +286,106 @@ Some Other Tab Content
 | tab-id | `string` | **(required)** | Unique identifier for the tab within its group.                                                                                 |
 | header | `string` | Tab ID         | Display label for the tab. Supports plain text and raw HTML (e.g., icons via `<i>` tags). Does not support MarkBind shortcodes. |
 
-## Header Syntax with Rich Formatting
+---
+
+<br>
+
+<!-- CONFIGURATION -->
+
+# Configuration
+
+Tab groups work out of the box with no setup — just use the `<cv-tabgroup>` and `<cv-tab>` elements.  
+By default, the first tab is shown.
+
+For more control (such as settings integration or default selections), configure them in your `custardui.config.json`.
+
+```json
+{
+  "config": {
+    "tabGroups": [
+      {
+        "groupId": "fruit",
+        "label": "Fruit Selection",
+        "isLocal": false,
+        "default": "apple",
+        "tabs": [
+          { "tabId": "apple", "label": "Apple" },
+          { "tabId": "orange", "label": "Orange" },
+          { "tabId": "pear", "label": "Pear" }
+        ]
+      },
+      {
+        "groupId": "localTabGroup",
+        "label": "Page specific tabgroup",
+        "isLocal": true,
+        "default": "c",
+        "tabs": [
+          { "tabId": "a", "label": "Alpha" },
+          { "tabId": "b", "label": "Beta" },
+          { "tabId": "c", "label": "Charlie" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Configuration Fields in custardui.config.json
+
+#### TabGroupConfig
+
+The TabGroupConfig object is for defining tabgroups in JSON configuration.
+
+| Name        | Type        | Default        | Description                                                                           |
+| ----------- | ----------- | -------------- | ------------------------------------------------------------------------------------- |
+| groupId     | `string`    | **(required)** | Group identifier (must match HTML `cv-tabgroup` id).                                  |
+| label       | `string`    | -              | Display name shown in the settings.                                                   |
+| description | `string`    | -              | Optional description to display below functionality.                                  |
+| isLocal     | `boolean`   | `false`        | Set to `true` to make the group only appear in the settings on pages where it's used. |
+| default     | `string`    | -              | The `tabId` of the tab that should be selected by default.                            |
+| tabs        | TabConfig[] | **(required)** | Array of tab configurations.                                                          |
+
+#### TabConfig
+
+The TabConfig object is for defining tabs in JSON configuration.
+
+| Name  | Type     | Default        | Description                                                              |
+| ----- | -------- | -------------- | ------------------------------------------------------------------------ |
+| tabId | `string` | **(required)** | Tab identifier (must match HTML `cv-tab` id).                            |
+| label | `string` | -              | Display label for the tab (used in settings and as fallback for header). |
+
+<box type="info">
+
+**Note:** Configuration is completely optional. Tab groups will work fine without being added to the config file—they'll just default to showing the first tab and won't appear in the settings.
+</box>
+
+### Binding to Placeholders
+
+You can bind a tab group to a placeholder variable. Selecting a tab will automatically set the variable's value.
+
+| Name             | Type     | Description                                                                |
+| ---------------- | -------- | -------------------------------------------------------------------------- |
+| placeholderId    | `string` | Added to `TabGroupConfig`. The name of the placeholder variable to update. |
+| placeholderValue | `string` | Added to `TabConfig`. The value to set when this tab is active.            |
+
+**Example:**
+
+```json
+{
+  "groupId": "code-switch",
+  "placeholderId": "lang",
+  "tabs": [
+    { "tabId": "java", "label": "Java", "placeholderValue": "java" },
+    { "tabId": "python", "label": "Python", "placeholderValue": "python" }
+  ]
+}
+```
+---
+
+<br>
+
+
+# Header Syntax with Rich Formatting
 
 In addition to the standard `header` attribute, you can use an alternative syntax with `<cv-tab-header>` and `<cv-tab-body>` elements to enable **rich HTML formatting** in your tab headers.
 
@@ -438,96 +537,6 @@ Since `<cv-tab-header>` accepts HTML elements, you can include icons in multiple
 
 <br>
 
-
-# Configuration
-
-Tab groups work out of the box with no setup — just use the `<cv-tabgroup>` and `<cv-tab>` elements.  
-By default, the first tab is shown.
-
-For more control (such as settings integration or default selections), configure them in your `custardui.config.json`.
-
-```json
-{
-  "config": {
-    "tabGroups": [
-      {
-        "groupId": "fruit",
-        "label": "Fruit Selection",
-        "isLocal": false,
-        "default": "apple",
-        "tabs": [
-          { "tabId": "apple", "label": "Apple" },
-          { "tabId": "orange", "label": "Orange" },
-          { "tabId": "pear", "label": "Pear" }
-        ]
-      },
-      {
-        "groupId": "localTabGroup",
-        "label": "Page specific tabgroup",
-        "isLocal": true,
-        "default": "c",
-        "tabs": [
-          { "tabId": "a", "label": "Alpha" },
-          { "tabId": "b", "label": "Beta" },
-          { "tabId": "c", "label": "Charlie" }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### Configuration Fields in custardui.config.json
-
-#### TabGroupConfig
-
-The TabGroupConfig object is for defining tabgroups in JSON configuration.
-
-| Name        | Type        | Default        | Description                                                                           |
-| ----------- | ----------- | -------------- | ------------------------------------------------------------------------------------- |
-| groupId     | `string`    | **(required)** | Group identifier (must match HTML `cv-tabgroup` id).                                  |
-| label       | `string`    | -              | Display name shown in the settings.                                                   |
-| description | `string`    | -              | Optional description to display below functionality.                                  |
-| isLocal     | `boolean`   | `false`        | Set to `true` to make the group only appear in the settings on pages where it's used. |
-| default     | `string`    | -              | The `tabId` of the tab that should be selected by default.                            |
-| tabs        | TabConfig[] | **(required)** | Array of tab configurations.                                                          |
-
-#### TabConfig
-
-The TabConfig object is for defining tabs in JSON configuration.
-
-| Name  | Type     | Default        | Description                                                              |
-| ----- | -------- | -------------- | ------------------------------------------------------------------------ |
-| tabId | `string` | **(required)** | Tab identifier (must match HTML `cv-tab` id).                            |
-| label | `string` | -              | Display label for the tab (used in settings and as fallback for header). |
-
-<box type="info">
-
-**Note:** Configuration is completely optional. Tab groups will work fine without being added to the config file—they'll just default to showing the first tab and won't appear in the settings.
-</box>
-
-### Binding to Placeholders
-
-You can bind a tab group to a placeholder variable. Selecting a tab will automatically set the variable's value.
-
-| Name             | Type     | Description                                                                |
-| ---------------- | -------- | -------------------------------------------------------------------------- |
-| placeholderId    | `string` | Added to `TabGroupConfig`. The name of the placeholder variable to update. |
-| placeholderValue | `string` | Added to `TabConfig`. The value to set when this tab is active.            |
-
-**Example:**
-
-```json
-{
-  "groupId": "code-switch",
-  "placeholderId": "lang",
-  "tabs": [
-    { "tabId": "java", "label": "Java", "placeholderValue": "java" },
-    { "tabId": "python", "label": "Python", "placeholderValue": "python" }
-  ]
-}
-```
-
 # Global vs. Local Tab Groups
 
 By default, all tab groups defined in your configuration are **global**—they will appear in the settings on every page of your site.
@@ -597,6 +606,9 @@ If you have a specific use case where you may want all local tab groups to be av
 
 * E.g. `<cv-tabgroup group-id="localTabGroup" hidden></cv-tabgroup>`
 
+---
+
+<br>
 
 # Shareable URL
 
@@ -621,3 +633,6 @@ const param = Object.entries(tabs)
   .join(',');
 const url = `https://yoursite.com/guide.html?tabs=${param}`;
 ```
+
+
+<br>
