@@ -88,9 +88,10 @@
     "placeholders": [
       {
         "name": "username",
-        "settingsLabel": "Your Username",
-        "settingsHint": "Enter username",
-        "defaultValue": "Guest"
+        "settingsLabel": "Your GitHub Username",
+        "description": "Enter your GitHub username",
+        "settingsHint": "Enter here",
+        "defaultValue": "JohnDoe"
       },
       {
         "name": "placeholderTest",
