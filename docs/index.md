@@ -18,8 +18,6 @@ Add CustardUI to your static website and let readers personalise their experienc
 Example content should be realistic but also fully disjoint from page content e.g., Avoid installation details as example -->
 
 
-<!-- For toggles, better to show 3 examples of the same toggle, in each state -->
-
 <!-- Each example, it is good to have some sort of animation of that sort. -->
 
 ---
@@ -35,7 +33,7 @@ Let readers collapse what they don't need. Their choice sticks across pages and 
 
 #### Dependency Injection
 
-**Toggle:** <cv-toggle-control toggle-id="code-example-hide" no-label></cv-toggle-control>
+**Toggle:** <cv-toggle-control toggle-id="code-example-hide" inline></cv-toggle-control>
 
 Dependency Injection (DI) is a technique where an object's dependencies are provided externally rather than created by the object itself. This reduces coupling and makes code easier to test.
 
@@ -70,7 +68,7 @@ class UserService {
 
 #### Dependency Injection
 
-**Toggle:** <cv-toggle-control toggle-id="code-example-peek" no-label></cv-toggle-control>
+**Toggle:** <cv-toggle-control toggle-id="code-example-peek" inline></cv-toggle-control>
 
 Dependency Injection (DI) is a technique where an object's dependencies are provided externally rather than created by the object itself. This reduces coupling and makes code easier to test.
 
@@ -104,7 +102,7 @@ class UserService {
 
 #### Dependency Injection
 
-**Toggle:** <cv-toggle-control toggle-id="code-example-show" no-label></cv-toggle-control>
+**Toggle:** <cv-toggle-control toggle-id="code-example-show" inline></cv-toggle-control>
 
 Dependency Injection (DI) is a technique where an object's dependencies are provided externally rather than created by the object itself. This reduces coupling and makes code easier to test.
 
@@ -282,16 +280,48 @@ def binary_search(arr, target):
 
 <p class="cv-section-header">Tweak placeholder text to match the reader's profile.</p>
 
+Let readers personalise your page to their needs. 
 
-<include src="browserBox.md" boilerplate >
-<variable name="url">git-mastery.org/faq</variable>
+* Define a placeholder once, readers fill it in, and every instance across the site updates instantly. No backend required.
+
+<include src="browserBox.md" boilerplate>
+<variable name="url">https://course-website.org/admin/setup</variable>
 <variable name="content">
 
-Hello there!
+#### :fa-solid-graduation-cap: Course Instructions and Guide 
+
+Follow the steps below to set up your individual project repository. Enter your GitHub username once — all links and commands on this page will update to match.
+
+Enter your GitHub username here: &nbsp; <cv-placeholder-input name="username" hint="e.g. johndoe" layout="inline" appearance="underline" /> &nbsp;
+<img src="https://github.com/[[username : github ]].png" 
+  style="height: 1.8rem; vertical-align: middle; border-radius: 50%; margin-left: 0.5rem;" 
+  class="cv-bind" 
+  alt="GitHub Avatar" 
+/> 
+
+**Step 1 — Fork and accept the invitation**
+
+Accept the GitHub Classroom invitation using your account at :fa-brands-github: <a href="https://github.com[[username ? /$ : ]]" class="cv-bind" target="_blank">github.com[[username ? /$ : ]]</a>. This will create a pre-configured fork of the exercise repository under your account.
+
+**Step 2 — Clone and get started**
+
+Run the command below to clone your repository to your local machine, then make your first commit to confirm everything is working.
+
+```
+git clone https://[[ username ? github.com/cs2103t/$-ip.git : your-repo-link ]]
+```
+
+%%Stuck? Raise an issue on the forum and include your GitHub username so tutors can locate your repository quickly.%%
+
+
 </variable>
 </include>
 
+%%Type a username above — every link, command, and path updates live.%%
+
 ---
+
+<!-- SHARE VIEW -->
 
 <p class="cv-section-header">Share selected parts of a page with others.</p>
 
@@ -300,6 +330,10 @@ Hello there!
 <variable name="content">
 
 Hello there!
+
+EXAMPLE FAQs -> Links etc.
+
+
 </variable>
 </include>
 
@@ -313,6 +347,11 @@ Hello there!
 <variable name="content">
 
 Hello there!
+
+Preconfigured usernames or team ids
+Preconfigured tab settings
+
+
 </variable>
 </include>
 
