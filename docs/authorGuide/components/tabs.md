@@ -123,6 +123,20 @@ Pear types include the **Asian pear** and the **European pear**
 - **Double-Click:** Clicking twice synchronizes the tab selection across all tab groups with the same `group-id` on the page. The state is saved to browser storage and persists across page reloads.
   - **E.g.:** If you have two tab groups with same `group-id`, double-clicking will sync both groups to show the same tab and save the state.
 
+### Basic Syntax
+```html
+<cv-tabgroup group-id="lang">
+  <cv-tab tab-id="python" header="Python">
+    Python content here.
+  </cv-tab>
+  <cv-tab tab-id="java" header="Java">
+    Java content here.
+  </cv-tab>
+</cv-tabgroup>
+```
+
+The `group-id` links the tab group to a configured group category. Tab groups sharing the same `group-id` stay synchronized, switching tabs in one updates all others with the same ID on the page.
+
 ### Multi-ID Tabs
 
 You can create a single tab that represents multiple alternative IDs by specifying multiple IDs separated by spaces or `|`
@@ -244,7 +258,7 @@ Some Other Tab Content
 
 <!-- CONFIGURATION -->
 
-# Configuration
+## Configuration
 
 Tab groups work out of the box with no setup — just use the `<cv-tabgroup>` and `<cv-tab>` elements.  
 By default, the first tab is shown.
@@ -282,20 +296,21 @@ For more control (such as settings integration or default selections), configure
 }
 ```
 
-### Configuration Fields in custardui.config.json
+### Configuration Fields
 
 #### TabGroupConfig
 
 The TabGroupConfig object is for defining tabgroups in JSON configuration.
 
-| Name        | Type        | Default        | Description                                                                           |
-| ----------- | ----------- | -------------- | ------------------------------------------------------------------------------------- |
-| groupId     | `string`    | **(required)** | Group identifier (must match HTML `cv-tabgroup` id).                                  |
-| label       | `string`    | -              | Display name shown in the settings.                                                   |
-| description | `string`    | -              | Optional description to display below functionality.                                  |
+| Name        | Type        | Default        | Description          |
+| ----------- | ----------- | -------------- | -------------------- |
+| groupId     | `string`    | **(required)** | Group identifier (must match HTML `cv-tabgroup` id). |
+| label       | `string`    | -              | Display name shown in the settings. |
+| description | `string`    | -              | Optional description to display below functionality. |
 | isLocal     | `boolean`   | `false`        | Set to `true` to make the group only appear in the settings on pages where it's used. |
-| default     | `string`    | -              | The `tabId` of the tab that should be selected by default.                            |
-| tabs        | TabConfig[] | **(required)** | Array of tab configurations.                                                          |
+| default     | `string`    | -              | The `tabId` of the tab that should be selected by default. |
+| tabs        | TabConfig[] | **(required)** | Array of tab configurations.       |
+| placeholderId | `string` | - | The name of the placeholder variable to update when a tab is selected. See Binding to Placeholders. |
 
 #### TabConfig
 
@@ -305,6 +320,7 @@ The TabConfig object is for defining tabs in JSON configuration.
 | ----- | -------- | -------------- | ------------------------------------------------------------------------ |
 | tabId | `string` | **(required)** | Tab identifier (must match HTML `cv-tab` id).                            |
 | label | `string` | -              | Display label for the tab (used in settings and as fallback for header). |
+| placeholderValue | `string` | - | The value to set for the bound placeholder when this tab becomes active. |
 
 <box type="info">
 
@@ -313,31 +329,84 @@ The TabConfig object is for defining tabs in JSON configuration.
 
 ### Binding to Placeholders
 
-You can bind a tab group to a placeholder variable. Selecting a tab will automatically set the variable's value.
+Bind a tab group to a placeholder variable so that switching tabs automatically updates the variable's value across the site. This is useful when tab selections drive dynamic content elsewhere on the page.
 
-| Name             | Type     | Description                                                                |
-| ---------------- | -------- | -------------------------------------------------------------------------- |
-| placeholderId    | `string` | Added to `TabGroupConfig`. The name of the placeholder variable to update. |
-| placeholderValue | `string` | Added to `TabConfig`. The value to set when this tab is active.            |
-
-**Example:**
-
+Add `placeholderId` to the tab group config and `placeholderValue` to each tab:
 ```json
 {
-  "groupId": "code-switch",
-  "placeholderId": "lang",
+  "groupId": "fruit",
+  "label": "Fruit Selection",
+  "placeholderId": "fruit",
+  "default": "pear",
   "tabs": [
-    { "tabId": "java", "label": "Java", "placeholderValue": "java" },
-    { "tabId": "python", "label": "Python", "placeholderValue": "python" }
+    { "tabId": "apple",  "label": "Apple",  "placeholderValue": "apple" },
+    { "tabId": "orange", "label": "Orange", "placeholderValue": "orange" },
+    { "tabId": "pear",   "label": "Pear",   "placeholderValue": "pear" }
   ]
 }
 ```
----
 
+When the reader switches to the "Apple" tab, `\[[fruit]]` is automatically set to `apple` everywhere on the site. See [Placeholders](./placeholders.md) for how to use `\[[fruit]]` in your content.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `placeholderId` | `string` | Added to `TabGroupConfig`. The name of the placeholder variable to update when a tab is selected. |
+| `placeholderValue` | `string` | Added to `TabConfig`. The value to set when this tab becomes active. |
+
+---
 <br>
 
 
-# Header Syntax with Rich Formatting
+### Global vs. Local Tab Groups
+
+By default, all tab groups defined in your configuration are **global**—they will appear in the settings on every page of your site.
+
+You can mark a tab group as **local** to make it appear in the settings _only_ on pages where that specific tab group is actually used. This is useful for keeping the settings clean and only showing relevant options to the user. To mark a tab group as local, add `"isLocal": true` to its configuration.
+
+If all tab configurations (and other component configurations) are local, and a given page has no configured elements, neither the modal nor the modal icon will appear.
+
+#### Keeping Local Tab Groups in Settings
+
+If you have a specific use case where you may want all local tab groups to be available in the settings on a certain page (e.g. a global settings page), you can add hidden `<cv-tabgroup>` elements to register the local tab groups on that page. That way, the plugin will pick them up and add them to the settings dialog for that page without introducing extra spacing in your layout.
+
+* E.g. `<cv-tabgroup group-id="localTabGroup" hidden></cv-tabgroup>`
+
+---
+<br>
+
+
+### Shareable URL
+
+Active tab selections can be encoded in a URL using the `tabs` parameter. The format is a comma-separated list of `groupId:tabId` pairs, where each group ID and tab ID is individually encoded with `encodeURIComponent`.
+
+| Parameter | Format | Example |
+|-----------|--------|---------|
+| `tabs`    | Comma-separated `groupId:tabId` pairs | `?tabs=os:linux,lang:python` |
+
+```
+?tabs=os:linux,lang:python
+```
+
+Only the tab groups explicitly listed are affected; all others retain the visitor's saved selection or the configured default.
+
+**Constructing the URL in JavaScript:**
+
+```js
+const tabs  = { os: 'linux', lang: 'python' };
+const param = Object.entries(tabs)
+  .map(([g, t]) => `${encodeURIComponent(g)}:${encodeURIComponent(t)}`)
+  .join(',');
+const url = `https://yoursite.com/guide.html?tabs=${param}`;
+```
+
+
+
+
+---
+<br>
+
+
+## Header Syntax with Rich Formatting
 
 In addition to the standard `header` attribute, you can use an alternative syntax with `<cv-tab-header>` and `<cv-tab-body>` elements to enable **rich HTML formatting** in your tab headers.
 
@@ -485,106 +554,6 @@ Since `<cv-tab-header>` accepts HTML elements, you can include icons in multiple
 **Note:** `<cv-tab-header>` accepts any HTML elements. Icon shortcodes like `:fa-solid-virus:` work because MarkBind pre-processes them inside the element content. For `header` attributes, you must use direct HTML tags like `<i class="fa-solid fa-virus"></i>` as MarkBind does not process attributes.
 
 </panel>
-
-
-<br>
-
-# Global vs. Local Tab Groups
-
-By default, all tab groups defined in your configuration are **global**—they will appear in the settings on every page of your site.
-
-You can mark a tab group as **local** to make it appear in the settings _only_ on pages where that specific tab group is actually used. This is useful for keeping the settings clean and only showing relevant options to the user.
-
-To mark a tab group as local, add `"isLocal": true` to its configuration.
-
-**Example:**
-
-For example, this tab group is only specific to this page:
-
-<cv-tabgroup group-id="ltab">
-<cv-tab tab-id="lt1">
-  Tab 1
-</cv-tab>
-<cv-tab tab-id="lt2">
-  Tab 2
-</cv-tab>
-<cv-tab tab-id="lt3">
-  Tab 3
-</cv-tab>
-</cv-tabgroup>
-
-<panel header="Code for above Tab Group">
-
-```html
-<cv-tabgroup group-id="ltab">
-  <cv-tab tab-id="lt1"> Tab 1 </cv-tab>
-  <cv-tab tab-id="lt2"> Tab 2 </cv-tab>
-  <cv-tab tab-id="lt3"> Tab 3 </cv-tab>
-</cv-tabgroup>
-```
-
-</panel>
-
-<br>
-
-By setting it as **local** in the configuration, the "Local Tab Configuration" option will only show up in the settings on pages containing that tab group.
-
-If all tab configurations (and other component configurations) are local, and a given page has no configured elements, neither the modal nor the modal icon will appear.
-
-**Configuration file** setting this option:
-
-```json
-{
-  "config": {
-    "tabGroups": [
-      {
-        "groupId": "ltab",
-        "label": "Local Tab Configuration",
-        "isLocal": true, // This makes the group local
-        "tabs": [
-          { "tabId": "lt1", "label": "Tab Option 1" },
-          { "tabId": "lt2", "label": "Tab Option 2" },
-          { "tabId": "lt3", "label": "Tab Option 3" }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### Keeping Local Tab Groups in Settings
-
-If you have a specific use case where you may want all local tab groups to be available in the settings on a certain page (e.g. a global settings page), you can add hidden `<cv-tabgroup>` elements to register the local tab groups on that page. That way, the plugin will pick them up and add them to the settings dialog for that page without introducing extra spacing in your layout.
-
-* E.g. `<cv-tabgroup group-id="localTabGroup" hidden></cv-tabgroup>`
-
----
-
-<br>
-
-# Shareable URL
-
-Active tab selections can be encoded in a URL using the `tabs` parameter. The format is a comma-separated list of `groupId:tabId` pairs, where each group ID and tab ID is individually encoded with `encodeURIComponent`.
-
-| Parameter | Format | Example |
-|-----------|--------|---------|
-| `tabs`    | Comma-separated `groupId:tabId` pairs | `?tabs=os:linux,lang:python` |
-
-```
-?tabs=os:linux,lang:python
-```
-
-Only the tab groups explicitly listed are affected; all others retain the visitor's saved selection or the configured default.
-
-**Constructing the URL in JavaScript:**
-
-```js
-const tabs  = { os: 'linux', lang: 'python' };
-const param = Object.entries(tabs)
-  .map(([g, t]) => `${encodeURIComponent(g)}:${encodeURIComponent(t)}`)
-  .join(',');
-const url = `https://yoursite.com/guide.html?tabs=${param}`;
-```
 
 
 <br>
