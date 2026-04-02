@@ -64,7 +64,7 @@ To use it, copy this:
 
 <style>
 .cv-browser-split {
-  border: 1px solid rgba(129,76,32,0.15);
+  border: 1px solid rgba(196,133,58,0.4);
   border-radius: 10px;
   overflow: hidden;
   margin: 1rem 0;
@@ -72,8 +72,8 @@ To use it, copy this:
 }
 
 .cv-browser-split-bar {
-  background: #f0ebe3;
-  border-bottom: 1px solid rgba(129,76,32,0.12);
+  background: rgba(129,76,32,0.2);
+  border-bottom: 1px solid rgba(129,76,32,0.35);
   padding: 0.5rem 0.75rem;
   display: flex;
   align-items: center;
@@ -90,7 +90,7 @@ To use it, copy this:
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(129,76,32,0.15);
+  background: rgba(196,133,58,0.3);
 }
 
 .cv-browser-split-urls {
@@ -103,13 +103,13 @@ To use it, copy this:
 .cv-browser-split-url-divider {
   width: 1px;
   height: 14px;
-  background: rgba(129,76,32,0.3);
+  background: rgba(196,133,58,0.4);
   flex-shrink: 0;
 }
 
 .cv-browser-split-url {
-  background: #fff;
-  border: 1px solid rgba(129,76,32,0.15);
+  background: var(--bs-body-bg, #ffffff);
+  border: 1px solid rgba(129,76,32,0.2);
   border-radius: 4px;
   padding: 2px 10px;
   font-size: 0.72rem;
@@ -136,12 +136,12 @@ To use it, copy this:
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: var(--custard-brown);
+  background: var(--custard-light-brown);
 }
 
 .cv-browser-split-panes {
   display: flex;
-  background: #f0ebe3;
+  background: rgba(129,76,32,0.1);
   gap: 6px;
   padding: 6px;
 }
@@ -149,10 +149,10 @@ To use it, copy this:
 .cv-browser-split-pane {
   padding: 1.25rem 1.5rem;
   font-size: 0.9rem;
-  background: #fff;
+  background: var(--bs-body-bg, #ffffff);
   flex: 1;
   min-width: 0;
   border-radius: 6px;
-  border: 1px solid rgba(129,76,32,0.1);
+  border: 1px solid rgba(129,76,32,0.2);
 }
 </style>
