@@ -325,18 +325,57 @@ git clone https://[[ username ? github.com/cs2103t/$-ip.git : your-repo-link ]]
 
 <p class="cv-section-header">Share selected parts of a page with others.</p>
 
-<include src="browserBox.md" boilerplate >
-<variable name="url">git-mastery.org/faq</variable>
-<variable name="content">
+Link anyone directly to the exact paragraph, step, or answer they need. No more "scroll down and look for it."
 
-Hello there!
+<include src="browserBoxSplit.md" boilerplate>
+<variable name="url1">cs2103t.github.io/textbook/week9</variable>
+<variable name="url2">cs2103t.github.io/admin/faq</variable>
+<variable name="content1">
 
-EXAMPLE FAQs -> Links etc.
+#### Liskov Substitution Principle
 
+The Liskov Substitution Principle (LSP) states that objects of a subclass should be substitutable for objects of the superclass without altering the correctness of the program.
+
+<div id="lsp-violation-example">
+
+**Common violation:** Overriding a method in a subclass to throw an exception or do nothing breaks substitutability — callers written against the superclass will break unexpectedly.
+
+<a href="?cv-highlight=lsp-violation-example">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-highlight=lsp-violation-example%3Ared%3Abr%3AWatch%2520out%2520for%2520this%2521">:fa-solid-link: Share with note</a>
+
+</div>
+
+The principle encourages designing inheritance hierarchies where subclasses genuinely extend, rather than contradict, the behaviour of their parent.
+
+</variable>
+<variable name="content2">
+
+#### Frequently Asked Questions
+
+**When is the submission deadline?**
+
+All submissions are due Friday 11:59 PM. Push to your `master` branch on GitHub.
+
+<div id="faq-team-repo">
+
+**Where do I find my team repo?**
+
+Your team repo is at `github.com/cs2103t-[team-id]/tp`. If you cannot access it, check that you have accepted the GitHub Classroom invitation.
+
+<a href="?cv-highlight=faq-team-repo">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-highlight=faq-team-repo%3A%3Atl%3ARefer%2520to%2520this%2521">:fa-solid-link: Share with note</a>
+
+</div>
+
+**How do I add my tutor as a collaborator?**
+
+Go to your repo → Settings → Collaborators → Add your tutor's GitHub username.
 
 </variable>
 </include>
 
+
+%%Click "Share" for a plain highlight, or "Share with note" to include a message and color. The URL encodes the element, color, position, and note — the recipient lands directly on that section.%%
+
+**Generating share links is built in.** Add `#cv-share` to any page URL to enter share mode. Hover over any element on the page, add a note, and CustardUI generates the shareable URL for you. Links use content fingerprinting to stay robust even if the page text changes slightly.
 
 ---
 
