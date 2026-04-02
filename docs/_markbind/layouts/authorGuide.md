@@ -15,9 +15,9 @@
   * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
   * [TabGroups and Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
   * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
+  * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
   * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
-  * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
 * [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
 * Site Adaptations
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
