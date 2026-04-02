@@ -94,16 +94,18 @@
         "defaultValue": "JohnDoe"
       },
       {
+        "name": "repo",
+        "settingsLabel": "Repo Name",
+        "description": "Enter your GitHub repo name here",
+        "settingsHint": "Enter here",
+        "isLocal": true,
+        "defaultValue": "your-repository-name"
+      },
+      {
         "name": "placeholderTest",
         "settingsLabel": "placeholderTest",
         "settingsHint": "Enter anything",
         "defaultValue": "placeholderTestDefaultValue",
-        "isLocal": true
-      },
-      {
-        "name": "searchQuery",
-        "settingsLabel": "Search Query",
-        "settingsHint": "Enter search query",
         "isLocal": true
       },
       {
