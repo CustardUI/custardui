@@ -305,33 +305,60 @@ describe('PlaceholderBinder', () => {
   // ===========================================================================
 
   describe('scanAndHydrate — conditional syntax', () => {
-    it('creates cv-placeholder with truthy/falsy attrs for [[name ? t : f]]', () => {
+    it('creates cv-placeholder with if-set/if-unset attrs for [[name ? t : f]]', () => {
       container.innerHTML = '<p>[[user ? Hello, $! : ]]</p>';
       PlaceholderBinder.scanAndHydrate(container);
 
       const el = container.querySelector('cv-placeholder') as HTMLElement;
       expect(el).not.toBeNull();
       expect(el.getAttribute('name')).toBe('user');
-      expect(el.getAttribute('truthy')).toBe('Hello, $!');
-      expect(el.getAttribute('falsy')).toBe('');
+      expect(el.getAttribute('if-set')).toBe('Hello, $!');
+      expect(el.getAttribute('if-unset')).toBe('');
     });
 
-    it('does NOT set any-value attribute for plain [[name ? t : f]]', () => {
+    it('sets non-empty if-unset attr for [[name ? t : fallback-text]]', () => {
+      container.innerHTML = '<p>[[user ? Welcome back, $! : Guest]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el.getAttribute('if-set')).toBe('Welcome back, $!');
+      expect(el.getAttribute('if-unset')).toBe('Guest');
+    });
+
+    it('does NOT set fallback attr when conditional syntax is used', () => {
       container.innerHTML = '<p>[[user ? Hello, $! : ]]</p>';
       PlaceholderBinder.scanAndHydrate(container);
 
       const el = container.querySelector('cv-placeholder') as HTMLElement;
-      expect(el.hasAttribute('any-value')).toBe(false);
+      expect(el.hasAttribute('fallback')).toBe(false);
     });
 
-    it('sets any-value attribute for [[name* ? t : f]]', () => {
+    it('sets if-set/if-unset and include-default for [[name* ? t : f]]', () => {
+      container.innerHTML = '<p>[[user* ? Hello, $! : nobody]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el.getAttribute('if-set')).toBe('Hello, $!');
+      expect(el.getAttribute('if-unset')).toBe('nobody');
+      expect(el.hasAttribute('include-default')).toBe(true);
+    });
+
+    it('does NOT set include-default attribute for plain [[name ? t : f]]', () => {
+      container.innerHTML = '<p>[[user ? Hello, $! : ]]</p>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      const el = container.querySelector('cv-placeholder') as HTMLElement;
+      expect(el.hasAttribute('include-default')).toBe(false);
+    });
+
+    it('sets include-default attribute for [[name* ? t : f]]', () => {
       container.innerHTML = '<p>[[user* ? Hello, $! : ]]</p>';
       PlaceholderBinder.scanAndHydrate(container);
 
       const el = container.querySelector('cv-placeholder') as HTMLElement;
       expect(el).not.toBeNull();
       expect(el.getAttribute('name')).toBe('user');
-      expect(el.hasAttribute('any-value')).toBe(true);
+      expect(el.hasAttribute('include-default')).toBe(true);
     });
 
     it('registers the placeholder name (without *) for [[name* ? t : f]]', () => {
@@ -428,6 +455,27 @@ describe('PlaceholderBinder', () => {
 
       const div = container.querySelector('div')!;
       expect(div.getAttribute('data-value')).toBe('default_user');
+    });
+
+    it('[[name ? t : f]] with $ substitution replaces all occurrences of $', () => {
+      container.innerHTML = '<div data-value="[[repo ? $/$ : none]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({ repo: 'org' });
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('org/org');
+    });
+
+    it('[[name ? t : f]] with URL in if-set template resolves correctly via attribute binding', () => {
+      // This is the primary use-case for <cv-placeholder if-set="..."> —
+      // the [[]] shorthand cannot embed URLs (`:` is the truthy/falsy separator)
+      // but interpolateString handles it fine in attribute binding strings.
+      container.innerHTML = '<div data-value="https://github.com/[[username]]" class="cv-bind"></div>';
+      PlaceholderBinder.scanAndHydrate(container);
+      PlaceholderBinder.updateAll({ username: 'alice' });
+
+      const div = container.querySelector('div')!;
+      expect(div.getAttribute('data-value')).toBe('https://github.com/alice');
     });
   });
 });

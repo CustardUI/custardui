@@ -4,9 +4,9 @@
     props: {
       name:     { reflect: false, type: 'String',  attribute: 'name' },
       fallback: { reflect: false, type: 'String',  attribute: 'fallback' },
-      truthy:   { reflect: false, type: 'String',  attribute: 'truthy' },
-      falsy:    { reflect: false, type: 'String',  attribute: 'falsy' },
-      anyValue: { reflect: false, type: 'Boolean', attribute: 'any-value' },
+      ifSet:    { reflect: false, type: 'String',  attribute: 'if-set' },
+      ifUnset:  { reflect: false, type: 'String',  attribute: 'if-unset' },
+      includeDefault: { reflect: false, type: 'Boolean', attribute: 'include-default' },
     },
   }}
 />
@@ -16,23 +16,23 @@
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
   import { PlaceholderBinder } from '$features/placeholder/placeholder-binder';
 
-  let { name, fallback, truthy, falsy, anyValue } = $props<{
+  let { name, fallback, ifSet, ifUnset, includeDefault } = $props<{
     name: string;
     fallback?: string;
-    truthy?: string;
-    falsy?: string;
-    anyValue?: boolean;
+    ifSet?: string;
+    ifUnset?: string;
+    includeDefault?: boolean;
   }>();
 
   let value = $derived.by(() => {
     if (!name) return '';
 
-    if (truthy !== undefined) {
+    if (ifSet !== undefined) {
       const placeholders = activeStateStore.state.placeholders ?? {};
-      const val = anyValue
+      const val = includeDefault
         ? PlaceholderBinder.resolveValue(name, undefined, placeholders)
         : PlaceholderBinder.resolveUserValue(name, placeholders);
-      return val !== undefined ? truthy.replace(/\$/g, () => val) : (falsy ?? '');
+      return val !== undefined ? ifSet.replace(/\$/g, () => val) : (ifUnset ?? '');
     }
 
     // 1. User Value
