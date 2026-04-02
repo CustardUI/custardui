@@ -2,25 +2,20 @@
   title: CustardUI - Your docs, shaped for every reader
 </frontmatter>
 
-<h1 class="display-3 text-center"><md> **Custard**<span class="font-with-serif">UI</span> </md></h1>
 
-<!-- Make the top more eye catching -->
+<!-- Each example, it is good to have some sort of animation of that sort. (Maybe in the future...)-->
 
-<div class="lead text-center">
-
-**Let readers customise your static web pages!**
+<div class="cv-hero-title">
+<span class="cv-custard">Custard</span><span class="cv-ui">U<span style="font-family: Georgia, serif;">I</span></span>
 </div>
+<div class="cv-hero-tagline">Let readers <span class="hero-text-highlight">customise</span> your static web pages!</div>
+<div class="cv-hero-accent"></div>
 
-Add CustardUI to your static website and let readers personalise their experience by hiding sections they don't need, setting their preferred view across every page, and sharing exactly the right content with others. No backend required.
+Add CustardUI to any static site and let readers personalise their experience. Hide sections, set preferences and share exactly the right content with others. No backend required.
 
-<!-- It should be clear which are examples and which are main page content.
+[:fa-solid-book: Read the docs](./authorGuide/) &nbsp;&nbsp; • &nbsp;&nbsp; [:fa-brands-github: View on GitHub](https://github.com/custardui/custardui) &nbsp;&nbsp; • &nbsp;&nbsp; [:fa-solid-cube: npm package](https://www.npmjs.com/package/@custardui/custardui)
 
-Example content should be realistic but also fully disjoint from page content e.g., Avoid installation details as example -->
-
-
-<!-- Each example, it is good to have some sort of animation of that sort. -->
-
----
+<br>
 
 <h2 class="cv-section-title">What it can do</h2>
 <p class="cv-section-header">Hide irrelevant sections; Collapse less relevant sections.</p>
@@ -28,7 +23,7 @@ Example content should be realistic but also fully disjoint from page content e.
 Let readers collapse what they don't need. Their choice sticks across pages and sessions.
 
 <include src="browserBoxTriple.md" boilerplate>
-<variable name="url">https://cs2103t.github.io/website/textbook</variable>
+<variable name="url">https://project-documentation.org/best-practices</variable>
 <variable name="content1">
 
 #### Dependency Injection
@@ -328,8 +323,8 @@ git clone https://[[ username ? github.com/cs2103t/$-ip.git : your-repo-link ]]
 Link anyone directly to the exact paragraph, step, or answer they need. No more "scroll down and look for it."
 
 <include src="browserBoxSplit.md" boilerplate>
-<variable name="url1">cs2103t.github.io/textbook/week9</variable>
-<variable name="url2">cs2103t.github.io/admin/faq</variable>
+<variable name="url1">https://course-website.org/textbook/week9</variable>
+<variable name="url2">https://course-website.org/admin/faq</variable>
 <variable name="content1">
 
 #### Liskov Substitution Principle
@@ -353,13 +348,13 @@ The principle encourages designing inheritance hierarchies where subclasses genu
 
 **When is the submission deadline?**
 
-All submissions are due Friday 11:59 PM. Push to your `master` branch on GitHub.
+All submissions are due Friday 11:59 PM. Push to your `main` branch on GitHub.
 
 <div id="faq-team-repo">
 
 **Where do I find my team repo?**
 
-Your team repo is at `github.com/cs2103t-[team-id]/tp`. If you cannot access it, check that you have accepted the GitHub Classroom invitation.
+Your team repo is at `github.com/course-[team-id]/project`. If you cannot access it, check that you have accepted the GitHub Classroom invitation.
 
 <a href="?cv-highlight=faq-team-repo">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-highlight=faq-team-repo%3A%3Atl%3ARefer%2520to%2520this%2521">:fa-solid-link: Share with note</a>
 
@@ -378,57 +373,122 @@ Go to your repo → Settings → Collaborators → Add your tutor's GitHub usern
 **Generating share links is built in.** Add `#cv-share` to any page URL to enter share mode. Hover over any element on the page, add a note, and CustardUI generates the shareable URL for you. Links use content fingerprinting to stay robust even if the page text changes slightly.
 
 ---
-
 <p class="cv-section-header">Share your customisations with others.</p>
 
-<include src="browserBox.md" boilerplate >
-<variable name="url">git-mastery.org/faq</variable>
+Send a custom link that opens the page exactly as you intend, with placeholders pre-filled, sections pre-set. The recipient sees a personalised view instantly, no configuration needed.
+
+<include src="browserBox.md" boilerplate>
+<variable name="url">https://course.org/setup?ph=username:johndoe,name:John%20Doe&t-hide=optional-steps</variable>
 <variable name="content">
 
-Hello there!
+#### Course Setup Guide
 
-Preconfigured usernames or team ids
-Preconfigured tab settings
+%%This page was shared with your details pre-filled.%%
 
+Welcome, **John Doe**! Here are your setup instructions.
+
+---
+
+**Step 1 — Accept the classroom invitation**
+
+Accept the invitation at <a href="https://github.com/johndoe" target="_blank">github.com/johndoe</a>. This will create your personal fork of the exercise repository.
+
+**Step 2 — Clone your repository**
+```bash
+git clone https://github.com/cs2103t/johndoe-ip.git
+cd johndoe-ip
+```
+
+**Step 3 — Push your first commit**
+```bash
+git add .
+git commit -m "Initial commit"
+git push origin main
+```
+
+%%Optional troubleshooting steps are hidden for this view.%%
 
 </variable>
 </include>
 
+The URL that produced this view:
+```
+?ph=username:johndoe,name:John%20Doe&t-hide=optional-steps
+```
+
+%%`ph=` pre-fills placeholders. `t-hide=` hides toggle sections. A teacher can generate this link in seconds and send it directly to a student.%%
+
 ---
 
-<p class="cv-section-header">Advanced: let adopters create ‘adaptation’ of your site.</p>
+<p class="cv-section-header">Advanced: let adopters create adaptations of your site.</p>
+
+Authors can expose selected content, such as logos, images, labels, and branding text, as adaptation points. Each organisation that adopts the site supplies a config preset overriding those values. The result is a single deployment that feels native to every audience it serves.
 
 <include src="browserBoxSplit.md" boilerplate>
-<variable name="url1"> https://XXX </variable>
-<variable name="url2"> https://YYY </variable>
+<variable name="url1">onboarding.example.com#/alpha-corp</variable>
+<variable name="url2">onboarding.example.com#/beta-labs</variable>
 <variable name="content1">
 
+##### :fa-solid-building: &nbsp; **Alpha Corp — Onboarding Guide**
+
+
+Welcome to **Alpha Corp**! Follow the steps below to get set up.
+
+**Exercise 1** <cv-label color="#3b82f6">OPTIONAL</cv-label>
+
+Complete the introductory module at your own pace.
+
+**Exercise 2** <cv-label color="#3b82f6">OPTIONAL</cv-label>
+
+Read through the team handbook before your first standup.
+
+%%Powered by the `alpha-corp` adaptation preset.%%
 
 </variable>
 <variable name="content2">
 
+##### :fa-solid-flask: &nbsp; **Beta Labs — Onboarding Guide**
+
+Welcome to **Beta Labs**! Follow the steps below to get set up.
+
+**Exercise 1** <cv-label color="#ef4444">COMPULSORY</cv-label>
+
+Complete the introductory module before your first day.
+
+**Exercise 2** <cv-label color="#ef4444">COMPULSORY</cv-label>
+
+Read through the team handbook before your first standup.
+
+%%Powered by the `beta-labs` adaptation preset.%%
 
 </variable>
 </include>
 
+%%Same page, same deployment — different logo, different branding, different labels. Each organisation supplies a config preset; the site adapts automatically.%%
+
 ---
 
+<h2 class="cv-section-title">How it works</h2>
 
-<h2 class="cv-section-title"> How it Works</h2>
+All reader preferences, tab selections, toggle states, and placeholder values are saved in the browser's localStorage. Nothing is sent to a server, nothing leaves the device. You define exactly what can be customised; readers adjust within those boundaries.
 
-<!-- How well does it work? -->
+CustardUI works across all modern browsers with no configuration needed on the reader's end.
 
+---
 
-All settings saved in the Browser. Works with all popular browsers. 
-You control what can be customised.
+<h2 class="cv-section-title">Works with any static site</h2>
 
+CustardUI is open source under the MIT licence. Add it to any static site with a single script tag without needing any build step, npm install, or backend.
 
+Built and tested with [MarkBind](https://markbind.org/). Also works with Jekyll, Docusaurus, React static sites, and any site that serves plain HTML.
+
+[:fa-brands-github: View on GitHub](https://github.com/custardui/custardui) &nbsp;&nbsp; • &nbsp;&nbsp; [:fa-solid-cube: npm package](https://www.npmjs.com/package/@custardui/custardui)
 
 ---
 
 <h2 class="cv-section-title">How to Get Started</h2>
 
-No build step, no server to manage. Works with MarkBind, Jekyll, plain HTML — anything. 
+Up and running in minutes. Add one script tag. Write one config file.
 
 <div class="cv-setup-steps">
   <div class="cv-setup-step">
@@ -436,7 +496,7 @@ No build step, no server to manage. Works with MarkBind, Jekyll, plain HTML — 
     <div>
 
 #### Add the script tag
-Include the CustardUI CDN script in your base layout or page template.
+Drop one line of the CustardUI CDN script into your base layout or `<head>` template.
     </div>
   </div>
   <div class="cv-setup-step">
@@ -444,24 +504,15 @@ Include the CustardUI CDN script in your base layout or page template.
     <div>
 
 #### Create your config
-Add a `custardui.config.json` to your site root defining your toggles, tabs, and placeholders.
-    </div>
-  </div>
-  <div class="cv-setup-step">
-    <div class="cv-step-num">3</div>
-    <div>
-
-#### Use the components
-Wrap content with `<cv-toggle>`, `<cv-tabgroup>`, and add `[[placeholders]]` anywhere.
+Add a `custardui.config.json` to your site root. Define what readers can customise.
     </div>
   </div>
 </div>
 
-The author guide is here.
+Done. Check the author guide for components and examples.
 
 <div class="cv-cta-actions">
-  <a href="{{baseUrl}}/authorGuide/gettingStarted.html" class="cv-btn-secondary"><md>:fa-solid-book:</md> Read the Docs</a>
-  <a href="https://github.com/custardui/custardui" class="cv-btn-secondary"><md>:fa-brands-github:</md> View on GitHub</a>
+  <a href="{{baseUrl}}/authorGuide/gettingStarted.html" class="cv-btn-secondary"><md>:fa-solid-book:</md> Read the Author Guide</a>
 </div>
 
 <div style="text-align: center; margin: 3rem 0 1.5rem;">
