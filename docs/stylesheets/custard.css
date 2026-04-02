@@ -141,3 +141,61 @@
   border-color: var(--custard-light-brown);
   background: rgba(129,76,32,0.08);
 }
+
+/* Creative Logo Row */
+
+.cv-logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2.5rem;
+  margin: 3.5rem 0 2rem;
+  padding: 0 1rem;
+}
+
+.cv-logo-item {
+  flex: 0 1 auto;
+  max-width: 120px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.cv-logo-placeholder {
+  margin-top: 10px;
+  margin-left: -34px;
+  margin-right: -34px;
+  max-width: 240px;
+}
+
+.cv-logo-item:hover {
+  transform: translateY(-4px);
+}
+
+.cv-logo-item img {
+  width: 100%;
+  height: auto;
+  opacity: 0.85;
+  filter: grayscale(10%) contrast(90%);
+  transition: opacity 0.2s, filter 0.2s;
+}
+
+.cv-logo-item:hover img {
+  opacity: 1;
+  filter: grayscale(0%) contrast(100%);
+}
+
+@media (max-width: 768px) {
+  .cv-logo-row {
+    gap: 1.5rem;
+    margin: 2.5rem 0 1.5rem;
+  }
+  .cv-logo-item {
+    max-width: 96px;
+  }
+  .cv-logo-placeholder {
+    margin-top: 6px;
+    margin-left: -20px;
+    margin-right: -20px;
+    max-width: 149px;
+  }
+}
