@@ -511,12 +511,19 @@ Add a `custardui.config.json` to your site root. Define what readers can customi
 
 Done. Check the author guide for components and examples.
 
+<br>
+<br>
+
 <div class="cv-cta-actions">
   <a href="{{baseUrl}}/authorGuide/gettingStarted.html" class="cv-btn-secondary"><md>:fa-solid-book:</md> Read the Author Guide</a>
 </div>
 
-<div style="text-align: center; margin: 3rem 0 1.5rem;">
-  <img src="{{baseUrl}}/images/custards-drip.jpg" style="max-width: 480px; width: 100%; opacity: 0.92;">
+<div class="cv-logo-row">
+  <div class="cv-logo-item"><img src="{{baseUrl}}/images/logo-art/custard-click.png" alt="Custard Click"></div>
+  <div class="cv-logo-item"><img src="{{baseUrl}}/images/logo-art/custard-half.png" alt="Custard Half"></div>
+  <div class="cv-logo-item"><img src="{{baseUrl}}/images/logo-art/custard-inspect.png" alt="Custard Inspect"></div>
+  <div class="cv-logo-item cv-logo-placeholder"><img src="{{baseUrl}}/images/logo-art/custard-placeholder.png" alt="Custard Placeholder"></div>
+  <div class="cv-logo-item"><img src="{{baseUrl}}/images/logo-art/custard-share.png" alt="Custard Share"></div>
 </div>
 
 <br>
