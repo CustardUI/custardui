@@ -113,7 +113,8 @@ To use it, copy this:
   border-radius: 4px;
   padding: 2px 10px;
   font-size: 0.72rem;
-  color: var(--custard-muted);
+  color: var(--bs-body-color);
+  opacity: 0.8;
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
