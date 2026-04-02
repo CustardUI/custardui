@@ -18,7 +18,7 @@ Add CustardUI to any static site and let readers personalise their experience. H
 <br>
 
 <h2 class="cv-section-title">What it can do</h2>
-<p class="cv-section-header">Hide irrelevant sections; Collapse less relevant sections.</p>
+<p class="cv-section-header" style="margin-top: 0rem;">Hide irrelevant sections; Collapse less relevant sections.</p>
 
 Let readers collapse what they don't need. Their choice sticks across pages and sessions.
 
@@ -467,6 +467,7 @@ Read through the team handbook before your first standup.
 %%Same page, same deployment — different logo, different branding, different labels. Each organisation supplies a config preset; the site adapts automatically.%%
 
 ---
+<br>
 
 <h2 class="cv-section-title">How it works</h2>
 
@@ -475,6 +476,7 @@ All reader preferences, tab selections, toggle states, and placeholder values ar
 CustardUI works across all modern browsers with no configuration needed on the reader's end.
 
 ---
+<br>
 
 <h2 class="cv-section-title">Works with any static site</h2>
 
@@ -485,6 +487,7 @@ Built and tested with [MarkBind](https://markbind.org/). Also works with Jekyll,
 [:fa-brands-github: View on GitHub](https://github.com/custardui/custardui) &nbsp;&nbsp; • &nbsp;&nbsp; [:fa-solid-cube: npm package](https://www.npmjs.com/package/@custardui/custardui)
 
 ---
+<br>
 
 <h2 class="cv-section-title">How to Get Started</h2>
 

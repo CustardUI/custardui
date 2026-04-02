@@ -68,8 +68,13 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--custard-light-brown);
+  color: var(--custard-brown); /* Darker in light mode */
+  margin-top: 1em;
   margin-bottom: 0.4rem;
+}
+
+[data-bs-theme="dark"] .cv-section-header {
+  color: var(--custard-light-brown); /* Lighter in dark mode */
 }
 
 
