@@ -1,7 +1,7 @@
 <frontmatter>
   title: CustardUI - Toggle Component
   layout: authorGuide.md
-  pageNav: 4
+  pageNav: 3
   pageNavTitle: "Topics"
 </frontmatter>
 
@@ -39,6 +39,14 @@ Toggles let you show or hide sections of a page based on a category (for example
 
 When the active toggle state includes `mac`, only the `<cv-toggle toggle-id="mac">` element will be visible. The component reactively updates based on the global toggle state.
 
+### Basic Syntax
+
+```html
+<cv-toggle toggle-id="mac">
+  Content only visible when the "mac" toggle is active.
+</cv-toggle>
+```
+The `toggle-id` links the element to a configured toggle category. When `show`, content is visible. When `hide`, it is hidden. When `peek`, a collapsed preview is shown.
 
 ### Toggle Peek Mode
 
@@ -77,6 +85,18 @@ You can apply multiple toggles to a single element by separating categories with
 </cv-toggle>
 ```
 
+### Placeholder-Driven Toggles
+
+A toggle can also be shown or hidden based on whether a [placeholder](./placeholders.md) has been set by the reader, using `placeholder-id` instead of `toggle-id`:
+
+```html
+<cv-toggle placeholder-id="username">
+  Welcome, \[[username]]! These are your personalised instructions.
+</cv-toggle>
+```
+
+The block is hidden when `username` has no value, and visible when it does. See [Placeholder-Driven Toggles](./placeholders.md#placeholder-driven-toggles) for full details.
+
 
 ### Attributes of `<cv-toggle>`
 
@@ -85,6 +105,9 @@ You can apply multiple toggles to a single element by separating categories with
 | toggle-id        | `string`  | **required** | Defines the category for the cv-toggle element. E.g.: `toggle-id="mac"`. |
 | show-peek-border | `boolean` | `false`      | If present, adds a subtle border to the top and sides of the toggle content. The border is only applied while the toggle is in Peek mode (whether collapsed or user‑expanded). When the toggle is fully shown (non‑Peek), no border is rendered even if this attribute is set. |
 | show-label       | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle. |
+
+---
+<br>
 
 ## Toggle Control
 
@@ -123,6 +146,8 @@ Control the toggles for the id `localToggle` here: <cv-toggle-control toggle-id=
 | toggle-id  | `string`  | **required** | The toggle ID to control. Must match a configured toggle. Only a single ID is supported (unlike `<cv-toggle>` which accepts space-separated IDs). |
 | inline     | `boolean` | `false`      | If present, hides the label and card styling, rendering only the segmented control inline. |
 
+---
+<br>
 
 ## Configuration
 
@@ -156,28 +181,33 @@ To make toggles discoverable by the settings, you must define them in your `cust
 }
 ```
 
-### Configuration Fields in `custardui.config.json`
+### Configuration Fields
 
-| Name          | Type      | Default      | Description                                                                           |
-| ------------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
-| toggleId      | `string`  | **required** | Defines the category for the cv-toggle element. Example: `toggleId="mac"`.            |
-| label         | `string`  | -            | Label for the toggle in the settings.                                                 |
-| description   | `string`  | -            | Description for the toggle in the settings.                                           |
-| default       | `string`  | `show`       | Default state: `"show"`, `"hide"`, or `"peek"`.                                       |
+| Name          | Type      | Default      | Description            |
+| ------------- | --------- | ------------ | ---------------------- |
+| toggleId      | `string`  | **required** | Defines the category for the cv-toggle element. E.g.: `toggleId="mac"`. |
+| label         | `string`  | -            | Label for the toggle in the settings. |
+| description   | `string`  | -            | Description for the toggle in the settings. |
+| default       | `string`  | `show`       | Default state: `"show"`, `"hide"`, or `"peek"`. |
 | isLocal       | `boolean` | `false`      | Whether the toggle is local (only appears in the settings on pages where it is used). |
 | siteManaged   | `boolean` | `false`      | If `true`, the toggle is fully controlled by the site. It is hidden from the settings modal, excluded from shareable URLs, and immune to user overrides via localStorage or URL params. Its state can only be set by the config `default` or an adaptation `preset.toggles`. |
+| placeholder-id | `string` | — | When set, the toggle visibility is driven by whether the named placeholder has a value, rather than the toggle state. Append * to also show when a defaultValue exists. Cannot be used together with toggle-id. |
 
-### Visibility Resolution Order
 
-Visibility is resolved by layering state in this order:
+Visibility is resolved in this order, stopping at the first match:
 
-1.  **URL State (Sparse Overrides)**: If a toggle is explicitly mentioned in the URL (e.g., `?t-show=A`), it wins.
-2.  **Persisted State**: If not in the URL, the state stored in the browser's local storage is used.
-3.  **Default Configuration**: If neither of the above are present, the `default` value from `custardui.config.json` is used.
+| Priority | Source | Description |
+| :--- | :--- | :--- |
+| 1 | **URL parameter** | If the toggle is explicitly mentioned in the URL (e.g. `?t-show=mac`), it wins. |
+| 2 | **Persisted state** | The state stored in the browser's localStorage. |
+| 3 | **Config default** | The `default` value from `custardui.config.json`. |
 
-This means you can share a link that overrides specific toggles (like hiding a normally-visible section) without completely resetting the recipient's other local preferences.
+This means a shareable URL can override specific toggles without resetting the recipient's other preferences.
 
-## Global vs. Local Toggles
+---
+<br>
+
+### Global vs. Local Toggles
 
 By default, all toggles defined in your configuration are **global**—they will appear in the settings on every page of your site.
 
@@ -193,8 +223,7 @@ If you have a `mac` toggle that is only used on a few pages, setting it as local
 {
   "config": {
     "toggles": [
-      { "toggleId": "localToggle", "label": "Local Toggle", "isLocal": true },
-      { "toggleId": "mac", "label": "MacOS", "isLocal": false },
+      { "toggleId": "mac", "label": "MacOS", "isLocal": true },
       { "toggleId": "linux", "label": "Linux" },
       { "toggleId": "windows", "label": "Windows" }
     ]
@@ -202,29 +231,15 @@ If you have a `mac` toggle that is only used on a few pages, setting it as local
 }
 ```
 
-And present on this page:
-
-```html
-<cv-toggle toggle-id="localToggle"> Local Toggle content </cv-toggle>
-```
-
-<cv-toggle toggle-id="localToggle">
-
-Local Toggle content
-
-Some long long text content to make sure the box is scrollable
-* item 1
-* item 2
-* item 3
-* item 4
-</cv-toggle>
-
-### Keeping Local Toggles in Settings
+#### Keeping Local Toggles in Settings
 
 If you have a specific use case where you may want all local toggles to be available in the settings on a certain page, (e.g. a global settings page), you can add hidden `cv-toggle` elements to register the local toggles on that page. That way, the plugin will pick them up and add them to the settings dialog for that page without introducing extra spacing in your layout.
 * E.g. `<cv-toggle toggle-id="localToggle" hidden></cv-toggle>`
 
-## Site-Managed Toggles
+---
+<br>
+
+### Site-Managed Toggles
 
 If an adaptation needs to **lock** a toggle — preventing users from changing it via the settings modal, a shared URL, or their saved preferences — mark it with `siteManaged: true`:
 
@@ -257,8 +272,10 @@ A site-managed toggle:
 
 See [Site-Managed Components](../adaptations/configuration.md#site-managed-components-sitemanaged) in the Adaptation Configurations guide for the full picture.
 
+---
+<br>
 
-## Shareable URL
+### Shareable URL
 
 Toggle visibility states can be encoded directly in a URL so that a recipient sees the exact combination of shown, peeked, and hidden content that you intend.
 
@@ -286,7 +303,11 @@ const url   = `https://yoursite.com/install.html`
             + `&t-hide=${hide.map(encodeURIComponent).join(',')}`;
 ```
 
-# Troubleshooting
+---
+<br>
+
+
+## Troubleshooting
 * **Toggles not appearing in settings?** Check that your `config.toggles` array is correctly formatted with `toggleId` and `label` for each toggle.
 * **No effect when toggling?** Ensure the element uses `<cv-toggle toggle-id="...">` and the category matches a configured toggle ID.
 * **Settings icon not loading?** Verify the script is included and custardui.config.json is accessible.
