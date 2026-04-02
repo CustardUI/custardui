@@ -12,9 +12,9 @@
 
 `\[[ variable_name ]]`, `<cv-placeholder/>`
 
-The **Placeholders** component let readers personalise your site to their own context. Define placeholders once in your [configuration](#configuration), and readers fill it in via the settings panel or an inline input, and every instance across the site updates immediately. Values persist across page reloads and navigation.
+Placeholders let readers personalise your site to their own context. Define them once in your [configuration](#configuration) — readers fill them in via the settings panel or a [`<cv-placeholder-input>`](#placeholder-input), and every instance across the site updates immediately. Values persist across page reloads and navigation.
 
-<cv-placeholder-input name="username" width="150px" hint="Your Name" appearance="underline"></cv-placeholder-input>
+<cv-placeholder-input name="username" layout="card"></cv-placeholder-input>
 
 
 <include src="codeAndOutputSeparate.md" boilerplate >
@@ -23,191 +23,291 @@ The **Placeholders** component let readers personalise your site to their own co
 
 Hello, \[[username]]!
 
+<img src="https://github.com/\[[username : custardui ]].png" class="cv-bind"/>
+
+
 </variable>
 <variable name="output">
 
 Hello, [[username]]!
+<img src="https://github.com/[[username : custardui ]].png" 
+  style="height: 2.5rem; vertical-align: middle; border-radius: 50%; margin-left: 0.5rem;" 
+  class="cv-bind" 
+  alt="Avatar" 
+/>
+
 </variable>
 </include>
 
-To use the variable in your content, wrap the variable name in double square brackets: `[[ variable_name ]]`. The plugin scans the page and replaces these tokens with the current value. When the user updates the value in the settings, all instances on the page update immediately.
+---
 
-**Manual Component Usage**: You could also use the internal custom element directly, although it is not necessary. `<cv-placeholder name="email" fallback="support@example.com"></cv-placeholder>` is functionally equivalent to `\[[ email : support@example.com ]]` but may be useful for debugging or etc. 
+<br>
 
+### Basic Syntax
 
-### Inline Fallback
-
-You can provide a fallback value directly in the usage syntax. This is useful if you haven't defined a formal placeholder or want a specific default for one instance.
-
+Wrap a placeholder name in double square brackets to insert its current value:
+ 
 ```markdown
-Contact us at \[[ email : support@example.com ]]
-↓
-Contact us at [[email : support@example.com]]
+Hello, \[[username]]!
+Fork your repo at github.com/\[[username]]/ip
 ```
+ 
+The plugin scans the page on load and replaces all tokens with the current value. When the reader updates the value, all instances on the page update immediately with no reload needed.
 
-If the user has not set a value for `email`, "support@example.com" will be displayed. The resolution order is:
+<box type="tip">
+ 
+**Manual component usage:** `<cv-placeholder name="username" fallback="johnDoe"></cv-placeholder>` is functionally equivalent to `\[[username : johnDoe]]`. Useful for debugging, or where the shorthand syntax cannot express what you need.
+ 
+</box>
 
-1. **User-set value** — what the user typed into the Settings widget or a `<cv-placeholder-input>`.
-2. **Inline fallback** — the value after `:` in the syntax (e.g., `support@example.com`).
-3. **Registry `defaultValue`** — the `defaultValue` field in `custardui.config.json`.
-4. **Raw placeholder name** — `\[[name]]` as literal text, signalling that no fallback was provided.
+---
 
-> User-set empty strings (`""`) are treated as "not set" and fall through to the inline fallback, instead of displaying nothing. Use `\[[email : ]]` to explicitly show nothing as the fallback.
+### Inline Fallback Value
+
+Provide a fallback value directly in the syntax without needing a config entry or for defining a specific fallback for an instance: 
+
+<cv-placeholder-input name="repo" layout="card"></cv-placeholder-input>
+
+<include src="codeAndOutputSeparate.md" boilerplate >
+<variable name="highlightStyle">md</variable>
+<variable name="code">
+
+Clone your repo: `git clone https://github.com/cs2103t/\[[repo : custom-fallback]]-ip.git`
+
+%%Or rely on the default value in your configuration (your-repo-name)%%
+
+Clone your repo: `git clone https://github.com/cs2103t/\[[repo]]-ip.git`
+
+</variable>
+<variable name="output">
+
+Clone your repo: `git clone https://github.com/cs2103t/[[repo : custom-fallback]]-ip.git`
+
+%%Or rely on the default value in your configuration (your-repo-name)%%
+
+Clone your repo: `git clone https://github.com/cs2103t/[[repo]]-ip.git`
+</variable>
+</include>
+
+When a placeholder is used, CustardUI resolves its value in this order, stopping at the first match:
+
+| Priority | Source | Example |
+| :--- | :--- | :--- |
+| 1 | **User-set value** | Typed into the settings panel or a `<cv-placeholder-input>` |
+| 2 | **Inline fallback** | The value after `:` in the syntax  |
+| 3 | **Registry `defaultValue`** | The `defaultValue` field in `custardui.config.json` |
+| 4 | **Raw placeholder name** | Displayed as-is if no fallback exists |
+
+<box type="info">
+
+User-set empty strings (`""`) are treated as "not set" and fall through to the next fallback. To explicitly display nothing, use `\[[repo : ]]`.
+
+</box>
+
+<box type="warning">
+
+**Avoid email addresses as inline fallbacks.** Your static site generator (e.g. MarkBind) may auto-link bare email addresses (e.g. `support@example.com` → `<a href="mailto:...">`), which splits the token across DOM nodes and causes the scanner to miss it. Instead, try to keep `@` outside the token: `\[[user]]@example.com`
+
+</box>
 
 
-### Conditional Syntax (Fall-Forward)
+### Conditional Syntax 
 
-You can render content **only when** a placeholder has a value using the conditional syntax:
+Render content only when a placeholder has a value:
 
-```
-\[[name ? truthy-template : falsy]]
-```
+<cv-placeholder-input name="username" layout="card"></cv-placeholder-input>
 
-- **`truthy-template`** — rendered when the placeholder is set. Use `$` as the insertion marker for the resolved value.
-- **`falsy`** — rendered when the placeholder is not set (usually left empty).
+<include src="codeAndOutputSeparate.md" boilerplate >
+<variable name="highlightStyle">md</variable>
+<variable name="code">
 
-**Examples:**
+\[[username ? if-set, $ : if-unset]]
 
-```markdown
-Hello, \[[username ? $! : ]]
-```
+</variable>
+<variable name="output">
 
-When `username` is unset, nothing is shown. When `username` is `alice`, it renders `Hello, alice!`.
+[[username ? if-set, $ : if-unset]]
 
-### User-Set vs. Any Resolved Value
+</variable>
+</include>
 
-By default, the conditional triggers only when the **user has explicitly entered a value** — a registry `defaultValue` is only a display fallback and does **not** count as "set". Append `*` to the name to also trigger on registry defaults:
+When `username` is unset, 'if-unset' is shown. When `username` is `alice`, 'if-set' is shown with the username value.
+
+| Part | Description |
+| :--- | :--- |
+| `if-set` | Rendered when the placeholder is set. Use `$` as the insertion point for the resolved value. |
+| `if-unset` | Rendered when the placeholder is not set. Usually left empty. |
+
+
+#### Conditional Syntax and `defaultValue`
+
+By default, the conditional only triggers when the reader has **explicitly entered a value**. A `defaultValue` in config does not count as "set". Append `*` to also trigger on registry defaults:
 
 | Syntax | Triggers truthy when… |
 | :--- | :--- |
-| `\[[name ? truthy : falsy]]` | User has explicitly entered a value (registry `defaultValue` ignored) |
-| `\[[name* ? truthy : falsy]]` | Any resolved value exists (user-set **or** registry `defaultValue`) |
-
-**Example with `defaultValue: "Guest"` and no user input:**
-
-* `\[[username ? Hi, $! : ]]` → "" (falsy — user-set only, default ignored)
-* `\[[username* ? Hi, $! : ]]` → "Hi, Guest!" (any-value — default fires truthy)
-
-Test it out here:
-
-* `\[[username]]`: [[username]]
-* `\[[username : fallback]]`: [[username : fallback]]
-* `\[[username ? Hi, $! : ]]`: [[username ? Hi, $! : ]]
-* `\[[username* ? Hi, $! : ]]`: [[username* ? Hi, $! : ]]
-
-Regular display syntax (`\[[name]]`, `\[[name : fallback]]`) is unchanged and always uses the full resolution chain.
-
-For attributes with `class="cv-bind"`:
-
-```html
-<img src="https://cdn.example.com\[[user ? /avatar/$ : ]]" class="cv-bind" alt="Avatar" />
-```
-
-No `user` → `src="https://cdn.example.com"`. With `user=alice` → `src="https://cdn.example.com/avatar/alice"`.
-
-> **URL encoding**: In `href` and `src` attributes, the `$` value is URL-encoded automatically (same as regular placeholders).
-
-> **Known limitation**: The `:` character cannot appear inside the truthy template (e.g., URLs with ports like `localhost:8080`). Use a regular placeholder or construct the value differently in those cases.
+| `\[[name ? if-set : if-unset]]` | Reader has explicitly entered a value |
+| `\[[name* ? if-set : if-unset]]` | Any resolved value exists (user-set **or** `defaultValue`) |
 
 
-### Placeholder-Driven Toggle Visibility
+With `defaultValue: "Guest"` and no user input:
 
-You can show or hide a block of content based on whether a placeholder has a value, using the `placeholder-id` attribute on `<cv-toggle>`:
+| Expression | Result |
+| :--- | :--- |
+| `\[[username ? Hi, $! : ]]` | *(empty)* |
+| `\[[username* ? Hi, $! : ]]` | `Hi, Guest!` |
 
-```html
-<cv-toggle placeholder-id="username">Welcome, [[username]]!</cv-toggle>
-```
+<box type="warning">
 
-The block is **hidden** when `username` has no value, and **visible** when it does. This is useful for conditional sections that only make sense once a user has provided input. Like the conditional syntax, toggle visibility by default requires the **user to have explicitly entered a value**. Append `*` to also show when a registry `defaultValue` exists.
+**The `:` character cannot appear inside `then` (text content in placeholders).** The parser splits on the first `:` after `?`, so URLs containing `://` or ports like `localhost:8080` will be misread as the separator.
 
-* `placeholder-id="username"`: Toggle only shows when user has explicitly entered a value, irregardless of a default value.
-* `placeholder-id="username*"`: Toggle shows when user has explicitly entered a value AND when a default value is available.
+**Workarounds:** Hardcode the URL prefix outside the token and use `$` for the variable part only, or store the full URL as the placeholder value and reference it with `\[[name]]`, or use the manual component with `if-set`/`if-unset` attributes: `<cv-placeholder name="..." if-set="https://example.com/$" if-unset="fallback">`.
 
-
-
-```html
-<!-- Hidden unless user has set a value (registry default ignored) -->
-<cv-toggle placeholder-id="username">Welcome, [[username]]!</cv-toggle>
-
-<!-- Visible if user has set a value OR a registry defaultValue exists -->
-<cv-toggle placeholder-id="username*">Welcome, [[username]]!</cv-toggle>
-```
-
-Placeholder mode has no peek, label, or border behaviour. `placeholder-id` takes precedence over `toggle-id`, and should not be used on the same element.
+</box>
 
 
-### HTML Attribute Interpolation
-
-In addition to text, you can interpolate variables into HTML attributes, such as `href` or `src`. This is useful for creating dynamic links or loading images based on user preferences.
-
-**Requirements:**
-
-1. You must use standard HTML syntax (e.g., `<a href="...">`) rather than Markdown links.
-2. You must add the `class="cv-bind"` (or `data-cv-bind`) attribute to the element. This signals the system to scan the element's attributes.
+### HTML Attribute Binding
 
 
-**Example: Dynamic Query Parameter:**
+Interpolate placeholder values into HTML attributes such as `href` or `src` by adding `class="cv-bind"` to the element. This works for dynamic links, image sources, and any other attribute value. This also works with conditional syntax to build attribute values that depend on whether a placeholder is set.
 
-```html
-<!-- Use it in a link -->
-<a href="https://www.google.com/search?q=\[[searchQuery]]" class="cv-bind">
-  Search Google for '\[[searchQuery]]'
-</a>
-```
 
-Update the placeholder value here: <cv-placeholder-input name="searchQuery" />.
+<cv-placeholder-input name="username" layout="card"></cv-placeholder-input>
 
-This renders into:
-<a href="https://www.google.com/search?q=[[searchQuery]]" class="cv-bind">
-Search Google for '[[searchQuery]]'
+<include src="codeAndOutputSeparate.md" boilerplate >
+<variable name="highlightStyle">html</variable>
+<variable name="code">
+
+<!-- Dynamic link -->
+<a href="https://github.com/\[[username : custardui]]" class="cv-bind" target="_blank">
+  View \[[username : CustardUI]]'s profile on GitHub
 </a>
 
-If the user sets `searchQuery` to `hello/world`, the link becomes `https://www.google.com/search?q=hello%2Fworld`.
+<!-- Dynamic image source -->
+<img src="https://github.com/\[[username : custardui]].png" 
+  style="height: 2.5rem; vertical-align: middle; border-radius: 50%; margin-left: 0.5rem;" 
+  class="cv-bind" 
+  alt="Avatar" 
+/>
+
+</variable>
+<variable name="output">
+
+<a href="https://github.com/[[username : custardui]]" class="cv-bind" target="_blank">
+  View [[username : CustardUI]]'s profile on GitHub
+</a>
+<img src="https://github.com/[[username : custardui ]].png" 
+  style="height: 2.5rem; vertical-align: middle; border-radius: 50%; margin-left: 0.5rem;" 
+  class="cv-bind" 
+  alt="Avatar" 
+/>
+
+</variable>
+</include>
 
 
+<box type="info">
 
-> **Automatic Encoding**: Placeholders used in `href` and `src` attributes are URL-encoded to ensure valid URLs (e.g. `/` becomes `%2F`). Else, if the placeholder value is a full URL (e.g. `https://example.com`), a relative path (e.g. `/assets/logo.png`) or a special protocol (e.g. `mailto:email@example.com`), it will not be encoded.
+**Requirements and notes:**
+- Use standard HTML syntax — Markdown link syntax (`[text](url)`) is not supported.
+- Add `class="cv-bind"` (or `data-cv-bind`) to signal the plugin to scan the element's attributes.
+- The `class` attribute itself is excluded from binding to avoid conflicts with JavaScript and CSS frameworks.
+- Placeholders in `href` and `src` are URL-encoded automatically (e.g. `/` → `%2F`). Full URLs, relative paths, and special protocols such as `mailto:` are not encoded.
 
-> **Note**: The `class` attribute is **excluded** from placeholder binding to prevent conflicts with dynamic class manipulation by JavaScript or CSS frameworks. If you need dynamic classes, use JavaScript or CSS to add/remove classes instead.
-> Or raise an issue to explore the use case!
+</box>
 
-**Dynamic Image Source:**
+
+<box type="warning">
+
+**Security and Responsible Use**
+
+Placeholders can be populated directly from [shareable URL parameters](#shareable-url). They must be treated as **untrusted user input**. 
+
+- **Cross-Site Scripting (XSS):** While CustardUI automatically URL-encodes placeholder values when they are used as components of an `href` or `src` attribute (e.g. `[[username]]`), it **does not** prevent full `javascript:` URLs if the placeholder itself is a full URL.
+- **Avoid Dangerous Attributes:** Never bind placeholders to event handler attributes (e.g., `onclick`, `onerror`, `onmouseover`) or `<script>` tags, as they are not sanitized and could execute arbitrary code if a malicious shareable URL is clicked.
+- **Context Awareness:** Only bind placeholders to attributes where the resulting value is constrained to a safe domain or format that you control.
+
+</box>
+
+---
+<br>
+
+### Placeholder-Driven Toggles
+ 
+Show or hide content based on whether a placeholder has been set, using `placeholder-id` on `<cv-toggle>`:
+ 
+```html
+<!-- Hidden until reader sets a username -->
+<cv-toggle placeholder-id="username">
+  Welcome, [[username]]! Here are your personalised instructions.
+</cv-toggle>
+ 
+<!-- Visible if user has set a value OR a defaultValue exists -->
+<cv-toggle placeholder-id="username*">
+  Welcome, [[username]]!
+</cv-toggle>
+```
+ 
+| Attribute | Behaviour |
+| :--- | :--- |
+| `placeholder-id="name"` | Visible only when reader has explicitly entered a value |
+| `placeholder-id="name*"` | Visible when reader has set a value **or** a `defaultValue` exists |
+ 
+<box type="warning">
+ 
+Placeholder-driven toggles have no peek, label, or border behaviour. Do not use `placeholder-id` and `toggle-id` on the same element — `placeholder-id` takes precedence.
+ 
+</box>
+
+
+---
+<br>
+
+### Attributes of `<cv-placeholder>`
+
+`<cv-placeholder>` is the underlying custom element created by the `[[ ]]` syntax. You rarely need to use it directly, but it is useful when the shorthand syntax cannot express what you need. For example, when your fallback or truthy template contains a `:` (e.g. a full URL with `://`), since the parser uses `:` as a structural separator and would misread it.
 
 ```html
-<img src="https://example.com/assets/[[theme]].png" class="cv-bind" alt="Theme Preview" />
+<!-- Fallback containing a URL — shorthand [[ ]] cannot do this -->
+<cv-placeholder name="docsUrl" fallback="https://example.com/docs"></cv-placeholder>
+
+<!-- Conditional with a URL in the if-set template -->
+<cv-placeholder name="username" if-set="https://github.com/$" if-unset="(not set)"></cv-placeholder>
+
+<!-- Same as \[[username* ? Hi, $! : ]], where it triggers on defaultValue as well -->
+<cv-placeholder name="username" if-set="Hi, $!" if-unset="" include-default></cv-placeholder>
 ```
+
+> **Cannot be used in HTML attribute binding.** `<cv-placeholder>` is a DOM element and cannot be embedded inside an attribute value. For dynamic `href`, `src`, or other attributes, use the `[[ ]]` shorthand with `class="cv-bind"` instead.
+
+| Attribute | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | **required** | The placeholder name to resolve. |
+| `fallback` | `string` | — | Inline fallback shown when no user value is set. Equivalent to the `: fallback` part of `\[[name : fallback]]`. |
+| `if-set` | `string` | — | Template rendered when the placeholder is set. Use `$` as the insertion point for the resolved value. |
+| `if-unset` | `string` | — | Template rendered when the placeholder is not set. |
+| `include-default` | `boolean` | `false` | When present, the conditional also fires on a registry `defaultValue` (not just user-set values). Equivalent to appending `*` in `\[[name* ? if-set : if-unset]]`. |
+
+---
 
 ### Escaping Syntax
 
-You can "escape" the placeholder syntax if you want to display the literal brackets instead of a variable.
+You can "escape" the placeholder syntax if you want to display the literal brackets instead of a variable. If you are using a static site generator, you may need to escape the backslashes.
 
 - **In Markdown Text**: Use two backslashes: `\\\[[ variable ]]`.
 - **In Code Blocks**: Use one backslash: `\\[[ variable ]]`.
 
+
+---
+<br>
 
 
 ## Placeholder Input 
 
 `<cv-placeholder-input/>`
 
-To make it better, you can use the `<cv-placeholder-input>` component to allow **inline editing** of placeholders.
+Place an editable input field directly on the page, allowing readers to set a placeholder value inline without opening the settings panel. The value updates all instances of the placeholder immediately.
 
-You can allow users to edit placeholders directly on the page using the `<cv-placeholder-input>` component. By default, the component renders inline with text. For example, you can update your username placeholder here: <cv-placeholder-input name="username" width="150px" hint="Your Name" appearance="underline"></cv-placeholder-input>, which updates your username: [[username]].
-
-Several attributes control the appearance and behavior of the component:
-* `layout`: The layout to use (inline, stacked, horizontal, or card).
-  * `inline` (Default): Component sits in the text flow, and the label is hidden visually.
-  * `stacked`: Label sits on top of the input. Input takes full width.
-  * `horizontal`: Label sits to the left of the input. Input takes remaining space.
-  * `card`: Styled card matching the look of toggle controls — label on the left, input on the right.
-* `appearance`: The appearance to use (outline, underline, or ghost).
-  * `outline` (Default): Standard input box with border.
-  * `underline`: Only a bottom border. Great for inline text.
-  * `ghost`: No border until focused. Seamless blending for inline text that can be edited.
-* `label`: The label to use (for stacked or horizontal layouts).
-* `hint`: The hint to use (for inline layouts).
-* `width`: The width of the component.
-
+For example, update your username here: <cv-placeholder-input name="username" hint="Your Name"></cv-placeholder-input>. Notice that the placeholder, "\\[[username]]", updates as you type, as so: <u>[[username : ]]</u>.
 
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
@@ -220,13 +320,19 @@ My username is 'outline': <cv-placeholder-input name="username" appearance="outl
 'underline': <cv-placeholder-input name="username" appearance="underline"></cv-placeholder-input>, 
 and 'ghost': <cv-placeholder-input name="username" appearance="ghost" width="auto-grow"></cv-placeholder-input>.
 
+---
+
 <!-- Stacked layout -->
 %%Alternatively, use the stacked layout:%%
 <cv-placeholder-input name="username" layout="stacked"></cv-placeholder-input>
+
+---
  
 <!-- Horizontal layout -->
 %%Or the horizontal layout:%%
 <cv-placeholder-input name="username" layout="horizontal" label="Username:"></cv-placeholder-input>
+
+---
 
 <!-- Card layout -->
 %%Or the card layout, which is great for settings pages:%%
@@ -237,63 +343,127 @@ and 'ghost': <cv-placeholder-input name="username" appearance="ghost" width="aut
 
 
 
-### Placeholder-Input Attributes
- 
+### Attributes of `<cv-placeholder-input>`
+
+Several attributes control the appearance and behavior of the component.
+
 | Attribute | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| name | `string` | - | **Required**. The placeholder name to bind to. |
-| layout | `string` | `inline` | `inline`, `stacked`, `horizontal`, `card`. |
-| appearance | `string` | `outline` | `outline`, `underline`, `ghost`. |
-| label | `string` | value defined in config | Visual label text (for stacked/horizontal) or `aria-label` (for inline). |
-| hint | `string` | value defined in config | Overrides the placeholder hint/placeholder text. |
-| width | `string` | Varies | `100%` for stacked, `flex-fill` for horizontal, and browser default for inline. Set `auto-grow` to resize based on content (inline only). |
+| name | `string` | **required** | The placeholder name to bind to. |
+| layout | `string` | `inline` | • `inline` — sits in text flow, label hidden<br>• `stacked` — label above, full-width input<br>• `horizontal` — label left, input fills remaining space<br>• `card` — styled card matching toggle controls, label left, input right |
+| appearance | `string` | `outline` | • `outline` — standard bordered input<br>• `underline` — bottom border only, great for inline text<br>• `ghost` — no border until focused, blends into content |
+| label | `string` | from config | Visual label (for `stacked`, `horizontal`, `card`) or `aria-label` (for `inline`). |
+| hint | `string` | from config | Placeholder text shown inside the input when empty. |
+| width | `string` | auto | CSS width of the input. Use `auto-grow` to resize based on content length (`inline` only). |
 
 
 
 ## Configuration
 
-### Add the Placeholder Configuration
-
-Placeholders are defined in your `custardui.config.json` under the `placeholders` key.
+Placeholders are defined in your `custardui.config.json` under the `placeholders` key:
 
 ```json
 {
   "config": {
     "placeholders": [
-      { "name": "username", "settingsLabel": "Your Username", "settingsHint": "Enter username" },
-      { "name": "api_key", "settingsLabel": "API Key", "isLocal": true }
+      {
+        "name": "username",
+        "defaultValue": "JohnDoe",
+        "settingsLabel": "Your GitHub Username",
+        "settingsHint": "Enter your GitHub username",
+        "description": "Used to personalise links and commands throughout the site.",
+        "isLocal": false
+      },
+      {
+        "name": "repo",
+        "settingsLabel": "Repo Name",
+        "description": "Enter your GitHub repo name here",
+        "settingsHint": "Enter here",
+        "isLocal": true,
+        "defaultValue": "your-repository-name"
+      }
     ]
   }
 }
 ```
 
+### Configuration Fields
 
-| Field         | Type      | Description                                                                                                    |
-| ------------- | --------- | -------------------------------------------------------------------------------------------------------------- |
-| name          | `string`  | **Required**. Unique identifier (e.g., `api_key`).                                                             |
-| settingsLabel | `string`  | Display label in Settings and card layout.                                                                     |
-| settingsHint  | `string`  | Helper text in input field.                                                                                    |
-| description   | `string`  | Optional description shown below the label in Settings and in the `card` layout.                               |
-| defaultValue  | `string`  | Display fallback when no user value or inline fallback is provided. Does **not** count as "user-set" — conditional syntax (`?`) treats it as unset unless `*` is appended. |
-| isLocal       | `boolean` | If `true`, the input field only appears in Settings when the placeholder is actually used on the current page. |
-| siteManaged   | `boolean` | If `true`, the placeholder is fully controlled by the site. It is hidden from the settings modal, excluded from shareable URLs, and any user-supplied value (from localStorage or URL params) is ignored. Its value can only be set by the config `defaultValue` or an adaptation `preset.placeholders`. Useful for institution names, logos, or any value that must vary per adaptation but never be user-editable. |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | **Required.** Unique identifier used in `\[[name]]` syntax. |
+| `settingsLabel` | `string` | Display label shown in the settings panel and `card` layout. |
+| `settingsHint` | `string` | Helper text shown inside the input field. |
+| `description` | `string` | Optional description shown below the label in settings and `card` layout. |
+| `defaultValue` | `string` | Fallback value when no user value or inline fallback exists. Does **not** count as "user-set" for conditional syntax unless `*` is appended. |
+| `isLocal` | `boolean` | If `true`, the input only appears in settings when the placeholder is used on the current page. Default is `false`. |
+| `siteManaged` | `boolean` | If `true`, the placeholder is fully controlled by the site — hidden from settings, excluded from shareable URLs, immune to user input. Set via `defaultValue` or adaptation presets only. Useful for institution names or logos. |
 
-Example:
+---
 
+<br>
+
+### Global vs. Local Placeholders
+
+By default, all placeholders defined in your configuration are **global**, and their input fields appear in the settings panel on every page of your site.
+
+You can mark a placeholder as **local** to make it appear in the settings _only_ on pages where that placeholder is actually used. This is useful for keeping the settings panel clean and focused on what's relevant to the current page.
+
+To mark a placeholder as local, add `"isLocal": true` to its configuration:
 ```json
 {
   "config": {
     "placeholders": [
-      { "name": "username", "settingsLabel": "Your Username", "settingsHint": "Enter username" },
-      { "name": "searchQuery", "settingsLabel": "Search Query", "settingsHint": "Enter search query", "isLocal": true }
+      { "name": "username", "settingsLabel": "Your Username", "isLocal": false },
+      { "name": "repo", "settingsLabel": "Repository Name", "isLocal": true }
     ]
   }
 }
 ```
 
-### Tab Group Binding & Integration
+In this example, `repo` only appears in the settings panel on pages that contain `[[repo]]` or a `<cv-placeholder-input name="repo">`. On all other pages, only `username` is shown.
 
-You can bind a **Tab Group** directly to a placeholder variable in your `custardui.config.json`. This allows the variable to update automatically when the user switches tabs.
+---
+<br>
+
+### Site-Managed Placeholders
+
+If a placeholder needs to be **locked** — preventing readers from changing it via the settings panel, a shared URL, or their saved preferences — mark it with `siteManaged: true`:
+```json
+{
+  "config": {
+    "placeholders": [
+      { "name": "institution", "defaultValue": "NUS", "siteManaged": true },
+      { "name": "course", "defaultValue": "CS2103T", "siteManaged": true }
+    ]
+  }
+}
+```
+
+An adaptation can then override the value via `preset.placeholders`:
+```json
+{
+  "id": "sutd",
+  "preset": {
+    "placeholders": { "institution": "SUTD", "course": "50.001" }
+  }
+}
+```
+
+A site-managed placeholder:
+- **Does not appear** in the settings panel.
+- **Is not included** in generated shareable URLs.
+- **Ignores** any value stored in localStorage or supplied via URL parameters.
+
+See [Site-Managed Components](../adaptations/configuration.md#site-managed-components-sitemanaged) in the Adaptations guide for the full picture.
+
+
+---
+<br>
+
+### Tab Group Binding
+
+Bind a tab group to a placeholder so that switching tabs automatically updates the variable:
 
 ```json
 "tabGroups": [
@@ -352,33 +522,34 @@ My favourite fruit is `[[fruit]]`, and it updates automatically!
 
 </box>
 
-### Persistence
+---
+ 
+### Shareable URLs
 
-Values entered by the user are saved in the browser's `localStorage` (key: `cv-user-variables`). This means:
-
-1. Values persist across page reloads.
-2. Values persist when navigating between different pages of the documentation.
-
-## Shareable URL
-
-Placeholder values can be shared via URL using the `ph` parameter. The format is a comma-separated list of `key:value` pairs, with each component individually encoded with `encodeURIComponent`. This means commas inside a value appear as `%2C`, colons appear as `%3A`, spaces appear as `%20`, while the outer commas and colons are not encoded, which keeps the structural separators clear.
-
+Values are saved in the browser's `localStorage` and persist across page reloads and navigation. They can also be shared via the `ph` URL parameter — a comma-separated list of `key:value` pairs, each component encoded with `encodeURIComponent`:
+ 
+```
+https://yoursite.com/page.html?ph=username:alice,repo:my-repo
+```
+ 
 | Parameter | Format | Example |
-|-----------|--------|---------|
-| `ph`      | Comma-separated `key:value` pairs | `?ph=username:alice` |
-
-```
-?ph=username:alice,searchQuery:searchThis
-```
-
-Placeholder values that are derived from a tab group (bound via `placeholderId` in the config) should not be included in `?ph=` — they are implied by the `?tabs=` parameter and are automatically re-derived when the page loads.
-
+| :--- | :--- | :--- |
+| `ph` | Comma-separated `key:value` pairs | `?ph=username:alice` |
+ 
+<box type="info">
+ 
+Placeholder values derived from a tab group (via `placeholderId`) should not be included in `?ph=` — they are implied by the `?tabs=` parameter and re-derived automatically on load.
+ 
+</box>
+ 
 **Constructing the URL in JavaScript:**
-
+ 
 ```js
-const ph    = { username: 'alice', api_key: 'my-key' };
+const ph = { username: 'alice', repo: 'my-repo' };
 const param = Object.entries(ph)
   .map(([k, v]) => `${encodeURIComponent(k)}:${encodeURIComponent(v)}`)
   .join(',');
-const url = `https://yoursite.com/quickstart.html?ph=${param}`;
+const url = `https://yoursite.com/page.html?ph=${param}`;
 ```
+
+<br>
