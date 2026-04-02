@@ -71,7 +71,7 @@ To use it, copy this:
 
 <style>
 .cv-browser-triple {
-  border: 1px solid rgba(129,76,32,0.15);
+  border: 1px solid rgba(196,133,58,0.4);
   border-radius: 10px;
   overflow: hidden;
   margin: 1rem 0;
@@ -79,8 +79,8 @@ To use it, copy this:
 }
 
 .cv-browser-triple-bar {
-  background: #f0ebe3;
-  border-bottom: 1px solid rgba(129,76,32,0.12);
+  background: rgba(129,76,32,0.2);
+  border-bottom: 1px solid rgba(196,133,58,0.35);
   padding: 0.5rem 0.75rem;
   display: flex;
   align-items: center;
@@ -97,12 +97,12 @@ To use it, copy this:
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(129,76,32,0.15);
+  background: rgba(196,133,58,0.3);
 }
 
 .cv-browser-triple-url {
-  background: #fff;
-  border: 1px solid rgba(129,76,32,0.15);
+  background: var(--bs-body-bg, #ffffff);
+  border: 1px solid rgba(196,133,58,0.2);
   border-radius: 4px;
   padding: 2px 10px;
   font-size: 0.72rem;
@@ -115,7 +115,7 @@ To use it, copy this:
 
 .cv-browser-triple-panes {
   display: flex;
-  background: #f0ebe3;
+  background: rgba(129,76,32,0.1);
   gap: 6px;
   padding: 6px;
   align-items: stretch;
@@ -131,9 +131,9 @@ To use it, copy this:
 .cv-browser-triple-pane {
   padding: 1rem 1.25rem;
   font-size: 0.85rem;
-  background: #fff;
+  background: var(--bs-body-bg, #ffffff);
   border-radius: 6px;
-  border: 1px solid rgba(129,76,32,0.1);
+  border: 1px solid rgba(196,133,58,0.15);
   flex: 1;
 }
 
@@ -153,7 +153,7 @@ To use it, copy this:
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: var(--custard-brown);
+  background: var(--custard-light-brown);
 }
 
 </style>

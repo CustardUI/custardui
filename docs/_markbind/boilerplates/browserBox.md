@@ -40,7 +40,7 @@ My content here
 
 <style>
 .cv-browser-single {
-  border: 1px solid rgba(129,76,32,0.15);
+  border: 1px solid rgba(196,133,58,0.4);
   border-radius: 10px;
   overflow: hidden;
   margin: 1rem 0;
@@ -48,8 +48,8 @@ My content here
 }
 
 .cv-browser-single-bar {
-  background: #f0ebe3;
-  border-bottom: 1px solid rgba(129,76,32,0.12);
+  background: rgba(129,76,32,0.2);
+  border-bottom: 1px solid rgba(196,133,58,0.35);
   padding: 0.5rem 0.75rem;
   display: flex;
   align-items: center;
@@ -66,12 +66,12 @@ My content here
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(129,76,32,0.15);
+  background: rgba(196,133,58,0.3);
 }
 
 .cv-browser-single-url {
-  background: #fff;
-  border: 1px solid rgba(129,76,32,0.15);
+  background: var(--bs-body-bg, #ffffff);
+  border: 1px solid rgba(196,133,58,0.2);
   border-radius: 4px;
   padding: 2px 10px;
   font-size: 0.72rem;
@@ -83,7 +83,7 @@ My content here
 }
 
 .cv-browser-single-body {
-  background: #fff;
+  background: var(--bs-body-bg, #ffffff);
   padding: 1.25rem 1.5rem;
 }
 
@@ -103,6 +103,6 @@ My content here
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: var(--custard-brown);
+  background: var(--custard-light-brown);
 }
 </style>
