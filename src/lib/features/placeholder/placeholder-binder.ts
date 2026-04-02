@@ -5,12 +5,12 @@
  * reactive spans that update when the variable store changes.
  */
 
-// Regex to find [[ variable : fallback ]] or [[ variable ? truthy : falsy ]]
+// Regex to find [[ variable : fallback ]] or [[ variable ? if-set : if-unset ]]
 // Group 1: escape character (backslashes)
 // Group 2: variable name (alphanumeric, underscores, hyphens)
-// Group 3 (optional): * modifier — when present, conditional resolves any value (user OR registry default)
-// Group 4 (optional): conditional truthy template (only when ? is present)
-// Group 5 (optional): conditional falsy string (only when ? is present)
+// Group 3 (optional): * modifier — when present, sets include-default; conditional resolves user value OR registry default
+// Group 4 (optional): ifSet template (only when ? is present)
+// Group 5 (optional): ifUnset string (only when ? is present)
 // Group 6 (optional): fallback value (only when : without ?)
 export const VAR_REGEX = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/g;
 // Non-global version for stateless testing
@@ -92,7 +92,7 @@ export class PlaceholderBinder {
 
     while ((match = VAR_REGEX.exec(text)) !== null) {
       hasMatch = true;
-      const [fullMatch, escape, name, modifier, condTruthy, condFalsy, fallback] = match;
+      const [fullMatch, escape, name, modifier, ifSet, ifUnset, fallback] = match;
       const index = match.index;
 
       if (!name) continue;
@@ -110,10 +110,10 @@ export class PlaceholderBinder {
         // Create Placeholder Custom Element
         const el = document.createElement('cv-placeholder');
         el.setAttribute('name', name);
-        if (condTruthy !== undefined) {
-          el.setAttribute('truthy', condTruthy);
-          el.setAttribute('falsy', condFalsy ?? '');
-          if (modifier === '*') el.setAttribute('any-value', '');
+        if (ifSet !== undefined) {
+          el.setAttribute('if-set', ifSet);
+          el.setAttribute('if-unset', ifUnset ?? '');
+          if (modifier === '*') el.setAttribute('include-default', '');
         } else if (fallback !== undefined) {
           el.setAttribute('fallback', fallback);
         }
@@ -220,7 +220,7 @@ export class PlaceholderBinder {
    * Resolves value for a placeholder using only user-set values (no registry defaults).
    * Returns undefined if the user has not explicitly set a non-empty value.
    *
-   * Used by conditional syntax `[[name ? truthy : falsy]]` (without `*`) and
+   * Used by conditional syntax `[[name ? if-set : if-unset]]` (without `*`) and
    * `<cv-toggle placeholder-id="name">` (without `*`).
    *
    * @param name - The placeholder name to resolve
@@ -285,21 +285,21 @@ export class PlaceholderBinder {
     values: Record<string, string>,
     attrName?: string,
   ): string {
-    return template.replace(VAR_REGEX, (_full, escape, name, modifier, condTruthy, condFalsy, fallback) => {
+    return template.replace(VAR_REGEX, (_full, escape, name, modifier, ifSet, ifUnset, fallback) => {
       if (escape) return `[[${name}]]`;
 
-      if (condTruthy !== undefined) {
+      if (ifSet !== undefined) {
         let val = modifier === '*'
           ? PlaceholderBinder.resolveValue(name, undefined, values)
           : PlaceholderBinder.resolveUserValue(name, values);
-        if (val === undefined) return condFalsy ?? '';
+        if (val === undefined) return ifUnset ?? '';
         // URL-encode the value component (same as regular placeholders)
         if (attrName && (attrName === 'href' || attrName === 'src')) {
           if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
             val = encodeURIComponent(val);
           }
         }
-        return condTruthy.replace(/\$/g, () => val!);
+        return ifSet.replace(/\$/g, () => val!);
       }
 
       let val = PlaceholderBinder.resolveValue(name, fallback, values);
