@@ -11,18 +11,18 @@
 * Site Integrations
   * [MarkBind]({{baseUrl}}/authorGuide/integrations/setupWithMarkbind.html)
 * [Configuration]({{baseUrl}}/authorGuide/configuration.html)
+* [Components & Features]({{baseUrl}}/authorGuide/components/allComponents.html) :expanded:
+  * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
+  * [TabGroups and Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
+  * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
+  * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
+  * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
+  * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
 * [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
 * Site Adaptations
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
-* [Components]({{baseUrl}}/authorGuide/components/all.html) :expanded:
-  * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
-  * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
-  * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
-  * [Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
-  * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
-  * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
       </site-nav>
     </div>
   </nav>

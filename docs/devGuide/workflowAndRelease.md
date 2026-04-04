@@ -101,7 +101,7 @@ npm run release:prod
 # CICD handles deployment of Production Docs
 ```
 
-3.  **Sync Back to 'develop' branch:** Open a PR from **`main` back to `develop`**.
+3.  **Sync Back to 'develop' branch:** Open a PR from **`main` back to `develop`, with name e.g. `Sync: Release v2.2.0 back to develop`, merging with a merge commit.
     > **Why?** This ensures the official versioning and the release "node" are integrated into the Beta channel. Because you used a Merge Commit in Step 1, this PR should be conflict-free.
 
 

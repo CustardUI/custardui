@@ -1,7 +1,5 @@
 # CustardUI
 
-> Rich, layered interactivity for static websites with no backend required.
-
 CustardUI (formerly CustomViews) is a lightweight, framework-agnostic runtime that adds dynamic, memory-persistent UI components to any static site. Built for educational websites, documentation portals, and course textbooks where one size never fits all.
 
 ## What it does

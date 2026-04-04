@@ -3,8 +3,9 @@
 <script lang="ts">
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
+  import IconPencil from '$lib/app/icons/IconPencil.svelte';
 
-  type Layout = 'inline' | 'stacked' | 'horizontal';
+  type Layout = 'inline' | 'stacked' | 'horizontal' | 'card';
   type Appearance = 'outline' | 'underline' | 'ghost';
 
   let {
@@ -45,6 +46,8 @@
     return def?.settingsHint || '';
   });
 
+  let effectiveDescription = $derived(placeholderRegistryStore.get(name)?.description ?? '');
+
   let sanitizedId = $derived(name.replace(/[^a-zA-Z0-9_-]/g, '_'));
 
   function handleInput(e: Event) {
@@ -64,19 +67,29 @@
   class="cv-input-wrapper {effectiveLayout}"
   style:--cv-input-width={width === 'auto-grow' ? 'auto' : width}
 >
-  {#if effectiveLayout !== 'inline' && effectiveLabel}
+  {#if effectiveLayout === 'card' && effectiveLabel}
+    <div class="label-group">
+      <label class="placeholder-label" for="cv-input-{sanitizedId}">{effectiveLabel}</label>
+      {#if effectiveDescription}
+        <p class="placeholder-description">{effectiveDescription}</p>
+      {/if}
+    </div>
+  {:else if effectiveLayout !== 'inline' && effectiveLabel}
     <label class="placeholder-label" for="cv-input-{sanitizedId}">{effectiveLabel}</label>
   {/if}
-  <input
-    id="cv-input-{sanitizedId}"
-    class="placeholder-input {appearance}"
-    type="text"
-    placeholder={effectiveHint}
-    {value}
-    oninput={handleInput}
-    aria-label={effectiveLayout === 'inline' ? effectiveLabel : undefined}
-    size={inputSize}
-  />
+  <div class="input-container">
+    <input
+      id="cv-input-{sanitizedId}"
+      class="placeholder-input {appearance}"
+      type="text"
+      placeholder={effectiveHint}
+      {value}
+      oninput={handleInput}
+      aria-label={effectiveLayout === 'inline' ? effectiveLabel : undefined}
+      size={inputSize}
+    />
+    <span class="edit-icon" aria-hidden="true"><IconPencil /></span>
+  </div>
 </div>
 
 <style>
@@ -88,7 +101,8 @@
 
   /* Host display overrides based on layout */
   :host([layout='stacked']),
-  :host([layout='horizontal']) {
+  :host([layout='horizontal']),
+  :host([layout='card']) {
     display: block;
     width: 100%;
     margin: 0 0 0.5rem 0; /* Reset margins for block layouts */
@@ -118,6 +132,46 @@
     flex-direction: row;
     align-items: center;
     gap: 0.75rem;
+  }
+
+  /* CARD */
+  .cv-input-wrapper.card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    gap: 0.75rem;
+    background: var(--cv-bg);
+    border: 1px solid var(--cv-border);
+    border-radius: var(--cv-card-radius, 0.5rem);
+    transition: background 0.15s ease;
+  }
+
+  .label-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card .label-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card .placeholder-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: normal;
+  }
+
+  .placeholder-description {
+    font-size: 0.75rem;
+    color: var(--cv-text-secondary);
+    margin: 0.125rem 0 0 0;
+    line-height: 1.4;
+  }
+
+  .card .placeholder-input {
+    width: 100%;
   }
 
   /* Label Styles */
@@ -152,9 +206,57 @@
 
   .inline .placeholder-input {
     width: var(--cv-input-width, auto);
-    padding: 0.3rem 0.5rem;
+    padding: 0.3rem 1.35rem 0.3rem 0.5rem;
     display: inline-block;
     text-align: center;
+  }
+
+  /* Input container — positions the pencil icon */
+  .input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .inline .input-container {
+    display: inline-flex;
+  }
+
+  .stacked .input-container {
+    width: 100%;
+  }
+
+  .horizontal .input-container {
+    flex: 1;
+  }
+
+  .card .input-container {
+    flex: 1;
+    min-width: 6rem;
+  }
+
+  .edit-icon {
+    position: absolute;
+    right: 0.3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    color: var(--cv-text-secondary, rgba(0, 0, 0, 0.5));
+    opacity: 0.7;
+  }
+
+  .edit-icon :global(svg) {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  /* More breathing room for block layouts */
+  .stacked .edit-icon,
+  .horizontal .edit-icon,
+  .card .edit-icon {
+    right: 0.5rem;
   }
   
   .horizontal .placeholder-input {
@@ -199,5 +301,12 @@
     outline: none;
     border-color: var(--cv-primary, #3e84f4);
     box-shadow: 0 0 0 2px var(--cv-focus-ring, rgba(62, 132, 244, 0.2));
+  }
+
+  /* Icon padding for block layouts — after appearance rules so underline can't override */
+  .stacked .placeholder-input,
+  .horizontal .placeholder-input,
+  .card .placeholder-input {
+    padding-right: 1.6rem;
   }
 </style>

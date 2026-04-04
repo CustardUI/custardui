@@ -24,5 +24,5 @@
 -->
 
 **Merge Instructions**:
-- [ ] If merging to **develop**: Prefer **Squash and Merge**.
-- [ ] If merging to **main** (Release/Hotfix): ONLY use **Create a Merge Commit**.
+- [ ] For feature branches merging to **develop**: Prefer **Squash and Merge**.
+- [ ] For release/hotfix branches merging to **main**, or subsequent sync back-merges merging to **develop**: ONLY use **Create a Merge Commit**.

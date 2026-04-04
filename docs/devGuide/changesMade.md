@@ -9,6 +9,30 @@
 
 Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
 
+### v2.3.*
+
+**User Facing Changes**:
+
+* feat: Add `<cv-toggle-control/>` component
+* feat: Add baseline support for light and dark mode
+* feat: Added description field to placeholders
+* feat: updated settings interface for placeholders to match toggles and tabgroups
+* feat: Added new card layout to placeholder-input component
+* feat: Added a pencil icon to the placeholder-input component
+* chore: Deprecate `show-inline-control` attribute from `<cv-toggle/>`
+* chore: Deprecate and remove `panel.theme` setting, rely on just (`colorScheme`) in root config.
+* fix: fix `stateManaged` toggle bugs regarding default state
+* fix: fix bottom border showing up even when navigation headers toggled off
+* docs: Cleaned up the structure of tab, toggle, placeholder, label author guide docs
+* docs: Updated the landing page
+* docs: Adapted the landing page to docs dark mode
+* docs: Add a nice logo row at the bottom
+
+**Developer Facing Changes**:
+
+* Fix bugs and make changes
+
+
 ### v2.2.*
 
 **User Facing Changes**:

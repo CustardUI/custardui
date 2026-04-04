@@ -3,76 +3,61 @@
   "config": {
     "toggles": [
       {
-        "toggleId": "prerequisites",
-        "label": "Prerequisites",
+        "toggleId": "code-example-hide",
+        "label": "Toggle Example 1",
+        "description": "Hide the code example!",
+        "isLocal": true,
+        "default": "hide"
+      },
+      {
+        "toggleId": "code-example-peek",
+        "label": "Toggle Example 2",
+        "description": "Peek at the code example!",
         "isLocal": true,
         "default": "peek"
       },
       {
-        "toggleId": "installation",
-        "label": "Installation",
+        "toggleId": "code-example-show",
+        "label": "Toggle Example 3",
+        "description": "Show the code example!",
         "isLocal": true,
         "default": "show"
-      },
-      {
-        "toggleId": "configuration",
-        "label": "Configuration",
-        "isLocal": true,
-        "default": "show"
-      },
-      {
-        "toggleId": "run-project",
-        "label": "Running the Project",
-        "isLocal": true,
-        "default": "show"
-      },
-      {
-        "toggleId": "troubleshooting-setup",
-        "label": "Troubleshooting",
-        "isLocal": true,
-        "default": "peek"
       },
       {
         "toggleId": "localToggle",
         "label": "Local Toggle Label",
+        "description": "Local toggle content for this page",
         "isLocal": true,
         "default": "peek"
       },
-      {
-        "toggleId": "mac",
-        "label": "MacOS",
-        "isLocal": true,
-        "description": "Show content for macOS users",
-        "default": "peek"
-      },
+      { "toggleId": "mac", "label": "MacOS", "isLocal": true, "description": "Show content for macOS users", "default": "peek" },
       { "toggleId": "linux", "label": "Linux", "isLocal": true, "description": "Show content for Linux users" },
-      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show" },
+      { "toggleId": "windows", "label": "Windows", "isLocal": true, "default": "show", "description": "Show content for Windows users" },
       { "toggleId": "nus-resources", "label": "NUS Resources", "siteManaged": true, "default": "hide", "isLocal": true },
       { "toggleId": "sample-resources", "label": "Sample Resources", "siteManaged": true, "default": "hide", "isLocal": true }
     ],
     "tabGroups": [
       {
-        "groupId": "os",
-        "label": "Operating System",
-        "description": "Select your operating system.",
+        "groupId": "tab-group-example",
+        "label": "Tab Group Example",
+        "description": "Switch between tabs across pages!",
         "isLocal": true,
-        "default": "macos",
+        "default": "javascript",
         "tabs": [
-          { "tabId": "macos", "label": "macOS" },
-          { "tabId": "windows", "label": "Windows" },
-          { "tabId": "linux", "label": "Linux" }
+          { "tabId": "javascript", "label": "JavaScript" },
+          { "tabId": "java", "label": "Java" },
+          { "tabId": "python", "label": "Python" }
         ]
       },
       {
-        "groupId": "pkg",
-        "label": "Package Manager",
-        "description": "Select your preferred package manager.",
+        "groupId": "tab-group-test",
+        "label": "Tab Group Test",
+        "description": "Switch between tabs across pages!",
         "isLocal": true,
-        "default": "npm",
+        "default": "text",
         "tabs": [
-          { "tabId": "npm", "label": "npm" },
-          { "tabId": "yarn", "label": "yarn" },
-          { "tabId": "pnpm", "label": "pnpm" }
+          { "tabId": "text", "label": "Text" },
+          { "tabId": "diagram", "label": "Diagram" }
         ]
       },
       {
@@ -103,21 +88,24 @@
     "placeholders": [
       {
         "name": "username",
-        "settingsLabel": "Your Username",
-        "settingsHint": "Enter username",
-        "defaultValue": "Guest"
+        "settingsLabel": "Your GitHub Username",
+        "description": "Enter your GitHub username",
+        "settingsHint": "Enter here",
+        "defaultValue": "JohnDoe"
+      },
+      {
+        "name": "repo",
+        "settingsLabel": "Repo Name",
+        "description": "Enter your GitHub repo name here",
+        "settingsHint": "Enter here",
+        "isLocal": true,
+        "defaultValue": "your-repository-name"
       },
       {
         "name": "placeholderTest",
         "settingsLabel": "placeholderTest",
         "settingsHint": "Enter anything",
         "defaultValue": "placeholderTestDefaultValue",
-        "isLocal": true
-      },
-      {
-        "name": "searchQuery",
-        "settingsLabel": "Search Query",
-        "settingsHint": "Enter search query",
         "isLocal": true
       },
       {

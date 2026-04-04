@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
+  import { onMount, onDestroy, getContext } from 'svelte';
   import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
   import { ICON_SETTINGS_CTX, type IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
@@ -20,6 +20,7 @@
 
   import { UrlActionRouter } from '$features/url/url-action-router.svelte';
   import { IntroManager } from '$features/settings/intro-manager.svelte';
+  import { colorSchemeStore } from '$lib/stores/color-scheme-store.svelte';
 
   let { options } = $props<{
     options: ResolvedUIManagerOptions;
@@ -64,6 +65,15 @@
     introManager.init(elementStore.hasElementsOnCurrentPage, settingsEnabled);
   });
 
+  // onDestroy (not $effect cleanup) so the attribute is never briefly absent during transitions.
+  $effect(() => {
+    document.documentElement.setAttribute('data-cv-theme', colorSchemeStore.isDark ? 'dark' : 'light');
+  });
+
+  onDestroy(() => {
+    document.documentElement.removeAttribute('data-cv-theme');
+  });
+
   // --- Modal Actions ---
 
   function openModal() {
@@ -97,7 +107,7 @@
   );
 </script>
 
-<div class="cv-widget-root" data-theme={options.theme} data-cv-share-ignore>
+<div class="cv-widget-root" data-cv-share-ignore>
   <!-- Intro Callout -->
   {#if introManager.showCallout && settingsEnabled}
     <IntroCallout
@@ -144,17 +154,8 @@
 </div>
 
 <style>
-  /* Root should allow clicks to pass through to the page unless hitting checking/interactive element */
-  :global(.cv-widget-root) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    z-index: 9999;
-    pointer-events: none; /* Crucial: Allow clicks to pass through */
-
-    /* Light Theme Defaults */
+  /* --cv-* defaults (light) — on :root so custom properties cascade into all shadow DOM */
+  :global(:root) {
     --cv-bg: white;
     --cv-text: rgba(0, 0, 0, 0.9);
     --cv-text-secondary: rgba(0, 0, 0, 0.6);
@@ -185,22 +186,10 @@
     --cv-modal-radius: 0.75rem;
     --cv-card-radius: 0.5rem;
     --cv-section-label-transform: uppercase;
-
-    font-family: inherit; /* Inherit font from host */
   }
 
-  /* But interactive children need pointer-events back */
-  :global(.cv-widget-root > *) {
-    pointer-events: auto;
-  }
-
-  /* Exception: ShareOverlay manages its own pointer events */
-  :global(.cv-widget-root .cv-share-overlay) {
-    pointer-events: none; /* Overlay often passes clicks until specialized handles active */
-  }
-
-  :global(.cv-widget-root[data-theme='dark']) {
-    /* Dark Theme Overrides */
+  /* Dark Theme — triggered by data-cv-theme="dark" on <html> */
+  :global(:root[data-cv-theme='dark']) {
     --cv-bg: #101722;
     --cv-text: #e2e8f0;
     --cv-text-secondary: rgba(255, 255, 255, 0.6);
@@ -232,6 +221,27 @@
     --cv-section-label-transform: uppercase;
   }
 
+  /* Fixed zero-size overlay — pointer-events none so clicks pass through to the page */
+  :global(.cv-widget-root) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 9999;
+    pointer-events: none;
+    font-family: inherit;
+  }
+
+  /* Interactive children need pointer-events restored */
+  :global(.cv-widget-root > *) {
+    pointer-events: auto;
+  }
+
+  /* ShareOverlay manages its own pointer-events internally */
+  :global(.cv-widget-root .cv-share-overlay) {
+    pointer-events: none;
+  }
 
   :global(.cv-hidden) {
     display: none !important;

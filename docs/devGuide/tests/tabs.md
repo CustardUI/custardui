@@ -9,6 +9,96 @@
 
 # {{ title }}
 
+
+<include src="browserBoxSplit.md" boilerplate>
+<variable name="url1">https://cs4321.github.io/week6/time-management</variable>
+<variable name="url2">https://cs4321.github.io/week7/networking</variable>
+<variable name="content1">
+
+#### Time Management
+
+%%The Eisenhower Matrix helps prioritise tasks by urgency and importance. Not everything urgent is important; not everything important is urgent.%%
+
+<cv-tabgroup group-id="tab-group-test" nav="auto">
+<cv-tab tab-id="text" header="Text">
+
+The matrix divides tasks into four quadrants:
+
+1. **Do**: Urgent and important. Deadlines, critical bugs. Handle immediately.
+2. **Decide**: Not urgent but important. Planning, learning, refactoring. Schedule time for these.
+3. **Delegate**: Urgent but not important. Pass to someone else if possible.
+4. **Delete**: Don't do it. Neither urgent nor important. Busywork, distractions. Drop entirely.
+
+</cv-tab>
+<cv-tab tab-id="diagram" header="Diagram">
+
+<div style="display: flex; justify-content: center;">
+<div style="width: 70%;">
+<mermaid>
+%%{init: { 'theme': 'neutral' } }%%
+quadrantChart
+  x-axis High Urgency --> Low Urgency
+  y-axis Low Importance --> High Importance
+  quadrant-1 Decide
+  quadrant-2 Do
+  quadrant-3 Delegate
+  quadrant-4 Delete
+  Critical bug fix: [0.15, 0.85]
+  Project planning: [0.8, 0.8]
+  Urgent email: [0.2, 0.75]
+  Code refactoring: [0.75, 0.7]
+  Updating internal wiki: [0.2, 0.25]
+  Busywork: [0.8, 0.2]
+</mermaid>
+</div>
+</div>
+
+</cv-tab>
+</cv-tabgroup>
+
+%%Putting things to-do on a list frees your mind. But always question what is worth doing first.%%
+
+</variable>
+<variable name="content2">
+
+#### HTTP Request-Response
+
+%%Web interactions involve a client sending a request to a server, which may query a data source to return a structured response. Understanding this cycle is fundamental to building reliable web software.%%
+
+<cv-tabgroup group-id="tab-group-test">
+  <cv-tab tab-id="text" header="Text">
+
+1. The **Client** sends a `GET /api/data` request to the **Server**.
+2. The **Server** validates the request token with the **Auth** service.
+3. Once authorized, the **Server** queries the **Database** using a SQL `SELECT` statement.
+4. The **Database** returns the matching rows to the **Server**.
+5. The **Server** formats the data as JSON.
+6. The **Server** replies to the **Client** with `200 OK` and the JSON payload.
+
+  </cv-tab>
+  <cv-tab tab-id="diagram" header="Diagram">
+
+<mermaid>
+%%{init: { 'theme': 'neutral' } }%%
+sequenceDiagram
+  Client->>Server: GET /api/data
+  Server->>Auth: Validate token
+  Auth-->>Server: 200 Authorized
+  Server->>Database: SELECT * FROM records
+  Database-->>Server: rows[]
+  Server->>Server: Format as JSON
+  Server-->>Client: 200 OK, JSON payload
+</mermaid>
+
+  </cv-tab>
+</cv-tabgroup>
+
+%%A `404` response means the resource was not found. A `500` response indicates a server-side error. Always handle both in your client code.%%
+
+</variable>
+</include>
+
+
 <panel header="Not preloaded option (Default Panel Behavior)">
 
 Non preload.
