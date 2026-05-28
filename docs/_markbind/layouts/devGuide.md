@@ -9,7 +9,9 @@
       <site-nav>
 * [Contributing]({{baseUrl}}/devGuide/devGuide.html)
 * [Framework]({{baseUrl}}/devGuide/framework.html)
-* [Workflow and Release]({{baseUrl}}/devGuide/workflowAndRelease.html)
+* Development :expanded:
+  * [Setting Up]({{baseUrl}}/devGuide/development/settingUp.html)
+  * [Workflow and Release]({{baseUrl}}/devGuide/development/workflowAndRelease.html)
 * [How Components Work]({{baseUrl}}/devGuide/componentWorkings.html) :expanded:
   * [Tab Logic]({{baseUrl}}/devGuide/components/tabLogic.html)
   * [DOM Anchor System]({{baseUrl}}/devGuide/components/anchor.html)
