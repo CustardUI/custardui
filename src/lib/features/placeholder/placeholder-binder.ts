@@ -20,6 +20,7 @@ const VAR_TESTER =
 
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 import { elementStore } from '$lib/stores/element-store.svelte';
+import { hasDangerousProtocol } from '$lib/utils/url-utils';
 
 export class PlaceholderBinder {
   /**
@@ -76,7 +77,7 @@ export class PlaceholderBinder {
     // Attribute Scanning (Opt-in)
     const candidates = root.querySelectorAll('.cv-bind, [data-cv-bind]');
     candidates.forEach((el) => {
-      if (el instanceof HTMLElement) {
+      if (el instanceof Element) {
         PlaceholderBinder.processElementAttributes(el);
       }
     });
@@ -137,8 +138,8 @@ export class PlaceholderBinder {
     }
   }
 
-  private static processElementAttributes(el: HTMLElement) {
-    if (el.dataset.cvAttrTemplates) return; // Already processed
+  private static processElementAttributes(el: Element) {
+    if (el.hasAttribute('data-cv-attr-templates')) return; // Already processed
 
     const templates: Record<string, string> = {};
     let hasBindings = false;
@@ -154,6 +155,18 @@ export class PlaceholderBinder {
         continue;
       }
 
+      // Block placeholder binding into event handler attributes (on*).
+      // The entire value of an event handler is a script execution context —
+      // there is no safe way to interpolate untrusted user input into it.
+      if (/^on/i.test(attr.name)) {
+        if (VAR_TESTER.test(attr.value)) {
+          console.warn(
+            `[CustardUI] Placeholder binding into event handler attribute "${attr.name}" is blocked for security. Remove the placeholder from this attribute.`,
+          );
+        }
+        continue;
+      }
+
       if (VAR_TESTER.test(attr.value)) {
         templates[attr.name] = attr.value;
         hasBindings = true;
@@ -161,7 +174,7 @@ export class PlaceholderBinder {
     }
 
     if (hasBindings) {
-      el.dataset.cvAttrTemplates = JSON.stringify(templates);
+      el.setAttribute('data-cv-attr-templates', JSON.stringify(templates));
 
       const matcher = new RegExp(VAR_REGEX.source, 'g');
       Object.values(templates).forEach((tmpl) => {
@@ -183,15 +196,20 @@ export class PlaceholderBinder {
   private static updateAttributeBindings(values: Record<string, string>) {
     const attrElements = document.querySelectorAll('[data-cv-attr-templates]');
     attrElements.forEach((el) => {
-      if (el instanceof HTMLElement) {
+      if (el instanceof Element) {
         try {
-          const templates = JSON.parse(el.dataset.cvAttrTemplates || '{}');
+          const templates = JSON.parse(el.getAttribute('data-cv-attr-templates') || '{}');
           Object.entries(templates).forEach(([attrName, template]) => {
-            const newValue = PlaceholderBinder.interpolateString(
+            let newValue = PlaceholderBinder.interpolateString(
               template as string,
               values,
               attrName,
             );
+            if (attrName && /(^|:)(href|src|action|formaction)$/i.test(attrName)) {
+              if (hasDangerousProtocol(newValue)) {
+                newValue = '';
+              }
+            }
             el.setAttribute(attrName, newValue);
           });
         } catch (e) {
@@ -299,7 +317,8 @@ export class PlaceholderBinder {
               : PlaceholderBinder.resolveUserValue(name, values);
           if (val === undefined) return ifUnset ?? '';
           // URL-encode the value component (same as regular placeholders)
-          if (attrName && (attrName === 'href' || attrName === 'src')) {
+          if (attrName && /(^|:)(href|src|action|formaction)$/i.test(attrName)) {
+            if (hasDangerousProtocol(val)) return '';
             if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
               val = encodeURIComponent(val);
             }
@@ -311,7 +330,9 @@ export class PlaceholderBinder {
         if (val === undefined) return `[[${name}]]`;
 
         // Context-aware encoding for URL attributes
-        if (attrName && (attrName === 'href' || attrName === 'src')) {
+        if (attrName && /(^|:)(href|src|action|formaction)$/i.test(attrName)) {
+          // Block dangerous protocols before any further URL handling
+          if (hasDangerousProtocol(val)) return '';
           // Don't encode full URLs or relative URLs - only encode URL components
           if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
             val = encodeURIComponent(val);

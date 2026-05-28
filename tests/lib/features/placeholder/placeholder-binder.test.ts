@@ -246,6 +246,9 @@ describe('PlaceholderBinder', () => {
       const a = container.querySelector('a')!;
       expect(a.getAttribute('href')).toBe('mailto:support@example.com');
     });
+  });
+
+  describe('updateAll — fallback priority', () => {
     it('should treat an explicit empty fallback as "show nothing" (overrides registry default)', () => {
       vi.mocked(placeholderRegistryStore.get).mockReturnValue({
         name: 'key',

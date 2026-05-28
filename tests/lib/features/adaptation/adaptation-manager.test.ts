@@ -436,4 +436,86 @@ describe('AdaptationManager', () => {
       expect(document.querySelectorAll('link[data-cv-adaptation-id="css-id"]').length).toBe(1);
     });
   });
+
+  // ===========================================================================
+  // Security: CSS variable validation
+  // ===========================================================================
+
+  describe('Security — CSS variable validation in applyTheme()', () => {
+    const mockAdaptWith = (cssVariables: Record<string, string>) => {
+      mockLocation('http://localhost/?adapt=sec-id');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'sec-id', theme: { cssVariables } }),
+      });
+    };
+
+    it('rejects non-custom-property keys (no -- prefix)', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockAdaptWith({ color: 'red' });
+
+      await AdaptationManager.init();
+
+      expect(document.documentElement.style.getPropertyValue('color')).toBe('');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('non-custom CSS property'));
+    });
+
+    it('rejects keys with injection characters (e.g. semicolons)', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockAdaptWith({ '--good; --evil': 'red' });
+
+      await AdaptationManager.init();
+
+      expect(document.documentElement.style.getPropertyValue('--good')).toBe('');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('non-custom CSS property'));
+    });
+
+    it('rejects values containing url()', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockAdaptWith({ '--bg': 'url(https://evil.com/track.gif)' });
+
+      await AdaptationManager.init();
+
+      expect(document.documentElement.style.getPropertyValue('--bg')).toBe('');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('suspicious CSS value'));
+    });
+
+    it('rejects values containing expression()', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockAdaptWith({ '--size': 'expression(document.cookie)' });
+
+      await AdaptationManager.init();
+
+      expect(document.documentElement.style.getPropertyValue('--size')).toBe('');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('suspicious CSS value'));
+    });
+
+    it('rejects values containing javascript: (case-insensitive)', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockAdaptWith({ '--font': 'JAVASCRIPT:alert(1)' });
+
+      await AdaptationManager.init();
+
+      expect(document.documentElement.style.getPropertyValue('--font')).toBe('');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('suspicious CSS value'));
+    });
+
+    it('applies valid custom properties and skips invalid ones in the same config', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockAdaptWith({
+        '--primary': '#3490dc',
+        badKey: 'shouldBeIgnored',
+        '--danger': 'url(evil.com)',
+        '--secondary': '#ffed4a',
+      });
+
+      await AdaptationManager.init();
+
+      expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#3490dc');
+      expect(document.documentElement.style.getPropertyValue('--secondary')).toBe('#ffed4a');
+      expect(document.documentElement.style.getPropertyValue('badKey')).toBe('');
+      expect(document.documentElement.style.getPropertyValue('--danger')).toBe('');
+      expect(warnSpy).toHaveBeenCalledTimes(2);
+    });
+  });
 });
