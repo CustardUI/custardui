@@ -154,6 +154,18 @@ export class PlaceholderBinder {
         continue;
       }
 
+      // Block placeholder binding into event handler attributes (on*).
+      // The entire value of an event handler is a script execution context —
+      // there is no safe way to interpolate untrusted user input into it.
+      if (/^on/i.test(attr.name)) {
+        if (VAR_TESTER.test(attr.value)) {
+          console.warn(
+            `[CustardUI] Placeholder binding into event handler attribute "${attr.name}" is blocked for security. Remove the placeholder from this attribute.`,
+          );
+        }
+        continue;
+      }
+
       if (VAR_TESTER.test(attr.value)) {
         templates[attr.name] = attr.value;
         hasBindings = true;
