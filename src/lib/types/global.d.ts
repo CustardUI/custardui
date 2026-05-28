@@ -7,6 +7,7 @@ declare global {
     /** Guard for an initialization already in progress to avoid races */
     __custardUIInitInProgress?: boolean;
   }
+  const __APP_VERSION__: string;
 }
 
 export {};
