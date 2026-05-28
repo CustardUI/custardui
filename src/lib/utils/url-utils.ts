@@ -61,9 +61,9 @@ export function sanitizeTabHeader(rawHtml: string): string {
         el.removeAttribute(attr.name);
         continue;
       }
-      // Strip javascript: / vbscript: / data: from href, src, and action
+      // Strip javascript: / vbscript: / data: from URL-bearing attributes (literal or namespaced, e.g. href, xlink:href, src, action)
       // Also handles bypasses where control/whitespace characters are embedded (e.g. ja\tvascript:)
-      if (attr.name === 'href' || attr.name === 'src' || attr.name === 'action') {
+      if (/(^|:)(href|src|action|formaction)$/i.test(attr.name)) {
         if (hasDangerousProtocol(attr.value, ['javascript', 'vbscript', 'data'])) {
           el.removeAttribute(attr.name);
         }

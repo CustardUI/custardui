@@ -1,10 +1,6 @@
 // @vitest-environment jsdom
 /**
- * Security tests for the sanitizeTabHeader() logic used in TabGroup.svelte.
- *
- * sanitizeTabHeader() is defined as a local Svelte function, so we re-implement
- * it here as a pure helper to keep tests free of Svelte component wiring.
- * Any changes to the source function must be mirrored here.
+ * Security tests for the shared sanitizeTabHeader() helper.
  */
 import { describe, it, expect } from 'vitest';
 import { sanitizeTabHeader } from '../../../../src/lib/utils/url-utils';
@@ -192,6 +188,19 @@ describe('sanitizeTabHeader()', () => {
 
       const ctrlCharResult = sanitizeTabHeader('<a href="java\x01script:alert(1)">XSS</a>');
       expect(ctrlCharResult).not.toContain('href=');
+    });
+
+    it('strips javascript: from namespaced SVG xlink:href attributes', () => {
+      const result = sanitizeTabHeader('<svg><use xlink:href="javascript:alert(1)"></use></svg>');
+      // xlink:href should be stripped
+      expect(result).not.toContain('xlink:href=');
+      expect(result).not.toContain('javascript:');
+    });
+
+    it('strips javascript: from formaction attribute', () => {
+      const result = sanitizeTabHeader('<button formaction="javascript:alert(1)">Go</button>');
+      expect(result).not.toContain('formaction=');
+      expect(result).not.toContain('javascript:');
     });
 
     it('preserves safe https: href', () => {

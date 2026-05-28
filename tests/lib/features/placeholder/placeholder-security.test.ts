@@ -149,6 +149,22 @@ describe('PlaceholderBinder - Security', () => {
       PlaceholderBinder.updateAll({ url: 'java\x01script:alert(1)' });
       expect(container.querySelector('a')!.getAttribute('href')).toBe('');
     });
+
+    it('blocks dangerous protocols in namespaced SVG xlink:href attributes', () => {
+      container.innerHTML = '<svg><use xlink:href="[[url]]" class="cv-bind"></use></svg>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      PlaceholderBinder.updateAll({ url: 'javascript:alert(1)' });
+      expect(container.querySelector('use')!.getAttribute('xlink:href')).toBe('');
+    });
+
+    it('blocks dangerous protocols in formaction attributes', () => {
+      container.innerHTML = '<button formaction="[[url]]" class="cv-bind">Go</button>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      PlaceholderBinder.updateAll({ url: 'javascript:alert(1)' });
+      expect(container.querySelector('button')!.getAttribute('formaction')).toBe('');
+    });
   });
 
   describe('Security — dangerous protocol blocking does not affect template text', () => {
