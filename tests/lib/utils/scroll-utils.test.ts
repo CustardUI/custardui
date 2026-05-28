@@ -164,7 +164,7 @@ describe('scroll-utils', () => {
     it('respects header offset (ignores elements above current viewport top)', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as any);
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as unknown as CSSStyleDeclaration);
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({ height: 100 } as DOMRect);
 
       // el1 is partially under the header (bottom is 100, offset is 100)
@@ -185,7 +185,7 @@ describe('scroll-utils', () => {
     it('ignores elements that are inside the sticky/fixed header', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as any);
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as unknown as CSSStyleDeclaration);
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({ height: 100 } as DOMRect);
 
       const elInHeader = document.createElement('div');
@@ -219,7 +219,7 @@ describe('scroll-utils', () => {
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({ top: 150 } as DOMRect);
 
       // Manual control: execute callbacks synchronously to verify double-rAF
-      setFrameScheduler((cb: any) => {
+      setFrameScheduler((cb: () => void) => {
         cb();
         return 0;
       });
@@ -235,7 +235,7 @@ describe('scroll-utils', () => {
       const scrollBySpy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
       const anchor = { element: el, top: 100 };
 
-      setFrameScheduler((cb: any) => {
+      setFrameScheduler((cb: () => void) => {
         cb();
         return 0;
       });
@@ -254,7 +254,7 @@ describe('scroll-utils', () => {
       const anchor = { element: el, top: 100 };
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({ top: 100.5 } as DOMRect);
 
-      setFrameScheduler((cb: any) => {
+      setFrameScheduler((cb: () => void) => {
         cb();
         return 0;
       });

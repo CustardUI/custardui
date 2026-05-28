@@ -114,7 +114,7 @@
   }
 
   // Cancel (e.g. touch interrupted by scroll) — reset all drag state cleanly.
-  function onPointerCancel(_e: PointerEvent) {
+  function onPointerCancel() {
     isPointerDown = false;
     isDragging = false;
   }

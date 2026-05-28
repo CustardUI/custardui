@@ -74,7 +74,7 @@
   </button>
   {#if isExpanded}
     <div class="cv-color-swatches" role="none">
-      {#each HIGHLIGHT_COLORS as color}
+      {#each HIGHLIGHT_COLORS as color (color.key)}
         <button
           type="button"
           class="cv-color-swatch"

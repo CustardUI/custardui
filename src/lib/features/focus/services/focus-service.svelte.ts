@@ -202,6 +202,7 @@ export class FocusService {
     document.body.classList.add(BODY_SHOW_CLASS);
 
     // Exclude highlight targets from being hidden so they stay visible
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const excludeSet = new Set(excludeTargets);
     const filteredTargets =
       excludeTargets.length > 0 ? targets.filter((t) => !excludeSet.has(t)) : targets;
