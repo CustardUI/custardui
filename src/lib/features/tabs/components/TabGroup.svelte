@@ -104,13 +104,6 @@
       .map((id) => id.trim());
   }
 
-  /**
-   * Sanitizes HTML sourced from cv-tab-header innerHTML.
-   * Strips script, style, link, and all inline event handler attributes
-   * (on*) and javascript: hrefs/srcs, preserving safe rich formatting.
-   * Uses DOMParser — no external dependencies.
-   */
-
   // Todo: For handleSlotChange(), consider if there is a svelte way
   // to do this without the need for the slotchange event.
 
