@@ -6,6 +6,7 @@
       showPeekBorder: { reflect: true, type: 'Boolean', attribute: 'show-peek-border' },
       showLabel: { reflect: true, type: 'Boolean', attribute: 'show-label' },
       placeholderId: { reflect: true, type: 'String', attribute: 'placeholder-id' },
+      inline: { reflect: true, type: 'Boolean', attribute: 'inline' },
     },
   }}
 />
@@ -23,15 +24,19 @@
     showPeekBorder = false,
     showLabel = false,
     placeholderId = '',
+    inline = false,
   }: {
     toggleId?: string;
     showPeekBorder?: boolean;
     showLabel?: boolean;
     placeholderId?: string;
+    inline?: boolean;
   } = $props();
   // Derive toggle IDs from toggle-id prop (can have multiple space-separated IDs)
   let toggleIds = $derived((toggleId || '').split(/\s+/).filter(Boolean));
-  let toggleConfig = $derived(activeStateStore.config.toggles?.find((t) => t.toggleId === toggleIds[0]));
+  let toggleConfig = $derived(
+    activeStateStore.config.toggles?.find((t) => t.toggleId === toggleIds[0]),
+  );
 
   $effect(() => {
     toggleIds.forEach((id) => elementStore.registerToggle(id));
@@ -167,8 +172,6 @@
     e.stopPropagation();
     localExpanded = !localExpanded;
   }
-
-
 </script>
 
 <div
@@ -178,6 +181,7 @@
   class:peek-mode={peekState && !isSmallContent}
   class:hidden={isHidden}
   class:has-border={showPeekBorder && peekState}
+  class:inline-mode={inline}
 >
   {#if showLabel && labelText && !isHidden}
     <div class="cv-toggle-label">{labelText}</div>
@@ -220,6 +224,12 @@
     overflow: visible;
   }
 
+  /* Inline mode: renders the host as inline so it flows with surrounding text */
+  :host([inline]) {
+    display: inline;
+    vertical-align: baseline;
+  }
+
   /* Host visibility control */
   :host([hidden]) {
     display: none;
@@ -232,8 +242,25 @@
     margin-bottom: 4px;
   }
 
+  /* In inline mode, don't force block-level width or margins */
+  .cv-toggle-wrapper.inline-mode {
+    display: inline;
+    width: auto;
+    margin-bottom: 0;
+    vertical-align: baseline;
+  }
+
+  .cv-toggle-wrapper.inline-mode .cv-toggle-content,
+  .cv-toggle-wrapper.inline-mode .cv-toggle-inner {
+    display: inline;
+  }
+
   .cv-toggle-wrapper.hidden {
     margin-bottom: 0;
+  }
+
+  .cv-toggle-wrapper.hidden.inline-mode {
+    display: none;
   }
 
   .cv-toggle-wrapper.peek-mode {
@@ -293,8 +320,13 @@
   /* Peek State — smoother gradient */
   .peeking .cv-toggle-content {
     opacity: 1;
-    mask-image: linear-gradient(to bottom, black 30%, rgba(0,0,0,0.5) 70%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 30%, rgba(0,0,0,0.5) 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 30%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 30%,
+      rgba(0, 0, 0, 0.5) 70%,
+      transparent 100%
+    );
   }
 
   /* Label Style */
