@@ -223,7 +223,7 @@ Interpolate placeholder values into HTML attributes such as `href` or `src` by a
 Placeholders can be populated directly from [shareable URL parameters](#shareable-url). They must be treated as **untrusted user input**.
 
 - **Protocol blocking:** `javascript:` and `vbscript:` URLs are blocked when a placeholder value is bound to an `href` or `src` attribute, returning an empty string instead.
-- **Event handler blocking:** Placeholder binding into `on*` attributes (e.g. `onclick`, `onerror`) is blocked entirely, the attribute is silently skipped and a warning is logged to the console.
+- **Event handler blocking:** Placeholder binding into `on*` attributes (e.g. `onclick`, `onerror`) is blocked entirely, and the attribute is silently skipped and a warning is logged to the console.
 - **Context awareness:** Only bind placeholders to attributes where the resulting value is constrained to a safe domain or format that you control.
 
 </box>

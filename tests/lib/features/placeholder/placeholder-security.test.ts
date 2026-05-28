@@ -127,6 +127,16 @@ describe('PlaceholderBinder - Security', () => {
       // isDangerousProtocol fires on the resolved val before substitution, returns ''
       expect(container.querySelector('a')!.getAttribute('href')).toBe('');
     });
+
+    it('blocks dangerous protocol assembled partially from template prefix and placeholder value (e.g. java[[scheme]])', () => {
+      container.innerHTML = '<a href="java[[scheme]]" class="cv-bind">Link</a>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      PlaceholderBinder.updateAll({ scheme: 'script:alert(1)' });
+
+      // Fully assembled value is "javascript:alert(1)" which should be blocked and set to empty string
+      expect(container.querySelector('a')!.getAttribute('href')).toBe('');
+    });
   });
 
   describe('Security — dangerous protocol blocking does not affect template text', () => {

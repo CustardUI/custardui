@@ -199,11 +199,16 @@ export class PlaceholderBinder {
         try {
           const templates = JSON.parse(el.dataset.cvAttrTemplates || '{}');
           Object.entries(templates).forEach(([attrName, template]) => {
-            const newValue = PlaceholderBinder.interpolateString(
+            let newValue = PlaceholderBinder.interpolateString(
               template as string,
               values,
               attrName,
             );
+            if (attrName === 'href' || attrName === 'src') {
+              if (PlaceholderBinder.isDangerousProtocol(newValue)) {
+                newValue = '';
+              }
+            }
             el.setAttribute(attrName, newValue);
           });
         } catch (e) {
