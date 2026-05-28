@@ -103,6 +103,7 @@ The block is hidden when `username` has no value, and visible when it does. See 
 By default, `<cv-toggle>` elements behave as block-level elements (`display: block`). If you want to render a toggle or a placeholder-driven toggle inline (for example, to display a conditional badge or inline text within a paragraph or navigation link), add the `inline` attribute.
 
 * This displays any toggle content inline so it flows with surrounding text without a line break.
+* Note that inline toggles do not support peek/expand mode, and will simply be shown in full when peek/show states are active.
 
 <cv-toggle-control toggle-id="mac"></cv-toggle-control>
 <cv-placeholder-input name="username" layout="card"></cv-placeholder-input>
