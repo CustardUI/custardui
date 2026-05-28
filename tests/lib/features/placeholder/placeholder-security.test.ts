@@ -1,8 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PlaceholderBinder } from '../../../../src/lib/features/placeholder/placeholder-binder';
-import { elementStore } from '../../../../src/lib/stores/element-store.svelte';
-import { placeholderRegistryStore } from '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte';
 
 // Mock element store
 vi.mock('../../../../src/lib/stores/element-store.svelte', () => {
@@ -135,6 +133,20 @@ describe('PlaceholderBinder - Security', () => {
       PlaceholderBinder.updateAll({ scheme: 'script:alert(1)' });
 
       // Fully assembled value is "javascript:alert(1)" which should be blocked and set to empty string
+      expect(container.querySelector('a')!.getAttribute('href')).toBe('');
+    });
+
+    it('blocks dangerous protocols with embedded control characters or whitespaces', () => {
+      container.innerHTML = '<a href="[[url]]" class="cv-bind">Link</a>';
+      PlaceholderBinder.scanAndHydrate(container);
+
+      PlaceholderBinder.updateAll({ url: 'java\tscript:alert(1)' });
+      expect(container.querySelector('a')!.getAttribute('href')).toBe('');
+
+      PlaceholderBinder.updateAll({ url: 'java\nscript:alert(1)' });
+      expect(container.querySelector('a')!.getAttribute('href')).toBe('');
+
+      PlaceholderBinder.updateAll({ url: 'java\x01script:alert(1)' });
       expect(container.querySelector('a')!.getAttribute('href')).toBe('');
     });
   });

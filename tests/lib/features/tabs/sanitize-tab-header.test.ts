@@ -7,38 +7,7 @@
  * Any changes to the source function must be mirrored here.
  */
 import { describe, it, expect } from 'vitest';
-
-// ---------------------------------------------------------------------------
-// Inline re-implementation of sanitizeTabHeader (mirrors TabGroup.svelte)
-// Must be kept in sync with the source if the logic changes.
-// ---------------------------------------------------------------------------
-function sanitizeTabHeader(rawHtml: string): string {
-  const doc = new DOMParser().parseFromString(rawHtml, 'text/html');
-
-  // Remove entirely unsafe elements
-  doc
-    .querySelectorAll('script, style, link, object, embed, iframe, form')
-    .forEach((el) => el.remove());
-
-  // Walk all remaining elements and strip dangerous attributes
-  doc.body.querySelectorAll('*').forEach((el) => {
-    for (const attr of Array.from(el.attributes)) {
-      // Strip all on* event handler attributes
-      if (/^on/i.test(attr.name)) {
-        el.removeAttribute(attr.name);
-        continue;
-      }
-      // Strip javascript: / vbscript: / data: from href and src
-      if (attr.name === 'href' || attr.name === 'src' || attr.name === 'action') {
-        if (/^\s*(javascript|vbscript|data):/i.test(attr.value)) {
-          el.removeAttribute(attr.name);
-        }
-      }
-    }
-  });
-
-  return doc.body.innerHTML;
-}
+import { sanitizeTabHeader } from '../../../../src/lib/utils/url-utils';
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -210,6 +179,19 @@ describe('sanitizeTabHeader()', () => {
       );
       // form itself is removed; this just double-checks action is gone too
       expect(result).not.toContain('javascript:');
+    });
+
+    it('strips javascript: href containing embedded control characters or whitespace', () => {
+      // Browsers normalize/ignore tabs and newlines inside the scheme.
+      // So "java\tscript:" and "java\nscript:" resolve to "javascript:"
+      const tabResult = sanitizeTabHeader('<a href="java\tscript:alert(1)">XSS</a>');
+      expect(tabResult).not.toContain('href=');
+
+      const newlineResult = sanitizeTabHeader('<a href="java\nscript:alert(1)">XSS</a>');
+      expect(newlineResult).not.toContain('href=');
+
+      const ctrlCharResult = sanitizeTabHeader('<a href="java\x01script:alert(1)">XSS</a>');
+      expect(ctrlCharResult).not.toContain('href=');
     });
 
     it('preserves safe https: href', () => {

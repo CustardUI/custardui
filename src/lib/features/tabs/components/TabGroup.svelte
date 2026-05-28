@@ -15,6 +15,7 @@
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
   import { captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
+  import { sanitizeTabHeader } from '$lib/utils/url-utils';
 
   //  ID of the tabgroup Group
   let { groupId, stabilizeScroll = true } = $props<{
@@ -109,33 +110,6 @@
    * (on*) and javascript: hrefs/srcs, preserving safe rich formatting.
    * Uses DOMParser — no external dependencies.
    */
-  function sanitizeTabHeader(rawHtml: string): string {
-    const doc = new DOMParser().parseFromString(rawHtml, 'text/html');
-
-    // Remove entirely unsafe elements
-    doc
-      .querySelectorAll('script, style, link, object, embed, iframe, form')
-      .forEach((el) => el.remove());
-
-    // Walk all remaining elements and strip dangerous attributes
-    doc.body.querySelectorAll('*').forEach((el) => {
-      for (const attr of Array.from(el.attributes)) {
-        // Strip all on* event handler attributes
-        if (/^on/i.test(attr.name)) {
-          el.removeAttribute(attr.name);
-          continue;
-        }
-        // Strip javascript: / vbscript: / data: from href and src
-        if (attr.name === 'href' || attr.name === 'src' || attr.name === 'action') {
-          if (/^\s*(javascript|vbscript|data):/i.test(attr.value)) {
-            el.removeAttribute(attr.name);
-          }
-        }
-      }
-    });
-
-    return doc.body.innerHTML;
-  }
 
   // Todo: For handleSlotChange(), consider if there is a svelte way
   // to do this without the need for the slotchange event.
