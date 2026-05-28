@@ -10,10 +10,10 @@ CustardUI (formerly CustomViews) is a lightweight, framework-agnostic runtime th
 - **Focus & Share** — highlight and link directly to any content block on the page
 - **Adaptations** — serve entirely different audiences from a single deployment, swapping images, links, and text per organization
 
-
 ## Getting started
 
 Add the script tag to your base layout:
+
 ```html
 <script src="https://unpkg.com/@custardui/custardui" data-base-url="/"></script>
 ```

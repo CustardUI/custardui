@@ -25,9 +25,7 @@ import { adaptationStore } from '$features/adaptation/stores/adaptation-store.sv
 function stripSiteManaged(state: State): State {
   // Strip siteManaged toggle values
   const siteManagedToggleIds = new Set(
-    (activeStateStore.config.toggles ?? [])
-      .filter((t) => t.siteManaged)
-      .map((t) => t.toggleId),
+    (activeStateStore.config.toggles ?? []).filter((t) => t.siteManaged).map((t) => t.toggleId),
   );
   const shownToggles = (state.shownToggles ?? []).filter((id) => !siteManagedToggleIds.has(id));
   const peekToggles = (state.peekToggles ?? []).filter((id) => !siteManagedToggleIds.has(id));

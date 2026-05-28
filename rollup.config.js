@@ -21,7 +21,7 @@ const banner = `/*!
  * Released under the ${pkg.license} License.
  */`;
 
-// Custom Web Component Elements 
+// Custom Web Component Elements
 const sveltePluginCustomElements = svelte({
   ...svelteConfig,
   include: [

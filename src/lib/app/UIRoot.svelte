@@ -1,7 +1,14 @@
 <script lang="ts">
   import { onMount, onDestroy, getContext } from 'svelte';
-  import { type ResolvedUIManagerOptions, type RuntimeCallbacks, RUNTIME_CALLBACKS_CTX } from './types';
-  import { ICON_SETTINGS_CTX, type IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
+  import {
+    type ResolvedUIManagerOptions,
+    type RuntimeCallbacks,
+    RUNTIME_CALLBACKS_CTX,
+  } from './types';
+  import {
+    ICON_SETTINGS_CTX,
+    type IconSettingsStore,
+  } from '$features/settings/stores/icon-settings-store.svelte';
   import { activeStateStore } from '$lib/stores/active-state-store.svelte';
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
@@ -26,7 +33,8 @@
     options: ResolvedUIManagerOptions;
   }>();
 
-  const { persistenceManager, resetToDefault } = getContext<RuntimeCallbacks>(RUNTIME_CALLBACKS_CTX);
+  const { persistenceManager, resetToDefault } =
+    getContext<RuntimeCallbacks>(RUNTIME_CALLBACKS_CTX);
   const iconSettingsStore = getContext<IconSettingsStore>(ICON_SETTINGS_CTX);
 
   // --- Derived State ---
@@ -67,7 +75,10 @@
 
   // onDestroy (not $effect cleanup) so the attribute is never briefly absent during transitions.
   $effect(() => {
-    document.documentElement.setAttribute('data-cv-theme', colorSchemeStore.isDark ? 'dark' : 'light');
+    document.documentElement.setAttribute(
+      'data-cv-theme',
+      colorSchemeStore.isDark ? 'dark' : 'light',
+    );
   });
 
   onDestroy(() => {
@@ -102,8 +113,8 @@
   // --- Icon Visibility ---
   const shouldShowIcon = $derived(
     settingsEnabled &&
-    !iconSettingsStore.isDismissed &&
-    (derivedStore.hasMenuOptions || uiStore.uiOptions.showTabGroups || isModalOpen),
+      !iconSettingsStore.isDismissed &&
+      (derivedStore.hasMenuOptions || uiStore.uiOptions.showTabGroups || isModalOpen),
   );
 </script>
 
@@ -145,11 +156,7 @@
 
   <!-- Modal: Only specific to Settings -->
   {#if settingsEnabled && isModalOpen}
-    <Modal
-      onclose={closeModal}
-      onreset={handleReset}
-      onstartShare={handleStartShare}
-    />
+    <Modal onclose={closeModal} onreset={handleReset} onstartShare={handleStartShare} />
   {/if}
 </div>
 

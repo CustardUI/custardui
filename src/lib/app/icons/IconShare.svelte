@@ -1,15 +1,8 @@
-
 <script>
   let { ...rest } = $props();
 </script>
 
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="24"
-  height="24"
-  viewBox="0 0 24 24"
-  {...rest}
->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...rest}>
   <path
     fill="currentColor"
     d="M18 8h-2a1 1 0 0 0 0 2h2v8H6v-8h2a1 1 0 0 0 0-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z"
