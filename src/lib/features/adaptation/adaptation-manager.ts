@@ -137,7 +137,21 @@ export class AdaptationManager {
 
     // Inject CSS variables onto :root
     if (theme.cssVariables) {
+      const CUSTOM_PROP = /^--[a-zA-Z0-9_-]+$/;
+      const DANGEROUS_VALUE = /url\s*\(|expression\s*\(|javascript:/i;
       for (const [property, value] of Object.entries(theme.cssVariables)) {
+        if (!CUSTOM_PROP.test(property)) {
+          console.warn(
+            `[CustardUI] Ignoring non-custom CSS property in adaptation theme: "${property}"`,
+          );
+          continue;
+        }
+        if (DANGEROUS_VALUE.test(value)) {
+          console.warn(
+            `[CustardUI] Ignoring suspicious CSS value for "${property}" in adaptation theme.`,
+          );
+          continue;
+        }
         document.documentElement.style.setProperty(property, value);
       }
     }

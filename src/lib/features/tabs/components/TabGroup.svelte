@@ -46,6 +46,20 @@
     return groupId && tabs$[groupId] ? tabs$[groupId] : null;
   });
 
+  // Precompute tab active/marked states reactively to avoid template {@const} preprocessor bugs
+  let derivedTabs = $derived.by(() => {
+    return tabs.map((tab) => {
+      const splitIds = splitTabIds(tab.rawId);
+      const isActive = splitIds.includes(localActiveTabId);
+      const isMarked = !!(markedTab && splitIds.includes(markedTab));
+      return {
+        ...tab,
+        isActive,
+        isMarked,
+      };
+    });
+  });
+
   // Track the last seen store state to detect real changes
   let lastSeenStoreState = $state<string | null>(null);
 
@@ -89,6 +103,40 @@
       .map((id) => id.trim());
   }
 
+  /**
+   * Sanitizes HTML sourced from cv-tab-header innerHTML.
+   * Strips script, style, link, and all inline event handler attributes
+   * (on*) and javascript: hrefs/srcs, preserving safe rich formatting.
+   * Uses DOMParser — no external dependencies.
+   */
+  function sanitizeTabHeader(rawHtml: string): string {
+    const doc = new DOMParser().parseFromString(rawHtml, 'text/html');
+
+    // Remove entirely unsafe elements
+    doc
+      .querySelectorAll('script, style, link, object, embed, iframe, form')
+      .forEach((el) => el.remove());
+
+    // Walk all remaining elements and strip dangerous attributes
+    doc.body.querySelectorAll('*').forEach((el) => {
+      for (const attr of Array.from(el.attributes)) {
+        // Strip all on* event handler attributes
+        if (/^on/i.test(attr.name)) {
+          el.removeAttribute(attr.name);
+          continue;
+        }
+        // Strip javascript: / vbscript: / data: from href and src
+        if (attr.name === 'href' || attr.name === 'src' || attr.name === 'action') {
+          if (/^\s*(javascript|vbscript|data):/i.test(attr.value)) {
+            el.removeAttribute(attr.name);
+          }
+        }
+      }
+    });
+
+    return doc.body.innerHTML;
+  }
+
   // Todo: For handleSlotChange(), consider if there is a svelte way
   // to do this without the need for the slotchange event.
 
@@ -124,15 +172,17 @@
       // Check for <cv-tab-header>
       const headerEl = element.querySelector('cv-tab-header');
       if (headerEl) {
-        header = headerEl.innerHTML.trim();
+        header = sanitizeTabHeader(headerEl.innerHTML.trim());
       } else {
-        // Attribute syntax
-        header =
+        // Attribute syntax — also supports raw HTML (e.g. <i> icons), so sanitize too
+        const rawAttrHeader =
           (element as HTMLElement & { header?: string }).header ||
           element.getAttribute('header') ||
           '';
 
-        if (!header) {
+        if (rawAttrHeader) {
+          header = sanitizeTabHeader(rawAttrHeader);
+        } else {
           // Fallback to tab-id or default
           header = element.getAttribute('tab-id') ? primaryId : `Tab ${index + 1}`;
         }
@@ -241,18 +291,15 @@
   <!-- Nav -->
   {#if tabs.length > 0 && navHeadingVisible}
     <ul class="cv-tabgroup-nav" role="tablist">
-      {#each tabs as tab (tab.id)}
-        {@const splitIds = splitTabIds(tab.rawId)}
-        {@const isActive = splitIds.includes(localActiveTabId)}
-        {@const isMarked = markedTab && splitIds.includes(markedTab)}
+      {#each derivedTabs as tab (tab.id)}
         <li class="cv-tabgroup-item">
-          <div class="cv-tab-wrapper" class:active={isActive}>
+          <div class="cv-tab-wrapper" class:active={tab.isActive}>
             <a
               class="cv-tabgroup-link"
               href={'#' + tab.id}
-              class:active={isActive}
+              class:active={tab.isActive}
               role="tab"
-              aria-selected={isActive}
+              aria-selected={tab.isActive}
               onclick={(e) => handleTabClick(tab.id, e)}
               ondblclick={(e) => handleTabDoubleClick(tab.id, e)}
               title="Double-click a tab to 'mark' it in all similar tab groups."
@@ -266,16 +313,16 @@
             <button
               type="button"
               class="cv-tab-marked-icon"
-              class:is-marked={isMarked}
-              title={isMarked ? 'Unmark this tab' : 'Mark this tab'}
-              aria-label={isMarked ? 'Unmark this tab' : 'Mark this tab'}
-              aria-pressed={!!isMarked}
+              class:is-marked={tab.isMarked}
+              title={tab.isMarked ? 'Unmark this tab' : 'Mark this tab'}
+              aria-label={tab.isMarked ? 'Unmark this tab' : 'Mark this tab'}
+              aria-pressed={tab.isMarked}
               onclick={(e) => handleMarkClick(tab.id, e)}
               ondblclick={(e) => {
                 e.stopPropagation();
               }}
             >
-              <IconMark {isMarked} />
+              <IconMark isMarked={tab.isMarked} />
             </button>
           </div>
         </li>

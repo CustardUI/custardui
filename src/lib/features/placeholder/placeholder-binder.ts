@@ -212,6 +212,14 @@ export class PlaceholderBinder {
   }
 
   /**
+   * Checks if a value uses a dangerous URL protocol that could execute scripts.
+   * Must be tested BEFORE isFullUrl, which would otherwise let these pass through.
+   */
+  private static isDangerousProtocol(value: string): boolean {
+    return /^\s*(javascript|vbscript):/i.test(value);
+  }
+
+  /**
    * Checks if a value is a relative URL path (e.g., /, ./, ../)
    */
   private static isRelativeUrl(value: string): boolean {
@@ -300,6 +308,7 @@ export class PlaceholderBinder {
           if (val === undefined) return ifUnset ?? '';
           // URL-encode the value component (same as regular placeholders)
           if (attrName && (attrName === 'href' || attrName === 'src')) {
+            if (PlaceholderBinder.isDangerousProtocol(val)) return '';
             if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
               val = encodeURIComponent(val);
             }
@@ -312,6 +321,8 @@ export class PlaceholderBinder {
 
         // Context-aware encoding for URL attributes
         if (attrName && (attrName === 'href' || attrName === 'src')) {
+          // Block dangerous protocols before any further URL handling
+          if (PlaceholderBinder.isDangerousProtocol(val)) return '';
           // Don't encode full URLs or relative URLs - only encode URL components
           if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
             val = encodeURIComponent(val);
