@@ -15,7 +15,7 @@ export function initializeFromScript(): void {
   // Only run in browser environment
   if (typeof window === 'undefined') return;
 
-  // Idempotency check 
+  // Idempotency check
   if (window.__custardUIInitialized) {
     console.info('[CustardUI] Auto-init skipped: already initialized.');
     return;
@@ -38,7 +38,10 @@ export function initializeFromScript(): void {
       // - Theme CSS injected ASAP (FOUC prevention)
       // - ?adapt= param cleaned before URLStateManager.parseURL() runs
       // - URL indicator set before AppRuntime so URL state is seeded correctly
-      const adaptationConfig = await AdaptationManager.init(effectiveBaseURL, configFile.storageKey);
+      const adaptationConfig = await AdaptationManager.init(
+        effectiveBaseURL,
+        configFile.storageKey,
+      );
       if (adaptationConfig?.id) {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
       }

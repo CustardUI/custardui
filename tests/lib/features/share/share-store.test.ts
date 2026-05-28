@@ -62,7 +62,7 @@ describe('ShareStore', () => {
   it('should set and clear highlight annotations', () => {
     const el = document.createElement('div');
     store.setAnnotation(el, 'Test Note', 'br');
-    
+
     const ann = store.highlightAnnotations.get(el);
     expect(ann).toBeDefined();
     expect(ann?.text).toBe('Test Note');
@@ -108,7 +108,7 @@ describe('ShareStore', () => {
 
   it('should include metadata in generated link for highlight mode', async () => {
     store.setSelectionMode('highlight');
-    
+
     const el = document.createElement('div');
     el.id = 'target-id';
     store.toggleElementSelection(el);
@@ -116,10 +116,12 @@ describe('ShareStore', () => {
     store.setAnnotation(el, 'Hello', 'tl');
 
     // Use actual createDescriptor to see if metadata is attached
-    const createSpy = vi.spyOn(DomElementLocator, 'createDescriptor').mockImplementation((elParam) => {
-      return { elementId: elParam.id, tag: 'ANY', index: 0, textSnippet: '', textHash: 0 };
-    });
-    
+    const createSpy = vi
+      .spyOn(DomElementLocator, 'createDescriptor')
+      .mockImplementation((elParam) => {
+        return { elementId: elParam.id, tag: 'ANY', index: 0, textSnippet: '', textHash: 0 };
+      });
+
     // We mock serialize to intercept the descriptors Array
     let capturedDescriptors: DomElementLocator.AnchorDescriptor[] = [];
     vi.spyOn(DomElementLocator, 'serialize').mockImplementation((descriptors) => {
@@ -133,7 +135,7 @@ describe('ShareStore', () => {
     expect(capturedDescriptors[0]!.color).toBe('blue');
     expect(capturedDescriptors[0]!.annotation).toBe('Hello');
     expect(capturedDescriptors[0]!.annotationCorner).toBe('tl');
-    
+
     createSpy.mockRestore();
   });
 });

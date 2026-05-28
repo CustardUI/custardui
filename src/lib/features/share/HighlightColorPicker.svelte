@@ -61,11 +61,7 @@
   let topY = $derived(rect.top);
 </script>
 
-<div
-  class="cv-color-picker"
-  style="left: {centerX}px; top: {topY}px;"
-  role="none"
->
+<div class="cv-color-picker" style="left: {centerX}px; top: {topY}px;" role="none">
   <button
     type="button"
     class="cv-color-trigger"
@@ -78,7 +74,7 @@
   </button>
   {#if isExpanded}
     <div class="cv-color-swatches" role="none">
-      {#each HIGHLIGHT_COLORS as color}
+      {#each HIGHLIGHT_COLORS as color (color.key)}
         <button
           type="button"
           class="cv-color-swatch"
@@ -154,7 +150,9 @@
     border: 2px solid transparent;
     cursor: pointer;
     padding: 0;
-    transition: transform 0.1s, border-color 0.1s;
+    transition:
+      transform 0.1s,
+      border-color 0.1s;
   }
 
   .cv-color-swatch:hover {

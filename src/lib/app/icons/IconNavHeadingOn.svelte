@@ -1,15 +1,8 @@
-
 <script>
   let { ...rest } = $props();
 </script>
 
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="250"
-  height="181"
-  viewBox="0 0 250 181"
-  {...rest}
->
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="181" viewBox="0 0 250 181" {...rest}>
   <rect
     y="34.5001"
     width="250"
@@ -61,24 +54,14 @@
     stroke-width="5"
     stroke-linecap="round"
   />
-  <path
-    d="M120 6.50037L64 6.50037"
-    stroke="currentColor"
-    stroke-width="5"
-    stroke-linecap="round"
-  />
+  <path d="M120 6.50037L64 6.50037" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
   <path
     d="M87.1957 36.1024L59 2.50008"
     stroke="currentColor"
     stroke-width="5"
     stroke-linecap="round"
   />
-  <path
-    d="M59 2.50037L3 2.50037"
-    stroke="currentColor"
-    stroke-width="5"
-    stroke-linecap="round"
-  />
+  <path d="M59 2.50037L3 2.50037" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
   <path
     d="M2.5 38.5001L2.5 3.00012"
     stroke="currentColor"

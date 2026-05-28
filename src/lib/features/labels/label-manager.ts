@@ -9,7 +9,7 @@ export const labelManager = {
    * Registers all labels from the config into the label registry store.
    */
   registerConfigLabels(config: Config): void {
-    for (const label of (config.labels ?? [])) {
+    for (const label of config.labels ?? []) {
       labelRegistryStore.register(label);
     }
   },

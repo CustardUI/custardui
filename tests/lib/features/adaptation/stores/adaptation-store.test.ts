@@ -17,12 +17,12 @@ describe('AdaptationStore', () => {
       id: 'store-test-id',
       name: 'Test Adaptation',
       theme: {
-        cssVariables: { '--color': 'blue' }
-      }
+        cssVariables: { '--color': 'blue' },
+      },
     };
 
     adaptationStore.init(mockConfig);
-    
+
     expect(adaptationStore.activeConfig).toEqual(mockConfig);
     expect(adaptationStore.activeConfig?.id).toBe('store-test-id');
   });

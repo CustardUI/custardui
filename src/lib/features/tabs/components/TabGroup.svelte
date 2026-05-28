@@ -17,7 +17,10 @@
   import { captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
 
   //  ID of the tabgroup Group
-  let { groupId, stabilizeScroll = true } = $props<{ groupId?: string; stabilizeScroll?: boolean }>();
+  let { groupId, stabilizeScroll = true } = $props<{
+    groupId?: string;
+    stabilizeScroll?: boolean;
+  }>();
   $effect(() => {
     if (groupId) elementStore.registerTabGroup(groupId);
   });
@@ -124,8 +127,11 @@
         header = headerEl.innerHTML.trim();
       } else {
         // Attribute syntax
-        header = (element as HTMLElement & { header?: string }).header || element.getAttribute('header') || '';
-        
+        header =
+          (element as HTMLElement & { header?: string }).header ||
+          element.getAttribute('header') ||
+          '';
+
         if (!header) {
           // Fallback to tab-id or default
           header = element.getAttribute('tab-id') ? primaryId : `Tab ${index + 1}`;
@@ -180,9 +186,7 @@
     event.preventDefault();
 
     if (localActiveTabId !== tabId) {
-      const anchor = stabilizeScroll && containerEl
-        ? captureScrollAnchor(containerEl)
-        : null;
+      const anchor = stabilizeScroll && containerEl ? captureScrollAnchor(containerEl) : null;
 
       localActiveTabId = tabId;
       updateVisibility();
@@ -201,9 +205,7 @@
 
     if (!groupId) return;
 
-    const anchor = stabilizeScroll && containerEl
-      ? captureScrollAnchor(containerEl)
-      : null;
+    const anchor = stabilizeScroll && containerEl ? captureScrollAnchor(containerEl) : null;
 
     activeStateStore.setMarkedTab(groupId, tabId);
 
@@ -223,9 +225,7 @@
 
     if (!groupId) return;
 
-    const anchor = stabilizeScroll && containerEl
-      ? captureScrollAnchor(containerEl)
-      : null;
+    const anchor = stabilizeScroll && containerEl ? captureScrollAnchor(containerEl) : null;
 
     activeStateStore.setMarkedTab(groupId, tabId);
 
@@ -267,11 +267,13 @@
               type="button"
               class="cv-tab-marked-icon"
               class:is-marked={isMarked}
-              title={isMarked ? "Unmark this tab" : "Mark this tab"}
-              aria-label={isMarked ? "Unmark this tab" : "Mark this tab"}
+              title={isMarked ? 'Unmark this tab' : 'Mark this tab'}
+              aria-label={isMarked ? 'Unmark this tab' : 'Mark this tab'}
               aria-pressed={!!isMarked}
               onclick={(e) => handleMarkClick(tab.id, e)}
-              ondblclick={(e) => { e.stopPropagation(); }}
+              ondblclick={(e) => {
+                e.stopPropagation();
+              }}
             >
               <IconMark {isMarked} />
             </button>

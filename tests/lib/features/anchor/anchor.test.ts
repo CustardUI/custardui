@@ -92,9 +92,33 @@ describe('Anchor', () => {
 
     it('should serialize and deserialize new metadata formats accurately', () => {
       const descriptors = [
-        { elementId: 'id1', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, color: 'blue' as const },
-        { elementId: 'id2', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, annotation: 'My note!', annotationCorner: 'br' as const },
-        { elementId: 'id3', tag: 'ANY', index: 0, textSnippet: '', textHash: 0, color: 'blue' as const, annotation: 'Multi note: with colon', annotationCorner: 'tr' as const }
+        {
+          elementId: 'id1',
+          tag: 'ANY',
+          index: 0,
+          textSnippet: '',
+          textHash: 0,
+          color: 'blue' as const,
+        },
+        {
+          elementId: 'id2',
+          tag: 'ANY',
+          index: 0,
+          textSnippet: '',
+          textHash: 0,
+          annotation: 'My note!',
+          annotationCorner: 'br' as const,
+        },
+        {
+          elementId: 'id3',
+          tag: 'ANY',
+          index: 0,
+          textSnippet: '',
+          textHash: 0,
+          color: 'blue' as const,
+          annotation: 'Multi note: with colon',
+          annotationCorner: 'tr' as const,
+        },
       ];
 
       const serialized = Anchor.serialize(descriptors);
@@ -213,7 +237,9 @@ describe('Anchor', () => {
         container.appendChild(ph);
         const descriptor = Anchor.createDescriptor(ph);
 
-        const refDiv = Object.assign(document.createElement('div'), { textContent: '[[username]]' });
+        const refDiv = Object.assign(document.createElement('div'), {
+          textContent: '[[username]]',
+        });
         document.body.appendChild(refDiv);
         const refDescriptor = Anchor.createDescriptor(refDiv);
         document.body.removeChild(refDiv);

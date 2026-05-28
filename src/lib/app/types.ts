@@ -1,4 +1,8 @@
-import type { WidgetSettings, WidgetCalloutConfig, WidgetIconConfig } from '$features/settings/types';
+import type {
+  WidgetSettings,
+  WidgetCalloutConfig,
+  WidgetIconConfig,
+} from '$features/settings/types';
 import type { IconSettingsStore } from '$features/settings/stores/icon-settings-store.svelte';
 import type { PersistenceManager } from '$lib/utils/persistence';
 

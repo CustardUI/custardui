@@ -35,7 +35,7 @@ export class AdaptationManager {
 
     // 2. Handle ?adapt=clear
     if (queryParamValue === 'clear') {
-      persistence.clearAll();              // wipe custardUI-state and tab nav prefs
+      persistence.clearAll(); // wipe custardUI-state and tab nav prefs
       persistence.removeItem(STORAGE_KEY); // wipe the adaptation ID itself
       if (this.hasHashAdaptationId(url.hash)) {
         this.stripHashFromUrl(url);
@@ -45,10 +45,11 @@ export class AdaptationManager {
     }
 
     // 4. Determine namespace: page meta tag > URL param > Hash Indicator > localStorage
-    const rawId = this.getMetaAdaptationId() 
-      ?? queryParamValue 
-      ?? hashMatch 
-      ?? persistence.getItem(STORAGE_KEY);
+    const rawId =
+      this.getMetaAdaptationId() ??
+      queryParamValue ??
+      hashMatch ??
+      persistence.getItem(STORAGE_KEY);
 
     const id = typeof rawId === 'string' ? rawId.trim() : rawId;
     if (!id) {
@@ -67,7 +68,10 @@ export class AdaptationManager {
     // 6. Clean URL indicators given valid adaptation
     if (queryParamValue !== null) {
       // If the query param specifies a new adaptation, we should clear any stale hash indicator
-      if (this.hasHashAdaptationId(url.hash) && url.hash !== this.getHashUrlIndicator(queryParamValue)) {
+      if (
+        this.hasHashAdaptationId(url.hash) &&
+        url.hash !== this.getHashUrlIndicator(queryParamValue)
+      ) {
         this.stripHashFromUrl(url);
       }
       // If hash empty, or matches query param, populate later with hash indicator, so remove query param
@@ -179,7 +183,9 @@ export class AdaptationManager {
    * Meta tag is in the form <meta name="cv-adapt" content="{id}">
    */
   private static getMetaAdaptationId(): string | null {
-    return (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content || null;
+    return (
+      (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content || null
+    );
   }
 
   private static stripQueryParamFromUrl(url: URL): void {
@@ -195,19 +201,19 @@ export class AdaptationManager {
   private static async loadAdaptationConfig(
     baseUrl: string,
     id: string,
-    persistence: PersistenceManager
+    persistence: PersistenceManager,
   ): Promise<AdaptationConfig | null> {
     try {
       if (!id || id.trim() === '') return null;
       const safeId = encodeURIComponent(id.trim());
       const jsonFile = `${safeId}/${safeId}.json`;
-      
+
       // The base must end in a slash for the URL constructor to treat it as a directory.
       // If baseUrl is empty, this falls back to '/', which resolves against window.location.origin.
       const directoryBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      
+
       const fetchUrl = new URL(jsonFile, new URL(directoryBase, window.location.origin)).toString();
-      
+
       const response = await fetch(fetchUrl);
 
       if (!response.ok) {
@@ -230,10 +236,13 @@ export class AdaptationManager {
 
       return config;
     } catch (err) {
-      console.warn(`[CustardUI] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
+      console.warn(
+        `[CustardUI] Adaptation "${id}" failed to fetch:`,
+        err,
+        'Clearing stored adaptation.',
+      );
       this.clearStoredId(persistence);
       return null;
     }
   }
-
 }

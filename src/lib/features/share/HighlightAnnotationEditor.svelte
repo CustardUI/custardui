@@ -60,7 +60,6 @@
     isExpanded = !isExpanded;
   }
 
-
   let tabStyle = $derived.by(() => {
     switch (localCorner) {
       case 'tl':
@@ -75,7 +74,10 @@
   });
 
   let preview = $derived(
-    localText.length > 0 ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH) + (localText.length > ANNOTATION_PREVIEW_LENGTH ? '…' : '') : null,
+    localText.length > 0
+      ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH) +
+          (localText.length > ANNOTATION_PREVIEW_LENGTH ? '…' : '')
+      : null,
   );
 </script>
 
@@ -119,8 +121,8 @@
               }}
               title="Anchor to {key}"
               aria-label="Anchor to {key}"
-              aria-pressed={localCorner === key}
-            >{icon}</button>
+              aria-pressed={localCorner === key}>{icon}</button
+            >
           {/each}
         </div>
         <span class="cv-char-counter">{MAX_ANNOTATION_LENGTH - localText.length}</span>
@@ -238,7 +240,9 @@
     font-size: 10px;
     color: #6b7280;
     padding: 0;
-    transition: background 0.1s, border-color 0.1s;
+    transition:
+      background 0.1s,
+      border-color 0.1s;
   }
 
   .cv-corner-btn:hover {

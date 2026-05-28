@@ -22,7 +22,7 @@ describe('IconSettingsStore', () => {
 
   it('initializes with default values when storage is empty', () => {
     const store = new IconSettingsStore(mockPersistence);
-    
+
     expect(store.isCollapsed).toBe(false);
     expect(store.offset).toBe(0);
   });
@@ -30,7 +30,7 @@ describe('IconSettingsStore', () => {
   it('initializes as collapsed on mobile screens by default', () => {
     vi.stubGlobal('innerWidth', 500); // Mobile viewport
     const store = new IconSettingsStore(mockPersistence);
-    
+
     expect(store.isCollapsed).toBe(true);
     expect(store.offset).toBe(0);
   });
@@ -43,7 +43,7 @@ describe('IconSettingsStore', () => {
     });
 
     const store = new IconSettingsStore(mockPersistence);
-    
+
     expect(store.isCollapsed).toBe(true);
     expect(store.offset).toBe(150.5);
   });
@@ -55,42 +55,42 @@ describe('IconSettingsStore', () => {
     });
 
     const store = new IconSettingsStore(mockPersistence);
-    
+
     expect(store.offset).toBe(0);
     expect(mockPersistence.removeItem).toHaveBeenCalledWith('cv-settings-icon-offset');
   });
 
   it('updates state and persists when setCollapsed is called', () => {
     const store = new IconSettingsStore(mockPersistence);
-    
+
     store.setCollapsed(true);
-    
+
     expect(store.isCollapsed).toBe(true);
     expect(mockPersistence.setItem).toHaveBeenCalledWith('cv-settings-icon-collapsed', 'true');
-    
+
     store.setCollapsed(false);
-    
+
     expect(store.isCollapsed).toBe(false);
     expect(mockPersistence.setItem).toHaveBeenCalledWith('cv-settings-icon-collapsed', 'false');
   });
 
   it('updates state and persists when setOffset is called', () => {
     const store = new IconSettingsStore(mockPersistence);
-    
+
     store.setOffset(200);
-    
+
     expect(store.offset).toBe(200);
     expect(mockPersistence.setItem).toHaveBeenCalledWith('cv-settings-icon-offset', '200');
   });
 
   it('clears all state and persistence when resetPositionAndCollapseState is called', () => {
     const store = new IconSettingsStore(mockPersistence);
-    store.setOffset(200); 
+    store.setOffset(200);
     store.setCollapsed(true);
     store.dismiss();
-    
+
     store.resetPositionAndCollapseState();
-    
+
     expect(store.offset).toBe(0);
     expect(store.isCollapsed).toBe(false); // default for desktop
     expect(store.isDismissed).toBe(false);

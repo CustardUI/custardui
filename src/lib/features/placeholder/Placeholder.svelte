@@ -2,10 +2,10 @@
   customElement={{
     tag: 'cv-placeholder',
     props: {
-      name:     { reflect: false, type: 'String',  attribute: 'name' },
-      fallback: { reflect: false, type: 'String',  attribute: 'fallback' },
-      ifSet:    { reflect: false, type: 'String',  attribute: 'if-set' },
-      ifUnset:  { reflect: false, type: 'String',  attribute: 'if-unset' },
+      name: { reflect: false, type: 'String', attribute: 'name' },
+      fallback: { reflect: false, type: 'String', attribute: 'fallback' },
+      ifSet: { reflect: false, type: 'String', attribute: 'if-set' },
+      ifUnset: { reflect: false, type: 'String', attribute: 'if-unset' },
       includeDefault: { reflect: false, type: 'Boolean', attribute: 'include-default' },
     },
   }}

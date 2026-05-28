@@ -15,13 +15,17 @@ export interface ElementsOnCurrentPage {
  * - Tab-group-derived placeholders (source: 'tabgroup') — implied by ?tabs=
  * - Site-managed placeholders (siteManaged: true) — site-controlled, not shareable
  */
-export function stripNonShareablePlaceholders(placeholders: Record<string, string>, config: Config): Record<string, string> {
+export function stripNonShareablePlaceholders(
+  placeholders: Record<string, string>,
+  config: Config,
+): Record<string, string> {
   const shareable: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(placeholders)) {
-    const definition = placeholderRegistryStore.get(key) || config.placeholders?.find(p => p.name === key);
-    if (!definition) continue;                            // skip unknown keys (injection prevention)
-    
+    const definition =
+      placeholderRegistryStore.get(key) || config.placeholders?.find((p) => p.name === key);
+    if (!definition) continue; // skip unknown keys (injection prevention)
+
     // Note: PlaceholderDefinition from registry has 'source', but config doesn't.
     // That's fine as 'tabgroup' placeholders are mostly a runtime artifact.
     if ('source' in definition && definition.source === 'tabgroup') continue; // implied by ?tabs=
@@ -33,15 +37,19 @@ export function stripNonShareablePlaceholders(placeholders: Record<string, strin
 }
 
 /**
- * Filters the current toggle state (shown, peeked) and derives the explicit 
+ * Filters the current toggle state (shown, peeked) and derives the explicit
  * hidden list for the shareable URL.
  */
-export function getShareableToggles(currentState: State, pageTogglesSet: Set<string>, config: Config): Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> {
+export function getShareableToggles(
+  currentState: State,
+  pageTogglesSet: Set<string>,
+  config: Config,
+): Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> {
   const currentShown = currentState.shownToggles ?? [];
-  const currentPeek  = currentState.peekToggles  ?? [];
+  const currentPeek = currentState.peekToggles ?? [];
 
   const shouldInclude = (id: string): boolean => {
-    const toggleConfig = config.toggles?.find(t => t.toggleId === id);
+    const toggleConfig = config.toggles?.find((t) => t.toggleId === id);
 
     // Case 1: Not found in configuration
     if (!toggleConfig) {
@@ -64,17 +72,17 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
   const shareablePeek = currentPeek.filter(shouldInclude);
 
   const shownSet = new Set(shareableShown);
-  const peekSet  = new Set(shareablePeek);
+  const peekSet = new Set(shareablePeek);
 
   const absoluteHide: string[] = [];
   const relevantToggles = new Set(pageTogglesSet);
-  for (const t of (config.toggles ?? [])) {
+  for (const t of config.toggles ?? []) {
     if (!t.isLocal && !t.siteManaged) relevantToggles.add(t.toggleId);
   }
 
   // Build a set of siteManaged toggle IDs to exclude from absoluteHide
   const siteManagedToggleIds = new Set(
-    (config.toggles ?? []).filter(t => t.siteManaged).map(t => t.toggleId),
+    (config.toggles ?? []).filter((t) => t.siteManaged).map((t) => t.toggleId),
   );
 
   for (const id of relevantToggles) {
@@ -85,7 +93,7 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
 
   const result: Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> = {};
   if (shareableShown.length > 0) result.shownToggles = shareableShown;
-  if (shareablePeek.length  > 0) result.peekToggles  = shareablePeek;
+  if (shareablePeek.length > 0) result.peekToggles = shareablePeek;
   if (absoluteHide.length > 0) result.hiddenToggles = absoluteHide;
   return result;
 }
@@ -93,13 +101,17 @@ export function getShareableToggles(currentState: State, pageTogglesSet: Set<str
 /**
  * Filters the active tab selections for the shareable URL.
  */
-export function getShareableTabs(currentState: State, pageTabGroupsSet: Set<string>, config: Config): Pick<State, 'tabs'> {
+export function getShareableTabs(
+  currentState: State,
+  pageTabGroupsSet: Set<string>,
+  config: Config,
+): Pick<State, 'tabs'> {
   if (!currentState.tabs) return {};
 
   const shareableTabs: Record<string, string> = {};
 
   for (const [groupId, tabId] of Object.entries(currentState.tabs)) {
-    const groupConfig = config.tabGroups?.find(g => g.groupId === groupId);
+    const groupConfig = config.tabGroups?.find((g) => g.groupId === groupId);
     let shouldInclude = false;
 
     if (!groupConfig) {
@@ -123,13 +135,18 @@ export function getShareableTabs(currentState: State, pageTabGroupsSet: Set<stri
 /**
  * Filters the custom placeholder values for the shareable URL.
  */
-export function getShareablePlaceholders(currentState: State, pagePlaceholdersSet: Set<string>, config: Config): Pick<State, 'placeholders'> {
+export function getShareablePlaceholders(
+  currentState: State,
+  pagePlaceholdersSet: Set<string>,
+  config: Config,
+): Pick<State, 'placeholders'> {
   if (!currentState.placeholders) return {};
 
   const strippedPlaceholders = stripNonShareablePlaceholders(currentState.placeholders, config);
   const shareablePlaceholders: Record<string, string> = {};
   for (const [key, value] of Object.entries(strippedPlaceholders)) {
-    const definition = placeholderRegistryStore.get(key) || config.placeholders?.find(p => p.name === key);
+    const definition =
+      placeholderRegistryStore.get(key) || config.placeholders?.find((p) => p.name === key);
     let shouldInclude = false;
 
     if (!definition) {
@@ -148,7 +165,9 @@ export function getShareablePlaceholders(currentState: State, pagePlaceholdersSe
       shareablePlaceholders[key] = value;
     }
   }
-  return Object.keys(shareablePlaceholders).length > 0 ? { placeholders: shareablePlaceholders } : {};
+  return Object.keys(shareablePlaceholders).length > 0
+    ? { placeholders: shareablePlaceholders }
+    : {};
 }
 
 /**
@@ -173,7 +192,7 @@ export function getShareablePlaceholders(currentState: State, pagePlaceholdersSe
 export function computeShareableSettingState(
   currentState: State,
   elementsOnCurrentPage: ElementsOnCurrentPage,
-  config: Config
+  config: Config,
 ): State {
   const pageTogglesSet = new Set(elementsOnCurrentPage.toggles);
   const pageTabGroupsSet = new Set(elementsOnCurrentPage.tabGroups);

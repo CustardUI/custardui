@@ -115,7 +115,8 @@
       target.closest('.hover-helper') ||
       target.closest('.cv-color-picker') ||
       target.closest('.cv-annotation-editor')
-    ) return;
+    )
+      return;
 
     // Disable drag on touch devices
     if (window.matchMedia('(pointer: coarse)').matches) return;
@@ -216,7 +217,8 @@
       target.closest('.floating-bar') ||
       target.closest('.cv-color-picker') ||
       target.closest('.cv-annotation-editor')
-    ) return;
+    )
+      return;
 
     // Intercept click on document
     e.preventDefault();

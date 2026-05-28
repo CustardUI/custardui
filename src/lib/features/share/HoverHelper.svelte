@@ -107,7 +107,14 @@
     </button>
 
     {#if canGoUp}
-      <button type="button" class="action-btn up" title="Select Parent" onclick={handleSelectParent}> ↰ </button>
+      <button
+        type="button"
+        class="action-btn up"
+        title="Select Parent"
+        onclick={handleSelectParent}
+      >
+        ↰
+      </button>
     {/if}
   </div>
 {/if}

@@ -82,6 +82,7 @@ export function initUIManager(
   // panel settings (title, description, showTabGroups, showReset) are consumed
   // exclusively by AppRuntime.initStores() — CustardUIManager only needs callout + icon.
   const { enabled, panel: _panel, ...managerSettings } = config.settings ?? {};
+  void _panel;
   const settingsEnabled = enabled === true;
 
   const callbacks: RuntimeCallbacks = {

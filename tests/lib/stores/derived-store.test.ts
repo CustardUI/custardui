@@ -17,8 +17,12 @@ const mockDetectedToggles = new Set<string>();
 const mockDetectedTabGroups = new Set<string>();
 vi.mock('../../../src/lib/stores/element-store.svelte', () => ({
   elementStore: {
-    get detectedToggles() { return mockDetectedToggles; },
-    get detectedTabGroups() { return mockDetectedTabGroups; },
+    get detectedToggles() {
+      return mockDetectedToggles;
+    },
+    get detectedTabGroups() {
+      return mockDetectedTabGroups;
+    },
     detectedPlaceholders: new Set<string>(),
   },
 }));
@@ -27,7 +31,9 @@ vi.mock('../../../src/lib/stores/element-store.svelte', () => ({
 let mockConfig: { toggles?: unknown[]; tabGroups?: unknown[] } = {};
 vi.mock('../../../src/lib/stores/active-state-store.svelte', () => ({
   activeStateStore: {
-    get config() { return mockConfig; },
+    get config() {
+      return mockConfig;
+    },
     state: { shownToggles: [], peekToggles: [] },
   },
 }));
@@ -44,10 +50,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
   describe('menuToggles', () => {
     it('excludes siteManaged toggles', () => {
       mockConfig = {
-        toggles: [
-          { toggleId: 'managed', siteManaged: true },
-          { toggleId: 'normal' },
-        ],
+        toggles: [{ toggleId: 'managed', siteManaged: true }, { toggleId: 'normal' }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuToggles.map((t: { toggleId: string }) => t.toggleId);
@@ -57,9 +60,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
 
     it('includes non-siteManaged global toggles', () => {
       mockConfig = {
-        toggles: [
-          { toggleId: 'global', isLocal: false },
-        ],
+        toggles: [{ toggleId: 'global', isLocal: false }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuToggles.map((t: { toggleId: string }) => t.toggleId);
@@ -68,9 +69,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
 
     it('excludes local toggles not detected in DOM', () => {
       mockConfig = {
-        toggles: [
-          { toggleId: 'local', isLocal: true },
-        ],
+        toggles: [{ toggleId: 'local', isLocal: true }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuToggles.map((t: { toggleId: string }) => t.toggleId);
@@ -80,9 +79,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
     it('includes local toggles that are detected in DOM', () => {
       mockDetectedToggles.add('local');
       mockConfig = {
-        toggles: [
-          { toggleId: 'local', isLocal: true },
-        ],
+        toggles: [{ toggleId: 'local', isLocal: true }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuToggles.map((t: { toggleId: string }) => t.toggleId);
@@ -92,9 +89,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
     it('excludes siteManaged local toggle even if detected in DOM', () => {
       mockDetectedToggles.add('managed-local');
       mockConfig = {
-        toggles: [
-          { toggleId: 'managed-local', isLocal: true, siteManaged: true },
-        ],
+        toggles: [{ toggleId: 'managed-local', isLocal: true, siteManaged: true }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuToggles.map((t: { toggleId: string }) => t.toggleId);
@@ -105,9 +100,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
   describe('menuTabGroups', () => {
     it('includes non-siteManaged global tab groups', () => {
       mockConfig = {
-        tabGroups: [
-          { groupId: 'global', isLocal: false, tabs: [] },
-        ],
+        tabGroups: [{ groupId: 'global', isLocal: false, tabs: [] }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuTabGroups.map((g: { groupId: string }) => g.groupId);
@@ -116,9 +109,7 @@ describe('DerivedStateStore — siteManaged filtering', () => {
 
     it('excludes local tab groups not detected in DOM', () => {
       mockConfig = {
-        tabGroups: [
-          { groupId: 'local', isLocal: true, tabs: [] },
-        ],
+        tabGroups: [{ groupId: 'local', isLocal: true, tabs: [] }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuTabGroups.map((g: { groupId: string }) => g.groupId);
@@ -128,14 +119,11 @@ describe('DerivedStateStore — siteManaged filtering', () => {
     it('includes local tab groups detected in DOM', () => {
       mockDetectedTabGroups.add('local');
       mockConfig = {
-        tabGroups: [
-          { groupId: 'local', isLocal: true, tabs: [] },
-        ],
+        tabGroups: [{ groupId: 'local', isLocal: true, tabs: [] }],
       };
       const store = new DerivedStateStore();
       const ids = store.menuTabGroups.map((g: { groupId: string }) => g.groupId);
       expect(ids).toContain('local');
     });
-
   });
 });

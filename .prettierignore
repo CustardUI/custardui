@@ -7,6 +7,5 @@ build
 node_modules
 package-lock.json
 
-# Documentation generated files
-docs/_site
-docs/_markbind
+# Documentation Site as Prettier is too opinionated
+docs

@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  getScrollTopOffset, 
-  captureScrollAnchor, 
-  findHighestVisibleElement, 
+import {
+  getScrollTopOffset,
+  captureScrollAnchor,
+  findHighestVisibleElement,
   restoreScrollAnchor,
-  setFrameScheduler
+  setFrameScheduler,
 } from '../../../src/lib/utils/scroll-utils';
 
 describe('scroll-utils', () => {
@@ -111,7 +111,9 @@ describe('scroll-utils', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
       const getComputedStyleSpy = vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
-        if (el === header) { return { position: 'fixed' } as CSSStyleDeclaration; }
+        if (el === header) {
+          return { position: 'fixed' } as CSSStyleDeclaration;
+        }
         return {} as CSSStyleDeclaration;
       });
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({
@@ -162,7 +164,7 @@ describe('scroll-utils', () => {
     it('respects header offset (ignores elements above current viewport top)', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as any);
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as unknown as CSSStyleDeclaration);
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({ height: 100 } as DOMRect);
 
       // el1 is partially under the header (bottom is 100, offset is 100)
@@ -183,19 +185,25 @@ describe('scroll-utils', () => {
     it('ignores elements that are inside the sticky/fixed header', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as any);
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as unknown as CSSStyleDeclaration);
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({ height: 100 } as DOMRect);
 
       const elInHeader = document.createElement('div');
       elInHeader.className = 'test-el';
       header.appendChild(elInHeader);
       // Even if its top is technically visible, it should be ignored because it's IN the header
-      vi.spyOn(elInHeader, 'getBoundingClientRect').mockReturnValue({ top: 10, bottom: 40 } as DOMRect);
+      vi.spyOn(elInHeader, 'getBoundingClientRect').mockReturnValue({
+        top: 10,
+        bottom: 40,
+      } as DOMRect);
 
       const elInContent = document.createElement('div');
       elInContent.className = 'test-el';
       document.body.appendChild(elInContent);
-      vi.spyOn(elInContent, 'getBoundingClientRect').mockReturnValue({ top: 200, bottom: 250 } as DOMRect);
+      vi.spyOn(elInContent, 'getBoundingClientRect').mockReturnValue({
+        top: 200,
+        bottom: 250,
+      } as DOMRect);
 
       expect(findHighestVisibleElement('.test-el')).toBe(elInContent);
     });
@@ -206,12 +214,15 @@ describe('scroll-utils', () => {
       const el = document.createElement('div');
       document.body.appendChild(el);
       const scrollBySpy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
-      
+
       const anchor = { element: el, top: 100 };
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({ top: 150 } as DOMRect);
 
       // Manual control: execute callbacks synchronously to verify double-rAF
-      setFrameScheduler((cb: any) => { cb(); return 0; });
+      setFrameScheduler((cb: () => void) => {
+        cb();
+        return 0;
+      });
 
       restoreScrollAnchor(anchor);
 
@@ -223,8 +234,11 @@ describe('scroll-utils', () => {
       const el = document.createElement('div');
       const scrollBySpy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
       const anchor = { element: el, top: 100 };
-      
-      setFrameScheduler((cb: any) => { cb(); return 0; });
+
+      setFrameScheduler((cb: () => void) => {
+        cb();
+        return 0;
+      });
 
       restoreScrollAnchor(anchor);
 
@@ -236,11 +250,14 @@ describe('scroll-utils', () => {
       const el = document.createElement('div');
       document.body.appendChild(el);
       const scrollBySpy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
-      
+
       const anchor = { element: el, top: 100 };
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({ top: 100.5 } as DOMRect);
 
-      setFrameScheduler((cb: any) => { cb(); return 0; });
+      setFrameScheduler((cb: () => void) => {
+        cb();
+        return 0;
+      });
 
       restoreScrollAnchor(anchor);
 
