@@ -42,11 +42,8 @@ export class DerivedStateStore {
   });
 
   hasMenuOptions = $derived(
-    this.menuToggles.length > 0 ||
-      this.menuTabGroups.length > 0 ||
-      this.hasVisiblePlaceholders,
+    this.menuToggles.length > 0 || this.menuTabGroups.length > 0 || this.hasVisiblePlaceholders,
   );
-
 }
 
 export const derivedStore = new DerivedStateStore();

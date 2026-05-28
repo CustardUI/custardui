@@ -64,9 +64,10 @@ export function resolve(descriptor: AnchorDescriptor): HTMLElement[] {
     const candidate = candidates[i] as HTMLElement;
     let score = 0;
     // Reuse already-computed text for the index candidate to avoid duplicate DOM walk.
-    const text = i === descriptor.index && indexCandidateText !== null
-      ? indexCandidateText
-      : getStableNormalizedText(candidate);
+    const text =
+      i === descriptor.index && indexCandidateText !== null
+        ? indexCandidateText
+        : getStableNormalizedText(candidate);
 
     // Content Match
     if (hashCode(text) === descriptor.textHash) {

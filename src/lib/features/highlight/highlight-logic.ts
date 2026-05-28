@@ -55,7 +55,15 @@ export function calculateMergedRects(
 
     // Optimization if only 1 child, no need to scan parent
     if (siblingsInGroup.length === 1) {
-      addMergedRect(mergedRects, siblingsInGroup, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+      addMergedRect(
+        mergedRects,
+        siblingsInGroup,
+        getRect,
+        scrollTop,
+        scrollLeft,
+        colorMap,
+        annotationMap,
+      );
       continue;
     }
 
@@ -74,21 +82,45 @@ export function calculateMergedRects(
           currentBatch.length > 0 &&
           !sameMetadata(currentBatch[0]!, child, colorMap, annotationMap)
         ) {
-          addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+          addMergedRect(
+            mergedRects,
+            currentBatch,
+            getRect,
+            scrollTop,
+            scrollLeft,
+            colorMap,
+            annotationMap,
+          );
           currentBatch = [];
         }
         currentBatch.push(child);
       } else {
         // Break in continuity
         if (currentBatch.length > 0) {
-          addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+          addMergedRect(
+            mergedRects,
+            currentBatch,
+            getRect,
+            scrollTop,
+            scrollLeft,
+            colorMap,
+            annotationMap,
+          );
           currentBatch = [];
         }
       }
     }
     // Finalize last batch
     if (currentBatch.length > 0) {
-      addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+      addMergedRect(
+        mergedRects,
+        currentBatch,
+        getRect,
+        scrollTop,
+        scrollLeft,
+        colorMap,
+        annotationMap,
+      );
     }
   }
 

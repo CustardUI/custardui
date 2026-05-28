@@ -1,6 +1,9 @@
 <script lang="ts">
   import { type RectData } from '$features/highlight/services/highlight-types';
-  import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
+  import {
+    HIGHLIGHT_COLORS,
+    DEFAULT_COLOR_KEY,
+  } from '$features/highlight/services/highlight-colors';
   import HighlightTextAnnotation from '$features/highlight/HighlightTextAnnotation.svelte';
   import HighlightEmptyAnnotation from '$features/highlight/HighlightEmptyAnnotation.svelte';
 
@@ -25,7 +28,9 @@
   {#each rects as rect, i (rect.element)}
     <div
       class="cv-highlight-group"
-      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-highlight-color: {getColorHex(rect)};"
+      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-highlight-color: {getColorHex(
+        rect,
+      )};"
     >
       <div class="cv-highlight-marker"></div>
       {#if rects.length > 1}
@@ -34,15 +39,15 @@
           class="cv-nav-arrow cv-nav-arrow--up"
           class:cv-nav-arrow--hidden={i === 0}
           onclick={() => scrollToRect(rects[i - 1]!)}
-          aria-label="Previous highlight"
-        >↑</button>
+          aria-label="Previous highlight">↑</button
+        >
         <button
           type="button"
           class="cv-nav-arrow cv-nav-arrow--down"
           class:cv-nav-arrow--hidden={i === rects.length - 1}
           onclick={() => scrollToRect(rects[i + 1]!)}
-          aria-label="Next highlight"
-        >↓</button>
+          aria-label="Next highlight">↓</button
+        >
       {/if}
       <div class="cv-highlight-pill">
         <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
@@ -81,16 +86,16 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    
+
     /* Marker Style */
     border: 3.5px solid var(--cv-highlight-color);
     border-radius: 200px 15px 225px 15px / 15px 225px 15px 255px;
     transform: rotate(-0.5deg);
-    
+
     /* 3D INTERNAL VOLUME:
        Adds depth to the yellow border itself so it looks rounded.
     */
-    box-shadow: 
+    box-shadow:
       inset 0 1px 2px rgba(129, 73, 25, 0.2),
       inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
@@ -98,13 +103,14 @@
        Stacks multiple drop-shadows to cast into the box interior.
     */
     filter: 
-      /* Sharp contact shadow for grounding */
-      drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15)) 
+      /* Sharp contact shadow for grounding */ drop-shadow(
+        0 2px 2px rgba(44, 26, 14, 0.15)
+      )
       /* Light Source A: Casts shadow from top-left to bottom-right */
       drop-shadow(-8px 12px 10px rgba(44, 26, 14, 0.12))
       /* Light Source B: Casts shadow from top-right to bottom-left */
       drop-shadow(8px 12px 10px rgba(44, 26, 14, 0.12));
-    
+
     animation: highlightFadeIn 0.3s ease-out forwards;
   }
 
@@ -159,12 +165,12 @@
     padding: 0 8px;
     display: flex;
     align-items: center;
-    
+
     border-radius: 100px;
     border: 1px solid var(--cv-highlight-color);
     pointer-events: auto;
     white-space: nowrap;
-    
+
     /* Stronger shadow to match the frame's new altitude */
     box-shadow: 0 4px 12px rgba(44, 26, 14, 0.15);
   }
@@ -183,13 +189,13 @@
   }
 
   @keyframes highlightFadeIn {
-    from { 
-      opacity: 0; 
-      transform: scale(0.98) rotate(-1deg); 
+    from {
+      opacity: 0;
+      transform: scale(0.98) rotate(-1deg);
     }
-    to { 
-      opacity: 1; 
-      transform: scale(1) rotate(-0.5deg); 
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(-0.5deg);
     }
   }
 </style>

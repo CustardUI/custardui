@@ -78,7 +78,7 @@ export interface ExclusionOptions {
 
 /**
  * Checks if an element should be excluded from hiding logic.
- * 
+ *
  * TODO: Check how to commonize this between focus and share
  */
 export function isElementExcluded(el: HTMLElement, options: ExclusionOptions): boolean {

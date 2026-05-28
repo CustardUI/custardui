@@ -13,7 +13,7 @@ describe('AdaptationManager', () => {
   beforeEach(() => {
     // Save original object to restore later
     originalLocation = window.location;
-    
+
     // Mock localStorage
     const store: Record<string, string> = {};
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => store[key] || null);
@@ -50,7 +50,10 @@ describe('AdaptationManager', () => {
     it('should wipe custardUI-state and cv-tab-navs-visible when ?adapt=clear is passed', async () => {
       mockLocation('http://localhost/?adapt=clear');
       localStorage.setItem('cv-adaptation', 'nus');
-      localStorage.setItem('custardUI-state', JSON.stringify({ placeholders: { institutionName: 'NUS Institution' } }));
+      localStorage.setItem(
+        'custardUI-state',
+        JSON.stringify({ placeholders: { institutionName: 'NUS Institution' } }),
+      );
       localStorage.setItem('cv-tab-navs-visible', 'true');
 
       const result = await AdaptationManager.init('');
@@ -64,39 +67,31 @@ describe('AdaptationManager', () => {
     it('should clear stored id when ?adapt=clear is passed', async () => {
       mockLocation('http://localhost/?adapt=clear');
       localStorage.setItem('cv-adaptation', 'some-id');
-      
+
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toBeNull();
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
       // Should remove ?adapt=clear
-      expect(window.history.replaceState).toHaveBeenCalledWith(
-        {},
-        '',
-        'http://localhost/'
-      );
+      expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost/');
     });
 
     it('should clear stored id and strip hash indicator when ?adapt=clear is passed with a hash', async () => {
       mockLocation('http://localhost/?adapt=clear#/some-id');
       localStorage.setItem('cv-adaptation', 'some-id');
-      
+
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toBeNull();
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
       // Should clear the hash first
       expect(window.history.replaceState).toHaveBeenCalledWith(
         {},
         '',
-        'http://localhost/?adapt=clear'
+        'http://localhost/?adapt=clear',
       );
       // Then strip the clear param
-      expect(window.history.replaceState).toHaveBeenCalledWith(
-        {},
-        '',
-        'http://localhost/'
-      );
+      expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost/');
     });
 
     it('should gracefully handle fetch failure', async () => {
@@ -108,7 +103,11 @@ describe('AdaptationManager', () => {
 
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/fail-id/fail-id.json');
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fail-id" failed to fetch'), expect.any(Error), expect.stringContaining('Clearing'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"fail-id" failed to fetch'),
+        expect.any(Error),
+        expect.stringContaining('Clearing'),
+      );
     });
 
     it('should clear stored id and remove hash when ?adapt=clear with hash indicator is passed', async () => {
@@ -117,27 +116,19 @@ describe('AdaptationManager', () => {
       const result = await AdaptationManager.init('');
       expect(result).toBeNull();
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
-      expect(window.history.replaceState).toHaveBeenCalledWith(
-        {},
-        '',
-        'http://localhost/'
-      );
+      expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost/');
     });
 
     it('should remove ?adapt param from URL and replace history', async () => {
       mockLocation('http://localhost/?adapt=ntu');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'ntu', theme: {} })
+        json: async () => ({ id: 'ntu', theme: {} }),
       });
 
       await AdaptationManager.init('');
 
-      expect(window.history.replaceState).toHaveBeenCalledWith(
-        {},
-        '',
-        'http://localhost/'
-      );
+      expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost/');
     });
 
     it('should prioritize URL param over localStorage', async () => {
@@ -145,11 +136,11 @@ describe('AdaptationManager', () => {
       localStorage.setItem('cv-adaptation', 'storage-id');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'url-id', theme: {} })
+        json: async () => ({ id: 'url-id', theme: {} }),
       });
 
       await AdaptationManager.init('');
-      
+
       expect(localStorage.setItem).toHaveBeenCalledWith('cv-adaptation', 'url-id');
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/url-id/url-id.json');
     });
@@ -157,7 +148,7 @@ describe('AdaptationManager', () => {
     it('should prioritize meta tag over localStorage when URL param is missing', async () => {
       mockLocation('http://localhost/');
       localStorage.setItem('cv-adaptation', 'storage-id');
-      
+
       const meta = document.createElement('meta');
       meta.name = 'cv-adapt';
       meta.content = 'meta-id';
@@ -165,25 +156,25 @@ describe('AdaptationManager', () => {
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'meta-id', theme: {} })
+        json: async () => ({ id: 'meta-id', theme: {} }),
       });
 
       await AdaptationManager.init('');
-      
+
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/meta-id/meta-id.json');
     });
 
     it('should fall back to localStorage if URL param and meta tag are missing', async () => {
       mockLocation('http://localhost/');
       localStorage.setItem('cv-adaptation', 'storage-id');
-      
+
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'storage-id', theme: {} })
+        json: async () => ({ id: 'storage-id', theme: {} }),
       });
 
       await AdaptationManager.init('');
-      
+
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/storage-id/storage-id.json');
     });
 
@@ -191,27 +182,27 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/?adapt=id3');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'id3', theme: {} })
+        json: async () => ({ id: 'id3', theme: {} }),
       });
 
       await AdaptationManager.init('/');
-      
+
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/id3/id3.json');
     });
 
     it('should return null and clear storage if fetch fails', async () => {
       mockLocation('http://localhost/?adapt=bad-id');
       localStorage.setItem('cv-adaptation', 'bad-id');
-      
+
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
-        status: 404
+        status: 404,
       });
 
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toBeNull();
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
       expect(warnSpy).toHaveBeenCalled();
@@ -219,16 +210,16 @@ describe('AdaptationManager', () => {
 
     it('should return null and clear storage if config ID mismatches', async () => {
       mockLocation('http://localhost/?adapt=expected-id');
-      
+
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'wrong-id', theme: {} }) // ID mismatch
+        json: async () => ({ id: 'wrong-id', theme: {} }), // ID mismatch
       });
 
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toBeNull();
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
       expect(warnSpy).toHaveBeenCalled();
@@ -236,14 +227,14 @@ describe('AdaptationManager', () => {
 
     it('should safely encode baseUrl and ID for fetching JSON', async () => {
       mockLocation('http://localhost/?adapt=id/with/slash');
-      
+
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'id/with/slash', theme: {} })
+        json: async () => ({ id: 'id/with/slash', theme: {} }),
       });
 
       await AdaptationManager.init('/base/');
-      
+
       // Should trim trailing slash on base and encode the ID components
       // Should encode the ID components
       const safeId = encodeURIComponent('id/with/slash');
@@ -254,19 +245,19 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/?adapt=prefix-id');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'prefix-id', theme: {} })
+        json: async () => ({ id: 'prefix-id', theme: {} }),
       });
 
       await AdaptationManager.init('', 'my-prefix');
-      
+
       expect(localStorage.setItem).toHaveBeenCalledWith('my-prefix-cv-adaptation', 'prefix-id');
     });
 
     it('should ignore empty adaptation IDs to prevent malformed fetches', async () => {
       mockLocation('http://localhost/?adapt=   ');
-      
+
       const result = await AdaptationManager.init('/base');
-      
+
       expect(result).toBeNull();
       expect(global.fetch).not.toHaveBeenCalled();
       expect(localStorage.setItem).not.toHaveBeenCalled();
@@ -276,15 +267,17 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/#/my%20special%20id');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'my special id', theme: {} })
+        json: async () => ({ id: 'my special id', theme: {} }),
       });
 
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toEqual({ id: 'my special id', theme: {} });
       // The fetch logic encodes it again when building the final URL path
       // my%20special%20id -> my%20special%20id
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/my%20special%20id/my%20special%20id.json');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost/my%20special%20id/my%20special%20id.json',
+      );
       expect(localStorage.setItem).toHaveBeenCalledWith('cv-adaptation', 'my special id');
     });
 
@@ -293,17 +286,17 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/?adapt=my%20special%20id#/my%20special%20id');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'my special id', theme: {} })
+        json: async () => ({ id: 'my special id', theme: {} }),
       });
 
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toEqual({ id: 'my special id', theme: {} });
       // Because query param and hash matched, it should only strip the query param
       expect(window.history.replaceState).toHaveBeenCalledWith(
         {},
         '',
-        'http://localhost/#/my%20special%20id'
+        'http://localhost/#/my%20special%20id',
       );
     });
 
@@ -311,11 +304,11 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/#/hash-id');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'hash-id', theme: {} })
+        json: async () => ({ id: 'hash-id', theme: {} }),
       });
 
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toEqual({ id: 'hash-id', theme: {} });
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/hash-id/hash-id.json');
     });
@@ -324,18 +317,18 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/?adapt=new-id#/stale-id');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'new-id', theme: {} })
+        json: async () => ({ id: 'new-id', theme: {} }),
       });
 
       const result = await AdaptationManager.init('');
-      
+
       expect(result).toEqual({ id: 'new-id', theme: {} });
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/new-id/new-id.json');
       // Should have replaced the history to strip the stale hash
       expect(window.history.replaceState).toHaveBeenCalledWith(
         {},
         '',
-        'http://localhost/?adapt=new-id'
+        'http://localhost/?adapt=new-id',
       );
     });
 
@@ -343,11 +336,11 @@ describe('AdaptationManager', () => {
       mockLocation('http://localhost/?adapt=test-id#other-anchor');
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'test-id', theme: {} })
+        json: async () => ({ id: 'test-id', theme: {} }),
       });
 
       await AdaptationManager.init('');
-      
+
       expect(window.history.replaceState).not.toHaveBeenCalled();
     });
   });
@@ -355,33 +348,33 @@ describe('AdaptationManager', () => {
   describe('rewriteUrlIndicator()', () => {
     it('should set hash to /{id} when hash is empty', () => {
       mockLocation('http://localhost/page');
-      
+
       AdaptationManager.rewriteUrlIndicator('test-id');
-      
+
       expect(window.history.replaceState).toHaveBeenCalledWith(
         {},
         '',
-        'http://localhost/page#/test-id'
+        'http://localhost/page#/test-id',
       );
     });
 
     it('should set ?adapt={id} when hash is already occupied', () => {
       mockLocation('http://localhost/page#existing-anchor');
-      
+
       AdaptationManager.rewriteUrlIndicator('test-id');
-      
+
       expect(window.history.replaceState).toHaveBeenCalledWith(
         {},
         '',
-        'http://localhost/page?adapt=test-id#existing-anchor'
+        'http://localhost/page?adapt=test-id#existing-anchor',
       );
     });
-    
+
     it('should not update if ?adapt={id} is already correctly set with a hash', () => {
       mockLocation('http://localhost/page?adapt=test-id#existing-anchor');
-      
+
       AdaptationManager.rewriteUrlIndicator('test-id');
-      
+
       expect(window.history.replaceState).not.toHaveBeenCalled();
     });
   });
@@ -389,7 +382,7 @@ describe('AdaptationManager', () => {
   describe('applyTheme()', () => {
     it('should inject CSS variables onto documentElement', async () => {
       mockLocation('http://localhost/?adapt=theme-id');
-      
+
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -397,49 +390,49 @@ describe('AdaptationManager', () => {
           theme: {
             cssVariables: {
               '--bg-color': 'red',
-              '--text-color': 'blue'
-            }
-          }
-        })
+              '--text-color': 'blue',
+            },
+          },
+        }),
       });
 
       await AdaptationManager.init();
-      
+
       expect(document.documentElement.style.getPropertyValue('--bg-color')).toBe('red');
       expect(document.documentElement.style.getPropertyValue('--text-color')).toBe('blue');
     });
 
     it('should inject CSS file idempotently', async () => {
       mockLocation('http://localhost/?adapt=css-id');
-      
+
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           id: 'css-id',
           theme: {
-            cssFile: '/path/to/theme.css'
-          }
-        })
+            cssFile: '/path/to/theme.css',
+          },
+        }),
       });
 
       await AdaptationManager.init();
-      
+
       const links = document.querySelectorAll('link[data-cv-adaptation-id="css-id"]');
       expect(links.length).toBe(1);
       expect((links[0] as HTMLLinkElement).href).toContain('/path/to/theme.css');
-      
+
       // Try again and ensure it doesn't duplicate
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           id: 'css-id',
           theme: {
-            cssFile: '/path/to/theme.css'
-          }
-        })
+            cssFile: '/path/to/theme.css',
+          },
+        }),
       });
       await AdaptationManager.init();
-      
+
       expect(document.querySelectorAll('link[data-cv-adaptation-id="css-id"]').length).toBe(1);
     });
   });

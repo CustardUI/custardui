@@ -25,7 +25,8 @@ export class HighlightService {
   private resizeObserver: ResizeObserver;
   private activeTargets: HTMLElement[] = [];
   private activeColors: Map<HTMLElement, HighlightColorKey> = new Map();
-  private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> = new Map();
+  private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> =
+    new Map();
   private onWindowResize = () => this.updatePositions();
 
   constructor() {
@@ -154,9 +155,12 @@ export class HighlightService {
     let current: HTMLElement | null = element.parentElement;
     while (current) {
       if (current.tagName.toLowerCase() === 'cv-toggle') {
-        (current.getAttribute('toggle-id') || '').split(/\s+/).filter(Boolean).forEach((id) => {
-          if (!currentShown.includes(id)) needsExpansion.push(id);
-        });
+        (current.getAttribute('toggle-id') || '')
+          .split(/\s+/)
+          .filter(Boolean)
+          .forEach((id) => {
+            if (!currentShown.includes(id)) needsExpansion.push(id);
+          });
       }
       current = current.parentElement;
     }
@@ -170,7 +174,11 @@ export class HighlightService {
     }
 
     // Wait for CSS transitions if any toggles are peek, were just expanded, or are hidden (collapsing)
-    if (needsExpansion.length > 0 || currentPeek.length > 0 || derivedStore.hiddenToggleIds.length > 0) {
+    if (
+      needsExpansion.length > 0 ||
+      currentPeek.length > 0 ||
+      derivedStore.hiddenToggleIds.length > 0
+    ) {
       // 350ms = 300ms CSS transition + 50ms buffer
       await new Promise<void>((resolve) => setTimeout(resolve, 350));
     }

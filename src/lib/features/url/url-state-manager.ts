@@ -1,6 +1,10 @@
 import type { Config, State } from '$lib/types/index';
 import { MANAGED_PARAMS } from './url-constants';
-import { parseTogglesFromURL, parseTabsFromURL, parsePlaceholdersFromURL } from './url-state-parser';
+import {
+  parseTogglesFromURL,
+  parseTabsFromURL,
+  parsePlaceholdersFromURL,
+} from './url-state-parser';
 import { computeShareableSettingState, type ElementsOnCurrentPage } from './url-state-shaper';
 import { generateManagedQuery, buildFullUrl } from './url-state-generator';
 

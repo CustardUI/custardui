@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { type AnnotationCorner, ANNOTATION_PREVIEW_LENGTH, DEFAULT_ANNOTATION_CORNER } from '$features/highlight/services/highlight-annotations';
+  import {
+    type AnnotationCorner,
+    ANNOTATION_PREVIEW_LENGTH,
+    DEFAULT_ANNOTATION_CORNER,
+  } from '$features/highlight/services/highlight-annotations';
 
   interface Props {
     annotation: string;
@@ -72,9 +76,9 @@
     let x = newX;
     let y = newY;
     if (newLeft < pad) x += pad - newLeft;
-    if (newLeft + rect.width > vw - pad) x -= (newLeft + rect.width) - (vw - pad);
+    if (newLeft + rect.width > vw - pad) x -= newLeft + rect.width - (vw - pad);
     if (newTop < pad) y += pad - newTop;
-    if (newTop + rect.height > vh - pad) y -= (newTop + rect.height) - (vh - pad);
+    if (newTop + rect.height > vh - pad) y -= newTop + rect.height - (vh - pad);
     return { x, y };
   }
 
@@ -103,7 +107,9 @@
 
     if (isDragging) {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-      setTimeout(() => { isDragging = false; }, 50);
+      setTimeout(() => {
+        isDragging = false;
+      }, 50);
     }
   }
 
@@ -129,9 +135,12 @@
    */
   function getPositionStyle(c: AnnotationCorner): string {
     switch (c) {
-      case 'tr': return 'top: -6px; right: -6px;';
-      case 'bl': return 'bottom: -6px; left: -6px;';
-      case 'br': return 'bottom: -6px; right: -6px;';
+      case 'tr':
+        return 'top: -6px; right: -6px;';
+      case 'bl':
+        return 'bottom: -6px; left: -6px;';
+      case 'br':
+        return 'bottom: -6px; right: -6px;';
       case 'tl':
       default:
         return 'top: -6px; left: -6px;';
@@ -180,7 +189,9 @@
         {#if isRightCorner}
           <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
           {#if !isShort}
-            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}>▾</span>
+            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
+              >▾</span
+            >
           {/if}
           <span class="cv-ribbon-text cv-ribbon-text--right">
             {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
@@ -201,23 +212,21 @@
             {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
           </span>
           {#if !isShort}
-            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}>▾</span>
+            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
+              >▾</span
+            >
           {/if}
         {/if}
       {/if}
     </button>
   {:else}
-    <div
-      class="cv-annotation-card"
-      role="region"
-      aria-label="Annotation"
-    >
+    <div class="cv-annotation-card" role="region" aria-label="Annotation">
       <button
         type="button"
         class="cv-card-close"
         onclick={handleInteraction}
-        aria-label="Collapse annotation"
-      >✕</button>
+        aria-label="Collapse annotation">✕</button
+      >
       <span class="cv-card-text">{annotation}</span>
     </div>
   {/if}
@@ -235,7 +244,9 @@
     user-select: none;
     cursor: default;
     opacity: 0.88;
-    transition: opacity 0.2s ease, z-index 0s;
+    transition:
+      opacity 0.2s ease,
+      z-index 0s;
   }
 
   .cv-annotation-container:hover {
@@ -351,7 +362,7 @@
      CARD (sticky note)
      ============================== */
   .cv-annotation-card {
-    background: #FFFDF5;
+    background: #fffdf5;
     border: 1.5px solid var(--cv-highlight-color);
     border-radius: 4px;
     padding: 10px 12px;
@@ -396,34 +407,80 @@
      ANIMATIONS
      ============================== */
   @keyframes cv-wiggle-intro {
-    0%   { transform: rotate(0deg); }
-    10%  { transform: rotate(-6deg); }
-    25%  { transform: rotate(6deg); }
-    40%  { transform: rotate(-5deg); }
-    55%  { transform: rotate(5deg); }
-    68%  { transform: rotate(-3deg); }
-    80%  { transform: rotate(2.5deg); }
-    90%  { transform: rotate(-1deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    10% {
+      transform: rotate(-6deg);
+    }
+    25% {
+      transform: rotate(6deg);
+    }
+    40% {
+      transform: rotate(-5deg);
+    }
+    55% {
+      transform: rotate(5deg);
+    }
+    68% {
+      transform: rotate(-3deg);
+    }
+    80% {
+      transform: rotate(2.5deg);
+    }
+    90% {
+      transform: rotate(-1deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
   }
 
   @keyframes cv-wiggle-periodic {
-    0%, 85%, 100% { transform: rotate(0deg); }
-    87% { transform: rotate(1.2deg); }
-    90% { transform: rotate(-1.2deg); }
-    93% { transform: rotate(0.8deg); }
-    96% { transform: rotate(-0.5deg); }
+    0%,
+    85%,
+    100% {
+      transform: rotate(0deg);
+    }
+    87% {
+      transform: rotate(1.2deg);
+    }
+    90% {
+      transform: rotate(-1.2deg);
+    }
+    93% {
+      transform: rotate(0.8deg);
+    }
+    96% {
+      transform: rotate(-0.5deg);
+    }
   }
 
   @keyframes cv-cardPop {
-    from { opacity: 0; transform: scale(0.9) translateY(5px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
   }
 
   @keyframes cv-chevron-bounce {
-    0%, 70%, 100% { transform: translateY(0); }
-    78%           { transform: translateY(-3px); }
-    86%           { transform: translateY(1px); }
-    93%           { transform: translateY(-1.5px); }
+    0%,
+    70%,
+    100% {
+      transform: translateY(0);
+    }
+    78% {
+      transform: translateY(-3px);
+    }
+    86% {
+      transform: translateY(1px);
+    }
+    93% {
+      transform: translateY(-1.5px);
+    }
   }
 </style>

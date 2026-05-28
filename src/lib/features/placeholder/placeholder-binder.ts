@@ -12,9 +12,11 @@
 // Group 4 (optional): ifSet template (only when ? is present)
 // Group 5 (optional): ifUnset string (only when ? is present)
 // Group 6 (optional): fallback value (only when : without ?)
-export const VAR_REGEX = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/g;
+export const VAR_REGEX =
+  /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/g;
 // Non-global version for stateless testing
-const VAR_TESTER = /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/;
+const VAR_TESTER =
+  /(\\)?\[\[\s*([a-zA-Z0-9_-]+)(\*)?\s*(?:\?\s*(.*?)\s*:\s*(.*?)|:\s*(.*?))?\s*\]\]/;
 
 import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
 import { elementStore } from '$lib/stores/element-store.svelte';
@@ -285,35 +287,39 @@ export class PlaceholderBinder {
     values: Record<string, string>,
     attrName?: string,
   ): string {
-    return template.replace(VAR_REGEX, (_full, escape, name, modifier, ifSet, ifUnset, fallback) => {
-      if (escape) return `[[${name}]]`;
+    return template.replace(
+      VAR_REGEX,
+      (_full, escape, name, modifier, ifSet, ifUnset, fallback) => {
+        if (escape) return `[[${name}]]`;
 
-      if (ifSet !== undefined) {
-        let val = modifier === '*'
-          ? PlaceholderBinder.resolveValue(name, undefined, values)
-          : PlaceholderBinder.resolveUserValue(name, values);
-        if (val === undefined) return ifUnset ?? '';
-        // URL-encode the value component (same as regular placeholders)
+        if (ifSet !== undefined) {
+          let val =
+            modifier === '*'
+              ? PlaceholderBinder.resolveValue(name, undefined, values)
+              : PlaceholderBinder.resolveUserValue(name, values);
+          if (val === undefined) return ifUnset ?? '';
+          // URL-encode the value component (same as regular placeholders)
+          if (attrName && (attrName === 'href' || attrName === 'src')) {
+            if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
+              val = encodeURIComponent(val);
+            }
+          }
+          return ifSet.replace(/\$/g, () => val!);
+        }
+
+        let val = PlaceholderBinder.resolveValue(name, fallback, values);
+        if (val === undefined) return `[[${name}]]`;
+
+        // Context-aware encoding for URL attributes
         if (attrName && (attrName === 'href' || attrName === 'src')) {
+          // Don't encode full URLs or relative URLs - only encode URL components
           if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
             val = encodeURIComponent(val);
           }
         }
-        return ifSet.replace(/\$/g, () => val!);
-      }
 
-      let val = PlaceholderBinder.resolveValue(name, fallback, values);
-      if (val === undefined) return `[[${name}]]`;
-
-      // Context-aware encoding for URL attributes
-      if (attrName && (attrName === 'href' || attrName === 'src')) {
-        // Don't encode full URLs or relative URLs - only encode URL components
-        if (!PlaceholderBinder.isFullUrl(val) && !PlaceholderBinder.isRelativeUrl(val)) {
-          val = encodeURIComponent(val);
-        }
-      }
-
-      return val;
-    });
+        return val;
+      },
+    );
   }
 }

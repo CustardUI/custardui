@@ -22,7 +22,9 @@
   } = $props();
 
   let configLoaded = $derived(!!activeStateStore.config.toggles);
-  let toggleConfig = $derived(activeStateStore.config.toggles?.find((t) => t.toggleId === toggleId));
+  let toggleConfig = $derived(
+    activeStateStore.config.toggles?.find((t) => t.toggleId === toggleId),
+  );
   let labelText = $derived(toggleConfig?.label || toggleId);
   let isSiteManaged = $derived(toggleConfig?.siteManaged ?? false);
 
@@ -32,7 +34,9 @@
 
   $effect(() => {
     if (configLoaded && toggleId && !toggleConfig) {
-      console.warn(`[cv-toggle-control] Unknown toggle-id: "${toggleId}". No matching toggle found in config.`);
+      console.warn(
+        `[cv-toggle-control] Unknown toggle-id: "${toggleId}". No matching toggle found in config.`,
+      );
     }
   });
 

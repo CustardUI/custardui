@@ -7,7 +7,10 @@ import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
 import { SvelteSet } from 'svelte/reactivity';
 
-import { HighlightService, BODY_HIGHLIGHT_CLASS } from '$features/highlight/services/highlight-service.svelte';
+import {
+  HighlightService,
+  BODY_HIGHLIGHT_CLASS,
+} from '$features/highlight/services/highlight-service.svelte';
 import { PARAM_CV_SHOW, PARAM_CV_HIDE, PARAM_CV_HIGHLIGHT } from '$features/url/url-constants';
 
 const BODY_SHOW_CLASS = 'cv-show-mode';
@@ -57,7 +60,7 @@ export class FocusService {
 
     // Listen for popstate to re-evaluate URL actions
     window.addEventListener('popstate', this.handlePopState);
-    
+
     // Initial evaluation
     this.applyModesFromUrl();
   }
@@ -200,9 +203,8 @@ export class FocusService {
 
     // Exclude highlight targets from being hidden so they stay visible
     const excludeSet = new Set(excludeTargets);
-    const filteredTargets = excludeTargets.length > 0
-      ? targets.filter((t) => !excludeSet.has(t))
-      : targets;
+    const filteredTargets =
+      excludeTargets.length > 0 ? targets.filter((t) => !excludeSet.has(t)) : targets;
 
     this.renderHiddenView(filteredTargets);
   }
@@ -371,7 +373,7 @@ export class FocusService {
         changed = true;
       }
       if (changed) {
-         window.history.replaceState({}, '', url.toString());
+        window.history.replaceState({}, '', url.toString());
       }
     }
   }

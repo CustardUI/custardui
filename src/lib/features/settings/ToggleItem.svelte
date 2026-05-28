@@ -21,7 +21,10 @@
     </div>
     <ToggleSegmentedControl
       {value}
-      onchange={(v) => { value = v; onchange({ toggleId: toggle.toggleId, value: v }); }}
+      onchange={(v) => {
+        value = v;
+        onchange({ toggleId: toggle.toggleId, value: v });
+      }}
     />
   </div>
 </div>

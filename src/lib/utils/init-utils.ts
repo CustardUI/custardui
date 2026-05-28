@@ -39,7 +39,11 @@ function findScriptTag(): HTMLScriptElement | null {
 
   // Fallback: find script by src pattern
   for (const script of document.scripts) {
-    if (/(?:custard(?:ui)?|@custardui\/custard(?:ui)?)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(script.src)) {
+    if (
+      /(?:custard(?:ui)?|@custardui\/custard(?:ui)?)(?:\.min)?\.(?:esm\.)?js($|\?)/i.test(
+        script.src,
+      )
+    ) {
       return script as HTMLScriptElement;
     }
   }

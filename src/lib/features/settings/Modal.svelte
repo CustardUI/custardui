@@ -17,7 +17,11 @@
   import { URLStateManager } from '$features/url/url-state-manager';
   import { showToast } from '$features/notifications/stores/toast-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-  import { findHighestVisibleElement, captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
+  import {
+    findHighestVisibleElement,
+    captureScrollAnchor,
+    restoreScrollAnchor,
+  } from '$lib/utils/scroll-utils';
 
   import ToggleItem from './ToggleItem.svelte';
   import TabGroupItem from './TabGroupItem.svelte';
@@ -30,11 +34,7 @@
     onstartShare?: () => void;
   }
 
-  let {
-    onclose = () => {},
-    onreset = () => {},
-    onstartShare = () => {},
-  }: Props = $props();
+  let { onclose = () => {}, onreset = () => {}, onstartShare = () => {} }: Props = $props();
 
   // --- Derived State from Core ---
   const areTabNavsVisible = $derived(uiStore.isTabGroupNavHeadingVisible);
@@ -134,7 +134,7 @@
         toggles: elementStore.detectedToggles,
         tabGroups: elementStore.detectedTabGroups,
         placeholders: elementStore.detectedPlaceholders,
-      }
+      },
     );
     try {
       await copyToClipboard(url);
@@ -314,10 +314,12 @@
               the page to share.
             </div>
 
-            <button type="button" class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
-              <span class="btn-icon"
-                ><IconShare /></span
-              >
+            <button
+              type="button"
+              class="share-action-btn primary start-share-btn"
+              onclick={() => onstartShare()}
+            >
+              <span class="btn-icon"><IconShare /></span>
               <span>Select elements to share</span>
             </button>
 
@@ -346,14 +348,21 @@
 
     <footer class="footer">
       {#if showReset}
-        <button type="button" class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
+        <button type="button" class="reset-btn" title="Reset to Default" onclick={onreset}
+          >Reset</button
+        >
       {:else}
         <div></div>
       {/if}
 
       <div class="footer-attribution">
         <span class="footer-tagline">Browser-side page customisations provided by</span>
-        <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
+        <a
+          href="https://custardui.js.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-link"
+        >
           custardui.js.org
         </a>
       </div>
@@ -718,13 +727,19 @@
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
-    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.08);
+    transition:
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .done-btn:hover {
     background: var(--cv-primary-hover);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+    box-shadow:
+      0 3px 6px rgba(0, 0, 0, 0.12),
+      0 2px 4px rgba(0, 0, 0, 0.08);
   }
 
   /* Share Tab Styles */

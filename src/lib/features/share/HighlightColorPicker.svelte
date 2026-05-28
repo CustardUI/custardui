@@ -61,11 +61,7 @@
   let topY = $derived(rect.top);
 </script>
 
-<div
-  class="cv-color-picker"
-  style="left: {centerX}px; top: {topY}px;"
-  role="none"
->
+<div class="cv-color-picker" style="left: {centerX}px; top: {topY}px;" role="none">
   <button
     type="button"
     class="cv-color-trigger"
@@ -154,7 +150,9 @@
     border: 2px solid transparent;
     cursor: pointer;
     padding: 0;
-    transition: transform 0.1s, border-color 0.1s;
+    transition:
+      transform 0.1s,
+      border-color 0.1s;
   }
 
   .cv-color-swatch:hover {

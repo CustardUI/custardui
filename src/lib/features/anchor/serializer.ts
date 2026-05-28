@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type HighlightColorKey, DEFAULT_COLOR_KEY, HIGHLIGHT_COLORS } from '$features/highlight/services/highlight-colors';
-import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER, ANNOTATION_CORNERS } from '$features/highlight/services/highlight-annotations';
+import {
+  type HighlightColorKey,
+  DEFAULT_COLOR_KEY,
+  HIGHLIGHT_COLORS,
+} from '$features/highlight/services/highlight-colors';
+import {
+  type AnnotationCorner,
+  DEFAULT_ANNOTATION_CORNER,
+  ANNOTATION_CORNERS,
+} from '$features/highlight/services/highlight-annotations';
 import { type AnchorDescriptor } from './types';
 
 const COLOR_KEYS = new Set<string>(HIGHLIGHT_COLORS.map((c) => c.key));
@@ -20,7 +28,9 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
     h: d.textHash,
     id: d.elementId,
     ...(d.color && d.color !== DEFAULT_COLOR_KEY ? { c: d.color } : {}),
-    ...(d.annotationCorner && d.annotationCorner !== DEFAULT_ANNOTATION_CORNER ? { nc: d.annotationCorner } : {}),
+    ...(d.annotationCorner && d.annotationCorner !== DEFAULT_ANNOTATION_CORNER
+      ? { nc: d.annotationCorner }
+      : {}),
     ...(d.annotation ? { n: d.annotation } : {}),
   }));
 
@@ -35,19 +45,21 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
   //   note, no color     → "id::corner:encodedNote"
   const allHaveIds = minified.every((m) => !!m.id);
   if (allHaveIds) {
-    return minified.map((m) => {
-      const id = m.id!;
-      const c = (m as { c?: string }).c ?? '';
-      const n = (m as { n?: string }).n;
-      const nc = (m as { nc?: string }).nc;
-      if (n) {
-        return `${id}:${c}:${nc ?? DEFAULT_ANNOTATION_CORNER}:${encodeURIComponent(n)}`;
-      }
-      if (nc) {
-        return `${id}:${c}:${nc}`;
-      }
-      return c ? `${id}:${c}` : id;
-    }).join(',');
+    return minified
+      .map((m) => {
+        const id = m.id!;
+        const c = (m as { c?: string }).c ?? '';
+        const n = (m as { n?: string }).n;
+        const nc = (m as { nc?: string }).nc;
+        if (n) {
+          return `${id}:${c}:${nc ?? DEFAULT_ANNOTATION_CORNER}:${encodeURIComponent(n)}`;
+        }
+        if (nc) {
+          return `${id}:${c}:${nc}`;
+        }
+        return c ? `${id}:${c}` : id;
+      })
+      .join(',');
   }
 
   const json = JSON.stringify(minified);

@@ -54,10 +54,11 @@
 
   <span class="count">
     {shareStore.shareCount} item{shareStore.shareCount === 1 ? '' : 's'} to
-    {shareStore.selectionMode === 'show' ? 'show'
-      : shareStore.selectionMode === 'highlight' ? 'highlight'
-      : 'hide'
-    }
+    {shareStore.selectionMode === 'show'
+      ? 'show'
+      : shareStore.selectionMode === 'highlight'
+        ? 'highlight'
+        : 'hide'}
   </span>
 
   <button type="button" class="btn clear" onclick={handleClear}>Clear</button>

@@ -16,7 +16,11 @@ describe('LabelRegistryStore', () => {
   describe('register()', () => {
     it('stores a label definition with all fields', () => {
       store.register({ name: 'optional', value: 'OPTIONAL', color: '#3b82f6' });
-      expect(store.get('optional')).toEqual({ name: 'optional', value: 'OPTIONAL', color: '#3b82f6' });
+      expect(store.get('optional')).toEqual({
+        name: 'optional',
+        value: 'OPTIONAL',
+        color: '#3b82f6',
+      });
     });
 
     it('stores a label definition with only name and color (no value)', () => {

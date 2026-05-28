@@ -1,6 +1,10 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { type HighlightColorKey } from '$features/highlight/services/highlight-colors';
-import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER, MAX_ANNOTATION_LENGTH } from '$features/highlight/services/highlight-annotations';
+import {
+  type AnnotationCorner,
+  DEFAULT_ANNOTATION_CORNER,
+  MAX_ANNOTATION_LENGTH,
+} from '$features/highlight/services/highlight-annotations';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$features/anchor';
 import {
@@ -136,9 +140,10 @@ export class ShareStore {
         this.highlightAnnotations.delete(el);
       }
     } else {
-      const validatedText = trimmed.length > MAX_ANNOTATION_LENGTH
-        ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
-        : trimmed;
+      const validatedText =
+        trimmed.length > MAX_ANNOTATION_LENGTH
+          ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
+          : trimmed;
       this.highlightAnnotations.set(el, { text: validatedText, corner });
     }
   }

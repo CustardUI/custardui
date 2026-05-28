@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from '$features/highlight/services/highlight-annotations';
+  import {
+    type AnnotationCorner,
+    DEFAULT_ANNOTATION_CORNER,
+  } from '$features/highlight/services/highlight-annotations';
 
   interface Props {
     annotationCorner?: AnnotationCorner | undefined;
@@ -19,9 +22,12 @@
 
   function getPositionStyle(c: AnnotationCorner): string {
     switch (c) {
-      case 'tr': return 'top: 4px; right: -6px;';
-      case 'bl': return 'bottom: 4px; left: -6px;';
-      case 'br': return 'bottom: 4px; right: -6px;';
+      case 'tr':
+        return 'top: 4px; right: -6px;';
+      case 'bl':
+        return 'bottom: 4px; left: -6px;';
+      case 'br':
+        return 'bottom: 4px; right: -6px;';
       case 'tl':
       default:
         return 'top: 4px; left: -6px;';
@@ -40,9 +46,12 @@
   // Position the dismiss button at the outermost corner of the container (furthest from the box).
   function getDismissStyle(c: AnnotationCorner): string {
     switch (c) {
-      case 'tr': return 'top: -5px; right: -5px;';
-      case 'bl': return 'bottom: -5px; left: -5px;';
-      case 'br': return 'bottom: -5px; right: -5px;';
+      case 'tr':
+        return 'top: -5px; right: -5px;';
+      case 'bl':
+        return 'bottom: -5px; left: -5px;';
+      case 'br':
+        return 'bottom: -5px; right: -5px;';
       case 'tl':
       default:
         return 'top: -5px; left: -5px;';
@@ -67,8 +76,8 @@
       class="cv-empty-dismiss"
       style={getDismissStyle(corner)}
       onclick={() => (dismissed = true)}
-      aria-label="Dismiss marker"
-    >✕</button>
+      aria-label="Dismiss marker">✕</button
+    >
   </div>
 {/if}
 
@@ -80,7 +89,9 @@
     touch-action: none;
     user-select: none;
     opacity: 0.95;
-    transition: opacity 0.2s ease, z-index 0s;
+    transition:
+      opacity 0.2s ease,
+      z-index 0s;
   }
 
   .cv-annotation-container:hover {
@@ -95,7 +106,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
     transform-origin: center center;
     padding: 5px 22px 5px 10px;
     opacity: 0.95;
@@ -137,7 +150,10 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      background 0.15s ease,
+      color 0.15s ease;
   }
 
   .cv-annotation-container:hover .cv-empty-dismiss {
@@ -151,22 +167,52 @@
   }
 
   @keyframes cv-wiggle-intro {
-    0%   { transform: rotate(0deg); }
-    10%  { transform: rotate(-6deg); }
-    25%  { transform: rotate(6deg); }
-    40%  { transform: rotate(-5deg); }
-    55%  { transform: rotate(5deg); }
-    68%  { transform: rotate(-3deg); }
-    80%  { transform: rotate(2.5deg); }
-    90%  { transform: rotate(-1deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    10% {
+      transform: rotate(-6deg);
+    }
+    25% {
+      transform: rotate(6deg);
+    }
+    40% {
+      transform: rotate(-5deg);
+    }
+    55% {
+      transform: rotate(5deg);
+    }
+    68% {
+      transform: rotate(-3deg);
+    }
+    80% {
+      transform: rotate(2.5deg);
+    }
+    90% {
+      transform: rotate(-1deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
   }
 
   @keyframes cv-wiggle-periodic {
-    0%, 85%, 100% { transform: rotate(0deg); }
-    87% { transform: rotate(1.2deg); }
-    90% { transform: rotate(-1.2deg); }
-    93% { transform: rotate(0.8deg); }
-    96% { transform: rotate(-0.5deg); }
+    0%,
+    85%,
+    100% {
+      transform: rotate(0deg);
+    }
+    87% {
+      transform: rotate(1.2deg);
+    }
+    90% {
+      transform: rotate(-1.2deg);
+    }
+    93% {
+      transform: rotate(0.8deg);
+    }
+    96% {
+      transform: rotate(-0.5deg);
+    }
   }
 </style>

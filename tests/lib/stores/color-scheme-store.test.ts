@@ -83,10 +83,18 @@ describe('ColorSchemeStore', () => {
 
     it('defaults to light when matchMedia is not a function', () => {
       const original = window.matchMedia;
-      Object.defineProperty(window, 'matchMedia', { value: undefined, configurable: true, writable: true });
+      Object.defineProperty(window, 'matchMedia', {
+        value: undefined,
+        configurable: true,
+        writable: true,
+      });
       store.init('auto');
       expect(store.isDark).toBe(false);
-      Object.defineProperty(window, 'matchMedia', { value: original, configurable: true, writable: true });
+      Object.defineProperty(window, 'matchMedia', {
+        value: original,
+        configurable: true,
+        writable: true,
+      });
     });
   });
 
