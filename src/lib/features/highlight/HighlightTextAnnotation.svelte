@@ -169,6 +169,7 @@
   onpointermove={onPointerMove}
   onpointerup={onPointerUp}
   onpointercancel={onPointerCancel}
+  role="presentation"
 >
   {#if !expanded}
     <button

@@ -164,7 +164,9 @@ describe('scroll-utils', () => {
     it('respects header offset (ignores elements above current viewport top)', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as unknown as CSSStyleDeclaration);
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        position: 'fixed',
+      } as unknown as CSSStyleDeclaration);
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({ height: 100 } as DOMRect);
 
       // el1 is partially under the header (bottom is 100, offset is 100)
@@ -185,7 +187,9 @@ describe('scroll-utils', () => {
     it('ignores elements that are inside the sticky/fixed header', () => {
       const header = document.createElement('header');
       document.body.appendChild(header);
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'fixed' } as unknown as CSSStyleDeclaration);
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        position: 'fixed',
+      } as unknown as CSSStyleDeclaration);
       vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({ height: 100 } as DOMRect);
 
       const elInHeader = document.createElement('div');
