@@ -357,14 +357,17 @@
 
       <div class="footer-attribution">
         <span class="footer-tagline">Browser-side page customisations provided by</span>
-        <a
-          href="https://custardui.js.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="footer-link"
-        >
-          custardui.js.org
-        </a>
+        <div class="footer-link-container">
+          <a
+            href="https://custardui.js.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+          >
+            custardui.js.org
+          </a>
+          <span class="footer-version">v{__APP_VERSION__}</span>
+        </div>
       </div>
 
       <button type="button" class="done-btn" onclick={onclose}>Done</button>
@@ -696,6 +699,19 @@
 
   .footer-link:hover {
     color: var(--cv-primary);
+  }
+
+  .footer-link-container {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .footer-version {
+    font-size: 0.65rem;
+    color: var(--cv-text);
+    opacity: 0.9;
+    letter-spacing: 0.04em;
   }
 
   .reset-btn {
