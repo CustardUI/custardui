@@ -41,6 +41,7 @@ export function initializeFromScript(): void {
       const adaptationConfig = await AdaptationManager.init(
         effectiveBaseURL,
         configFile.storageKey,
+        configFile.adaptationsPath,
       );
       if (adaptationConfig?.id) {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);

@@ -101,7 +101,7 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('/docs');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/fail-id/fail-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/versions/fail-id/fail-id.json');
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('"fail-id" failed to fetch'),
@@ -142,7 +142,7 @@ describe('AdaptationManager', () => {
       await AdaptationManager.init('');
 
       expect(localStorage.setItem).toHaveBeenCalledWith('cv-adaptation', 'url-id');
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/url-id/url-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/url-id/url-id.json');
     });
 
     it('should prioritize meta tag over localStorage when URL param is missing', async () => {
@@ -161,7 +161,7 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/meta-id/meta-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/meta-id/meta-id.json');
     });
 
     it('should fall back to localStorage if URL param and meta tag are missing', async () => {
@@ -175,7 +175,7 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/storage-id/storage-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/storage-id/storage-id.json');
     });
 
     it('should handle root baseUrl correctly', async () => {
@@ -187,7 +187,7 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('/');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/id3/id3.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/id3/id3.json');
     });
 
     it('should return null and clear storage if fetch fails', async () => {
@@ -238,7 +238,69 @@ describe('AdaptationManager', () => {
       // Should trim trailing slash on base and encode the ID components
       // Should encode the ID components
       const safeId = encodeURIComponent('id/with/slash');
-      expect(global.fetch).toHaveBeenCalledWith(`http://localhost/base/${safeId}/${safeId}.json`);
+      expect(global.fetch).toHaveBeenCalledWith(`http://localhost/base/versions/${safeId}/${safeId}.json`);
+    });
+
+    it('should use a custom adaptationsPath when provided', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, 'custom-path');
+
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/custom-path/nus/nus.json');
+    });
+
+    it('should fall back to root (no subfolder) when adaptationsPath is empty string', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, '');
+
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/nus/nus.json');
+    });
+
+    it('should strip a leading slash from adaptationsPath to prevent baseUrl bypass', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, '/versions');
+
+      // "/versions" must be normalised to "versions" so baseUrl is not bypassed
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/versions/nus/nus.json');
+    });
+
+    it('should strip leading double-slash from adaptationsPath to prevent scheme-relative URL injection', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, '//evil.com');
+
+      // "//evil.com" must be normalised to "evil.com" (relative, not scheme-relative)
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/evil.com/nus/nus.json');
+    });
+
+    it('should strip trailing slash from adaptationsPath to avoid double-slash in path', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, 'versions/');
+
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/versions/nus/nus.json');
     });
 
     it('should use provided storageKey prefix for persistence', async () => {
@@ -276,7 +338,7 @@ describe('AdaptationManager', () => {
       // The fetch logic encodes it again when building the final URL path
       // my%20special%20id -> my%20special%20id
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost/my%20special%20id/my%20special%20id.json',
+        'http://localhost/versions/my%20special%20id/my%20special%20id.json',
       );
       expect(localStorage.setItem).toHaveBeenCalledWith('cv-adaptation', 'my special id');
     });
@@ -310,7 +372,7 @@ describe('AdaptationManager', () => {
       const result = await AdaptationManager.init('');
 
       expect(result).toEqual({ id: 'hash-id', theme: {} });
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/hash-id/hash-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/hash-id/hash-id.json');
     });
 
     it('should prioritize explicit ?adapt parameter over a stale hash indicator and clear the stale hash', async () => {
@@ -323,7 +385,7 @@ describe('AdaptationManager', () => {
       const result = await AdaptationManager.init('');
 
       expect(result).toEqual({ id: 'new-id', theme: {} });
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/new-id/new-id.json');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/new-id/new-id.json');
       // Should have replaced the history to strip the stale hash
       expect(window.history.replaceState).toHaveBeenCalledWith(
         {},

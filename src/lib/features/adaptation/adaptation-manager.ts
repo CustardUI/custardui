@@ -17,15 +17,16 @@ export class AdaptationManager {
    * - Theme CSS is injected early (FOUC prevention)
    * - ?adapt= param is cleaned before URLStateManager.parseURL() runs
    *
-   * Adaptation JSON files are resolved relative to the site's baseUrl:
-   *   `{baseUrl}/{id}/{id}.json`
-   * e.g. baseUrl="/base", id="nus" → "/base/nus/nus.json"
+   * Adaptation JSON files are resolved relative to the site's baseUrl and adaptationsPath:
+   *   `{baseUrl}/{adaptationsPath}/{id}/{id}.json`
+   * e.g. baseUrl="/base", adaptationsPath="versions", id="nus" → "/base/versions/nus/nus.json"
    *
    * @param baseUrl The site's base URL (from data-base-url, default: '')
    * @param storageKey The project's unique storageKey prefix to use for saving preferences
+   * @param adaptationsPath Subfolder under baseUrl where adaptation JSON files are stored (default: 'versions')
    * @returns The loaded AdaptationConfig, or null if no adaptation is active
    */
-  static async init(baseUrl = '', storageKey?: string): Promise<AdaptationConfig | null> {
+  static async init(baseUrl = '', storageKey?: string, adaptationsPath = 'versions'): Promise<AdaptationConfig | null> {
     const persistence = new PersistenceManager(storageKey);
 
     // 1. Read indicators (URL hash first, then ?adapt=)
@@ -59,7 +60,7 @@ export class AdaptationManager {
     }
 
     // 5. Fetch adaptation config and validate
-    const config = await this.loadAdaptationConfig(baseUrl, id, persistence);
+    const config = await this.loadAdaptationConfig(baseUrl, id, persistence, adaptationsPath);
     if (!config) {
       this.clearStoredId(persistence);
       return null;
@@ -216,11 +217,14 @@ export class AdaptationManager {
     baseUrl: string,
     id: string,
     persistence: PersistenceManager,
+    adaptationsPath = 'versions',
   ): Promise<AdaptationConfig | null> {
     try {
       if (!id || id.trim() === '') return null;
       const safeId = encodeURIComponent(id.trim());
-      const jsonFile = `${safeId}/${safeId}.json`;
+      const normalizedPath = adaptationsPath.trim().replace(/^\/+|\/+$/g, '');
+      const safePath = normalizedPath ? `${normalizedPath}/` : '';
+      const jsonFile = `${safePath}${safeId}/${safeId}.json`;
 
       // The base must end in a slash for the URL constructor to treat it as a directory.
       // If baseUrl is empty, this falls back to '/', which resolves against window.location.origin.
