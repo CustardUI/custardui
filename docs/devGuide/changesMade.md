@@ -87,11 +87,7 @@ Also refer to [release notes](https://github.com/CustardUI/custardui/releases) t
 
 ### Features Added
 **Readable/Programmable URL for Settings Sharing:**
-* For tabs, can refer to [tabs url sharing](../authorGuide/components/tabs.md#shareable-url)
-* For toggles, can refer to [toggles url sharing](../authorGuide/components/toggles.md#shareable-url)
-* For placeholders, can refer to [ph url sharing](../authorGuide/components/placeholders.md#shareable-url)
-
-Also added a [unified URL Sharing page](../authorGuide/urlSharing.md) that gives an overview of the url encoding behavior.
+* Added a [unified URL Sharing page](../authorGuide/urlSharing.md) that gives an overview of the url encoding behavior.
 
 **Focused view sharing**
 * should be directly usable.
