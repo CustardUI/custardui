@@ -9,6 +9,19 @@
 
 Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
 
+### v3.0.*
+
+**User Facing Changes**:
+* Add user input sanitization
+* feat: Nest adaptation files under a configurable subfolder to keep the site root clean (BREAKING CHANGE: adaptation JSON files are now resolved at `{baseUrl}/versions/{id}/{id}.json` instead of `{baseUrl}/{id}/{id}.json`;
+* feat: Add `adaptationsPath` field to `custardui.config.json` to customise the subfolder name (defaults to `"versions"`), e.g. "adaptationsPath": "adaptations".
+
+**Developer Facing Changes**:
+* Update developer guide
+* refactor: `AdaptationManager.init()` now accepts an `adaptationsPath` parameter (passed from `configFile.adaptationsPath`)
+* docs: Update adaptation author guide to reflect new file placement and config option
+
+
 ### v2.3.*
 
 **User Facing Changes**:

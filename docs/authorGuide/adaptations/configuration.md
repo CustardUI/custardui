@@ -14,14 +14,14 @@
 
 ```json
 {
-  "id": "nus",
-  "name": "NUS",
+  "id": "org-a",
+  "name": "Organization A",
   "theme": {
     "cssVariables": {
       "--cv-primary": "#003d7c",
       "--cv-primary-hover": "#002d5c"
     },
-    "cssFile": "/nus/nus-extra.css"
+    "cssFile": "/versions/org-a/org-a-extra.css"
   },
   "preset": {
     "toggles": {
@@ -29,7 +29,7 @@
       "windows": "hide"
     },
     "placeholders": {
-      "username": "NUS Student"
+      "username": "Org A Member"
     }
   }
 }
@@ -89,20 +89,20 @@ The adaptation then overrides it via `preset.placeholders`:
 
 ```json
 {
-  "id": "nus",
+  "id": "org-a",
   "preset": {
-    "placeholders": { "institutionName": "NUS" }
+    "placeholders": { "institutionName": "Organization A" }
   }
 }
 ```
 
-`\[[institutionName]]` renders `"NUS"` for NUS visitors and `"Generic University"` for others. The value is never shown in the settings modal, never persisted to localStorage, and never included in shared links.
+`\[[institutionName]]` renders `"Organization A"` for Organization A visitors and `"Generic University"` for others. The value is never shown in the settings modal, never persisted to localStorage, and never included in shared links.
 
 #### Example placeholder
 
 `\[[ institutionName ]]`:
 * [[ institutionName ]]
-* [link to NUS adaptation](./configuration.html?adapt=nus#example-placeholder),
+* [link to sample NUS adaptation](./configuration.html?adapt=nus#example-placeholder),
 * [link to clear adaptation](./configuration.html?adapt=clear#example-placeholder)
 
 ### Site-Managed Toggles
@@ -136,7 +136,7 @@ An adaptation can override the toggle state via `preset.toggles`:
 
 ```json
 {
-  "id": "nus",
+  "id": "org-a",
   "preset": {
     "toggles": {
       "java": "show",
@@ -146,7 +146,7 @@ An adaptation can override the toggle state via `preset.toggles`:
 }
 ```
 
-With this setup, the Java content is always shown and the Python content is always hidden for NUS visitors — even if a user had previously saved different preferences or arrives via a shared URL attempting to change it.
+With this setup, the Java content is always shown and the Python content is always hidden for Organization A visitors — even if a user had previously saved different preferences or arrives via a shared URL attempting to change it.
 
 ---
 
@@ -166,34 +166,32 @@ Toggles and placeholders marked `siteManaged: true` are **exempt from layers 3 a
 ---
 
 
-## Example: Institution Adaptation of this Site
+## Example: Adaptation of this Site
 
-For example, we want this documentation site to be customized for NUS. 
+For example, we want this documentation site to be customized for Organization A.
 
-**`docs/nus/index.md`**
+**`docs/versions/org-a/index.md`**
 ```html
 <head-bottom>
-  <meta name="cv-adapt" content="nus">
+  <meta name="cv-adapt" content="org-a">
 </head-bottom>
 ```
 
-**`docs/nus/nus.json`**
+**`docs/versions/org-a/org-a.json`**
 ```json
 {
-  "id": "nus",
+  "id": "org-a",
   "theme": {
     "cssVariables": { "--cv-primary": "#003d7c" }
   },
   "preset": {
     "toggles": { "linux": "show", "windows": "hide" },
-    "placeholders": { "username": "NUS Student" }
+    "placeholders": { "username": "Org A Member" }
   }
 }
 ```
 
-Students linked to `/nus/` get the NUS theme immediately; the theme persists as they navigate the rest of the site.
-
-See the [live demo](/nus/) for an interactive example.
+Visitors linked to `/versions/org-a/` get the Organization A theme immediately; the theme persists as they navigate the rest of the site.
 
 
 ### Placeholder Adaptation Configurations (siteManaged)
