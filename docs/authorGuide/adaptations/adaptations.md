@@ -90,14 +90,6 @@ docs/
 
 This keeps the site root clean regardless of how many adaptations you define.
 
-<box type="info">
-
-**User-visible URLs are unaffected.** The `?adapt=<id>` and `#/<id>` URL values contain only the adaptation `id` — the `adaptationsPath` prefix is a server-side file path detail and never appears in browser URLs.
-
-For example, `?adapt=org-a` always works regardless of whether the JSON lives at `/versions/org-a/org-a.json` or `/adaptations/org-a/org-a.json`.
-
-</box>
-
 ### Configuring the Adaptations Path
 
 By default, CustardUI looks for adaptation files inside a `versions/` subfolder of your `data-base-url`. You can change this with the `adaptationsPath` field in `custardui.config.json`:

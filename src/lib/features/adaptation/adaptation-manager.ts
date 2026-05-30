@@ -222,7 +222,8 @@ export class AdaptationManager {
     try {
       if (!id || id.trim() === '') return null;
       const safeId = encodeURIComponent(id.trim());
-      const safePath = adaptationsPath.trim() ? `${adaptationsPath.trim()}/` : '';
+      const normalizedPath = adaptationsPath.trim().replace(/^\/+|\/+$/g, '');
+      const safePath = normalizedPath ? `${normalizedPath}/` : '';
       const jsonFile = `${safePath}${safeId}/${safeId}.json`;
 
       // The base must end in a slash for the URL constructor to treat it as a directory.

@@ -265,6 +265,44 @@ describe('AdaptationManager', () => {
       expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/nus/nus.json');
     });
 
+    it('should strip a leading slash from adaptationsPath to prevent baseUrl bypass', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, '/versions');
+
+      // "/versions" must be normalised to "versions" so baseUrl is not bypassed
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/versions/nus/nus.json');
+    });
+
+    it('should strip leading double-slash from adaptationsPath to prevent scheme-relative URL injection', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, '//evil.com');
+
+      // "//evil.com" must be normalised to "evil.com" (relative, not scheme-relative)
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/evil.com/nus/nus.json');
+    });
+
+    it('should strip trailing slash from adaptationsPath to avoid double-slash in path', async () => {
+      mockLocation('http://localhost/?adapt=nus');
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'nus', theme: {} }),
+      });
+
+      await AdaptationManager.init('/docs', undefined, 'versions/');
+
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/versions/nus/nus.json');
+    });
+
     it('should use provided storageKey prefix for persistence', async () => {
       mockLocation('http://localhost/?adapt=prefix-id');
       (global.fetch as any).mockResolvedValueOnce({
