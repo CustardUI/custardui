@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  type HighlightColorKey,
+  type BoxColorKey,
   DEFAULT_COLOR_KEY,
-  HIGHLIGHT_COLORS,
-} from '$features/highlight/services/highlight-colors';
+  BOX_COLORS,
+} from '$features/box/services/box-colors';
 import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
   ANNOTATION_CORNERS,
-} from '$features/highlight/services/highlight-annotations';
+} from '$features/box/services/box-annotations';
 import { type AnchorDescriptor } from './types';
 
-const COLOR_KEYS = new Set<string>(HIGHLIGHT_COLORS.map((c) => c.key));
+const COLOR_KEYS = new Set<string>(BOX_COLORS.map((c) => c.key));
 const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
 
 /**
@@ -118,7 +118,7 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
         textHash: m.h,
         elementId: m.id,
       };
-      if (m.c) descriptor.color = m.c as HighlightColorKey;
+      if (m.c) descriptor.color = m.c as BoxColorKey;
       if (m.n) {
         descriptor.annotation = m.n as string;
         descriptor.annotationCorner = (m.nc ?? DEFAULT_ANNOTATION_CORNER) as AnnotationCorner;
@@ -150,7 +150,7 @@ export function parseIds(encoded: string): AnchorDescriptor[] {
     // remainder so it can itself contain encoded colons (%3A).
     const segs = part.split(':');
     let id = part;
-    let color: HighlightColorKey | undefined;
+    let color: BoxColorKey | undefined;
     let annotation: string | undefined;
     let annotationCorner: AnnotationCorner | undefined;
 
@@ -160,7 +160,7 @@ export function parseIds(encoded: string): AnchorDescriptor[] {
       const colorSeg = segs[1]!;
       const cornerSeg = segs[2]!;
       const noteSeg = segs.slice(3).join(':'); // re-join in case of extra colons
-      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as HighlightColorKey;
+      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as BoxColorKey;
       annotationCorner = CORNER_KEYS.has(cornerSeg)
         ? (cornerSeg as AnnotationCorner)
         : DEFAULT_ANNOTATION_CORNER;
@@ -174,14 +174,14 @@ export function parseIds(encoded: string): AnchorDescriptor[] {
       id = segs[0]!;
       const colorSeg = segs[1]!;
       const cornerSeg = segs[2]!;
-      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as HighlightColorKey;
+      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as BoxColorKey;
       if (CORNER_KEYS.has(cornerSeg)) annotationCorner = cornerSeg as AnnotationCorner;
     } else if (segs.length === 2) {
       // "id:color"
       const colorSeg = segs[1]!;
       if (COLOR_KEYS.has(colorSeg)) {
         id = segs[0]!;
-        color = colorSeg as HighlightColorKey;
+        color = colorSeg as BoxColorKey;
       }
     }
 

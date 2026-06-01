@@ -257,27 +257,27 @@
   <ShareToolbar />
   <HoverHelper />
 
-  {#if shareStore.selectionMode === 'highlight'}
+  {#if shareStore.selectionMode === 'box'}
     {#each [...shareStore.selectedElements] as el (el)}
       <HighlightColorPicker element={el} />
       <HighlightAnnotationEditor element={el} />
     {/each}
   {/if}
 
-  {#if selectionBox}
+  {#if selectionBox && shareStore.selectionMode !== 'highlight'}
     <div
       class="selection-box {shareStore.selectionMode === 'hide'
         ? 'hide-mode'
-        : shareStore.selectionMode === 'highlight'
-          ? 'highlight-mode'
+        : shareStore.selectionMode === 'box'
+          ? 'box-mode'
           : ''}"
       style="left: {selectionBox.left}px; top: {selectionBox.top}px; width: {selectionBox.width}px; height: {selectionBox.height}px;"
     >
       <span class="selection-label">
         {shareStore.selectionMode === 'hide'
           ? 'Select to hide'
-          : shareStore.selectionMode === 'highlight'
-            ? 'Select to highlight'
+          : shareStore.selectionMode === 'box'
+            ? 'Select to box'
             : 'Select to show'}
       </span>
     </div>
@@ -292,8 +292,8 @@
     -webkit-user-select: none;
   }
 
-  /* Highlight outlines */
-  :global(.cv-highlight-target) {
+  /* Box target outlines */
+  :global(.cv-box-target) {
     outline: 2px dashed #0078d4 !important;
     outline-offset: 2px;
     cursor: crosshair;
@@ -305,7 +305,7 @@
     background-color: rgba(0, 120, 212, 0.05);
   }
 
-  :global(.cv-highlight-target-hide) {
+  :global(.cv-box-target-hide) {
     outline: 2px dashed #d13438 !important;
     outline-offset: 2px;
     cursor: crosshair;
@@ -317,16 +317,23 @@
     background-color: rgba(209, 52, 56, 0.05);
   }
 
-  :global(.cv-highlight-target-mode) {
+  :global(.cv-box-target-mode) {
     outline: 2px dashed #d97706 !important;
     outline-offset: 2px;
     cursor: crosshair;
   }
 
-  :global(.cv-share-selected-highlight) {
+  :global(.cv-share-selected-box) {
     outline: 3px solid #b45309 !important;
     outline-offset: 2px;
     background-color: rgba(245, 158, 11, 0.05);
+  }
+
+  /* Text highlight mode — allow native text selection */
+  :global(body.cv-share-active-highlight) {
+    cursor: text !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
   }
 
   .selection-box {
@@ -343,8 +350,8 @@
     background-color: rgba(209, 52, 56, 0.1);
   }
 
-  .selection-box.highlight-mode {
-    border: 1px solid rgba(255, 140, 0, 0.6); /* Orange/Gold for highlight */
+  .selection-box.box-mode {
+    border: 1px solid rgba(255, 140, 0, 0.6);
     background-color: rgba(255, 140, 0, 0.1);
   }
 
@@ -366,7 +373,7 @@
     background: #d13438;
   }
 
-  .highlight-mode .selection-label {
-    background: #d97706; /* Darker orange for text bg */
+  .box-mode .selection-label {
+    background: #d97706;
   }
 </style>

@@ -25,10 +25,19 @@
       type="button"
       class="mode-btn {shareStore.selectionMode === 'highlight' ? 'active' : ''}"
       onclick={() => shareStore.setSelectionMode('highlight')}
-      title="Highlight selected elements"
+      title="Highlight selected text"
       aria-pressed={shareStore.selectionMode === 'highlight'}
     >
       Highlight
+    </button>
+    <button
+      type="button"
+      class="mode-btn {shareStore.selectionMode === 'box' ? 'active' : ''}"
+      onclick={() => shareStore.setSelectionMode('box')}
+      title="Box selected elements"
+      aria-pressed={shareStore.selectionMode === 'box'}
+    >
+      Box
     </button>
     <button
       type="button"
@@ -53,12 +62,16 @@
   <span class="divider"></span>
 
   <span class="count">
-    {shareStore.shareCount} item{shareStore.shareCount === 1 ? '' : 's'} to
-    {shareStore.selectionMode === 'show'
-      ? 'show'
-      : shareStore.selectionMode === 'highlight'
-        ? 'highlight'
-        : 'hide'}
+    {#if shareStore.selectionMode === 'highlight'}
+      Select text to highlight
+    {:else}
+      {shareStore.shareCount} item{shareStore.shareCount === 1 ? '' : 's'} to
+      {shareStore.selectionMode === 'show'
+        ? 'show'
+        : shareStore.selectionMode === 'box'
+          ? 'box'
+          : 'hide'}
+    {/if}
   </span>
 
   <button type="button" class="btn clear" onclick={handleClear}>Clear</button>

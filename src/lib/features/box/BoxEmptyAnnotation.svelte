@@ -2,7 +2,7 @@
   import {
     type AnnotationCorner,
     DEFAULT_ANNOTATION_CORNER,
-  } from '$features/highlight/services/highlight-annotations';
+  } from '$features/box/services/box-annotations';
 
   interface Props {
     annotationCorner?: AnnotationCorner | undefined;
@@ -102,7 +102,7 @@
   .cv-empty-ribbon {
     min-width: 45px;
     min-height: 22px;
-    background: var(--cv-highlight-color);
+    background: var(--cv-box-color);
     display: flex;
     align-items: center;
     justify-content: center;

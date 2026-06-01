@@ -6,7 +6,7 @@
     ANNOTATION_PREVIEW_LENGTH,
     CORNER_ICONS,
     type AnnotationCorner,
-  } from '$features/highlight/services/highlight-annotations';
+  } from '$features/box/services/box-annotations';
 
   let { element }: { element: HTMLElement } = $props();
 
@@ -31,7 +31,7 @@
 
   // Initialize from store when element changes (or annotation changes externally)
   $effect.pre(() => {
-    const ann = shareStore.highlightAnnotations.get(element);
+    const ann = shareStore.boxAnnotations.get(element);
     const newText = ann?.text ?? '';
 
     if (localText !== newText) {
