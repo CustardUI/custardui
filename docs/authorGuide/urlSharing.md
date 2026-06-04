@@ -38,7 +38,8 @@ CustardUI's **Share** button generates a URL that encodes the current page's vie
 | `#cv-share-highlight` | `?cv-share-highlight` | Opens Share Mode in **Highlight** mode |
 | — | `?cv-show=id1,id2` | Focus View — shows only the listed element IDs |
 | — | `?cv-hide=id1,id2` | Focus View — hides the listed element IDs |
-| — | `?cv-highlight=id1,id2` | Focus View — highlights the listed element IDs |
+| — | `?cv-box=id1,id2` | Focus View — outlines (boxes) the listed element IDs |
+| — | `?cv-highlight=encoded` | Focus View — highlights the encoded text ranges |
 
 ## Tab Groups
 
@@ -154,11 +155,19 @@ https://yoursite.com/guide.html?cv-share-highlight#selecting-elements
 
 ### Direct Focus View Links
 
-Once elements have been selected via Share Mode and a link generated, the resulting URL uses `?cv-show`, `?cv-hide`, or `?cv-highlight` with comma-separated HTML element IDs. You can also construct these directly.
+Once elements or text spans have been selected via Share Mode and a link generated, the resulting URL uses `?cv-show`, `?cv-hide`, `?cv-box` (for element boxing), or `?cv-highlight` (for text highlights).
+
+#### Element-Level Focus Views
+
+Element-level focus views support direct manual construction using HTML element IDs:
 
 ```
 https://yoursite.com/guide.html?cv-show=setup,config
-https://yoursite.com/guide.html?cv-highlight=example-section
+https://yoursite.com/guide.html?cv-box=example-section
 ```
 
 IDs are case-sensitive. Use `,` or `+` to separate multiple IDs. Standard alphanumeric IDs work without encoding; IDs with special characters should be URL-encoded.
+
+#### Text-Level Focus Views
+
+Text-level highlights (`cv-highlight`) are generated automatically by selecting text in **Highlight** mode. They use robust, encoded range descriptors to anchor the highlights safely even if the document's surrounding text is edited. For full details on the text highlight parameters, see the [Highlighting Modes Guide](file:///Users/gerteck/dev/custardui/docs/authorGuide/focusedViews/highlightModes.md).

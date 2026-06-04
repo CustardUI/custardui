@@ -22,6 +22,7 @@ import {
   PARAM_PH,
   PARAM_CV_SHOW,
   PARAM_CV_HIDE,
+  PARAM_CV_BOX,
   PARAM_CV_HIGHLIGHT,
 } from '../../../../src/lib/features/url/url-constants';
 import type { Config, State } from '../../../../src/lib/types/index';
@@ -484,7 +485,7 @@ describe('URLStateManager', () => {
     it('clears all managed params but leaves focus params', () => {
       // Setup URL with both managed and focus params
       const managed = `${PARAM_SHOW_TOGGLE}=t1&${PARAM_TABS}=g1:tab1`;
-      const focus = `${PARAM_CV_SHOW}=el1&${PARAM_CV_HIDE}=el2&${PARAM_CV_HIGHLIGHT}=hl1`;
+      const focus = `${PARAM_CV_SHOW}=el1&${PARAM_CV_HIDE}=el2&${PARAM_CV_BOX}=box1&${PARAM_CV_HIGHLIGHT}=hl1`;
       setLocation(`?${managed}&${focus}`);
 
       URLStateManager.clearURL();

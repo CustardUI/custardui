@@ -4,7 +4,7 @@ import {
   groupSiblings,
   calculateMergedRects,
   type SimpleRect,
-} from '$features/highlight/highlight-logic';
+} from '$features/box/box-logic';
 import { SvelteMap } from 'svelte/reactivity';
 
 describe('highlight-logic', () => {

@@ -20,18 +20,18 @@ describe('ShareStore', () => {
 
   it('should initialize inactive', () => {
     expect(store.isActive).toBe(false);
-    expect(store.selectionMode).toBe('highlight');
+    expect(store.selectionMode).toBe('box');
     expect(store.selectedElements.size).toBe(0);
   });
 
   it('should activate and deactivate', () => {
     store.toggleActive(true);
     expect(store.isActive).toBe(true);
-    expect(document.body.classList.contains('cv-share-active-highlight')).toBe(true);
+    expect(document.body.classList.contains('cv-share-active-box')).toBe(true);
 
     store.toggleActive(false);
     expect(store.isActive).toBe(false);
-    expect(document.body.classList.contains('cv-share-active-highlight')).toBe(false);
+    expect(document.body.classList.contains('cv-share-active-box')).toBe(false);
   });
 
   it('should change selection mode', () => {
@@ -47,7 +47,7 @@ describe('ShareStore', () => {
     store.toggleElementSelection(el);
 
     expect(store.selectedElements.has(el)).toBe(true);
-    expect(el.classList.contains('cv-share-selected-highlight')).toBe(true);
+    expect(el.classList.contains('cv-share-selected-box')).toBe(true);
   });
 
   it('should toggle selection off', () => {
@@ -63,14 +63,14 @@ describe('ShareStore', () => {
     const el = document.createElement('div');
     store.setAnnotation(el, 'Test Note', 'br');
 
-    const ann = store.highlightAnnotations.get(el);
+    const ann = store.boxAnnotations.get(el);
     expect(ann).toBeDefined();
     expect(ann?.text).toBe('Test Note');
     expect(ann?.corner).toBe('br');
 
     // Setting empty string should delete
     store.setAnnotation(el, '', 'tl');
-    expect(store.highlightAnnotations.has(el)).toBe(false);
+    expect(store.boxAnnotations.has(el)).toBe(false);
   });
 
   it('should set highlight colors for single and all elements', () => {
@@ -78,13 +78,13 @@ describe('ShareStore', () => {
     const el2 = document.createElement('div');
     store.toggleMultipleElements([el1, el2]);
 
-    store.setHighlightColor(el1, 'red');
-    expect(store.highlightColors.get(el1)).toBe('red');
-    expect(store.highlightColors.has(el2)).toBe(false);
+    store.setBoxColor(el1, 'red');
+    expect(store.boxColors.get(el1)).toBe('red');
+    expect(store.boxColors.has(el2)).toBe(false);
 
-    store.setAllHighlightColors('green');
-    expect(store.highlightColors.get(el1)).toBe('green');
-    expect(store.highlightColors.get(el2)).toBe('green');
+    store.setAllBoxColors('green');
+    expect(store.boxColors.get(el1)).toBe('green');
+    expect(store.boxColors.get(el2)).toBe('green');
   });
 
   it('should generate link', async () => {
@@ -102,17 +102,17 @@ describe('ShareStore', () => {
     await store.generateLink();
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('cv-highlight=serialized-id'),
+      expect.stringContaining('cv-box=serialized-id'),
     );
   });
 
   it('should include metadata in generated link for highlight mode', async () => {
-    store.setSelectionMode('highlight');
+    store.setSelectionMode('box');
 
     const el = document.createElement('div');
     el.id = 'target-id';
     store.toggleElementSelection(el);
-    store.setHighlightColor(el, 'blue');
+    store.setBoxColor(el, 'blue');
     store.setAnnotation(el, 'Hello', 'tl');
 
     // Use actual createDescriptor to see if metadata is attached
@@ -137,5 +137,28 @@ describe('ShareStore', () => {
     expect(capturedDescriptors[0]!.annotationCorner).toBe('tl');
 
     createSpy.mockRestore();
+  });
+
+  it('should generate link for text highlight mode', async () => {
+    store.setSelectionMode('highlight');
+    store.textHighlights = [
+      {
+        elementId: 'para-id',
+        containerTag: 'P',
+        containerIndex: 0,
+        containerHash: 1234,
+        startText: 'Hello',
+        endText: 'World',
+        textHash: 5678,
+        textLength: 11,
+        color: 'blue',
+      },
+    ];
+
+    await store.generateLink();
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining('cv-highlight=e%3Apara-id%3A1234%3AHello%3AWorld%3A5678%3A11%3Ablue'),
+    );
   });
 });

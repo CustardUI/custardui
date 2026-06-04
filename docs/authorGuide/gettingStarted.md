@@ -24,7 +24,8 @@ CustardUI is designed to stay out of your way — you write your content as norm
   - [Tabs](components/tabs.md) — synced tab groups that remember the reader's choice
   - [Placeholders](components/placeholders.md) — reader-defined values substituted into your content
   - [Settings Panel](components/settings.md) — the built-in UI your readers use to manage their preferences
-  - [Focus & Share](components/share.md) — shareable deep links that highlight any element on the page
+- **Focused Views**
+  - [Share Modes](focusedViews/shareModes.md) — shareable deep links that highlight any element on the page
 - **[URL Sharing](urlSharing.md)** — how the highlight parameter works and how to construct share links
 - **[Adaptations](adaptations/adaptations.md)** — serve different audiences from a single deployment
 - **Integrations:**
@@ -101,7 +102,7 @@ Now that CustardUI is running, explore its features:
 - **[Toggles](./components/toggles.html)** — Show or hide sections per audience
 - **[Tabs](./components/tabs.html)** — Synchronized, persistent tab groups
 - **[Placeholders](./components/placeholders.html)** — Reader-customizable variables in text and code
-- **[Focused Views & Sharing](./components/share.html)** — Share specific content via URL
+- **[Focused Views & Sharing](./focusedViews/shareModes.html)** — Share specific content via URL
 - **[Configuration Reference](./configuration.html)** — Full list of options
 
 Using MarkBind? See the [MarkBind integration guide](./integrations/setupWithMarkbind.html) for a plugin-based setup.
