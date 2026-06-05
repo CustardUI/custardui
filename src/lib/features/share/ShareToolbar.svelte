@@ -3,8 +3,6 @@
   import { fly } from 'svelte/transition';
   import { BOX_COLORS } from '$features/box/services/box-colors';
 
-  let {} = $props();
-
   function handleClear() {
     shareStore.clearAllSelections();
   }
