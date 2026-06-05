@@ -209,8 +209,10 @@ export function mergeSelectionWithExisting(
 }
 
 function rangesOverlapOrTouch(a: Range, b: Range): boolean {
-  if (a.compareBoundaryPoints(Range.END_TO_START, b) < 0) return false;
-  if (a.compareBoundaryPoints(Range.START_TO_END, b) > 0) return false;
+  // If 'a' starts strictly after 'b' ends, no overlap
+  if (a.compareBoundaryPoints(Range.END_TO_START, b) > 0) return false;
+  // If 'a' ends strictly before 'b' starts, no overlap
+  if (a.compareBoundaryPoints(Range.START_TO_END, b) < 0) return false;
   return true;
 }
 
