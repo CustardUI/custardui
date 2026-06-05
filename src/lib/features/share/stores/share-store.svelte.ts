@@ -16,6 +16,9 @@ import {
   BOX_SELECTED_CLASS,
   BOX_TARGET_MODE_CLASS,
 } from '../share-logic';
+import { type TextRangeDescriptor } from '$features/text-highlight/services/text-highlight-descriptor';
+import { serializeTextHighlights } from '$features/text-highlight/services/text-highlight-serializer';
+import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
 
 export type SelectionMode = 'show' | 'hide' | 'box' | 'highlight';
 
@@ -26,8 +29,12 @@ export class ShareStore {
   currentHoverTarget = $state<HTMLElement | null>(null);
   boxColors = new SvelteMap<HTMLElement, BoxColorKey>();
   boxAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
+  textHighlights = $state<TextRangeDescriptor[]>([]);
+  selectedTextColor = $state<BoxColorKey>('yellow');
 
-  shareCount = $derived(this.selectedElements.size);
+  get shareCount() {
+    return this.selectionMode === 'highlight' ? this.textHighlights.length : this.selectedElements.size;
+  }
 
   toggleActive(active?: boolean) {
     const newState = active !== undefined ? active : !this.isActive;
@@ -56,7 +63,23 @@ export class ShareStore {
   setSelectionMode(mode: SelectionMode) {
     if (this.selectionMode === mode) return;
 
+    // Always clear hover styling first — prevents outline from lingering
+    // when switching away from box/show/hide (setHoverTarget no-ops in highlight mode)
+    if (this.currentHoverTarget) {
+      this._removeBoxHoverClass(this.currentHoverTarget);
+      this.currentHoverTarget = null;
+    }
+
     this.selectionMode = mode;
+
+    // Clear other selections based on the target mode
+    if (mode === 'highlight') {
+      this.clearAllSelections();
+    } else {
+      this.textHighlights = [];
+      textHighlightService.clear();
+      window.getSelection()?.removeAllRanges();
+    }
 
     // Update styling for all currently selected elements
     this.selectedElements.forEach((el) => {
@@ -100,6 +123,13 @@ export class ShareStore {
     // In text highlight mode, element clicking is completely disabled
     if (this.selectionMode === 'highlight') return;
 
+    // When selecting elements, clear any text highlights
+    if (this.textHighlights.length > 0) {
+      this.textHighlights = [];
+      textHighlightService.clear();
+    }
+    window.getSelection()?.removeAllRanges();
+
     const { updatedSelection, changesMade } = calculateNewSelection(this.selectedElements, el);
 
     if (changesMade) {
@@ -135,6 +165,9 @@ export class ShareStore {
     this.selectedElements.clear();
     this.boxColors.clear();
     this.boxAnnotations.clear();
+    this.textHighlights = [];
+    textHighlightService.clear();
+    window.getSelection()?.removeAllRanges();
   }
 
   setAnnotation(el: HTMLElement, text: string, corner: AnnotationCorner) {
@@ -194,7 +227,26 @@ export class ShareStore {
 
   generateLink() {
     if (this.selectionMode === 'highlight') {
-      showToast('Use the text selection toolbar to copy a highlight link.');
+      if (this.textHighlights.length === 0) {
+        showToast('Please highlight some text first.');
+        return;
+      }
+
+      const serialized = serializeTextHighlights(this.textHighlights);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('cv-show');
+      url.searchParams.delete('cv-hide');
+      url.searchParams.delete('cv-box');
+      url.searchParams.set('cv-highlight', serialized);
+
+      navigator.clipboard
+        .writeText(url.href)
+        .then(() => {
+          showToast('Highlight link copied!');
+        })
+        .catch(() => {
+          showToast('Failed to copy link.');
+        });
       return;
     }
 
@@ -219,6 +271,7 @@ export class ShareStore {
     url.searchParams.delete('cv-show');
     url.searchParams.delete('cv-hide');
     url.searchParams.delete('cv-box');
+    url.searchParams.delete('cv-highlight');
 
     if (this.selectionMode === 'hide') {
       url.searchParams.set('cv-hide', serialized);
@@ -241,7 +294,19 @@ export class ShareStore {
 
   previewLink() {
     if (this.selectionMode === 'highlight') {
-      showToast('Use the text selection toolbar to preview a highlight link.');
+      if (this.textHighlights.length === 0) {
+        showToast('Please highlight some text first.');
+        return;
+      }
+
+      const serialized = serializeTextHighlights(this.textHighlights);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('cv-show');
+      url.searchParams.delete('cv-hide');
+      url.searchParams.delete('cv-box');
+      url.searchParams.set('cv-highlight', serialized);
+
+      window.open(url.toString(), '_blank');
       return;
     }
 
@@ -258,6 +323,7 @@ export class ShareStore {
     url.searchParams.delete('cv-show');
     url.searchParams.delete('cv-hide');
     url.searchParams.delete('cv-box');
+    url.searchParams.delete('cv-highlight');
 
     if (this.selectionMode === 'hide') {
       url.searchParams.set('cv-hide', serialized);

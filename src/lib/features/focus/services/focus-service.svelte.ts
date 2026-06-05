@@ -11,7 +11,13 @@ import {
   BoxService,
   BODY_BOX_CLASS,
 } from '$features/box/services/box-service.svelte';
-import { PARAM_CV_SHOW, PARAM_CV_HIDE, PARAM_CV_BOX } from '$features/url/url-constants';
+import {
+  PARAM_CV_SHOW,
+  PARAM_CV_HIDE,
+  PARAM_CV_BOX,
+  PARAM_CV_HIGHLIGHT,
+} from '$features/url/url-constants';
+import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
 
 const BODY_SHOW_CLASS = 'cv-show-mode';
 const HIDDEN_CLASS = 'cv-hidden';
@@ -81,8 +87,9 @@ export class FocusService {
     const showDescriptors = url.searchParams.get(PARAM_CV_SHOW);
     const hideDescriptors = url.searchParams.get(PARAM_CV_HIDE);
     const boxDescriptors = url.searchParams.get(PARAM_CV_BOX);
+    const textHighlightEncoded = url.searchParams.get(PARAM_CV_HIGHLIGHT);
 
-    const hasAnyMode = showDescriptors || hideDescriptors || boxDescriptors;
+    const hasAnyMode = showDescriptors || hideDescriptors || boxDescriptors || textHighlightEncoded;
 
     if (!hasAnyMode) {
       if (
@@ -91,6 +98,8 @@ export class FocusService {
       ) {
         this.exitShowMode(false);
       }
+      // Also clear any active text highlights
+      textHighlightService.clear();
       return;
     }
 
@@ -118,6 +127,20 @@ export class FocusService {
     // Apply box overlays
     if (boxDescriptors) {
       this.boxService.applyEncodedBoxes(boxDescriptors);
+    }
+
+    // Apply text highlights (independent — doesn't need body class or focus store)
+    if (textHighlightEncoded) {
+      const firstRange = textHighlightService.applyEncoded(textHighlightEncoded);
+      if (firstRange) {
+        // Scroll the first highlight into view after a brief paint delay
+        requestAnimationFrame(() => {
+          firstRange.startContainer.parentElement?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        });
+      }
     }
   }
 
@@ -368,6 +391,10 @@ export class FocusService {
       }
       if (url.searchParams.has(PARAM_CV_BOX)) {
         url.searchParams.delete(PARAM_CV_BOX);
+        changed = true;
+      }
+      if (url.searchParams.has(PARAM_CV_HIGHLIGHT)) {
+        url.searchParams.delete(PARAM_CV_HIGHLIGHT);
         changed = true;
       }
       if (changed) {
