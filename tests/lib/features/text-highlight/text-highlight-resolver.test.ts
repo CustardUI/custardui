@@ -33,7 +33,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
   }
 
   it('finds container by elementId and resolves text exactly', () => {
-    const p2 = document.getElementById('p2')!;
+    // const p2 = document.getElementById('p2')!;
     const desc = createMockDescriptor({
       elementId: 'p2',
       startText: 'some highlighted',
@@ -45,8 +45,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
     const { range, verified } = resolveDescriptor(desc);
     
     expect(range).not.toBeNull();
-    // Start index of "some" is 17
-    // "Second paragraph with some highlighted words right here." (length 54)
+    // Start index of "some" is 17, length is 54
     expect(range?.startOffset).toBe(22); // "some highlighted words right here." starts at index 22
     expect(range?.endOffset).toBe(56); // 22 + 34 = 56
     expect(verified).toBe(true);
