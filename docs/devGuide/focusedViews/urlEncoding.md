@@ -20,28 +20,31 @@ For each highlight descriptor, the encoding falls into one of three formats depe
 Used when the text container has a direct `id` attribute.
 
 **Format:**
-`e:<elementId>:<containerHash>:<startEnc>:<endEnc>:<textHash>:<textLen>[:<color>]`
+`e:<startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>]`
 
 - `e`: Prefix indicating the Element ID format.
+- `startEnc`: URI-encoded snippet of the first 16 characters of the highlighted text (whitespace-normalized, spaces converted to `+`).
+- `endEnc`: URI-encoded snippet of the last 16 characters of the highlighted text (whitespace-normalized, spaces converted to `+`). If the total highlight is 16 characters or less, this is omitted (left empty) to prevent duplication, resulting in `::`.
+- `textLen`: Character length of the highlighted text.
 - `elementId`: The direct DOM `id` of the container.
 - `containerHash`: A numeric hash of the container's stable text content (used to verify if the container structure changed).
-- `startEnc`: URI-encoded snippet of the first 24 characters of the highlighted text (whitespace-normalized).
-- `endEnc`: URI-encoded snippet of the last 24 characters of the highlighted text (whitespace-normalized).
 - `textHash`: A numeric hash of the full highlighted text.
-- `textLen`: Character length of the highlighted text.
 - `color` (optional): The color key (e.g., `yellow`, `blue`). Defaults to `yellow`.
 
 ### 2. Container ID Format (`c:`)
 Used when the text container doesn't have an `id`, but one of its ancestor elements does. 
 
 **Format:**
-`c:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<startEnc>:<endEnc>:<textHash>:<textLen>[:<color>]`
+`c:<startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>]`
 
 - `c`: Prefix indicating the Container ID format.
+- `startEnc`: URI-encoded snippet of the first 16 characters of the highlighted text (whitespace-normalized, spaces converted to `+`).
+- `endEnc`: URI-encoded snippet of the last 16 characters of the highlighted text (whitespace-normalized, spaces converted to `+`).
+- `textLen`: Character length of the highlighted text.
 - `containerId`: The DOM `id` of the nearest ancestor.
 - `containerTag`: The HTML tag name of the text container (e.g., `P`, `DIV`).
 - `containerIndex`: The zero-based index of the container among siblings of the same tag within the scope of the `containerId`.
-- The remaining fields (`containerHash`, `startEnc`, `endEnc`, `textHash`, `textLen`, `color`) are the same as above.
+- The remaining fields (`containerHash`, `textHash`, `color`) follow the exact same format as above.
 
 ### 3. Fallback Format (Base64 JSON)
 Used when no `id` is available anywhere in the ancestor chain. It encodes the properties into a minified JSON object and converts it to Base64 to ensure it remains URL-safe.

@@ -158,7 +158,7 @@ describe('ShareStore', () => {
     await store.generateLink();
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('cv-highlight=e%3Apara-id%3A1234%3AHello%3AWorld%3A5678%3A11%3Ablue'),
+      expect.stringContaining('cv-highlight=e%3AHello%3AWorld%3A11%3Apara-id%3A1234%3A5678%3Ablue'),
     );
   });
 });
