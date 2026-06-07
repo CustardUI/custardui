@@ -1,6 +1,6 @@
 // Extracted shared type to avoid circular dependency
 import { type BoxColorKey } from './box-colors';
-import { type AnnotationCorner } from './box-annotations';
+import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 export type RectData = {
   top: number;

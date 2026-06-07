@@ -1,5 +1,5 @@
 import { type BoxColorKey } from '$features/box/services/box-colors';
-import { type AnnotationCorner } from '$features/box/services/box-annotations';
+import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /**
  * Descriptor for an anchor that represents a DOM element.

@@ -2,7 +2,7 @@
   import {
     type AnnotationCorner,
     DEFAULT_ANNOTATION_CORNER,
-  } from '$features/box/services/box-annotations';
+  } from '$features/annotations/annotation-types';
 
   interface Props {
     annotationCorner?: AnnotationCorner | undefined;

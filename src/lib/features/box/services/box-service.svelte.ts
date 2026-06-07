@@ -14,7 +14,7 @@ const BOX_OVERLAY_ID = 'cv-box-overlay';
 
 import { type RectData } from './box-types';
 import { type BoxColorKey } from './box-colors';
-import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from './box-annotations';
+import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
 
 export class BoxState {
   rects = $state<RectData[]>([]);

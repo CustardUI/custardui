@@ -8,7 +8,7 @@ import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
   ANNOTATION_CORNERS,
-} from '$features/box/services/box-annotations';
+} from '$features/annotations/annotation-types';
 import { type AnchorDescriptor } from './types';
 
 const COLOR_KEYS = new Set<string>(BOX_COLORS.map((c) => c.key));

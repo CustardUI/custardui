@@ -3,7 +3,7 @@
     type AnnotationCorner,
     ANNOTATION_PREVIEW_LENGTH,
     DEFAULT_ANNOTATION_CORNER,
-  } from '$features/box/services/box-annotations';
+  } from '$features/annotations/annotation-types';
 
   interface Props {
     annotation: string;

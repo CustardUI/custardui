@@ -1,7 +1,7 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { type RectData } from './services/box-types';
 import { type BoxColorKey } from './services/box-colors';
-import { type AnnotationCorner } from './services/box-annotations';
+import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /**
  * Groups elements by their parent.
