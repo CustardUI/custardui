@@ -61,7 +61,7 @@ function findContainer(desc: TextRangeDescriptor): HTMLElement | null {
     (desc.containerId ? document.getElementById(desc.containerId) : null) ??
     document.body;
 
-  if (!desc.containerTag) return scope;
+  if (!desc.containerTag) return null;
 
   const candidates = Array.from(scope.querySelectorAll(desc.containerTag)) as HTMLElement[];
   if (candidates.length === 0) return null;
