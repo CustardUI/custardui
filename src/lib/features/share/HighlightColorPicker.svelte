@@ -1,10 +1,10 @@
 <script lang="ts">
   import { shareStore } from '$features/share/stores/share-store.svelte';
   import {
-    HIGHLIGHT_COLORS,
+    BOX_COLORS,
     DEFAULT_COLOR_KEY,
-    type HighlightColorKey,
-  } from '$features/highlight/services/highlight-colors';
+    type BoxColorKey,
+  } from '$features/box/services/box-colors';
 
   let { element }: { element: HTMLElement } = $props();
 
@@ -25,9 +25,9 @@
     };
   });
 
-  let currentColorKey = $derived(shareStore.highlightColors.get(element) ?? DEFAULT_COLOR_KEY);
+  let currentColorKey = $derived(shareStore.boxColors.get(element) ?? DEFAULT_COLOR_KEY);
   let currentHex = $derived(
-    HIGHLIGHT_COLORS.find((c) => c.key === currentColorKey)?.hex ?? HIGHLIGHT_COLORS[0]!.hex,
+    BOX_COLORS.find((c) => c.key === currentColorKey)?.hex ?? BOX_COLORS[0]!.hex,
   );
 
   let clickTimer: ReturnType<typeof setTimeout> | null = null;
@@ -37,23 +37,23 @@
     isExpanded = !isExpanded;
   }
 
-  function handleSwatchClick(e: MouseEvent, key: HighlightColorKey) {
+  function handleSwatchClick(e: MouseEvent, key: BoxColorKey) {
     e.stopPropagation();
     if (clickTimer) return; // defer to potential dblclick
     clickTimer = setTimeout(() => {
       clickTimer = null;
-      shareStore.setHighlightColor(element, key);
+      shareStore.setBoxColor(element, key);
       isExpanded = false;
     }, 220);
   }
 
-  function handleSwatchDblClick(e: MouseEvent, key: HighlightColorKey) {
+  function handleSwatchDblClick(e: MouseEvent, key: BoxColorKey) {
     e.stopPropagation();
     if (clickTimer) {
       clearTimeout(clickTimer);
       clickTimer = null;
     }
-    shareStore.setAllHighlightColors(key);
+    shareStore.setAllBoxColors(key);
     isExpanded = false;
   }
 
@@ -74,7 +74,7 @@
   </button>
   {#if isExpanded}
     <div class="cv-color-swatches" role="none">
-      {#each HIGHLIGHT_COLORS as color (color.key)}
+      {#each BOX_COLORS as color (color.key)}
         <button
           type="button"
           class="cv-color-swatch"

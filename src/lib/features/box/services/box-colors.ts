@@ -1,4 +1,4 @@
-export const HIGHLIGHT_COLORS = [
+export const BOX_COLORS = [
   { key: 'yellow', label: 'Yellow', hex: '#f5f521' },
   { key: 'blue', label: 'Blue', hex: '#3b82f6' },
   { key: 'red', label: 'Red', hex: '#ef4444' },
@@ -6,5 +6,5 @@ export const HIGHLIGHT_COLORS = [
   { key: 'green', label: 'Green', hex: '#22c55e' },
 ] as const;
 
-export type HighlightColorKey = 'yellow' | 'blue' | 'red' | 'black' | 'green';
-export const DEFAULT_COLOR_KEY: HighlightColorKey = 'red';
+export type BoxColorKey = 'yellow' | 'blue' | 'red' | 'black' | 'green';
+export const DEFAULT_COLOR_KEY: BoxColorKey = 'red';

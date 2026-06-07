@@ -1,23 +1,31 @@
 <script lang="ts">
-  import { shareStore } from '$features/share/stores/share-store.svelte';
   import {
-    DEFAULT_ANNOTATION_CORNER,
     MAX_ANNOTATION_LENGTH,
     ANNOTATION_PREVIEW_LENGTH,
     CORNER_ICONS,
     type AnnotationCorner,
-  } from '$features/highlight/services/highlight-annotations';
+  } from '$features/annotations/annotation-types';
 
-  let { element }: { element: HTMLElement } = $props();
+  interface Props {
+    /** Returns the current bounding rect of the annotation host (element or range). */
+    getRect: () => DOMRect;
+    annotation: string;
+    corner: AnnotationCorner;
+    /** Called whenever the user changes the annotation text or corner. */
+    onchange: (text: string, corner: AnnotationCorner) => void;
+  }
+
+  let { getRect, annotation, corner, onchange }: Props = $props();
 
   let isExpanded = $state(false);
-  let rect = $state({ top: 0, left: 0, width: 0, height: 0, bottom: 0, right: 0 });
+
+  // rect is re-evaluated whenever getRect identity changes, and kept up to date
+  // via scroll/resize listeners in the $effect below.
+  let rect = $state<DOMRect>(new DOMRect());
 
   $effect(() => {
-    rect = element.getBoundingClientRect();
-    const update = () => {
-      rect = element.getBoundingClientRect();
-    };
+    rect = getRect();
+    const update = () => { rect = getRect(); };
     window.addEventListener('scroll', update, { capture: true, passive: true });
     window.addEventListener('resize', update, { passive: true });
     return () => {
@@ -26,33 +34,19 @@
     };
   });
 
-  let localText = $state('');
-  let localCorner = $state<AnnotationCorner>(DEFAULT_ANNOTATION_CORNER);
-
-  // Initialize from store when element changes (or annotation changes externally)
-  $effect.pre(() => {
-    const ann = shareStore.highlightAnnotations.get(element);
-    const newText = ann?.text ?? '';
-
-    if (localText !== newText) {
-      localText = newText;
-    }
-    // Only sync corner from store when there is a stored annotation;
-    // otherwise leave the locally-chosen corner intact.
-    if (ann && localCorner !== ann.corner) {
-      localCorner = ann.corner;
-    }
-  });
+  // Local editable copies — kept in sync with the parent via $derived.
+  // We use $derived so Svelte tracks the prop reactively; the user's in-flight
+  // edits are applied through the event handlers which call onchange.
+  let localText = $derived(annotation);
+  let localCorner = $derived(corner);
 
   function handleInput(e: Event) {
     const value = (e.target as HTMLTextAreaElement).value;
-    localText = value;
-    shareStore.setAnnotation(element, value, localCorner);
+    onchange(value, localCorner);
   }
 
   function setCorner(c: AnnotationCorner) {
-    localCorner = c;
-    shareStore.setAnnotation(element, localText, c);
+    onchange(localText, c);
   }
 
   function handleTabClick(e: MouseEvent) {
@@ -63,13 +57,13 @@
   let tabStyle = $derived.by(() => {
     switch (localCorner) {
       case 'tl':
-        return `top: ${rect.top}px; left: ${rect.left}px; transform: translateY(-100%);`;
+        return `top: ${rect.top}px; left: ${rect.left}px; transform: translateY(-100%); align-items: flex-start;`;
       case 'tr':
-        return `top: ${rect.top}px; left: ${rect.right}px; transform: translate(-100%, -100%);`;
+        return `top: ${rect.top}px; left: ${rect.right}px; transform: translate(-100%, -100%); align-items: flex-end;`;
       case 'bl':
-        return `top: ${rect.bottom}px; left: ${rect.left}px;`;
+        return `top: ${rect.bottom}px; left: ${rect.left}px; align-items: flex-start;`;
       case 'br':
-        return `top: ${rect.bottom}px; left: ${rect.right}px; transform: translateX(-100%);`;
+        return `top: ${rect.bottom}px; left: ${rect.right}px; transform: translateX(-100%); align-items: flex-end;`;
     }
   });
 
@@ -115,16 +109,14 @@
               type="button"
               class="cv-corner-btn"
               class:active={localCorner === key}
-              onclick={(e) => {
-                e.stopPropagation();
-                setCorner(key);
-              }}
-              title="Anchor to {key}"
-              aria-label="Anchor to {key}"
+              onclick={(e) => { e.stopPropagation(); setCorner(key); }}
+              title="Corner {key}"
+              aria-label="Corner {key}"
               aria-pressed={localCorner === key}>{icon}</button
             >
           {/each}
         </div>
+
         <span class="cv-char-counter">{MAX_ANNOTATION_LENGTH - localText.length}</span>
       </div>
     </div>
@@ -220,16 +212,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 
-  .cv-corner-selector {
+  .cv-corner-selector,
+  .cv-anchor-selector {
     display: flex;
     gap: 2px;
   }
 
   .cv-corner-btn {
-    width: 20px;
     height: 20px;
+    padding: 0 5px;
     border-radius: 4px;
     border: 1px solid rgba(0, 0, 0, 0.12);
     background: white;
@@ -239,7 +234,6 @@
     justify-content: center;
     font-size: 10px;
     color: #6b7280;
-    padding: 0;
     transition:
       background 0.1s,
       border-color 0.1s;
@@ -263,5 +257,6 @@
     color: #9ca3af;
     font-family: ui-sans-serif, system-ui, sans-serif;
     font-variant-numeric: tabular-nums;
+    margin-left: auto;
   }
 </style>

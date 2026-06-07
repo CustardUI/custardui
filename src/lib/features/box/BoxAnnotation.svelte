@@ -3,7 +3,7 @@
     type AnnotationCorner,
     ANNOTATION_PREVIEW_LENGTH,
     DEFAULT_ANNOTATION_CORNER,
-  } from '$features/highlight/services/highlight-annotations';
+  } from '$features/annotations/annotation-types';
 
   interface Props {
     annotation: string;
@@ -263,7 +263,7 @@
     padding: 6px 20px 6px 8px;
     min-width: 28px;
     min-height: 24px;
-    background: var(--cv-highlight-color);
+    background: var(--cv-box-color);
     cursor: default;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: flex;
@@ -364,7 +364,7 @@
      ============================== */
   .cv-annotation-card {
     background: #fffdf5;
-    border: 1.5px solid var(--cv-highlight-color);
+    border: 1.5px solid var(--cv-box-color);
     border-radius: 4px;
     padding: 10px 12px;
     max-width: 280px;

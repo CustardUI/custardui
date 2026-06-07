@@ -29,13 +29,6 @@ The settings dialog component provides a floating interface for users to customi
 
 [Using Settings :fa-solid-arrow-up-right-from-square:]({{baseUrl}}/authorGuide/components/settings.html)
 </card>
-<card header="**Share**" tag="feature">
-The share component allows users to share their custom view with others. <br><br>
-
-<img src="{{baseUrl}}/images/components/share.svg" alt="Share icon" style="display: block; margin: 0 auto; width: 50px; height: 50px;"> <br>
-
-[Using the Share Component :fa-solid-arrow-up-right-from-square:]({{baseUrl}}/authorGuide/components/share.html)
-</card>
 
 <card header="**Placeholders**" tag="component">
     Placeholders are used to display dynamic content on a page. <br><br>

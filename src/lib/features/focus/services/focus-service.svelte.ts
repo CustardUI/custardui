@@ -8,10 +8,16 @@ import { determineHiddenElements, isElementExcluded, calculateDividerGroups } fr
 import { SvelteSet } from 'svelte/reactivity';
 
 import {
-  HighlightService,
-  BODY_HIGHLIGHT_CLASS,
-} from '$features/highlight/services/highlight-service.svelte';
-import { PARAM_CV_SHOW, PARAM_CV_HIDE, PARAM_CV_HIGHLIGHT } from '$features/url/url-constants';
+  BoxService,
+  BODY_BOX_CLASS,
+} from '$features/box/services/box-service.svelte';
+import {
+  PARAM_CV_SHOW,
+  PARAM_CV_HIDE,
+  PARAM_CV_BOX,
+  PARAM_CV_HIGHLIGHT,
+} from '$features/url/url-constants';
+import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
 
 const BODY_SHOW_CLASS = 'cv-show-mode';
 const HIDDEN_CLASS = 'cv-hidden';
@@ -31,7 +37,7 @@ export class FocusService {
   private excludedIds: Set<string>;
   // Call unsubscribe in destroy to stop svelte effects
   private unsubscribe: () => void;
-  private highlightService: HighlightService;
+  private boxService: BoxService;
 
   constructor(options: FocusServiceOptions) {
     const userTags = options.shareExclusions?.tags || [];
@@ -42,7 +48,7 @@ export class FocusService {
     );
     this.excludedIds = new SvelteSet([...DEFAULT_EXCLUDED_IDS, ...userIds]);
 
-    this.highlightService = new HighlightService();
+    this.boxService = new BoxService();
 
     // Subscribe to store for exit signal
     this.unsubscribe = $effect.root(() => {
@@ -51,7 +57,8 @@ export class FocusService {
         if (
           !focusStore.isActive &&
           (document.body.classList.contains(BODY_SHOW_CLASS) ||
-            document.body.classList.contains(BODY_HIGHLIGHT_CLASS))
+            document.body.classList.contains(BODY_BOX_CLASS) ||
+            textHighlightService.isActive)
         ) {
           this.exitShowMode(true);
         }
@@ -80,46 +87,62 @@ export class FocusService {
     const url = new URL(window.location.href);
     const showDescriptors = url.searchParams.get(PARAM_CV_SHOW);
     const hideDescriptors = url.searchParams.get(PARAM_CV_HIDE);
-    const highlightDescriptors = url.searchParams.get(PARAM_CV_HIGHLIGHT);
+    const boxDescriptors = url.searchParams.get(PARAM_CV_BOX);
+    const textHighlightEncoded = url.searchParams.get(PARAM_CV_HIGHLIGHT);
 
-    const hasAnyMode = showDescriptors || hideDescriptors || highlightDescriptors;
+    const hasAnyMode = showDescriptors || hideDescriptors || boxDescriptors || textHighlightEncoded;
 
     if (!hasAnyMode) {
       if (
         document.body.classList.contains(BODY_SHOW_CLASS) ||
-        document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+        document.body.classList.contains(BODY_BOX_CLASS)
       ) {
         this.exitShowMode(false);
       }
+      // Also clear any active text highlights
+      textHighlightService.clear();
       return;
     }
 
     // Clear any existing active state once before re-applying
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
-      document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+      document.body.classList.contains(BODY_BOX_CLASS)
     ) {
       this.exitShowMode(false);
     }
 
-    // Pre-resolve highlight targets so show/hide modes can account for them
-    const highlightTargets = highlightDescriptors
-      ? this.highlightService.resolveTargets(highlightDescriptors)
+    // Pre-resolve box targets so show/hide modes can account for them
+    const boxTargets = boxDescriptors
+      ? this.boxService.resolveTargets(boxDescriptors)
       : [];
 
     // Apply show or hide (mutually exclusive with each other).
     // Pass highlight targets so they are kept visible in show mode / not hidden in hide mode.
     if (showDescriptors) {
-      this.applyShowMode(showDescriptors, highlightTargets);
+      this.applyShowMode(showDescriptors, boxTargets);
     } else if (hideDescriptors) {
-      this.applyHideMode(hideDescriptors, highlightTargets);
+      this.applyHideMode(hideDescriptors, boxTargets);
     }
 
-    // Call highlightService.applyEncodedHighlights() directly with the encoded descriptors
-    // to skip applyHighlightMode()'s guard, which would otherwise see BODY_SHOW_CLASS
-    // and clear the show mode above.
-    if (highlightDescriptors) {
-      this.highlightService.applyEncodedHighlights(highlightDescriptors);
+    // Apply box overlays
+    if (boxDescriptors) {
+      this.boxService.applyEncodedBoxes(boxDescriptors);
+    }
+
+    // Apply text highlights (independent — doesn't need body class or focus store)
+    if (textHighlightEncoded) {
+      const firstRange = textHighlightService.applyEncoded(textHighlightEncoded);
+      if (firstRange) {
+        focusStore.setIsActive(true);
+        // Scroll the first highlight into view after a brief paint delay
+        requestAnimationFrame(() => {
+          firstRange.startContainer.parentElement?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        });
+      }
     }
   }
 
@@ -131,11 +154,10 @@ export class FocusService {
     // Check if we are already in the right state to avoid re-rendering loops if feasible
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
-      document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+      document.body.classList.contains(BODY_BOX_CLASS)
     ) {
-      // If we are already active, we might want to check if descriptors changed?
-      // For now, simple clear and re-apply.
-      this.exitShowMode(false); // don't clear URL here
+      // If we are already active, simple clear and re-apply.
+      this.exitShowMode(false);
     }
 
     const descriptors = DomElementLocator.deserialize(encodedDescriptors);
@@ -171,7 +193,7 @@ export class FocusService {
   public applyHideMode(encodedDescriptors: string, excludeTargets: HTMLElement[] = []): void {
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
-      document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+      document.body.classList.contains(BODY_BOX_CLASS)
     ) {
       this.exitShowMode(false);
     }
@@ -210,14 +232,14 @@ export class FocusService {
     this.renderHiddenView(filteredTargets);
   }
 
-  public applyHighlightMode(encodedDescriptors: string): void {
+  public applyBoxMode(encodedDescriptors: string): void {
     if (
       document.body.classList.contains(BODY_SHOW_CLASS) ||
-      document.body.classList.contains(BODY_HIGHLIGHT_CLASS)
+      document.body.classList.contains(BODY_BOX_CLASS)
     ) {
       this.exitShowMode(false);
     }
-    this.highlightService.applyEncodedHighlights(encodedDescriptors);
+    this.boxService.applyEncodedBoxes(encodedDescriptors);
   }
 
   private renderHiddenView(targets: HTMLElement[]): void {
@@ -335,7 +357,7 @@ export class FocusService {
   }
 
   public exitShowMode(updateUrl = true): void {
-    document.body.classList.remove(BODY_SHOW_CLASS, BODY_HIGHLIGHT_CLASS);
+    document.body.classList.remove(BODY_SHOW_CLASS, BODY_BOX_CLASS);
 
     this.hiddenElements.forEach((el) => el.classList.remove(HIDDEN_CLASS));
     this.hiddenElements.clear();
@@ -347,11 +369,11 @@ export class FocusService {
     // Remove wrappers?
     document.querySelectorAll('.cv-divider-wrapper').forEach((el) => el.remove());
 
-    // Remove styling from targets
     const targets = document.querySelectorAll(`.${SHOW_ELEMENT_CLASS}`);
     targets.forEach((t) => t.classList.remove(SHOW_ELEMENT_CLASS));
 
-    this.highlightService.exit();
+    this.boxService.exit();
+    textHighlightService.clear();
 
     if (focusStore.isActive) {
       focusStore.setIsActive(false);
@@ -367,6 +389,10 @@ export class FocusService {
       }
       if (url.searchParams.has(PARAM_CV_HIDE)) {
         url.searchParams.delete(PARAM_CV_HIDE);
+        changed = true;
+      }
+      if (url.searchParams.has(PARAM_CV_BOX)) {
+        url.searchParams.delete(PARAM_CV_BOX);
         changed = true;
       }
       if (url.searchParams.has(PARAM_CV_HIGHLIGHT)) {

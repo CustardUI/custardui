@@ -45,7 +45,7 @@ Additionally, we need to make sure that the text we use to create the anchor is 
 
 ### Serialization
 
-Descriptors are serialized to a compact, URL-safe string for embedding in query parameters (`?cv-show=...`, `?cv-hide=...`, `?cv-highlight=...`). Two formats are used:
+Descriptors are serialized to a compact, URL-safe string for embedding in query parameters (`?cv-show=...`, `?cv-hide=...`, `?cv-box=...`). Two formats are used:
 
 - **Human-readable** — when every selected element has a stable `id`, the string is a simple comma-separated list of those IDs (optionally decorated with color or annotation).
 - **Base64 JSON** — the fallback for elements without IDs, encoding the full descriptor payload.
