@@ -1,7 +1,8 @@
 import { type BoxColorKey } from '$features/box/services/box-colors';
+import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /** Max characters stored for the start/end text snippet anchors. */
-export const SNIPPET_LENGTH = 24;
+export const SNIPPET_LENGTH = 16;
 
 /**
  * Describes a text range within a DOM container element.
@@ -23,4 +24,8 @@ export interface TextRangeDescriptor {
 
   // --- Optional styling ---
   color?: BoxColorKey;
+
+  // --- Optional annotation ---
+  annotation?: string;            // Text note attached to this highlight (≤280 chars)
+  annotationCorner?: AnnotationCorner; // Which corner of the bubble anchors to the rect (default 'tl')
 }

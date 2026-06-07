@@ -1,9 +1,14 @@
 import { SvelteMap } from 'svelte/reactivity';
+import { mount, unmount } from 'svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { resolveDescriptor } from './text-highlight-resolver';
 import { deserializeTextHighlights } from './text-highlight-serializer';
 import { type TextRangeDescriptor } from './text-highlight-descriptor';
 import { type BoxColorKey } from '$features/box/services/box-colors';
+import {
+  DEFAULT_ANNOTATION_CORNER,
+} from '$features/annotations/annotation-types';
+import BoxAnnotation from '$features/box/BoxAnnotation.svelte';
 
 // ─── CSS Custom Highlight API ─────────────────────────────────────────────────
 // Use a module-level interface augmentation so we avoid repeated unsafe casts.
@@ -149,6 +154,14 @@ export class TextHighlightService {
   private marks: HTMLElement[] = [];
   private active = false;
 
+  /** Resolved ranges indexed by descriptor position, for annotation positioning. */
+  private resolvedRanges: (Range | null)[] = [];
+
+  /** Mounted BoxAnnotation overlay wrappers. */
+  private annotationWrappers: HTMLElement[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private annotationComponents: any[] = [];
+
   /**
    * Parse an encoded string (from ?cv-highlight=…) and apply highlights.
    * Returns the first resolved Range for scrolling.
@@ -173,8 +186,12 @@ export class TextHighlightService {
     let unverifiedCount = 0;
     const registry = getHighlightRegistry();
 
+    this.resolvedRanges = [];
+
     for (const desc of descriptors) {
       const { range, verified } = resolveDescriptor(desc);
+      this.resolvedRanges.push(range);
+
       if (!range) continue;
       if (!verified) unverifiedCount++;
       if (!firstRange) firstRange = range;
@@ -194,6 +211,11 @@ export class TextHighlightService {
         // DOM <mark> fallback
         this._injectMark(range, colorKey as BoxColorKey);
       }
+
+      // Mount annotation overlay if this descriptor has a note
+      if (desc.annotation) {
+        this._mountAnnotation(desc, range);
+      }
     }
 
     if (unverifiedCount > 0) {
@@ -203,6 +225,26 @@ export class TextHighlightService {
     this.active = true;
     return firstRange;
   }
+
+  /**
+   * Returns the resolved Range for the descriptor at the given index.
+   * Used by ShareOverlay to check if a range exists before rendering an annotation editor.
+   */
+  getRange(index: number): Range | null {
+    return this.resolvedRanges[index] ?? null;
+  }
+
+  /**
+   * Returns the anchor DOMRect for the descriptor at the given index.
+   * Uses the highlight range's overall bounding rect.
+   */
+  getAnchorRect(index: number): DOMRect | null {
+    const range = this.resolvedRanges[index];
+    if (!range) return null;
+    return range.getBoundingClientRect();
+  }
+
+  private _lastDescriptors: TextRangeDescriptor[] = [];
 
   clear() {
     if (!this.active) return;
@@ -222,8 +264,20 @@ export class TextHighlightService {
       }
     }
 
+    // Remove annotation overlays
+    for (const comp of this.annotationComponents) {
+      try { unmount(comp); } catch { /* ignore */ }
+    }
+    for (const wrapper of this.annotationWrappers) {
+      wrapper.remove();
+    }
+    this.annotationComponents = [];
+    this.annotationWrappers = [];
+
     this.hlMap.clear();
     this.marks = [];
+    this.resolvedRanges = [];
+    this._lastDescriptors = [];
     this.active = false;
   }
 
@@ -236,6 +290,45 @@ export class TextHighlightService {
     } catch {
       // Range spans element boundaries — skip gracefully
     }
+  }
+
+  private _mountAnnotation(desc: TextRangeDescriptor, range: Range) {
+    const corner = desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER;
+    const rect = range.getBoundingClientRect();
+
+    // Wrapper div to host the Svelte component. We position it exactly over the highlighted text,
+    // using absolute positioning so it scrolls with the document natively.
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+      position: absolute;
+      z-index: 9300;
+      pointer-events: none;
+      top: ${rect.top + window.scrollY}px;
+      left: ${rect.left + window.scrollX}px;
+      width: ${rect.width}px;
+      height: ${rect.height}px;
+    `;
+    document.body.appendChild(wrapper);
+    this.annotationWrappers.push(wrapper);
+
+    // Get the color for the box-color CSS variable
+    const colorKey = desc.color ?? 'yellow';
+    const colorMap: Record<string, string> = {
+      yellow: '#facc15', blue: '#60a5fa', red: '#f87171', green: '#4ade80', black: '#4b5563',
+    };
+    wrapper.style.setProperty('--cv-box-color', colorMap[colorKey] ?? colorMap['yellow']!);
+
+    const component = mount(BoxAnnotation, {
+      target: wrapper,
+      props: {
+        annotation: desc.annotation ?? '',
+        annotationCorner: corner,
+      },
+    });
+    this.annotationComponents.push(component);
+
+    // Track descriptor for getAnchorRect
+    this._lastDescriptors.push(desc);
   }
 }
 

@@ -7,6 +7,7 @@
   import HighlightAnnotationEditor from './HighlightAnnotationEditor.svelte';
   import { mergeSelectionWithExisting } from '$features/text-highlight/text-highlight-logic';
   import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
+  import { DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
 
   let {
     excludedTags = ['HEADER', 'NAV', 'FOOTER'],
@@ -338,7 +339,27 @@
   {#if shareStore.selectionMode === 'box'}
     {#each [...shareStore.selectedElements] as el (el)}
       <HighlightColorPicker element={el} />
-      <HighlightAnnotationEditor element={el} />
+      <HighlightAnnotationEditor
+        getRect={() => el.getBoundingClientRect()}
+        annotation={shareStore.boxAnnotations.get(el)?.text ?? ''}
+        corner={shareStore.boxAnnotations.get(el)?.corner ?? DEFAULT_ANNOTATION_CORNER}
+        onchange={(text, corner) => shareStore.setAnnotation(el, text, corner)}
+      />
+    {/each}
+  {/if}
+
+  {#if shareStore.selectionMode === 'highlight'}
+    {#each shareStore.textHighlights as desc, i (i)}
+      {@const resolvedRange = textHighlightService.getRange(i)}
+      {#if resolvedRange}
+        <HighlightAnnotationEditor
+          getRect={() => textHighlightService.getAnchorRect(i) ?? new DOMRect()}
+          annotation={desc.annotation ?? ''}
+          corner={desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER}
+          onchange={(text, corner) =>
+            shareStore.setTextHighlightAnnotation(i, text, corner)}
+        />
+      {/if}
     {/each}
   {/if}
 

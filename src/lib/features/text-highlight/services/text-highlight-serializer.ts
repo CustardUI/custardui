@@ -1,21 +1,32 @@
 import { type BoxColorKey, BOX_COLORS } from '$features/box/services/box-colors';
+import {
+  type AnnotationCorner,
+  ANNOTATION_CORNERS,
+  DEFAULT_ANNOTATION_CORNER,
+} from '$features/annotations/annotation-types';
 import { type TextRangeDescriptor } from './text-highlight-descriptor';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const COLOR_KEYS = new Set<string>(BOX_COLORS.map((c) => c.key));
+const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
 const FIELD_SEP = ':';
 const DESC_SEP = ',';
 
 /**
  * URL format (human-readable):
  *
- * elementId anchor  →  e:<startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>]
- * containerId anchor → c:<startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>]
+ * elementId anchor  →  e:<startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>][:<corner>:<note>]
+ * containerId anchor → c:<startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>][:<corner>:<note>]
  *
  * Field separator is ':'. Text fields are percent-encoded so colons in text become %3A.
+ * Spaces in text snippets are left as literal spaces so URLSearchParams encodes them as '+'.
  * Multiple descriptors are comma-separated.
  * Fallback (no id available): base64-encoded minified JSON.
+ *
+ * Annotation suffix (when present): :<corner>:<encodedNote>
+ *   corner = 'tl' | 'tr' | 'bl' | 'br'
+ *   note   = encodeURIComponent(annotation text)
  */
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -34,6 +45,12 @@ export function deserializeTextHighlights(encoded: string): TextRangeDescriptor[
 
 // ─── Serialise ────────────────────────────────────────────────────────────────
 
+function buildAnnotationSuffix(desc: TextRangeDescriptor): string {
+  if (!desc.annotation) return '';
+  const corner = desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER;
+  return `${FIELD_SEP}${corner}${FIELD_SEP}${encodeURIComponent(desc.annotation)}`;
+}
+
 function serializeOne(desc: TextRangeDescriptor): string {
   // We replace %20 with a literal space ' ' so that when URLSearchParams
   // serializes it into the final URL, it converts the ' ' into a '+' for readability.
@@ -41,21 +58,22 @@ function serializeOne(desc: TextRangeDescriptor): string {
   // If endText is identical to startText (short highlights), omit it to prevent duplication
   const e = desc.startText === desc.endText ? '' : encodeURIComponent(desc.endText).replace(/%20/g, ' ');
   const colorSuffix = desc.color && desc.color !== 'yellow' ? FIELD_SEP + desc.color : '';
+  const annotationSuffix = buildAnnotationSuffix(desc);
 
   if (desc.elementId) {
-    // e:<startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>]
+    // e:<startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>][:<anchor>:<corner>:<note>]
     return (
       `e${FIELD_SEP}${s}${FIELD_SEP}${e}${FIELD_SEP}${desc.textLength}` +
-      `${FIELD_SEP}${desc.elementId}${FIELD_SEP}${desc.containerHash}${FIELD_SEP}${desc.textHash}${colorSuffix}`
+      `${FIELD_SEP}${desc.elementId}${FIELD_SEP}${desc.containerHash}${FIELD_SEP}${desc.textHash}${colorSuffix}${annotationSuffix}`
     );
   }
 
   if (desc.containerId) {
-    // c:<startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>]
+    // c:<startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>][:<anchor>:<corner>:<note>]
     return (
       `c${FIELD_SEP}${s}${FIELD_SEP}${e}${FIELD_SEP}${desc.textLength}` +
       `${FIELD_SEP}${desc.containerId}${FIELD_SEP}${desc.containerTag}${FIELD_SEP}${desc.containerIndex}` +
-      `${FIELD_SEP}${desc.containerHash}${FIELD_SEP}${desc.textHash}${colorSuffix}`
+      `${FIELD_SEP}${desc.containerHash}${FIELD_SEP}${desc.textHash}${colorSuffix}${annotationSuffix}`
     );
   }
 
@@ -74,6 +92,10 @@ function serializeBase64(desc: TextRangeDescriptor): string {
   };
   if (desc.startText !== desc.endText) obj['e'] = desc.endText;
   if (desc.color) obj['c'] = desc.color;
+  if (desc.annotation) {
+    obj['n'] = desc.annotation;
+    obj['nc'] = desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER;
+  }
   try {
     return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
   } catch {
@@ -98,24 +120,53 @@ function parseOne(part: string): TextRangeDescriptor | null {
 }
 
 /**
- * Parse: <startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>]
+ * Extracts annotation fields from trailing fields after the known fixed fields.
+ * Annotation suffix format: <corner>:<encodedNote...>
+ * Returns null if no annotation is present.
+ */
+function parseAnnotationSuffix(
+  fields: string[],
+  annotationStartIndex: number,
+): { annotation: string; annotationCorner: AnnotationCorner } | null {
+  if (fields.length <= annotationStartIndex) return null;
+  const corner = fields[annotationStartIndex];
+  const noteParts = fields.slice(annotationStartIndex + 1);
+  if (!corner || noteParts.length === 0) return null;
+  if (!CORNER_KEYS.has(corner)) return null;
+  try {
+    const annotation = decodeURIComponent(noteParts.join(FIELD_SEP));
+    return {
+      annotation,
+      annotationCorner: corner as AnnotationCorner,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parse: <startEnc>:<endEnc>:<textLen>:<elementId>:<containerHash>:<textHash>[:<color>][:<anchor>:<corner>:<note>]
+ * Fixed fields: 0=start, 1=end, 2=len, 3=elementId, 4=containerHash, 5=textHash
+ * Optional field 6: color
+ * Optional fields 7+: anchor, corner, note
  */
 function parseElementId(rest: string): TextRangeDescriptor | null {
   try {
-    // Split into at most 7 parts to handle colons in the id (edge case)
     const fields = rest.split(FIELD_SEP);
     if (fields.length < 6) return null;
 
-    // startEnc is fields[0], then endEnc, textLen, elementId, containerHash, textHash, [color]
     const startText = decodeURIComponent(fields[0]!);
     const endText = fields[1] === '' ? startText : decodeURIComponent(fields[1]!);
     const textLength = parseInt(fields[2]!, 10);
     const elementId = fields[3]!;
     const containerHash = parseInt(fields[4]!, 10);
     const textHash = parseInt(fields[5]!, 10);
-    const color = fields[6] && COLOR_KEYS.has(fields[6]) ? (fields[6] as BoxColorKey) : undefined;
 
     if (!elementId || isNaN(containerHash) || isNaN(textHash) || isNaN(textLength)) return null;
+
+    // Field 6: optional color
+    const color = fields[6] && COLOR_KEYS.has(fields[6]) ? (fields[6] as BoxColorKey) : undefined;
+    const annotationStartIdx = color ? 7 : 6;
 
     const desc: TextRangeDescriptor = {
       elementId,
@@ -128,6 +179,13 @@ function parseElementId(rest: string): TextRangeDescriptor | null {
       textLength,
     };
     if (color) desc.color = color;
+
+    const ann = parseAnnotationSuffix(fields, annotationStartIdx);
+    if (ann) {
+      desc.annotation = ann.annotation;
+      desc.annotationCorner = ann.annotationCorner;
+    }
+
     return desc;
   } catch {
     return null;
@@ -135,7 +193,10 @@ function parseElementId(rest: string): TextRangeDescriptor | null {
 }
 
 /**
- * Parse: <startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>]
+ * Parse: <startEnc>:<endEnc>:<textLen>:<containerId>:<containerTag>:<containerIndex>:<containerHash>:<textHash>[:<color>][:<corner>:<note>]
+ * Fixed fields: 0=start, 1=end, 2=len, 3=containerId, 4=tag, 5=index, 6=containerHash, 7=textHash
+ * Optional field 8: color
+ * Optional fields 9+: corner, note
  */
 function parseContainerId(rest: string): TextRangeDescriptor | null {
   try {
@@ -150,7 +211,6 @@ function parseContainerId(rest: string): TextRangeDescriptor | null {
     const containerIndex = parseInt(fields[5]!, 10);
     const containerHash = parseInt(fields[6]!, 10);
     const textHash = parseInt(fields[7]!, 10);
-    const color = fields[8] && COLOR_KEYS.has(fields[8]) ? (fields[8] as BoxColorKey) : undefined;
 
     if (
       !containerId ||
@@ -161,6 +221,10 @@ function parseContainerId(rest: string): TextRangeDescriptor | null {
       isNaN(textLength)
     )
       return null;
+
+    // Field 8: optional color
+    const color = fields[8] && COLOR_KEYS.has(fields[8]) ? (fields[8] as BoxColorKey) : undefined;
+    const annotationStartIdx = color ? 9 : 8;
 
     const desc: TextRangeDescriptor = {
       containerId,
@@ -173,6 +237,13 @@ function parseContainerId(rest: string): TextRangeDescriptor | null {
       textLength,
     };
     if (color) desc.color = color;
+
+    const ann = parseAnnotationSuffix(fields, annotationStartIdx);
+    if (ann) {
+      desc.annotation = ann.annotation;
+      desc.annotationCorner = ann.annotationCorner;
+    }
+
     return desc;
   } catch {
     return null;
@@ -214,6 +285,12 @@ function parseBase64(encoded: string): TextRangeDescriptor | null {
     };
     if (typeof obj['c'] === 'string' && COLOR_KEYS.has(obj['c'])) {
       desc.color = obj['c'] as BoxColorKey;
+    }
+    if (typeof obj['n'] === 'string') {
+      desc.annotation = obj['n'];
+      desc.annotationCorner = CORNER_KEYS.has(obj['nc'] as string)
+        ? (obj['nc'] as AnnotationCorner)
+        : DEFAULT_ANNOTATION_CORNER;
     }
     return desc;
   } catch {

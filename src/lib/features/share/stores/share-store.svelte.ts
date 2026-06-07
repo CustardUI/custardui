@@ -4,7 +4,7 @@ import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
   MAX_ANNOTATION_LENGTH,
-} from '$features/box/services/box-annotations';
+} from '$features/annotations/annotation-types';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$features/anchor';
 import {
@@ -185,6 +185,27 @@ export class ShareStore {
           : trimmed;
       this.boxAnnotations.set(el, { text: validatedText, corner });
     }
+  }
+
+  setTextHighlightAnnotation(
+    index: number,
+    text: string,
+    corner: AnnotationCorner,
+  ) {
+    const desc = this.textHighlights[index];
+    if (!desc) return;
+    const trimmed = text.trim();
+    const updated = { ...desc };
+    if (trimmed.length > 0) {
+      updated.annotation = trimmed.length > MAX_ANNOTATION_LENGTH
+        ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
+        : trimmed;
+    } else {
+      delete updated.annotation;
+    }
+    updated.annotationCorner = corner;
+    this.textHighlights = this.textHighlights.map((d, i) => (i === index ? updated : d));
+    textHighlightService.applyDescriptors(this.textHighlights);
   }
 
   setBoxColor(el: HTMLElement, color: BoxColorKey) {
