@@ -57,7 +57,8 @@ export class FocusService {
         if (
           !focusStore.isActive &&
           (document.body.classList.contains(BODY_SHOW_CLASS) ||
-            document.body.classList.contains(BODY_BOX_CLASS))
+            document.body.classList.contains(BODY_BOX_CLASS) ||
+            textHighlightService.isActive)
         ) {
           this.exitShowMode(true);
         }
@@ -133,6 +134,7 @@ export class FocusService {
     if (textHighlightEncoded) {
       const firstRange = textHighlightService.applyEncoded(textHighlightEncoded);
       if (firstRange) {
+        focusStore.setIsActive(true);
         // Scroll the first highlight into view after a brief paint delay
         requestAnimationFrame(() => {
           firstRange.startContainer.parentElement?.scrollIntoView({
@@ -367,11 +369,11 @@ export class FocusService {
     // Remove wrappers?
     document.querySelectorAll('.cv-divider-wrapper').forEach((el) => el.remove());
 
-    // Remove styling from targets
     const targets = document.querySelectorAll(`.${SHOW_ELEMENT_CLASS}`);
     targets.forEach((t) => t.classList.remove(SHOW_ELEMENT_CLASS));
 
     this.boxService.exit();
+    textHighlightService.clear();
 
     if (focusStore.isActive) {
       focusStore.setIsActive(false);

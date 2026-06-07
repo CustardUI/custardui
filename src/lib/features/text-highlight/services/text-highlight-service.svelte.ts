@@ -154,6 +154,10 @@ export class TextHighlightService {
   private marks: HTMLElement[] = [];
   private active = false;
 
+  get isActive() {
+    return this.active;
+  }
+
   /** Resolved ranges indexed by descriptor position, for annotation positioning. */
   private resolvedRanges: (Range | null)[] = [];
 
