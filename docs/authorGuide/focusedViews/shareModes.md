@@ -101,7 +101,7 @@ To show only the `#setup` and `#config` sections:
 
 - For example, one such link could be [this](./shareModes.html?cv-box=example-share): `[this](./shareModes.html?cv-box=example-share)`
 
-For fine-grained text range highlighting, CustardUI supports a separate `cv-highlight` parameter. For full details on both element boxing (`cv-box`) and text highlighting (`cv-highlight`), see the [Highlighting Modes Guide](file:///Users/gerteck/dev/custardui/docs/authorGuide/focusedViews/highlightModes.md).
+For fine-grained text range highlighting, CustardUI supports a separate `cv-highlight` parameter. For full details on both element boxing (`cv-box`) and text highlighting (`cv-highlight`), see the [Highlighting Modes Guide](./highlightModes.md).
 
 **Note:**
 

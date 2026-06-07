@@ -170,4 +170,4 @@ IDs are case-sensitive. Use `,` or `+` to separate multiple IDs. Standard alphan
 
 #### Text-Level Focus Views
 
-Text-level highlights (`cv-highlight`) are generated automatically by selecting text in **Highlight** mode. They use robust, encoded range descriptors to anchor the highlights safely even if the document's surrounding text is edited. For full details on the text highlight parameters, see the [Highlighting Modes Guide](file:///Users/gerteck/dev/custardui/docs/authorGuide/focusedViews/highlightModes.md).
+Text-level highlights (`cv-highlight`) are generated automatically by selecting text in **Highlight** mode. They use robust, encoded range descriptors to anchor the highlights safely even if the document's surrounding text is edited. For full details on the text highlight parameters, see the [Highlighting Modes Guide](./focusedViews/highlightModes.md).
