@@ -205,7 +205,7 @@ export class ShareStore {
     }
     updated.annotationCorner = corner;
     this.textHighlights = this.textHighlights.map((d, i) => (i === index ? updated : d));
-    textHighlightService.applyDescriptors(this.textHighlights);
+    textHighlightService.applyDescriptors(this.textHighlights, true);
   }
 
   setBoxColor(el: HTMLElement, color: BoxColorKey) {

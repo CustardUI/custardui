@@ -211,8 +211,8 @@
             // Update the store list
             shareStore.textHighlights = mergedList;
 
-            // Apply to the screen instantly
-            textHighlightService.applyDescriptors(shareStore.textHighlights);
+            // Apply the highlighted text styles to the screen instantly (without recipient annotation bubbles)
+            textHighlightService.applyDescriptors(shareStore.textHighlights, true);
           }
         }
         // Remove native selection ranges to showcase Custom Highlight styling

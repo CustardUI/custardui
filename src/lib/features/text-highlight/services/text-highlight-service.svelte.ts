@@ -182,7 +182,7 @@ export class TextHighlightService {
   /**
    * Apply a list of TextRangeDescriptors directly (e.g. from the float bar).
    */
-  applyDescriptors(descriptors: TextRangeDescriptor[]): Range | null {
+  applyDescriptors(descriptors: TextRangeDescriptor[], hideAnnotations: boolean = false): Range | null {
     this.clear();
     ensureStyle();
 
@@ -217,7 +217,7 @@ export class TextHighlightService {
       }
 
       // Mount annotation overlay if this descriptor has a note
-      if (desc.annotation) {
+      if (desc.annotation && !hideAnnotations) {
         this._mountAnnotation(desc, range);
       }
     }
