@@ -370,11 +370,11 @@ export class ShareStore {
       .split('&')
       .filter((p) => {
         if (!p) return false;
-        if (p.startsWith('cv-show=')) return false;
-        if (p.startsWith('cv-hide=')) return false;
-        if (p.startsWith('cv-box=')) return false;
-        if (p.startsWith('cv-highlight=')) return false;
-        if (p.startsWith(`${PARAM_LINK_LABEL}=`)) return false;
+        if (p === 'cv-show' || p.startsWith('cv-show=')) return false;
+        if (p === 'cv-hide' || p.startsWith('cv-hide=')) return false;
+        if (p === 'cv-box' || p.startsWith('cv-box=')) return false;
+        if (p === 'cv-highlight' || p.startsWith('cv-highlight=')) return false;
+        if (p === PARAM_LINK_LABEL || p.startsWith(`${PARAM_LINK_LABEL}=`)) return false;
         return true;
       });
 

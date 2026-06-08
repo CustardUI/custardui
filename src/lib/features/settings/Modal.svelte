@@ -146,7 +146,7 @@
       const existingSearch = urlObj.search.replace(/^\?/, '');
       const withoutLabel = existingSearch
         .split('&')
-        .filter((p) => p && !p.startsWith(`${PARAM_LINK_LABEL}=`))
+        .filter((p) => p && p !== PARAM_LINK_LABEL && !p.startsWith(`${PARAM_LINK_LABEL}=`))
         .join('&');
       const labelPart = `${PARAM_LINK_LABEL}=${encodeURIComponent(trimmed)}`;
       urlObj.search = [labelPart, withoutLabel].filter(Boolean).join('&');
