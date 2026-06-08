@@ -100,8 +100,9 @@
   }
 
   .cv-empty-ribbon {
-    min-width: 45px;
-    min-height: 22px;
+    width: 70px;
+    height: 28px;
+    box-sizing: border-box;
     background: var(--cv-annotation-color, var(--cv-box-color));
     display: flex;
     align-items: center;
