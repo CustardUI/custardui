@@ -5,9 +5,7 @@ import { resolveDescriptor } from './text-highlight-resolver';
 import { deserializeTextHighlights } from './text-highlight-serializer';
 import { type TextRangeDescriptor } from './text-highlight-descriptor';
 import { type BoxColorKey } from '$features/box/services/box-colors';
-import {
-  DEFAULT_ANNOTATION_CORNER,
-} from '$features/annotations/annotation-types';
+import { DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
 import Annotation from '$features/annotations/Annotation.svelte';
 
 // ─── CSS Custom Highlight API ─────────────────────────────────────────────────
@@ -23,8 +21,7 @@ interface HighlightRegistryLike {
 }
 
 /** Whether the browser supports the CSS Custom Highlight API. */
-export const CSS_HIGHLIGHT_SUPPORTED: boolean =
-  typeof CSS !== 'undefined' && 'highlights' in CSS;
+export const CSS_HIGHLIGHT_SUPPORTED: boolean = typeof CSS !== 'undefined' && 'highlights' in CSS;
 
 function getHighlightRegistry(): HighlightRegistryLike | null {
   if (!CSS_HIGHLIGHT_SUPPORTED) return null;
@@ -42,44 +39,18 @@ function createHighlight(): HighlightLike | null {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const HIGHLIGHT_CSS = `
-::highlight(cv-hl-yellow) {
+::highlight(cv-hl-orange) {
   background-color: transparent;
   color: inherit;
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-thickness: 16px;
-  text-decoration-color: oklch(78% 0.25 96 / 0.95);
+  text-decoration-color: rgba(255, 158, 94, 0.95);
   text-underline-offset: -12px;
   text-shadow:
-    5px 2px 10px oklch(72% 0.24 90 / 0.45),
-    -5px -2px 10px oklch(72% 0.24 90 / 0.32),
-    0 0 16px oklch(72% 0.24 90 / 0.22);
-}
-::highlight(cv-hl-blue) {
-  background-color: transparent;
-  color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: oklch(62% 0.22 240 / 0.9);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px oklch(55% 0.2 240 / 0.4),
-    -5px -2px 10px oklch(55% 0.2 240 / 0.3),
-    0 0 16px oklch(50% 0.18 242 / 0.2);
-}
-::highlight(cv-hl-red) {
-  background-color: transparent;
-  color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: oklch(65% 0.22 20 / 0.9);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px oklch(58% 0.2 20 / 0.4),
-    -5px -2px 10px oklch(58% 0.2 20 / 0.3),
-    0 0 16px oklch(52% 0.18 22 / 0.2);
+    5px 2px 10px rgba(230, 130, 70, 0.45),
+    -5px -2px 10px rgba(230, 130, 70, 0.32),
+    0 0 16px rgba(230, 130, 70, 0.22);
 }
 ::highlight(cv-hl-green) {
   background-color: transparent;
@@ -87,17 +58,51 @@ const HIGHLIGHT_CSS = `
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-thickness: 16px;
-  text-decoration-color: oklch(65% 0.22 145 / 0.9);
+  text-decoration-color: rgba(226, 240, 115, 0.95);
   text-underline-offset: -12px;
   text-shadow:
-    5px 2px 10px oklch(58% 0.2 148 / 0.4),
-    -5px -2px 10px oklch(58% 0.2 148 / 0.3),
-    0 0 16px oklch(52% 0.18 150 / 0.2);
+    5px 2px 10px rgba(200, 220, 90, 0.45),
+    -5px -2px 10px rgba(200, 220, 90, 0.32),
+    0 0 16px rgba(200, 220, 90, 0.22);
 }
-::highlight(cv-hl-black) {
-  background-color: oklch(10% 0 0 / 0.95);
-  color: oklch(97% 0 0);
-  text-shadow: 4px 1px 8px rgba(0,0,0,0.6), -4px -1px 8px rgba(0,0,0,0.5);
+::highlight(cv-hl-pink) {
+  background-color: transparent;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 16px;
+  text-decoration-color: rgba(255, 126, 179, 0.95);
+  text-underline-offset: -12px;
+  text-shadow:
+    5px 2px 10px rgba(230, 100, 150, 0.45),
+    -5px -2px 10px rgba(230, 100, 150, 0.32),
+    0 0 16px rgba(230, 100, 150, 0.22);
+}
+::highlight(cv-hl-yellow) {
+  background-color: transparent;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 16px;
+  text-decoration-color: rgba(255, 212, 71, 0.95);
+  text-underline-offset: -12px;
+  text-shadow:
+    5px 2px 10px rgba(230, 190, 50, 0.45),
+    -5px -2px 10px rgba(230, 190, 50, 0.32),
+    0 0 16px rgba(230, 190, 50, 0.22);
+}
+::highlight(cv-hl-blue) {
+  background-color: transparent;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 16px;
+  text-decoration-color: rgba(126, 224, 245, 0.95);
+  text-underline-offset: -12px;
+  text-shadow:
+    5px 2px 10px rgba(100, 200, 220, 0.45),
+    -5px -2px 10px rgba(100, 200, 220, 0.32),
+    0 0 16px rgba(100, 200, 220, 0.22);
 }
 `.trim();
 
@@ -108,31 +113,30 @@ const FALLBACK_CSS = `
   clip-path: polygon(3px 0%, 100% 2px, calc(100% - 3px) 100%, 0% calc(100% - 2px));
   mix-blend-mode: multiply;
 }
-.cv-hl-fallback--yellow {
-  background-color: rgba(230, 190, 0, 0.88);
+.cv-hl-fallback--orange {
+  background-color: rgba(255, 158, 94, 0.88);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(180, 140, 0, 0.35), -5px -2px 10px rgba(180, 140, 0, 0.25);
-}
-.cv-hl-fallback--blue {
-  background-color: rgba(37, 99, 235, 0.72);
-  color: #fff;
-  text-shadow: 5px 2px 10px rgba(20, 60, 180, 0.35), -5px -2px 10px rgba(20, 60, 180, 0.25);
-}
-.cv-hl-fallback--red {
-  background-color: rgba(220, 38, 38, 0.72);
-  color: #fff;
-  text-shadow: 5px 2px 10px rgba(150, 20, 20, 0.35), -5px -2px 10px rgba(150, 20, 20, 0.25);
+  text-shadow: 5px 2px 10px rgba(230, 130, 70, 0.35), -5px -2px 10px rgba(230, 130, 70, 0.25);
 }
 .cv-hl-fallback--green {
-  background-color: rgba(22, 163, 74, 0.72);
-  color: #fff;
-  text-shadow: 5px 2px 10px rgba(10, 110, 40, 0.35), -5px -2px 10px rgba(10, 110, 40, 0.25);
+  background-color: rgba(226, 240, 115, 0.88);
+  color: inherit;
+  text-shadow: 5px 2px 10px rgba(200, 220, 90, 0.35), -5px -2px 10px rgba(200, 220, 90, 0.25);
 }
-.cv-hl-fallback--black {
-  background-color: rgba(18, 18, 18, 0.92);
-  color: #f5f5f5;
-  text-shadow: 4px 1px 8px rgba(0,0,0,0.45), -4px -1px 8px rgba(0,0,0,0.35);
-  mix-blend-mode: normal;
+.cv-hl-fallback--pink {
+  background-color: rgba(255, 126, 179, 0.88);
+  color: inherit;
+  text-shadow: 5px 2px 10px rgba(230, 100, 150, 0.35), -5px -2px 10px rgba(230, 100, 150, 0.25);
+}
+.cv-hl-fallback--yellow {
+  background-color: rgba(255, 212, 71, 0.88);
+  color: inherit;
+  text-shadow: 5px 2px 10px rgba(230, 190, 50, 0.35), -5px -2px 10px rgba(230, 190, 50, 0.25);
+}
+.cv-hl-fallback--blue {
+  background-color: rgba(126, 224, 245, 0.88);
+  color: inherit;
+  text-shadow: 5px 2px 10px rgba(100, 200, 220, 0.35), -5px -2px 10px rgba(100, 200, 220, 0.25);
 }
 `.trim();
 
@@ -182,7 +186,10 @@ export class TextHighlightService {
   /**
    * Apply a list of TextRangeDescriptors directly (e.g. from the float bar).
    */
-  applyDescriptors(descriptors: TextRangeDescriptor[], hideAnnotations: boolean = false): Range | null {
+  applyDescriptors(
+    descriptors: TextRangeDescriptor[],
+    hideAnnotations: boolean = false,
+  ): Range | null {
     this.clear();
     ensureStyle();
 
@@ -270,7 +277,11 @@ export class TextHighlightService {
 
     // Remove annotation overlays
     for (const comp of this.annotationComponents) {
-      try { unmount(comp); } catch { /* ignore */ }
+      try {
+        unmount(comp);
+      } catch {
+        /* ignore */
+      }
     }
     for (const wrapper of this.annotationWrappers) {
       wrapper.remove();
@@ -316,11 +327,15 @@ export class TextHighlightService {
     this.annotationWrappers.push(wrapper);
 
     // Get the color for the box-color CSS variable
-    const colorKey = desc.color ?? 'yellow';
+    const colorKey = desc.color ?? 'orange';
     const colorMap: Record<string, string> = {
-      yellow: '#facc15', blue: '#60a5fa', red: '#f87171', green: '#4ade80', black: '#4b5563',
+      orange: '#ff9e5e',
+      green: '#e2f073',
+      pink: '#ff7eb3',
+      yellow: '#ffd447',
+      blue: '#7ee0f5',
     };
-    wrapper.style.setProperty('--cv-annotation-color', colorMap[colorKey] ?? colorMap['yellow']!);
+    wrapper.style.setProperty('--cv-annotation-color', colorMap[colorKey] ?? colorMap['orange']!);
 
     const component = mount(Annotation, {
       target: wrapper,

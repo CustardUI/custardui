@@ -62,15 +62,24 @@
 {#if !dismissed}
   <div class="cv-annotation-container" style={getPositionStyle(corner)}>
     <div
-      class="cv-empty-ribbon"
-      class:cv-empty-ribbon--right={isRightCorner}
-      class:cv-empty-ribbon--intro={!introAnimationDone}
-      class:cv-empty-ribbon--periodic={introAnimationDone}
-      style="clip-path: {getRibbonClipPath(corner)};"
+      class="cv-ribbon-wrapper"
+      class:cv-ribbon-wrapper--intro={!introAnimationDone}
+      class:cv-ribbon-wrapper--periodic={introAnimationDone}
       onanimationend={onIntroAnimationEnd}
-      role="img"
-      aria-label="Annotation marker"
-    ></div>
+    >
+      <div
+        class="cv-ribbon-shadow"
+        style="clip-path: {getRibbonClipPath(corner)};"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="cv-empty-ribbon"
+        class:cv-empty-ribbon--right={isRightCorner}
+        style="clip-path: {getRibbonClipPath(corner)};"
+        role="img"
+        aria-label="Annotation marker"
+      ></div>
+    </div>
     <button
       type="button"
       class="cv-empty-dismiss"
@@ -99,6 +108,31 @@
     z-index: 110;
   }
 
+  .cv-ribbon-wrapper {
+    position: relative;
+    transform-origin: center center;
+  }
+
+  .cv-ribbon-wrapper--intro {
+    animation: cv-wiggle-intro 0.75s ease-in-out forwards;
+  }
+
+  .cv-ribbon-wrapper--periodic {
+    animation: cv-wiggle-periodic 5s ease-in-out infinite;
+  }
+
+  .cv-ribbon-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 70px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.25);
+    transform: rotate(-3deg) translate(1px, 4px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
   .cv-empty-ribbon {
     width: 70px;
     height: 28px;
@@ -110,7 +144,6 @@
     box-shadow:
       0 2px 6px rgba(0, 0, 0, 0.18),
       inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    transform-origin: center center;
     padding: 5px 22px 5px 10px;
     opacity: 0.95;
     transition: opacity 0.2s ease;
@@ -122,14 +155,6 @@
 
   .cv-empty-ribbon--right {
     padding: 5px 10px 5px 22px;
-  }
-
-  .cv-empty-ribbon--intro {
-    animation: cv-wiggle-intro 0.75s ease-in-out forwards;
-  }
-
-  .cv-empty-ribbon--periodic {
-    animation: cv-wiggle-periodic 5s ease-in-out infinite;
   }
 
   /* Dismiss button — hidden until container is hovered */

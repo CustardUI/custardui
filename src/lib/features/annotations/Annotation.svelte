@@ -172,54 +172,64 @@
   role="presentation"
 >
   {#if !expanded}
-    <button
-      type="button"
-      class="cv-annotation-ribbon"
-      class:cv-annotation-ribbon--empty={!hasText}
-      class:cv-annotation-ribbon--right={isRightCorner}
-      class:cv-annotation-ribbon--expandable={!isShort}
-      class:cv-annotation-ribbon--intro={!introAnimationDone}
-      class:cv-annotation-ribbon--periodic={introAnimationDone}
-      style="clip-path: {getRibbonClipPath(corner)};"
-      onclick={handleInteraction}
+    <div
+      class="cv-ribbon-wrapper"
+      class:cv-ribbon-wrapper--intro={!introAnimationDone}
+      class:cv-ribbon-wrapper--periodic={introAnimationDone}
       onanimationend={onIntroAnimationEnd}
-      aria-label={hasText ? (isShort ? annotation : 'Expand annotation') : 'Annotation marker'}
-      aria-expanded={isShort ? undefined : expanded}
     >
-      {#if hasText}
-        {#if isRightCorner}
-          <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
-          <span class="cv-ribbon-text cv-ribbon-text--right">
-            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
-          </span>
-          {#if !isShort}
-            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
-              >▾</span
-            >
-          {/if}
-          <span class="cv-ribbon-grip" aria-hidden="true">
-            <span></span><span></span>
-            <span></span><span></span>
-            <span></span><span></span>
-          </span>
-        {:else}
-          <!-- Left-corner: point is RIGHT, flat side is LEFT → grip goes first -->
-          <span class="cv-ribbon-grip" aria-hidden="true">
-            <span></span><span></span>
-            <span></span><span></span>
-            <span></span><span></span>
-          </span>
-          <span class="cv-ribbon-text">
-            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
-          </span>
-          {#if !isShort}
-            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
-              >▾</span
-            >
+      <div
+        class="cv-ribbon-shadow"
+        class:cv-ribbon-shadow--empty={!hasText}
+        style="clip-path: {getRibbonClipPath(corner)};"
+        aria-hidden="true"
+      ></div>
+      <button
+        type="button"
+        class="cv-annotation-ribbon"
+        class:cv-annotation-ribbon--empty={!hasText}
+        class:cv-annotation-ribbon--right={isRightCorner}
+        class:cv-annotation-ribbon--expandable={!isShort}
+        style="clip-path: {getRibbonClipPath(corner)};"
+        onclick={handleInteraction}
+        aria-label={hasText ? (isShort ? annotation : 'Expand annotation') : 'Annotation marker'}
+        aria-expanded={isShort ? undefined : expanded}
+      >
+        {#if hasText}
+          {#if isRightCorner}
+            <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
+            <span class="cv-ribbon-text cv-ribbon-text--right">
+              {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
+            </span>
+            {#if !isShort}
+              <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
+                >▾</span
+              >
+            {/if}
+            <span class="cv-ribbon-grip" aria-hidden="true">
+              <span></span><span></span>
+              <span></span><span></span>
+              <span></span><span></span>
+            </span>
+          {:else}
+            <!-- Left-corner: point is RIGHT, flat side is LEFT → grip goes first -->
+            <span class="cv-ribbon-grip" aria-hidden="true">
+              <span></span><span></span>
+              <span></span><span></span>
+              <span></span><span></span>
+            </span>
+            <span class="cv-ribbon-text">
+              {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
+            </span>
+            {#if !isShort}
+              <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
+                >▾</span
+              >
+            {/if}
           {/if}
         {/if}
-      {/if}
-    </button>
+      </button>
+    </div>
   {:else}
     <div class="cv-annotation-card" role="region" aria-label="Annotation">
       <button
@@ -256,6 +266,37 @@
   }
 
   /* ==============================
+     WRAPPER & SHADOW
+     ============================== */
+  .cv-ribbon-wrapper {
+    position: relative;
+    transform-origin: center center;
+  }
+
+  .cv-ribbon-wrapper--intro {
+    animation: cv-wiggle-intro 0.75s ease-in-out forwards;
+  }
+
+  .cv-ribbon-wrapper--periodic {
+    animation: cv-wiggle-periodic 5s ease-in-out infinite;
+  }
+
+  .cv-ribbon-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 140px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.25);
+    transform: rotate(-3deg) translate(1px, 4px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .cv-ribbon-shadow--empty {
+    width: 70px;
+  }
+
+  /* ==============================
      RIBBON (home-plate)
      ============================== */
   .cv-annotation-ribbon {
@@ -271,16 +312,6 @@
     align-items: center;
     justify-content: flex-start;
     gap: 5px;
-
-    transform-origin: center center;
-  }
-
-  .cv-annotation-ribbon--intro {
-    animation: cv-wiggle-intro 0.75s ease-in-out forwards;
-  }
-
-  .cv-annotation-ribbon--periodic {
-    animation: cv-wiggle-periodic 5s ease-in-out infinite;
   }
 
   .cv-annotation-ribbon--right {
