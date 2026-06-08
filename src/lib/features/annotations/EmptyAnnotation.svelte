@@ -6,9 +6,10 @@
 
   interface Props {
     annotationCorner?: AnnotationCorner | undefined;
+    verticalOffset?: number;
   }
 
-  let { annotationCorner }: Props = $props();
+  let { annotationCorner, verticalOffset = 14 }: Props = $props();
   const corner = $derived(annotationCorner ?? DEFAULT_ANNOTATION_CORNER);
   const isRightCorner = $derived(corner === 'tr' || corner === 'br');
 
@@ -23,14 +24,14 @@
   function getPositionStyle(c: AnnotationCorner): string {
     switch (c) {
       case 'tr':
-        return 'top: -14px; right: -14px;';
+        return `top: -${verticalOffset}px; right: -14px;`;
       case 'bl':
-        return 'bottom: -14px; left: -14px;';
+        return `bottom: -${verticalOffset}px; left: -14px;`;
       case 'br':
-        return 'bottom: -14px; right: -14px;';
+        return `bottom: -${verticalOffset}px; right: -14px;`;
       case 'tl':
       default:
-        return 'top: -14px; left: -14px;';
+        return `top: -${verticalOffset}px; left: -14px;`;
     }
   }
 
