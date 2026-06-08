@@ -141,11 +141,15 @@
     );
 
     const urlObj = new URL(rawUrl);
-    if (linkLabel.trim()) {
-      const searchParams = new URLSearchParams();
-      searchParams.set(PARAM_LINK_LABEL, linkLabel.trim());
-      urlObj.searchParams.forEach((val, key) => searchParams.append(key, val));
-      urlObj.search = searchParams.toString();
+    const trimmed = linkLabel.trim();
+    if (trimmed) {
+      const existingSearch = urlObj.search.replace(/^\?/, '');
+      const withoutLabel = existingSearch
+        .split('&')
+        .filter((p) => p && !p.startsWith(`${PARAM_LINK_LABEL}=`))
+        .join('&');
+      const labelPart = `${PARAM_LINK_LABEL}=${encodeURIComponent(trimmed)}`;
+      urlObj.search = [labelPart, withoutLabel].filter(Boolean).join('&');
     }
     const finalUrl = urlObj.toString();
 
