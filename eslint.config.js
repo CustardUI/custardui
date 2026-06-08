@@ -18,6 +18,9 @@ export default [
         __APP_VERSION__: 'readonly',
       },
     },
+    rules: {
+      'svelte/prefer-svelte-reactivity': 'off',
+    },
   },
   {
     files: ['**/*.svelte.ts'],

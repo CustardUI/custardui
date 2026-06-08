@@ -80,7 +80,7 @@ export class FocusService {
    * Reads the current URL and applies the appropriate focus/highlight mode
    */
   private applyModesFromUrl() {
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
     const showDescriptors = url.searchParams.get(PARAM_CV_SHOW);
     const hideDescriptors = url.searchParams.get(PARAM_CV_HIDE);
@@ -219,7 +219,7 @@ export class FocusService {
     document.body.classList.add(BODY_SHOW_CLASS);
 
     // Exclude highlight targets from being hidden so they stay visible
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const excludeSet = new Set(excludeTargets);
     const filteredTargets =
       excludeTargets.length > 0 ? targets.filter((t) => !excludeSet.has(t)) : targets;
@@ -375,7 +375,7 @@ export class FocusService {
     }
 
     if (updateUrl) {
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+       
       const url = new URL(window.location.href);
       let changed = false;
       if (url.searchParams.has(PARAM_CV_SHOW)) {

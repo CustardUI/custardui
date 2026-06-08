@@ -257,7 +257,7 @@ export class ShareStore {
       }
 
       const serialized = serializeTextHighlights(this.textHighlights);
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+       
       const url = new URL(window.location.href);
       url.searchParams.delete('cv-show');
       url.searchParams.delete('cv-hide');
@@ -291,7 +291,7 @@ export class ShareStore {
       return;
     }
 
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
 
     // Clear all potential params first
@@ -329,7 +329,7 @@ export class ShareStore {
       }
 
       const serialized = serializeTextHighlights(this.textHighlights);
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+       
       const url = new URL(window.location.href);
       url.searchParams.delete('cv-show');
       url.searchParams.delete('cv-hide');
@@ -350,7 +350,7 @@ export class ShareStore {
     const descriptors = this._buildDescriptors();
     const serialized = DomElementLocator.serialize(descriptors);
 
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
     url.searchParams.delete('cv-show');
     url.searchParams.delete('cv-hide');
