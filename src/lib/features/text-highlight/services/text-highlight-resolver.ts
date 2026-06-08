@@ -147,7 +147,7 @@ function findTextSpan(rawText: string, desc: TextRangeDescriptor): RawSpan | nul
   } else {
     // Long selection: endText should appear near rawStart + textLength
     const searchFrom = rawStart + Math.max(0, textLength - endText.length - 5);
-    let found = rawText.indexOf(
+    const found = rawText.indexOf(
       endText,
       Math.max(rawStart + startText.length - endText.length, searchFrom),
     );
@@ -160,12 +160,13 @@ function findTextSpan(rawText: string, desc: TextRangeDescriptor): RawSpan | nul
       const normSearchFrom = rawToNorm(rawText, rawSearchFrom);
       const normIdx = normHaystack.indexOf(normNeedle, normSearchFrom);
       if (normIdx !== -1) {
-        found = normToRaw(rawText, normIdx);
+        rawEnd = normToRaw(rawText, normIdx + normNeedle.length);
+      } else {
+        rawEnd = advanceByNormLength(rawText, rawStart, textLength);
       }
+    } else {
+      rawEnd = found + endText.length;
     }
-
-    rawEnd =
-      found !== -1 ? found + endText.length : advanceByNormLength(rawText, rawStart, textLength);
   }
 
   return { rawStart, rawEnd: Math.min(rawEnd, rawText.length) };

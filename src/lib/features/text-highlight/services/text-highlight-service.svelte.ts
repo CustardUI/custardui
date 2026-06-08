@@ -148,7 +148,7 @@ export class TextHighlightService {
       showToast('No text highlights found in link.');
       return null;
     }
-    return this.applyDescriptors(descriptors);
+    return this.applyDescriptors(descriptors, false, true);
   }
 
   /**
@@ -157,6 +157,7 @@ export class TextHighlightService {
   applyDescriptors(
     descriptors: TextRangeDescriptor[],
     hideAnnotations: boolean = false,
+    showWarnings: boolean = false,
   ): Range | null {
     this.clear();
     ensureStyle();
@@ -197,7 +198,7 @@ export class TextHighlightService {
       }
     }
 
-    if (unverifiedCount > 0) {
+    if (unverifiedCount > 0 && showWarnings) {
       showToast('Some highlighted text may have changed since this link was created.');
     }
 
