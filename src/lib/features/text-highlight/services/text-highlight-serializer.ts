@@ -1,4 +1,4 @@
-import { type BoxColorKey, BOX_COLORS } from '$features/box/services/box-colors';
+import { type AnnotationColorKey, ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
 import {
   type AnnotationCorner,
   ANNOTATION_CORNERS,
@@ -8,7 +8,7 @@ import { type TextRangeDescriptor } from './text-highlight-descriptor';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const COLOR_KEYS = new Set<string>(BOX_COLORS.map((c) => c.key));
+const COLOR_KEYS = new Set<string>(ANNOTATION_COLORS.map((c) => c.key));
 const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
 const FIELD_SEP = ':';
 const DESC_SEP = ',';
@@ -56,8 +56,9 @@ function serializeOne(desc: TextRangeDescriptor): string {
   // serializes it into the final URL, it converts the ' ' into a '+' for readability.
   const s = encodeURIComponent(desc.startText).replace(/%20/g, ' ');
   // If endText is identical to startText (short highlights), omit it to prevent duplication
-  const e = desc.startText === desc.endText ? '' : encodeURIComponent(desc.endText).replace(/%20/g, ' ');
-  const colorSuffix = desc.color && desc.color !== 'yellow' ? FIELD_SEP + desc.color : '';
+  const e =
+    desc.startText === desc.endText ? '' : encodeURIComponent(desc.endText).replace(/%20/g, ' ');
+  const colorSuffix = desc.color && desc.color !== DEFAULT_ANNOTATION_COLOR_KEY ? FIELD_SEP + desc.color : '';
   const annotationSuffix = buildAnnotationSuffix(desc);
 
   if (desc.elementId) {
@@ -91,7 +92,7 @@ function serializeBase64(desc: TextRangeDescriptor): string {
     tl: desc.textLength,
   };
   if (desc.startText !== desc.endText) obj['e'] = desc.endText;
-  if (desc.color) obj['c'] = desc.color;
+  if (desc.color && desc.color !== DEFAULT_ANNOTATION_COLOR_KEY) obj['c'] = desc.color;
   if (desc.annotation) {
     obj['n'] = desc.annotation;
     obj['nc'] = desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER;
@@ -164,9 +165,13 @@ function parseElementId(rest: string): TextRangeDescriptor | null {
 
     if (!elementId || isNaN(containerHash) || isNaN(textHash) || isNaN(textLength)) return null;
 
-    // Field 6: optional color
-    const color = fields[6] && COLOR_KEYS.has(fields[6]) ? (fields[6] as BoxColorKey) : undefined;
-    const annotationStartIdx = color ? 7 : 6;
+    // Field 6: optional color (or legacy color) vs corner
+    let color: AnnotationColorKey | undefined;
+    let annotationStartIdx = 6;
+    if (fields[6] && !CORNER_KEYS.has(fields[6])) {
+      if (COLOR_KEYS.has(fields[6])) color = fields[6] as AnnotationColorKey;
+      annotationStartIdx = 7;
+    }
 
     const desc: TextRangeDescriptor = {
       elementId,
@@ -222,9 +227,13 @@ function parseContainerId(rest: string): TextRangeDescriptor | null {
     )
       return null;
 
-    // Field 8: optional color
-    const color = fields[8] && COLOR_KEYS.has(fields[8]) ? (fields[8] as BoxColorKey) : undefined;
-    const annotationStartIdx = color ? 9 : 8;
+    // Field 8: optional color (or legacy color) vs corner
+    let color: AnnotationColorKey | undefined;
+    let annotationStartIdx = 8;
+    if (fields[8] && !CORNER_KEYS.has(fields[8])) {
+      if (COLOR_KEYS.has(fields[8])) color = fields[8] as AnnotationColorKey;
+      annotationStartIdx = 9;
+    }
 
     const desc: TextRangeDescriptor = {
       containerId,
@@ -284,7 +293,7 @@ function parseBase64(encoded: string): TextRangeDescriptor | null {
       textLength: obj.tl as number,
     };
     if (typeof obj['c'] === 'string' && COLOR_KEYS.has(obj['c'])) {
-      desc.color = obj['c'] as BoxColorKey;
+      desc.color = obj['c'] as AnnotationColorKey;
     }
     if (typeof obj['n'] === 'string') {
       desc.annotation = obj['n'];

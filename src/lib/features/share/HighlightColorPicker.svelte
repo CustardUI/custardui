@@ -1,10 +1,10 @@
 <script lang="ts">
   import { shareStore } from '$features/share/stores/share-store.svelte';
   import {
-    BOX_COLORS,
-    DEFAULT_COLOR_KEY,
-    type BoxColorKey,
-  } from '$features/box/services/box-colors';
+    ANNOTATION_COLORS,
+    DEFAULT_ANNOTATION_COLOR_KEY,
+    type AnnotationColorKey,
+  } from '$features/annotations/annotation-colors';
 
   let { element }: { element: HTMLElement } = $props();
 
@@ -25,9 +25,9 @@
     };
   });
 
-  let currentColorKey = $derived(shareStore.boxColors.get(element) ?? DEFAULT_COLOR_KEY);
+  let currentColorKey = $derived(shareStore.boxColors.get(element) ?? DEFAULT_ANNOTATION_COLOR_KEY);
   let currentHex = $derived(
-    BOX_COLORS.find((c) => c.key === currentColorKey)?.hex ?? BOX_COLORS[0]!.hex,
+    ANNOTATION_COLORS.find((c) => c.key === currentColorKey)?.hex ?? ANNOTATION_COLORS[0]!.hex,
   );
 
   let clickTimer: ReturnType<typeof setTimeout> | null = null;
@@ -37,7 +37,7 @@
     isExpanded = !isExpanded;
   }
 
-  function handleSwatchClick(e: MouseEvent, key: BoxColorKey) {
+  function handleSwatchClick(e: MouseEvent, key: AnnotationColorKey) {
     e.stopPropagation();
     if (clickTimer) return; // defer to potential dblclick
     clickTimer = setTimeout(() => {
@@ -47,7 +47,7 @@
     }, 220);
   }
 
-  function handleSwatchDblClick(e: MouseEvent, key: BoxColorKey) {
+  function handleSwatchDblClick(e: MouseEvent, key: AnnotationColorKey) {
     e.stopPropagation();
     if (clickTimer) {
       clearTimeout(clickTimer);
@@ -74,7 +74,7 @@
   </button>
   {#if isExpanded}
     <div class="cv-color-swatches" role="none">
-      {#each BOX_COLORS as color (color.key)}
+      {#each ANNOTATION_COLORS as color (color.key)}
         <button
           type="button"
           class="cv-color-swatch"

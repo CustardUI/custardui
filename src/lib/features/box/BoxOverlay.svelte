@@ -1,11 +1,8 @@
 <script lang="ts">
   import { type RectData } from '$features/box/services/box-types';
-  import {
-    BOX_COLORS,
-    DEFAULT_COLOR_KEY,
-  } from '$features/box/services/box-colors';
-  import BoxAnnotation from '$features/box/BoxAnnotation.svelte';
-  import BoxEmptyAnnotation from '$features/box/BoxEmptyAnnotation.svelte';
+  import { ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
+  import Annotation from '$features/annotations/Annotation.svelte';
+  import EmptyAnnotation from '$features/annotations/EmptyAnnotation.svelte';
 
   interface Props {
     box: { rects: RectData[] };
@@ -15,8 +12,8 @@
   let rects = $derived(box.rects);
 
   function getColorHex(rect: RectData): string {
-    const key = rect.color ?? DEFAULT_COLOR_KEY;
-    return BOX_COLORS.find((c) => c.key === key)?.hex ?? BOX_COLORS[0]!.hex;
+    const key = rect.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    return ANNOTATION_COLORS.find((c) => c.key === key)?.hex ?? ANNOTATION_COLORS[0]!.hex;
   }
 
   function scrollToRect(rect: RectData) {
@@ -55,12 +52,9 @@
         </a>
       </div>
       {#if rect.annotation !== undefined && rect.annotation.length > 0}
-        <BoxAnnotation
-          annotation={rect.annotation}
-          annotationCorner={rect.annotationCorner}
-        />
+        <Annotation annotation={rect.annotation} annotationCorner={rect.annotationCorner} />
       {:else}
-        <BoxEmptyAnnotation annotationCorner={rect.annotationCorner} />
+        <EmptyAnnotation annotationCorner={rect.annotationCorner} />
       {/if}
     </div>
   {/each}
@@ -97,11 +91,8 @@
       inset 0 1px 2px rgba(129, 73, 25, 0.2),
       inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
-    /* DOUBLE LIGHT PROJECTION */
-    filter:
-      drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15))
-      drop-shadow(-8px 12px 10px rgba(44, 26, 14, 0.12))
-      drop-shadow(8px 12px 10px rgba(44, 26, 14, 0.12));
+    /* CRISP DROP SHADOW */
+    filter: drop-shadow(4px 4px 1px rgba(0, 0, 0, 0.25));
 
     animation: boxFadeIn 0.3s ease-out forwards;
   }

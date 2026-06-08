@@ -1,4 +1,4 @@
-import { type BoxColorKey } from '$features/box/services/box-colors';
+import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
 import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /**
@@ -11,7 +11,7 @@ export interface AnchorDescriptor {
   textSnippet: string; // First 32 chars of text content (normalized)
   textHash: number; // A simple hash of the full text content
   elementId?: string; // The element's own ID if present
-  color?: BoxColorKey; // Per-element box color (omitted = default red)
+  color?: AnnotationColorKey; // Per-element box color (omitted = default red)
   annotation?: string; // Optional text annotation (≤280 chars)
   annotationCorner?: AnnotationCorner; // Which corner the annotation anchors to
 }

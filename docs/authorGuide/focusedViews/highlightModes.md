@@ -43,7 +43,7 @@ Text Highlighting allows authors to select specific spans of text across a docum
 * **Instantaneous Highlighting**: As soon as text is selected, the color highlight is instantly applied to the screen. Browser default selection overlays are automatically cleared, making the custom highlight instantly visible.
 * **Smart Overlap Resolution**: If you select text that partially overlaps or touches an existing highlight, CustardUI intelligently merges them into one continuous block. Selecting a complete subset of an existing highlight is safely ignored, preventing duplicates.
 * **Multiple Highlights**: Authors can make multiple text highlights in a single session! Simply select more text to add new highlighted spans to the same link.
-* **Color Selection**: Authors can choose from 5 highlight colors independently using the swatches in the bottom floating toolbar *before* making the selection, i.e. yellow, blue, red, green and black.
+* **Color Selection**: Authors can choose from 5 highlight colors independently using the swatches in the bottom floating toolbar *before* making the selection, i.e. orange, green, pink, yellow and blue.
 * **Cohesive Selection Modes**: Element selections (box, show, hide) and text highlights are kept mutually exclusive. Selecting an element clears active text highlights, and selecting text automatically clears element selections, ensuring the copied link contains a clean, non-conflicting state.
 * **Unified Link Generation**: Links and previews are created using the "Copy Link" and "Preview" buttons in the bottom toolbar, making the UX perfectly consistent across all selection modes.
 

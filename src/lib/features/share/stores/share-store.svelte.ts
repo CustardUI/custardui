@@ -1,5 +1,5 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { type BoxColorKey } from '$features/box/services/box-colors';
+import { type AnnotationColorKey, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
 import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
@@ -27,13 +27,15 @@ export class ShareStore {
   selectionMode = $state<SelectionMode>('box');
   selectedElements = $state<SvelteSet<HTMLElement>>(new SvelteSet<HTMLElement>());
   currentHoverTarget = $state<HTMLElement | null>(null);
-  boxColors = new SvelteMap<HTMLElement, BoxColorKey>();
+  boxColors = new SvelteMap<HTMLElement, AnnotationColorKey>();
   boxAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
   textHighlights = $state<TextRangeDescriptor[]>([]);
-  selectedTextColor = $state<BoxColorKey>('yellow');
+  selectedTextColor = $state<AnnotationColorKey>(DEFAULT_ANNOTATION_COLOR_KEY);
 
   get shareCount() {
-    return this.selectionMode === 'highlight' ? this.textHighlights.length : this.selectedElements.size;
+    return this.selectionMode === 'highlight'
+      ? this.textHighlights.length
+      : this.selectedElements.size;
   }
 
   toggleActive(active?: boolean) {
@@ -187,19 +189,16 @@ export class ShareStore {
     }
   }
 
-  setTextHighlightAnnotation(
-    index: number,
-    text: string,
-    corner: AnnotationCorner,
-  ) {
+  setTextHighlightAnnotation(index: number, text: string, corner: AnnotationCorner) {
     const desc = this.textHighlights[index];
     if (!desc) return;
     const trimmed = text.trim();
     const updated = { ...desc };
     if (trimmed.length > 0) {
-      updated.annotation = trimmed.length > MAX_ANNOTATION_LENGTH
-        ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
-        : trimmed;
+      updated.annotation =
+        trimmed.length > MAX_ANNOTATION_LENGTH
+          ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
+          : trimmed;
     } else {
       delete updated.annotation;
     }
@@ -208,11 +207,11 @@ export class ShareStore {
     textHighlightService.applyDescriptors(this.textHighlights, true);
   }
 
-  setBoxColor(el: HTMLElement, color: BoxColorKey) {
+  setBoxColor(el: HTMLElement, color: AnnotationColorKey) {
     this.boxColors.set(el, color);
   }
 
-  setAllBoxColors(color: BoxColorKey) {
+  setAllBoxColors(color: AnnotationColorKey) {
     this.selectedElements.forEach((el) => {
       this.boxColors.set(el, color);
     });

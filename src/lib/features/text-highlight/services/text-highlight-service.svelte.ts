@@ -4,11 +4,9 @@ import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { resolveDescriptor } from './text-highlight-resolver';
 import { deserializeTextHighlights } from './text-highlight-serializer';
 import { type TextRangeDescriptor } from './text-highlight-descriptor';
-import { type BoxColorKey } from '$features/box/services/box-colors';
-import {
-  DEFAULT_ANNOTATION_CORNER,
-} from '$features/annotations/annotation-types';
-import BoxAnnotation from '$features/box/BoxAnnotation.svelte';
+import { type AnnotationColorKey, ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
+import { DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
+import Annotation from '$features/annotations/Annotation.svelte';
 
 // ─── CSS Custom Highlight API ─────────────────────────────────────────────────
 // Use a module-level interface augmentation so we avoid repeated unsafe casts.
@@ -23,8 +21,7 @@ interface HighlightRegistryLike {
 }
 
 /** Whether the browser supports the CSS Custom Highlight API. */
-export const CSS_HIGHLIGHT_SUPPORTED: boolean =
-  typeof CSS !== 'undefined' && 'highlights' in CSS;
+export const CSS_HIGHLIGHT_SUPPORTED: boolean = typeof CSS !== 'undefined' && 'highlights' in CSS;
 
 function getHighlightRegistry(): HighlightRegistryLike | null {
   if (!CSS_HIGHLIGHT_SUPPORTED) return null;
@@ -42,62 +39,25 @@ function createHighlight(): HighlightLike | null {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const HIGHLIGHT_CSS = `
-::highlight(cv-hl-yellow) {
-  background-color: transparent;
+::highlight(cv-hl-orange) {
+  background-color: rgba(255, 158, 94, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: oklch(78% 0.25 96 / 0.95);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px oklch(72% 0.24 90 / 0.45),
-    -5px -2px 10px oklch(72% 0.24 90 / 0.32),
-    0 0 16px oklch(72% 0.24 90 / 0.22);
-}
-::highlight(cv-hl-blue) {
-  background-color: transparent;
-  color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: oklch(62% 0.22 240 / 0.9);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px oklch(55% 0.2 240 / 0.4),
-    -5px -2px 10px oklch(55% 0.2 240 / 0.3),
-    0 0 16px oklch(50% 0.18 242 / 0.2);
-}
-::highlight(cv-hl-red) {
-  background-color: transparent;
-  color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: oklch(65% 0.22 20 / 0.9);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px oklch(58% 0.2 20 / 0.4),
-    -5px -2px 10px oklch(58% 0.2 20 / 0.3),
-    0 0 16px oklch(52% 0.18 22 / 0.2);
 }
 ::highlight(cv-hl-green) {
-  background-color: transparent;
+  background-color: rgba(226, 240, 115, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: oklch(65% 0.22 145 / 0.9);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px oklch(58% 0.2 148 / 0.4),
-    -5px -2px 10px oklch(58% 0.2 148 / 0.3),
-    0 0 16px oklch(52% 0.18 150 / 0.2);
 }
-::highlight(cv-hl-black) {
-  background-color: oklch(10% 0 0 / 0.95);
-  color: oklch(97% 0 0);
-  text-shadow: 4px 1px 8px rgba(0,0,0,0.6), -4px -1px 8px rgba(0,0,0,0.5);
+::highlight(cv-hl-pink) {
+  background-color: rgba(255, 126, 179, 0.45);
+  color: inherit;
+}
+::highlight(cv-hl-yellow) {
+  background-color: rgba(255, 212, 71, 0.45);
+  color: inherit;
+}
+::highlight(cv-hl-blue) {
+  background-color: rgba(126, 224, 245, 0.45);
+  color: inherit;
 }
 `.trim();
 
@@ -108,31 +68,25 @@ const FALLBACK_CSS = `
   clip-path: polygon(3px 0%, 100% 2px, calc(100% - 3px) 100%, 0% calc(100% - 2px));
   mix-blend-mode: multiply;
 }
-.cv-hl-fallback--yellow {
-  background-color: rgba(230, 190, 0, 0.88);
+.cv-hl-fallback--orange {
+  background-color: rgba(255, 158, 94, 0.45);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(180, 140, 0, 0.35), -5px -2px 10px rgba(180, 140, 0, 0.25);
-}
-.cv-hl-fallback--blue {
-  background-color: rgba(37, 99, 235, 0.72);
-  color: #fff;
-  text-shadow: 5px 2px 10px rgba(20, 60, 180, 0.35), -5px -2px 10px rgba(20, 60, 180, 0.25);
-}
-.cv-hl-fallback--red {
-  background-color: rgba(220, 38, 38, 0.72);
-  color: #fff;
-  text-shadow: 5px 2px 10px rgba(150, 20, 20, 0.35), -5px -2px 10px rgba(150, 20, 20, 0.25);
 }
 .cv-hl-fallback--green {
-  background-color: rgba(22, 163, 74, 0.72);
-  color: #fff;
-  text-shadow: 5px 2px 10px rgba(10, 110, 40, 0.35), -5px -2px 10px rgba(10, 110, 40, 0.25);
+  background-color: rgba(226, 240, 115, 0.45);
+  color: inherit;
 }
-.cv-hl-fallback--black {
-  background-color: rgba(18, 18, 18, 0.92);
-  color: #f5f5f5;
-  text-shadow: 4px 1px 8px rgba(0,0,0,0.45), -4px -1px 8px rgba(0,0,0,0.35);
-  mix-blend-mode: normal;
+.cv-hl-fallback--pink {
+  background-color: rgba(255, 126, 179, 0.45);
+  color: inherit;
+}
+.cv-hl-fallback--yellow {
+  background-color: rgba(255, 212, 71, 0.45);
+  color: inherit;
+}
+.cv-hl-fallback--blue {
+  background-color: rgba(126, 224, 245, 0.45);
+  color: inherit;
 }
 `.trim();
 
@@ -165,6 +119,24 @@ export class TextHighlightService {
   private annotationWrappers: HTMLElement[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private annotationComponents: any[] = [];
+  
+  /** Tracks wrappers with their underlying range so they can be repositioned on resize/zoom */
+  private activeAnnotations: { range: Range; wrapper: HTMLElement }[] = [];
+
+  private _resizeListener = () => {
+    requestAnimationFrame(() => this.repositionAnnotations());
+  };
+
+  private repositionAnnotations() {
+    if (!this.active) return;
+    for (const { range, wrapper } of this.activeAnnotations) {
+      const rect = range.getBoundingClientRect();
+      wrapper.style.top = `${rect.top + window.scrollY}px`;
+      wrapper.style.left = `${rect.left + window.scrollX}px`;
+      wrapper.style.width = `${rect.width}px`;
+      wrapper.style.height = `${rect.height}px`;
+    }
+  }
 
   /**
    * Parse an encoded string (from ?cv-highlight=…) and apply highlights.
@@ -176,13 +148,17 @@ export class TextHighlightService {
       showToast('No text highlights found in link.');
       return null;
     }
-    return this.applyDescriptors(descriptors);
+    return this.applyDescriptors(descriptors, false, true);
   }
 
   /**
    * Apply a list of TextRangeDescriptors directly (e.g. from the float bar).
    */
-  applyDescriptors(descriptors: TextRangeDescriptor[], hideAnnotations: boolean = false): Range | null {
+  applyDescriptors(
+    descriptors: TextRangeDescriptor[],
+    hideAnnotations: boolean = false,
+    showWarnings: boolean = false,
+  ): Range | null {
     this.clear();
     ensureStyle();
 
@@ -200,7 +176,7 @@ export class TextHighlightService {
       if (!verified) unverifiedCount++;
       if (!firstRange) firstRange = range;
 
-      const colorKey = desc.color ?? 'yellow';
+      const colorKey = desc.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
 
       if (registry) {
         // CSS Custom Highlight API path
@@ -213,7 +189,7 @@ export class TextHighlightService {
         this.hlMap.get(colorKey)!.add(range);
       } else {
         // DOM <mark> fallback
-        this._injectMark(range, colorKey as BoxColorKey);
+        this._injectMark(range, colorKey as AnnotationColorKey);
       }
 
       // Mount annotation overlay if this descriptor has a note
@@ -222,8 +198,12 @@ export class TextHighlightService {
       }
     }
 
-    if (unverifiedCount > 0) {
+    if (unverifiedCount > 0 && showWarnings) {
       showToast('Some highlighted text may have changed since this link was created.');
+    }
+
+    if (this.activeAnnotations.length > 0) {
+      window.addEventListener('resize', this._resizeListener, { passive: true });
     }
 
     this.active = true;
@@ -270,13 +250,19 @@ export class TextHighlightService {
 
     // Remove annotation overlays
     for (const comp of this.annotationComponents) {
-      try { unmount(comp); } catch { /* ignore */ }
+      try {
+        unmount(comp);
+      } catch {
+        /* ignore */
+      }
     }
     for (const wrapper of this.annotationWrappers) {
       wrapper.remove();
     }
     this.annotationComponents = [];
     this.annotationWrappers = [];
+    this.activeAnnotations = [];
+    window.removeEventListener('resize', this._resizeListener);
 
     this.hlMap.clear();
     this.marks = [];
@@ -285,7 +271,7 @@ export class TextHighlightService {
     this.active = false;
   }
 
-  private _injectMark(range: Range, color: BoxColorKey) {
+  private _injectMark(range: Range, color: AnnotationColorKey) {
     try {
       const mark = document.createElement('mark');
       mark.className = `cv-hl-fallback cv-hl-fallback--${color}`;
@@ -314,19 +300,19 @@ export class TextHighlightService {
     `;
     document.body.appendChild(wrapper);
     this.annotationWrappers.push(wrapper);
+    this.activeAnnotations.push({ range, wrapper });
 
     // Get the color for the box-color CSS variable
-    const colorKey = desc.color ?? 'yellow';
-    const colorMap: Record<string, string> = {
-      yellow: '#facc15', blue: '#60a5fa', red: '#f87171', green: '#4ade80', black: '#4b5563',
-    };
-    wrapper.style.setProperty('--cv-box-color', colorMap[colorKey] ?? colorMap['yellow']!);
+    const colorKey = desc.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    const colorDef = ANNOTATION_COLORS.find((c) => c.key === colorKey) ?? ANNOTATION_COLORS.find((c) => c.key === DEFAULT_ANNOTATION_COLOR_KEY)!;
+    wrapper.style.setProperty('--cv-annotation-color', colorDef.hex);
 
-    const component = mount(BoxAnnotation, {
+    const component = mount(Annotation, {
       target: wrapper,
       props: {
         annotation: desc.annotation ?? '',
         annotationCorner: corner,
+        verticalOffset: 22,
       },
     });
     this.annotationComponents.push(component);

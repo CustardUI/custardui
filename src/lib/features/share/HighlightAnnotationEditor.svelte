@@ -25,7 +25,9 @@
 
   $effect(() => {
     rect = getRect();
-    const update = () => { rect = getRect(); };
+    const update = () => {
+      rect = getRect();
+    };
     window.addEventListener('scroll', update, { capture: true, passive: true });
     window.addEventListener('resize', update, { passive: true });
     return () => {
@@ -68,10 +70,7 @@
   });
 
   let preview = $derived(
-    localText.length > 0
-      ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH) +
-          (localText.length > ANNOTATION_PREVIEW_LENGTH ? '…' : '')
-      : null,
+    localText.length > 0 ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH) : null,
   );
 </script>
 
@@ -87,6 +86,9 @@
   >
     {#if preview}
       <span class="cv-annotation-tab-preview">{preview}</span>
+      {#if localText.length > ANNOTATION_PREVIEW_LENGTH}
+        <span class="cv-annotation-tab-chevron">▾</span>
+      {/if}
     {:else}
       <span class="cv-annotation-tab-icon">{isExpanded ? '- note' : '+ note'}</span>
     {/if}
@@ -109,7 +111,10 @@
               type="button"
               class="cv-corner-btn"
               class:active={localCorner === key}
-              onclick={(e) => { e.stopPropagation(); setCorner(key); }}
+              onclick={(e) => {
+                e.stopPropagation();
+                setCorner(key);
+              }}
               title="Corner {key}"
               aria-label="Corner {key}"
               aria-pressed={localCorner === key}>{icon}</button
@@ -172,8 +177,15 @@
     font-family: ui-sans-serif, system-ui, sans-serif;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     max-width: 130px;
+  }
+
+  .cv-annotation-tab-chevron {
+    font-size: 12px;
+    line-height: 1;
+    color: #6b7280;
+    margin-left: 2px;
   }
 
   .cv-annotation-panel {

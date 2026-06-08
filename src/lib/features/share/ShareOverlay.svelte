@@ -8,6 +8,8 @@
   import { mergeSelectionWithExisting } from '$features/text-highlight/text-highlight-logic';
   import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
   import { DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
+  import { DEFAULT_ANNOTATION_COLOR_KEY, type AnnotationColorKey } from '$features/annotations/annotation-colors';
+  import { TEXT_HIGHLIGHT_CURSORS } from '$features/text-highlight/services/text-highlight-cursors';
 
   let {
     excludedTags = ['HEADER', 'NAV', 'FOOTER'],
@@ -18,17 +20,9 @@
   let excludedIdSet = $derived(new Set(excludedIds));
 
   // ── Highlighter pen cursor ────────────────────────────────────────────────
-  // Maps each color key to a hex value for the SVG pen body fill.
-  const CURSOR_COLORS: Record<string, { body: string; tip: string }> = {
-    yellow: { body: '#facc15', tip: '#a16207' },
-    blue:   { body: '#60a5fa', tip: '#1d4ed8' },
-    red:    { body: '#f87171', tip: '#b91c1c' },
-    green:  { body: '#4ade80', tip: '#15803d' },
-    black:  { body: '#4b5563', tip: '#111827' },
-  };
-
   function buildHighlighterCursor(colorKey: string): string {
-    const c = CURSOR_COLORS[colorKey] ?? CURSOR_COLORS['yellow']!;
+    const safeKey = (TEXT_HIGHLIGHT_CURSORS[colorKey as AnnotationColorKey] ? colorKey : DEFAULT_ANNOTATION_COLOR_KEY) as AnnotationColorKey;
+    const c = TEXT_HIGHLIGHT_CURSORS[safeKey];
     // 28×28 SVG. The pen is drawn upright then rotated +35° around (14,10)
     // so the cap sits upper-right and the chisel nib lands at ≈ (6, 21) —
     // the cursor hot-spot — mimicking a natural hand-held highlighter angle.
@@ -51,7 +45,7 @@
   let highlighterCursor = $derived(
     shareStore.selectionMode === 'highlight'
       ? buildHighlighterCursor(shareStore.selectedTextColor)
-      : ''
+      : '',
   );
 
   $effect(() => {
@@ -204,7 +198,7 @@
           const mergedList = mergeSelectionWithExisting(
             range,
             shareStore.textHighlights,
-            shareStore.selectedTextColor
+            shareStore.selectedTextColor,
           );
 
           if (mergedList !== null) {
@@ -356,8 +350,7 @@
           getRect={() => textHighlightService.getAnchorRect(i) ?? new DOMRect()}
           annotation={desc.annotation ?? ''}
           corner={desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER}
-          onchange={(text, corner) =>
-            shareStore.setTextHighlightAnnotation(i, text, corner)}
+          onchange={(text, corner) => shareStore.setTextHighlightAnnotation(i, text, corner)}
         />
       {/if}
     {/each}

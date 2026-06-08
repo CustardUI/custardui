@@ -28,7 +28,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
       endText: 'here.',
       textHash: 99999, // dummy
       textLength: 22,
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -43,7 +43,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
     });
 
     const { range, verified } = resolveDescriptor(desc);
-    
+
     expect(range).not.toBeNull();
     // Start index of "some" is 17, length is 54
     expect(range?.startOffset).toBe(22); // "some highlighted words right here." starts at index 22
@@ -64,7 +64,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
     });
 
     const { range, verified } = resolveDescriptor(desc);
-    
+
     expect(range).not.toBeNull();
     expect(range?.startContainer.parentElement?.id).toBe('p2');
     expect(range?.startOffset).toBe(0);
@@ -85,7 +85,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
     const expectedHash = hashCode(getStableNormalizedText(document.getElementById('p2')!));
 
     const desc = createMockDescriptor({
-      elementId: undefined, 
+      elementId: undefined,
       containerId: 'main-content',
       containerTag: 'P',
       containerIndex: 1, // originally index 1, but now it's index 2!
@@ -97,7 +97,7 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
     });
 
     const { range, verified } = resolveDescriptor(desc);
-    
+
     expect(range).not.toBeNull();
     // Successfully found the text in p2 even though the index was wrong!
     expect(range?.startContainer.parentElement?.id).toBe('p2');
@@ -107,25 +107,41 @@ describe('text-highlight-resolver: resolveDescriptor', () => {
 
   it('finds text gracefully if whitespace changed inside container (fuzzy search)', () => {
     // Modify p2 to have lots of spaces and line breaks
-    document.getElementById('p2')!.innerHTML = 'Second    paragraph \n\n with   some highlighted words \n right here.';
+    document.getElementById('p2')!.innerHTML =
+      'Second    paragraph \n\n with   some highlighted words \n right here.';
 
     const desc = createMockDescriptor({
       elementId: 'p2',
       startText: 'some highlighted words',
       endText: 'right here.',
-      textLength: 35,
+      textLength: 34,
       // Original text hash without weird spaces
-      textHash: hashCode('some highlighted words right here.'), 
+      textHash: hashCode('some highlighted words right here.'),
     });
 
     const { range, verified } = resolveDescriptor(desc);
-    
+
     expect(range).not.toBeNull();
-    // It should still find the text, though textHash match might fail
-    // verified will be false if the text inside the bounds changed length/hash
-    expect(verified).toBe(false); 
-    // Wait, the rawToNorm / normToRaw fuzzy search will locate the boundaries
-    // We just verify it returns a valid range that captures the text
+    // It should perfectly verify now that the offset math handles normalized whitespace gaps
+    expect(verified).toBe(true);
     expect(range?.toString().replace(/\s+/g, ' ')).toBe('some highlighted words right here.');
+  });
+
+  it('verifies correctly when raw text has extra spaces but endText exactly matches snippet', () => {
+    // This simulates text spanning elements where a space exists in the DOM but not the snippet
+    document.getElementById('p2')!.innerHTML = 'Start text \n\n End text.';
+
+    const desc = createMockDescriptor({
+      elementId: 'p2',
+      startText: 'Start text',
+      endText: 'End text.',
+      textLength: 20,
+      textHash: hashCode('Start text End text.'),
+    });
+
+    const { range, verified } = resolveDescriptor(desc);
+
+    expect(range).not.toBeNull();
+    expect(verified).toBe(true);
   });
 });

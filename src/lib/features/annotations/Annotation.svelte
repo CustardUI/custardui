@@ -8,9 +8,10 @@
   interface Props {
     annotation: string;
     annotationCorner?: AnnotationCorner | undefined;
+    verticalOffset?: number;
   }
 
-  let { annotation, annotationCorner }: Props = $props();
+  let { annotation, annotationCorner, verticalOffset = 14 }: Props = $props();
   const corner = $derived(annotationCorner ?? DEFAULT_ANNOTATION_CORNER);
   const hasText = $derived(annotation.length > 0);
   const isShort = $derived(annotation.length <= ANNOTATION_PREVIEW_LENGTH);
@@ -47,17 +48,7 @@
     if (!isDragging) toggle();
   }
 
-  function onPointerDown(e: PointerEvent) {
-    // Only initiate drag when the pointer starts on the grip handle.
-    if (!(e.target as HTMLElement).closest('.cv-ribbon-grip')) return;
 
-    isPointerDown = true;
-    isDragging = false;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragStartOffsetX = dragOffsetX;
-    dragStartOffsetY = dragOffsetY;
-  }
 
   // Hard clamp so the element can never leave the viewport.
   function clampToViewport(newX: number, newY: number): { x: number; y: number } {
@@ -82,6 +73,29 @@
     return { x, y };
   }
 
+  function onPointerDown(e: PointerEvent) {
+    if (e.button !== 0) return; // Only left click
+
+    const target = e.target as HTMLElement;
+    const isRibbon = target.closest('.cv-annotation-ribbon') !== null;
+    const isHeader = target.closest('.cv-card-header') !== null;
+    const isCloseBtn = target.closest('.cv-card-close') !== null;
+
+    if ((!isRibbon && !isHeader) || isCloseBtn) return;
+
+    isPointerDown = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragStartOffsetX = dragOffsetX;
+    dragStartOffsetY = dragOffsetY;
+
+    try {
+      target.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  }
+
   function onPointerMove(e: PointerEvent) {
     if (!isPointerDown) return;
     const dx = e.clientX - dragStartX;
@@ -89,7 +103,6 @@
 
     if (!isDragging && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
       isDragging = true;
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     }
 
     if (isDragging) {
@@ -105,8 +118,16 @@
     if (!isPointerDown) return;
     isPointerDown = false;
 
+    const target = e.target as HTMLElement;
+    try {
+      if (target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
+        target.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      /* ignore */
+    }
+
     if (isDragging) {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       setTimeout(() => {
         isDragging = false;
       }, 50);
@@ -114,9 +135,19 @@
   }
 
   // Cancel (e.g. touch interrupted by scroll) — reset all drag state cleanly.
-  function onPointerCancel() {
+  function onPointerCancel(e: PointerEvent) {
+    if (!isPointerDown) return;
     isPointerDown = false;
     isDragging = false;
+
+    const target = e.target as HTMLElement;
+    try {
+      if (target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
+        target.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   // Nudge annotation back in-bounds when the viewport shrinks.
@@ -136,14 +167,14 @@
   function getPositionStyle(c: AnnotationCorner): string {
     switch (c) {
       case 'tr':
-        return 'top: -6px; right: -6px;';
+        return `top: -${verticalOffset}px; right: -14px;`;
       case 'bl':
-        return 'bottom: -6px; left: -6px;';
+        return `bottom: -${verticalOffset}px; left: -14px;`;
       case 'br':
-        return 'bottom: -6px; right: -6px;';
+        return `bottom: -${verticalOffset}px; right: -14px;`;
       case 'tl':
       default:
-        return 'top: -6px; left: -6px;';
+        return `top: -${verticalOffset}px; left: -14px;`;
     }
   }
 
@@ -172,54 +203,64 @@
   role="presentation"
 >
   {#if !expanded}
-    <button
-      type="button"
-      class="cv-annotation-ribbon"
-      class:cv-annotation-ribbon--empty={!hasText}
-      class:cv-annotation-ribbon--right={isRightCorner}
-      class:cv-annotation-ribbon--expandable={!isShort}
-      class:cv-annotation-ribbon--intro={!introAnimationDone}
-      class:cv-annotation-ribbon--periodic={introAnimationDone}
-      style="clip-path: {getRibbonClipPath(corner)};"
-      onclick={handleInteraction}
+    <div
+      class="cv-ribbon-wrapper"
+      class:cv-ribbon-wrapper--intro={!introAnimationDone}
+      class:cv-ribbon-wrapper--periodic={introAnimationDone}
       onanimationend={onIntroAnimationEnd}
-      aria-label={hasText ? (isShort ? annotation : 'Expand annotation') : 'Annotation marker'}
-      aria-expanded={isShort ? undefined : expanded}
     >
-      {#if hasText}
-        {#if isRightCorner}
-          <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
-          {#if !isShort}
-            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
-              >▾</span
-            >
-          {/if}
-          <span class="cv-ribbon-text cv-ribbon-text--right">
-            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
-          </span>
-          <span class="cv-ribbon-grip" aria-hidden="true">
-            <span></span><span></span>
-            <span></span><span></span>
-            <span></span><span></span>
-          </span>
-        {:else}
-          <!-- Left-corner: point is RIGHT, flat side is LEFT → grip goes first -->
-          <span class="cv-ribbon-grip" aria-hidden="true">
-            <span></span><span></span>
-            <span></span><span></span>
-            <span></span><span></span>
-          </span>
-          <span class="cv-ribbon-text">
-            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
-          </span>
-          {#if !isShort}
-            <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
-              >▾</span
-            >
+      <div
+        class="cv-ribbon-shadow"
+        class:cv-ribbon-shadow--empty={!hasText}
+        style="clip-path: {getRibbonClipPath(corner)};"
+        aria-hidden="true"
+      ></div>
+      <button
+        type="button"
+        class="cv-annotation-ribbon"
+        class:cv-annotation-ribbon--empty={!hasText}
+        class:cv-annotation-ribbon--right={isRightCorner}
+        class:cv-annotation-ribbon--expandable={!isShort}
+        style="clip-path: {getRibbonClipPath(corner)};"
+        onclick={handleInteraction}
+        aria-label={hasText ? (isShort ? annotation : 'Expand annotation') : 'Annotation marker'}
+        aria-expanded={isShort ? undefined : expanded}
+      >
+        {#if hasText}
+          {#if isRightCorner}
+            <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
+            <span class="cv-ribbon-text cv-ribbon-text--right">
+              {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
+            </span>
+            {#if !isShort}
+              <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
+                >▾</span
+              >
+            {/if}
+            <span class="cv-ribbon-grip" aria-hidden="true">
+              <span></span><span></span>
+              <span></span><span></span>
+              <span></span><span></span>
+            </span>
+          {:else}
+            <!-- Left-corner: point is RIGHT, flat side is LEFT → grip goes first -->
+            <span class="cv-ribbon-grip" aria-hidden="true">
+              <span></span><span></span>
+              <span></span><span></span>
+              <span></span><span></span>
+            </span>
+            <span class="cv-ribbon-text">
+              {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
+            </span>
+            {#if !isShort}
+              <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
+                >▾</span
+              >
+            {/if}
           {/if}
         {/if}
-      {/if}
-    </button>
+      </button>
+    </div>
   {:else}
     <div class="cv-annotation-card" role="region" aria-label="Annotation">
       <button
@@ -256,30 +297,52 @@
   }
 
   /* ==============================
+     WRAPPER & SHADOW
+     ============================== */
+  .cv-ribbon-wrapper {
+    position: relative;
+    transform-origin: center center;
+  }
+
+  .cv-ribbon-wrapper--intro {
+    animation: cv-wiggle-intro 0.75s ease-in-out forwards;
+  }
+
+  .cv-ribbon-wrapper--periodic {
+    animation: cv-wiggle-periodic 5s ease-in-out infinite;
+  }
+
+  .cv-ribbon-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 140px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.25);
+    transform: translate(3px, 3px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .cv-ribbon-shadow--empty {
+    width: 70px;
+  }
+
+  /* ==============================
      RIBBON (home-plate)
      ============================== */
   .cv-annotation-ribbon {
     border: none;
     padding: 6px 20px 6px 8px;
-    min-width: 28px;
-    min-height: 24px;
-    background: var(--cv-box-color);
+    width: 140px;
+    height: 28px;
+    box-sizing: border-box;
+    background: var(--cv-annotation-color, var(--cv-box-color));
     cursor: default;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 5px;
-
-    transform-origin: center center;
-  }
-
-  .cv-annotation-ribbon--intro {
-    animation: cv-wiggle-intro 0.75s ease-in-out forwards;
-  }
-
-  .cv-annotation-ribbon--periodic {
-    animation: cv-wiggle-periodic 5s ease-in-out infinite;
   }
 
   .cv-annotation-ribbon--right {
@@ -288,7 +351,7 @@
   }
 
   .cv-annotation-ribbon--empty {
-    min-width: 24px;
+    width: 70px;
     padding: 6px 16px 6px 8px;
   }
 
@@ -312,9 +375,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 160px;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    flex: 1;
+    min-width: 0;
+    color: #2c2c2c;
   }
 
   .cv-ribbon-text--right {
@@ -326,8 +389,7 @@
     opacity: 1;
     flex-shrink: 0;
     line-height: 1;
-    color: #fff;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    color: #2c2c2c;
   }
 
   .cv-ribbon-chevron--bounce {
@@ -355,8 +417,7 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4);
+    background: rgba(44, 44, 44, 0.8);
   }
 
   /* ==============================
@@ -364,13 +425,14 @@
      ============================== */
   .cv-annotation-card {
     background: #fffdf5;
-    border: 1.5px solid var(--cv-box-color);
+    border: 1.5px solid var(--cv-annotation-color, var(--cv-box-color));
     border-radius: 4px;
     padding: 10px 12px;
     max-width: 280px;
     min-width: 120px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
     position: relative;
+    z-index: 1;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.25);
     animation: cv-cardPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   }
 

@@ -24,8 +24,7 @@ export function resolveDescriptor(desc: TextRangeDescriptor): ResolvedRange {
   // Verify by normalising the raw slice
   const rawSlice = rawText.slice(rawStart, rawEnd);
   const normalised = rawSlice.trim().replace(/\s+/g, ' ');
-  const verified =
-    hashCode(normalised) === desc.textHash && normalised.length === desc.textLength;
+  const verified = hashCode(normalised) === desc.textHash && normalised.length === desc.textLength;
 
   const startPos = rawToNodeOffset(entries, rawStart);
   const endPos = rawToNodeOffset(entries, rawEnd);
@@ -58,8 +57,7 @@ function findContainer(desc: TextRangeDescriptor): HTMLElement | null {
 
   // ── Scope to nearest ancestor id ─────────────────────────────────────────
   const scope: HTMLElement =
-    (desc.containerId ? document.getElementById(desc.containerId) : null) ??
-    document.body;
+    (desc.containerId ? document.getElementById(desc.containerId) : null) ?? document.body;
 
   if (!desc.containerTag) return null;
 
@@ -149,7 +147,10 @@ function findTextSpan(rawText: string, desc: TextRangeDescriptor): RawSpan | nul
   } else {
     // Long selection: endText should appear near rawStart + textLength
     const searchFrom = rawStart + Math.max(0, textLength - endText.length - 5);
-    let found = rawText.indexOf(endText, Math.max(rawStart + startText.length - endText.length, searchFrom));
+    const found = rawText.indexOf(
+      endText,
+      Math.max(rawStart + startText.length - endText.length, searchFrom),
+    );
 
     if (found === -1) {
       // Normalise-both fallback for endText
@@ -159,14 +160,13 @@ function findTextSpan(rawText: string, desc: TextRangeDescriptor): RawSpan | nul
       const normSearchFrom = rawToNorm(rawText, rawSearchFrom);
       const normIdx = normHaystack.indexOf(normNeedle, normSearchFrom);
       if (normIdx !== -1) {
-        found = normToRaw(rawText, normIdx);
+        rawEnd = normToRaw(rawText, normIdx + normNeedle.length);
+      } else {
+        rawEnd = advanceByNormLength(rawText, rawStart, textLength);
       }
+    } else {
+      rawEnd = found + endText.length;
     }
-
-    rawEnd =
-      found !== -1
-        ? found + endText.length
-        : advanceByNormLength(rawText, rawStart, textLength);
   }
 
   return { rawStart, rawEnd: Math.min(rawEnd, rawText.length) };
@@ -186,7 +186,10 @@ function normToRaw(raw: string, normTarget: number): number {
   while (rawIdx < raw.length && normCount < normTarget) {
     const ch = raw[rawIdx]!;
     if (/\s/.test(ch)) {
-      if (!prevWasSpace) { normCount++; prevWasSpace = true; }
+      if (!prevWasSpace) {
+        normCount++;
+        prevWasSpace = true;
+      }
     } else {
       normCount++;
       prevWasSpace = false;
@@ -206,7 +209,10 @@ function rawToNorm(raw: string, rawTarget: number): number {
   while (rawIdx < raw.length && rawIdx < rawTarget) {
     const ch = raw[rawIdx]!;
     if (/\s/.test(ch)) {
-      if (!prevWasSpace) { normCount++; prevWasSpace = true; }
+      if (!prevWasSpace) {
+        normCount++;
+        prevWasSpace = true;
+      }
     } else {
       normCount++;
       prevWasSpace = false;
@@ -228,7 +234,10 @@ function advanceByNormLength(raw: string, rawStart: number, normLen: number): nu
   while (i < raw.length && count < normLen) {
     const ch = raw[i]!;
     if (/\s/.test(ch)) {
-      if (!prevWasSpace) { count++; prevWasSpace = true; }
+      if (!prevWasSpace) {
+        count++;
+        prevWasSpace = true;
+      }
     } else {
       count++;
       prevWasSpace = false;

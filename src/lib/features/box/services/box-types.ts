@@ -1,5 +1,5 @@
 // Extracted shared type to avoid circular dependency
-import { type BoxColorKey } from './box-colors';
+import { type AnnotationColorKey } from '../../annotations/annotation-colors';
 import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 export type RectData = {
@@ -10,7 +10,7 @@ export type RectData = {
   right: number;
   bottom: number;
   element: HTMLElement;
-  color?: BoxColorKey;
+  color?: AnnotationColorKey;
   annotation?: string;
   annotationCorner?: AnnotationCorner;
 };
