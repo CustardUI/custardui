@@ -1,4 +1,4 @@
-import { type AnnotationColorKey, ANNOTATION_COLORS } from '$features/annotations/annotation-colors';
+import { type AnnotationColorKey, ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
 import {
   type AnnotationCorner,
   ANNOTATION_CORNERS,
@@ -58,7 +58,7 @@ function serializeOne(desc: TextRangeDescriptor): string {
   // If endText is identical to startText (short highlights), omit it to prevent duplication
   const e =
     desc.startText === desc.endText ? '' : encodeURIComponent(desc.endText).replace(/%20/g, ' ');
-  const colorSuffix = desc.color && desc.color !== 'yellow' ? FIELD_SEP + desc.color : '';
+  const colorSuffix = desc.color && desc.color !== DEFAULT_ANNOTATION_COLOR_KEY ? FIELD_SEP + desc.color : '';
   const annotationSuffix = buildAnnotationSuffix(desc);
 
   if (desc.elementId) {
@@ -92,7 +92,7 @@ function serializeBase64(desc: TextRangeDescriptor): string {
     tl: desc.textLength,
   };
   if (desc.startText !== desc.endText) obj['e'] = desc.endText;
-  if (desc.color) obj['c'] = desc.color;
+  if (desc.color && desc.color !== DEFAULT_ANNOTATION_COLOR_KEY) obj['c'] = desc.color;
   if (desc.annotation) {
     obj['n'] = desc.annotation;
     obj['nc'] = desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER;

@@ -1,5 +1,5 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
+import { type AnnotationColorKey, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
 import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
@@ -30,7 +30,7 @@ export class ShareStore {
   boxColors = new SvelteMap<HTMLElement, AnnotationColorKey>();
   boxAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
   textHighlights = $state<TextRangeDescriptor[]>([]);
-  selectedTextColor = $state<AnnotationColorKey>('yellow');
+  selectedTextColor = $state<AnnotationColorKey>(DEFAULT_ANNOTATION_COLOR_KEY);
 
   get shareCount() {
     return this.selectionMode === 'highlight'

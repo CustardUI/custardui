@@ -4,7 +4,7 @@ import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { resolveDescriptor } from './text-highlight-resolver';
 import { deserializeTextHighlights } from './text-highlight-serializer';
 import { type TextRangeDescriptor } from './text-highlight-descriptor';
-import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
+import { type AnnotationColorKey, ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
 import { DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
 import Annotation from '$features/annotations/Annotation.svelte';
 
@@ -176,7 +176,7 @@ export class TextHighlightService {
       if (!verified) unverifiedCount++;
       if (!firstRange) firstRange = range;
 
-      const colorKey = desc.color ?? 'yellow';
+      const colorKey = desc.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
 
       if (registry) {
         // CSS Custom Highlight API path
@@ -303,15 +303,9 @@ export class TextHighlightService {
     this.activeAnnotations.push({ range, wrapper });
 
     // Get the color for the box-color CSS variable
-    const colorKey = desc.color ?? 'orange';
-    const colorMap: Record<string, string> = {
-      orange: '#ff9e5e',
-      green: '#e2f073',
-      pink: '#ff7eb3',
-      yellow: '#ffd447',
-      blue: '#7ee0f5',
-    };
-    wrapper.style.setProperty('--cv-annotation-color', colorMap[colorKey] ?? colorMap['orange']!);
+    const colorKey = desc.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    const colorDef = ANNOTATION_COLORS.find((c) => c.key === colorKey) ?? ANNOTATION_COLORS.find((c) => c.key === DEFAULT_ANNOTATION_COLOR_KEY)!;
+    wrapper.style.setProperty('--cv-annotation-color', colorDef.hex);
 
     const component = mount(Annotation, {
       target: wrapper,

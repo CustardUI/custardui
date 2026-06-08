@@ -7,4 +7,4 @@ export const ANNOTATION_COLORS = [
 ] as const;
 
 export type AnnotationColorKey = 'orange' | 'green' | 'pink' | 'yellow' | 'blue';
-export const DEFAULT_ANNOTATION_COLOR_KEY: AnnotationColorKey = 'orange';
+export const DEFAULT_ANNOTATION_COLOR_KEY: AnnotationColorKey = 'yellow';
