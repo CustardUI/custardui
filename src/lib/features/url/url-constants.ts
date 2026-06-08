@@ -3,6 +3,7 @@ export const PARAM_PEEK_TOGGLE = 't-peek';
 export const PARAM_HIDE_TOGGLE = 't-hide';
 export const PARAM_TABS = 'tabs';
 export const PARAM_PH = 'ph';
+export const PARAM_LINK_LABEL = 'link-label';
 
 export const PARAM_CV_SHOW = 'cv-show';
 export const PARAM_CV_HIDE = 'cv-hide';

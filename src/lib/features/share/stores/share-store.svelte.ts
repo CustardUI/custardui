@@ -19,6 +19,7 @@ import {
 import { type TextRangeDescriptor } from '$features/text-highlight/services/text-highlight-descriptor';
 import { serializeTextHighlights } from '$features/text-highlight/services/text-highlight-serializer';
 import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
+import { PARAM_LINK_LABEL } from '$features/url/url-constants';
 
 export type SelectionMode = 'show' | 'hide' | 'box' | 'highlight';
 
@@ -31,6 +32,7 @@ export class ShareStore {
   boxAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
   textHighlights = $state<TextRangeDescriptor[]>([]);
   selectedTextColor = $state<AnnotationColorKey>(DEFAULT_ANNOTATION_COLOR_KEY);
+  linkLabel = $state('');
 
   get shareCount() {
     return this.selectionMode === 'highlight'
@@ -56,6 +58,7 @@ export class ShareStore {
         'cv-share-active-box',
         'cv-share-active-highlight',
       );
+      this.linkLabel = '';
     } else {
       this.isActive = true;
       this.updateBodyClass();
@@ -168,6 +171,7 @@ export class ShareStore {
     this.boxColors.clear();
     this.boxAnnotations.clear();
     this.textHighlights = [];
+    this.linkLabel = '';
     textHighlightService.clear();
     window.getSelection()?.removeAllRanges();
   }
@@ -260,6 +264,8 @@ export class ShareStore {
       url.searchParams.delete('cv-box');
       url.searchParams.set('cv-highlight', serialized);
 
+      this._injectLinkLabel(url);
+
       navigator.clipboard
         .writeText(url.href)
         .then(() => {
@@ -302,6 +308,8 @@ export class ShareStore {
       url.searchParams.set('cv-show', serialized);
     }
 
+    this._injectLinkLabel(url);
+
     // Copy to clipboard
     navigator.clipboard
       .writeText(url.href)
@@ -327,6 +335,8 @@ export class ShareStore {
       url.searchParams.delete('cv-hide');
       url.searchParams.delete('cv-box');
       url.searchParams.set('cv-highlight', serialized);
+
+      this._injectLinkLabel(url);
 
       window.open(url.toString(), '_blank');
       return;
@@ -355,6 +365,8 @@ export class ShareStore {
       url.searchParams.set('cv-show', serialized);
     }
 
+    this._injectLinkLabel(url);
+
     window.open(url.toString(), '_blank');
   }
 
@@ -372,6 +384,15 @@ export class ShareStore {
       }
       return desc;
     });
+  }
+
+  private _injectLinkLabel(url: URL) {
+    if (this.linkLabel.trim()) {
+      const searchParams = new URLSearchParams();
+      searchParams.set(PARAM_LINK_LABEL, this.linkLabel.trim());
+      url.searchParams.forEach((val, key) => searchParams.append(key, val));
+      url.search = searchParams.toString();
+    }
   }
 }
 

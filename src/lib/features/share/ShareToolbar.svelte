@@ -94,6 +94,15 @@
   </span>
 
   <button type="button" class="btn clear" onclick={handleClear}>Clear</button>
+
+  <input
+    type="text"
+    class="label-input"
+    bind:value={shareStore.linkLabel}
+    placeholder="Label Link"
+    aria-label="Optional link label"
+  />
+
   <button type="button" class="btn preview" onclick={handlePreview}>Preview</button>
   <button type="button" class="btn generate" onclick={handleGenerate}>Copy Link</button>
   <button type="button" class="btn exit" onclick={handleExit}>Exit</button>
@@ -168,6 +177,27 @@
     text-align: center;
     font-size: 13px;
     color: #ccc;
+  }
+
+  .label-input {
+    background: #1a1a1a;
+    border: 1px solid #4a4a4a;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    width: 80px;
+    transition: width 0.2s ease, border-color 0.2s ease;
+  }
+
+  .label-input::placeholder {
+    color: #666;
+  }
+
+  .label-input:focus {
+    width: 130px;
+    outline: none;
+    border-color: #0078d4;
   }
 
   .btn {
@@ -250,6 +280,17 @@
       margin: 4px 0;
     }
 
+    .label-input {
+      order: 4;
+      flex: 1;
+      width: auto;
+      min-width: 80px;
+    }
+
+    .label-input:focus {
+      width: auto;
+    }
+
     .btn.clear,
     .btn.preview,
     .btn.generate {
@@ -257,7 +298,7 @@
       text-align: center;
       font-size: 12px;
       padding: 8px 4px;
-      order: 4;
+      order: 5;
     }
 
     .btn.generate {
