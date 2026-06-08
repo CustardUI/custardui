@@ -76,6 +76,7 @@
   let activeTab = $state<'customize' | 'share'>('customize');
 
   let copySuccess = $state(false);
+  let isOverlayMousedown = false;
 
   // Height preservation logic
   let mainClientHeight = $state(0);
@@ -162,8 +163,14 @@
 
 <div
   class="modal-overlay"
-  onclick={(e) => {
-    if (e.target === e.currentTarget) onclose();
+  onmousedown={(e) => {
+    if (e.target === e.currentTarget) isOverlayMousedown = true;
+  }}
+  onmouseup={(e) => {
+    if (isOverlayMousedown && e.target === e.currentTarget) {
+      onclose();
+    }
+    isOverlayMousedown = false;
   }}
   role="presentation"
   transition:fade={{ duration: 200 }}
