@@ -13,7 +13,7 @@ export const BODY_BOX_CLASS = 'cv-box-mode';
 const BOX_OVERLAY_ID = 'cv-box-overlay';
 
 import { type RectData } from './box-types';
-import { type BoxColorKey } from './box-colors';
+import { type AnnotationColorKey } from '../../annotations/annotation-colors';
 import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
@@ -28,7 +28,7 @@ export class BoxService {
   private state = new BoxState();
   private resizeObserver: ResizeObserver;
   private activeTargets: HTMLElement[] = [];
-  private activeColors: Map<HTMLElement, BoxColorKey> = new Map();
+  private activeColors: Map<HTMLElement, AnnotationColorKey> = new Map();
   private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> =
     new Map();
   private onWindowResize = () => this.updatePositions();
@@ -55,7 +55,7 @@ export class BoxService {
     if (!descriptors || descriptors.length === 0) return;
 
     const targets: HTMLElement[] = [];
-    const colors = new Map<HTMLElement, BoxColorKey>();
+    const colors = new Map<HTMLElement, AnnotationColorKey>();
     const annotations = new Map<HTMLElement, { text: string; corner: AnnotationCorner }>();
     descriptors.forEach((desc) => {
       const matchingEls = DomElementLocator.resolve(desc);

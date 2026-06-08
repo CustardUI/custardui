@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type RectData } from '$features/box/services/box-types';
-  import { BOX_COLORS, DEFAULT_COLOR_KEY } from '$features/box/services/box-colors';
+  import { ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
   import Annotation from '$features/annotations/Annotation.svelte';
   import EmptyAnnotation from '$features/annotations/EmptyAnnotation.svelte';
 
@@ -12,8 +12,8 @@
   let rects = $derived(box.rects);
 
   function getColorHex(rect: RectData): string {
-    const key = rect.color ?? DEFAULT_COLOR_KEY;
-    return BOX_COLORS.find((c) => c.key === key)?.hex ?? BOX_COLORS[0]!.hex;
+    const key = rect.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    return ANNOTATION_COLORS.find((c) => c.key === key)?.hex ?? ANNOTATION_COLORS[0]!.hex;
   }
 
   function scrollToRect(rect: RectData) {

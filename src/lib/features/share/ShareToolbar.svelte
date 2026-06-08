@@ -1,7 +1,7 @@
 <script lang="ts">
   import { shareStore } from '$features/share/stores/share-store.svelte';
   import { fly } from 'svelte/transition';
-  import { BOX_COLORS } from '$features/box/services/box-colors';
+  import { ANNOTATION_COLORS } from '$features/annotations/annotation-colors';
 
   function handleClear() {
     shareStore.clearAllSelections();
@@ -64,7 +64,7 @@
 
   {#if shareStore.selectionMode === 'highlight'}
     <div class="cv-hl-swatches" role="group" aria-label="Highlight color">
-      {#each BOX_COLORS as col (col.key)}
+      {#each ANNOTATION_COLORS as col (col.key)}
         <button
           type="button"
           class="cv-hl-swatch"

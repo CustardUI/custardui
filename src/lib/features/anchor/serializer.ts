@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type BoxColorKey, DEFAULT_COLOR_KEY, BOX_COLORS } from '$features/box/services/box-colors';
+import { type AnnotationColorKey, DEFAULT_ANNOTATION_COLOR_KEY, ANNOTATION_COLORS } from '$features/annotations/annotation-colors';
 import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,
@@ -7,7 +7,7 @@ import {
 } from '$features/annotations/annotation-types';
 import { type AnchorDescriptor } from './types';
 
-const COLOR_KEYS = new Set<string>(BOX_COLORS.map((c) => c.key));
+const COLOR_KEYS = new Set<string>(ANNOTATION_COLORS.map((c) => c.key));
 const CORNER_KEYS = new Set<string>(ANNOTATION_CORNERS);
 
 /**
@@ -23,7 +23,7 @@ export function serialize(descriptors: AnchorDescriptor[]): string {
     s: d.textSnippet,
     h: d.textHash,
     id: d.elementId,
-    ...(d.color && d.color !== DEFAULT_COLOR_KEY ? { c: d.color } : {}),
+    ...(d.color && d.color !== DEFAULT_ANNOTATION_COLOR_KEY ? { c: d.color } : {}),
     ...(d.annotationCorner && d.annotationCorner !== DEFAULT_ANNOTATION_CORNER
       ? { nc: d.annotationCorner }
       : {}),
@@ -114,7 +114,7 @@ export function deserialize(encoded: string): AnchorDescriptor[] {
         textHash: m.h,
         elementId: m.id,
       };
-      if (m.c) descriptor.color = m.c as BoxColorKey;
+      if (m.c && COLOR_KEYS.has(m.c)) descriptor.color = m.c as AnnotationColorKey;
       if (m.n) {
         descriptor.annotation = m.n as string;
         descriptor.annotationCorner = (m.nc ?? DEFAULT_ANNOTATION_CORNER) as AnnotationCorner;
@@ -146,7 +146,7 @@ export function parseIds(encoded: string): AnchorDescriptor[] {
     // remainder so it can itself contain encoded colons (%3A).
     const segs = part.split(':');
     let id = part;
-    let color: BoxColorKey | undefined;
+    let color: AnnotationColorKey | undefined;
     let annotation: string | undefined;
     let annotationCorner: AnnotationCorner | undefined;
 
@@ -156,7 +156,7 @@ export function parseIds(encoded: string): AnchorDescriptor[] {
       const colorSeg = segs[1]!;
       const cornerSeg = segs[2]!;
       const noteSeg = segs.slice(3).join(':'); // re-join in case of extra colons
-      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as BoxColorKey;
+      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as AnnotationColorKey;
       annotationCorner = CORNER_KEYS.has(cornerSeg)
         ? (cornerSeg as AnnotationCorner)
         : DEFAULT_ANNOTATION_CORNER;
@@ -170,14 +170,14 @@ export function parseIds(encoded: string): AnchorDescriptor[] {
       id = segs[0]!;
       const colorSeg = segs[1]!;
       const cornerSeg = segs[2]!;
-      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as BoxColorKey;
+      if (COLOR_KEYS.has(colorSeg)) color = colorSeg as AnnotationColorKey;
       if (CORNER_KEYS.has(cornerSeg)) annotationCorner = cornerSeg as AnnotationCorner;
     } else if (segs.length === 2) {
       // "id:color"
       const colorSeg = segs[1]!;
       if (COLOR_KEYS.has(colorSeg)) {
         id = segs[0]!;
-        color = colorSeg as BoxColorKey;
+        color = colorSeg as AnnotationColorKey;
       }
     }
 

@@ -1,4 +1,4 @@
-import { type BoxColorKey } from '$features/box/services/box-colors';
+import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
 import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /** Max characters stored for the start/end text snippet anchors. */
@@ -23,7 +23,7 @@ export interface TextRangeDescriptor {
   textLength: number; // Character count of full normalised selected text
 
   // --- Optional styling ---
-  color?: BoxColorKey;
+  color?: AnnotationColorKey;
 
   // --- Optional annotation ---
   annotation?: string; // Text note attached to this highlight (≤280 chars)

@@ -48,17 +48,7 @@
     if (!isDragging) toggle();
   }
 
-  function onPointerDown(e: PointerEvent) {
-    // Only initiate drag when the pointer starts on the grip handle.
-    if (!(e.target as HTMLElement).closest('.cv-ribbon-grip')) return;
 
-    isPointerDown = true;
-    isDragging = false;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragStartOffsetX = dragOffsetX;
-    dragStartOffsetY = dragOffsetY;
-  }
 
   // Hard clamp so the element can never leave the viewport.
   function clampToViewport(newX: number, newY: number): { x: number; y: number } {
@@ -83,6 +73,27 @@
     return { x, y };
   }
 
+  function onPointerDown(e: PointerEvent) {
+    if (e.button !== 0) return; // Only left click
+
+    const target = e.target as HTMLElement;
+    const isRibbon = target.closest('.cv-annotation-ribbon') !== null;
+    const isHeader = target.closest('.cv-card-header') !== null;
+    const isCloseBtn = target.closest('.cv-card-close') !== null;
+
+    if ((!isRibbon && !isHeader) || isCloseBtn) return;
+
+    isPointerDown = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragStartOffsetX = dragOffsetX;
+    dragStartOffsetY = dragOffsetY;
+
+    try {
+      target.setPointerCapture(e.pointerId);
+    } catch {}
+  }
+
   function onPointerMove(e: PointerEvent) {
     if (!isPointerDown) return;
     const dx = e.clientX - dragStartX;
@@ -90,7 +101,6 @@
 
     if (!isDragging && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
       isDragging = true;
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     }
 
     if (isDragging) {
@@ -106,8 +116,14 @@
     if (!isPointerDown) return;
     isPointerDown = false;
 
+    const target = e.target as HTMLElement;
+    try {
+      if (target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
+        target.releasePointerCapture(e.pointerId);
+      }
+    } catch {}
+
     if (isDragging) {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       setTimeout(() => {
         isDragging = false;
       }, 50);
@@ -115,9 +131,17 @@
   }
 
   // Cancel (e.g. touch interrupted by scroll) — reset all drag state cleanly.
-  function onPointerCancel() {
+  function onPointerCancel(e: PointerEvent) {
+    if (!isPointerDown) return;
     isPointerDown = false;
     isDragging = false;
+
+    const target = e.target as HTMLElement;
+    try {
+      if (target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
+        target.releasePointerCapture(e.pointerId);
+      }
+    } catch {}
   }
 
   // Nudge annotation back in-bounds when the viewport shrinks.

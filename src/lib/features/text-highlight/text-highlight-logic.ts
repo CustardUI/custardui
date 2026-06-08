@@ -1,4 +1,4 @@
-import { type BoxColorKey } from '$features/box/services/box-colors';
+import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
 import { type TextRangeDescriptor, SNIPPET_LENGTH } from './services/text-highlight-descriptor';
 import { resolveDescriptor } from './services/text-highlight-resolver';
 import { hashCode, getStableNormalizedText } from '$features/anchor/stable-text';
@@ -179,7 +179,7 @@ function findAncestorId(el: HTMLElement): string | undefined {
 export function mergeSelectionWithExisting(
   newRange: Range,
   existing: TextRangeDescriptor[],
-  currentColor?: BoxColorKey,
+  currentColor?: AnnotationColorKey,
 ): TextRangeDescriptor[] | null {
   let mergedRange = newRange.cloneRange();
   const keepExisting: TextRangeDescriptor[] = [];

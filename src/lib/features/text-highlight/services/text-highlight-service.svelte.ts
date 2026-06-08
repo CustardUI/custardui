@@ -4,7 +4,7 @@ import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { resolveDescriptor } from './text-highlight-resolver';
 import { deserializeTextHighlights } from './text-highlight-serializer';
 import { type TextRangeDescriptor } from './text-highlight-descriptor';
-import { type BoxColorKey } from '$features/box/services/box-colors';
+import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
 import { DEFAULT_ANNOTATION_CORNER } from '$features/annotations/annotation-types';
 import Annotation from '$features/annotations/Annotation.svelte';
 
@@ -189,7 +189,7 @@ export class TextHighlightService {
         this.hlMap.get(colorKey)!.add(range);
       } else {
         // DOM <mark> fallback
-        this._injectMark(range, colorKey as BoxColorKey);
+        this._injectMark(range, colorKey as AnnotationColorKey);
       }
 
       // Mount annotation overlay if this descriptor has a note
@@ -271,7 +271,7 @@ export class TextHighlightService {
     this.active = false;
   }
 
-  private _injectMark(range: Range, color: BoxColorKey) {
+  private _injectMark(range: Range, color: AnnotationColorKey) {
     try {
       const mark = document.createElement('mark');
       mark.className = `cv-hl-fallback cv-hl-fallback--${color}`;

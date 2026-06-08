@@ -1,6 +1,6 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { type RectData } from './services/box-types';
-import { type BoxColorKey } from './services/box-colors';
+import { type AnnotationColorKey } from '../annotations/annotation-colors';
 import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /**
@@ -43,7 +43,7 @@ export function calculateMergedRects(
   groups: SvelteMap<HTMLElement, HTMLElement[]>,
   getRect: (el: HTMLElement) => SimpleRect,
   getScroll: () => { scrollTop: number; scrollLeft: number },
-  colorMap?: Map<HTMLElement, BoxColorKey>,
+  colorMap?: Map<HTMLElement, AnnotationColorKey>,
   annotationMap?: Map<HTMLElement, { text: string; corner: AnnotationCorner }>,
 ): RectData[] {
   const mergedRects: RectData[] = [];
@@ -130,7 +130,7 @@ export function calculateMergedRects(
 function sameMetadata(
   a: HTMLElement,
   b: HTMLElement,
-  colorMap?: Map<HTMLElement, BoxColorKey>,
+  colorMap?: Map<HTMLElement, AnnotationColorKey>,
   annotationMap?: Map<HTMLElement, { text: string; corner: AnnotationCorner }>,
 ): boolean {
   if ((colorMap?.get(a) ?? undefined) !== (colorMap?.get(b) ?? undefined)) return false;
@@ -147,7 +147,7 @@ function addMergedRect(
   getRect: (el: HTMLElement) => SimpleRect,
   scrollTop: number,
   scrollLeft: number,
-  colorMap?: Map<HTMLElement, BoxColorKey>,
+  colorMap?: Map<HTMLElement, AnnotationColorKey>,
   annotationMap?: Map<HTMLElement, { text: string; corner: AnnotationCorner }>,
 ) {
   if (elements.length === 0) return;
