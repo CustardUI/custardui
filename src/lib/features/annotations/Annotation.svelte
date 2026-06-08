@@ -344,10 +344,10 @@
     line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: clip;
-    max-width: 160px;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+    color: #2c2c2c;
   }
 
   .cv-ribbon-text--right {
@@ -359,8 +359,7 @@
     opacity: 1;
     flex-shrink: 0;
     line-height: 1;
-    color: #fff;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    color: #2c2c2c;
   }
 
   .cv-ribbon-chevron--bounce {
@@ -388,8 +387,7 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4);
+    background: rgba(44, 44, 44, 0.8);
   }
 
   /* ==============================
