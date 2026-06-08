@@ -7,10 +7,7 @@ import FocusDivider from '$features/focus/FocusDivider.svelte';
 import { determineHiddenElements, isElementExcluded, calculateDividerGroups } from '../focus-logic';
 import { SvelteSet } from 'svelte/reactivity';
 
-import {
-  BoxService,
-  BODY_BOX_CLASS,
-} from '$features/box/services/box-service.svelte';
+import { BoxService, BODY_BOX_CLASS } from '$features/box/services/box-service.svelte';
 import {
   PARAM_CV_SHOW,
   PARAM_CV_HIDE,
@@ -113,9 +110,7 @@ export class FocusService {
     }
 
     // Pre-resolve box targets so show/hide modes can account for them
-    const boxTargets = boxDescriptors
-      ? this.boxService.resolveTargets(boxDescriptors)
-      : [];
+    const boxTargets = boxDescriptors ? this.boxService.resolveTargets(boxDescriptors) : [];
 
     // Apply show or hide (mutually exclusive with each other).
     // Pass highlight targets so they are kept visible in show mode / not hidden in hide mode.

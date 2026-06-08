@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  type BoxColorKey,
-  DEFAULT_COLOR_KEY,
-  BOX_COLORS,
-} from '$features/box/services/box-colors';
+import { type BoxColorKey, DEFAULT_COLOR_KEY, BOX_COLORS } from '$features/box/services/box-colors';
 import {
   type AnnotationCorner,
   DEFAULT_ANNOTATION_CORNER,

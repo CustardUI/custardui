@@ -33,7 +33,9 @@ export class ShareStore {
   selectedTextColor = $state<BoxColorKey>('yellow');
 
   get shareCount() {
-    return this.selectionMode === 'highlight' ? this.textHighlights.length : this.selectedElements.size;
+    return this.selectionMode === 'highlight'
+      ? this.textHighlights.length
+      : this.selectedElements.size;
   }
 
   toggleActive(active?: boolean) {
@@ -187,19 +189,16 @@ export class ShareStore {
     }
   }
 
-  setTextHighlightAnnotation(
-    index: number,
-    text: string,
-    corner: AnnotationCorner,
-  ) {
+  setTextHighlightAnnotation(index: number, text: string, corner: AnnotationCorner) {
     const desc = this.textHighlights[index];
     if (!desc) return;
     const trimmed = text.trim();
     const updated = { ...desc };
     if (trimmed.length > 0) {
-      updated.annotation = trimmed.length > MAX_ANNOTATION_LENGTH
-        ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
-        : trimmed;
+      updated.annotation =
+        trimmed.length > MAX_ANNOTATION_LENGTH
+          ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
+          : trimmed;
     } else {
       delete updated.annotation;
     }

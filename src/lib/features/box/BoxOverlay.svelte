@@ -1,9 +1,6 @@
 <script lang="ts">
   import { type RectData } from '$features/box/services/box-types';
-  import {
-    BOX_COLORS,
-    DEFAULT_COLOR_KEY,
-  } from '$features/box/services/box-colors';
+  import { BOX_COLORS, DEFAULT_COLOR_KEY } from '$features/box/services/box-colors';
   import Annotation from '$features/annotations/Annotation.svelte';
   import EmptyAnnotation from '$features/annotations/EmptyAnnotation.svelte';
 
@@ -55,10 +52,7 @@
         </a>
       </div>
       {#if rect.annotation !== undefined && rect.annotation.length > 0}
-        <Annotation
-          annotation={rect.annotation}
-          annotationCorner={rect.annotationCorner}
-        />
+        <Annotation annotation={rect.annotation} annotationCorner={rect.annotationCorner} />
       {:else}
         <EmptyAnnotation annotationCorner={rect.annotationCorner} />
       {/if}
@@ -98,8 +92,7 @@
       inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
     /* DOUBLE LIGHT PROJECTION */
-    filter:
-      drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15))
+    filter: drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15))
       drop-shadow(-8px 12px 10px rgba(44, 26, 14, 0.12))
       drop-shadow(8px 12px 10px rgba(44, 26, 14, 0.12));
 

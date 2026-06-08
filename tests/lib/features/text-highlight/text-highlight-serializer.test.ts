@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { serializeTextHighlights, deserializeTextHighlights } from '$features/text-highlight/services/text-highlight-serializer';
+import {
+  serializeTextHighlights,
+  deserializeTextHighlights,
+} from '$features/text-highlight/services/text-highlight-serializer';
 import { type TextRangeDescriptor } from '$features/text-highlight/services/text-highlight-descriptor';
 
 describe('text-highlight-serializer', () => {
@@ -13,7 +16,7 @@ describe('text-highlight-serializer', () => {
       endText: 'end of snippet',
       textHash: 22222,
       textLength: 100,
-      color: 'blue'
+      color: 'blue',
     };
 
     const serialized = serializeTextHighlights([desc]);
@@ -23,7 +26,7 @@ describe('text-highlight-serializer', () => {
 
     const deserialized = deserializeTextHighlights(serialized);
     expect(deserialized.length).toBe(1);
-    
+
     // Check that it parsed successfully (ignoring containerTag/Index which aren't in elementId format)
     const result = deserialized[0]!;
     expect(result.elementId).toBe('my-para');
@@ -52,7 +55,7 @@ describe('text-highlight-serializer', () => {
 
     const deserialized = deserializeTextHighlights(serialized);
     expect(deserialized.length).toBe(1);
-    
+
     // Check that it successfully cloned startText into endText
     const result = deserialized[0]!;
     expect(result.startText).toBe('short phrase');
@@ -69,7 +72,7 @@ describe('text-highlight-serializer', () => {
       endText: 'bullet point', // test omit here too
       textHash: 55555,
       textLength: 12,
-      color: 'red'
+      color: 'red',
     };
 
     const serialized = serializeTextHighlights([desc]);
@@ -229,5 +232,3 @@ describe('text-highlight-serializer', () => {
     expect(result.annotationCorner).toBe('tl');
   });
 });
-
-

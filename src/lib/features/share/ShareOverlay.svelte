@@ -21,10 +21,10 @@
   // Maps each color key to a hex value for the SVG pen body fill.
   const CURSOR_COLORS: Record<string, { body: string; tip: string }> = {
     yellow: { body: '#facc15', tip: '#a16207' },
-    blue:   { body: '#60a5fa', tip: '#1d4ed8' },
-    red:    { body: '#f87171', tip: '#b91c1c' },
-    green:  { body: '#4ade80', tip: '#15803d' },
-    black:  { body: '#4b5563', tip: '#111827' },
+    blue: { body: '#60a5fa', tip: '#1d4ed8' },
+    red: { body: '#f87171', tip: '#b91c1c' },
+    green: { body: '#4ade80', tip: '#15803d' },
+    black: { body: '#4b5563', tip: '#111827' },
   };
 
   function buildHighlighterCursor(colorKey: string): string {
@@ -51,7 +51,7 @@
   let highlighterCursor = $derived(
     shareStore.selectionMode === 'highlight'
       ? buildHighlighterCursor(shareStore.selectedTextColor)
-      : ''
+      : '',
   );
 
   $effect(() => {
@@ -204,7 +204,7 @@
           const mergedList = mergeSelectionWithExisting(
             range,
             shareStore.textHighlights,
-            shareStore.selectedTextColor
+            shareStore.selectedTextColor,
           );
 
           if (mergedList !== null) {
@@ -356,8 +356,7 @@
           getRect={() => textHighlightService.getAnchorRect(i) ?? new DOMRect()}
           annotation={desc.annotation ?? ''}
           corner={desc.annotationCorner ?? DEFAULT_ANNOTATION_CORNER}
-          onchange={(text, corner) =>
-            shareStore.setTextHighlightAnnotation(i, text, corner)}
+          onchange={(text, corner) => shareStore.setTextHighlightAnnotation(i, text, corner)}
         />
       {/if}
     {/each}

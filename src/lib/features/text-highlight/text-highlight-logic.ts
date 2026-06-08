@@ -5,9 +5,21 @@ import { hashCode, getStableNormalizedText } from '$features/anchor/stable-text'
 
 // Block-level tags we split selections on
 const BLOCK_TAGS = new Set([
-  'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
-  'LI', 'BLOCKQUOTE', 'PRE', 'TD', 'TH',
-  'DIV', 'SECTION', 'ARTICLE',
+  'P',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'LI',
+  'BLOCKQUOTE',
+  'PRE',
+  'TD',
+  'TH',
+  'DIV',
+  'SECTION',
+  'ARTICLE',
 ]);
 
 const BLOCK_SELECTOR =
@@ -18,9 +30,11 @@ const BLOCK_SELECTOR =
  * container the selection intersects.
  */
 export function createDescriptors(selectionOrRange: Selection | Range): TextRangeDescriptor[] {
-  const range = 
-    'rangeCount' in selectionOrRange 
-      ? (selectionOrRange.rangeCount > 0 ? selectionOrRange.getRangeAt(0) : null)
+  const range =
+    'rangeCount' in selectionOrRange
+      ? selectionOrRange.rangeCount > 0
+        ? selectionOrRange.getRangeAt(0)
+        : null
       : selectionOrRange;
 
   if (!range || range.collapsed) return [];
@@ -72,8 +86,7 @@ export function createDescriptors(selectionOrRange: Selection | Range): TextRang
 // ---------------------------------------------------------------------------
 
 function findNearestBlock(node: Node): HTMLElement | null {
-  let cur: Node | null =
-    node.nodeType === Node.TEXT_NODE ? node.parentElement : (node as Element);
+  let cur: Node | null = node.nodeType === Node.TEXT_NODE ? node.parentElement : (node as Element);
   while (cur && cur !== document.body) {
     if (cur instanceof HTMLElement && BLOCK_TAGS.has(cur.tagName)) return cur;
     cur = (cur as HTMLElement).parentElement;
@@ -109,10 +122,7 @@ function clipRangeToElement(range: Range, el: HTMLElement): Range | null {
   }
 }
 
-function descriptorForSubRange(
-  range: Range,
-  container: HTMLElement,
-): TextRangeDescriptor | null {
+function descriptorForSubRange(range: Range, container: HTMLElement): TextRangeDescriptor | null {
   const rawText = range.toString();
   const selectedText = rawText.trim().replace(/\s+/g, ' ');
   if (selectedText.length === 0) return null;
@@ -132,9 +142,7 @@ function descriptorForSubRange(
 
   const startText = selectedText.slice(0, SNIPPET_LENGTH);
   const endText =
-    selectedText.length <= SNIPPET_LENGTH
-      ? startText
-      : selectedText.slice(-SNIPPET_LENGTH);
+    selectedText.length <= SNIPPET_LENGTH ? startText : selectedText.slice(-SNIPPET_LENGTH);
 
   const desc: TextRangeDescriptor = {
     containerTag: container.tagName,
@@ -171,7 +179,7 @@ function findAncestorId(el: HTMLElement): string | undefined {
 export function mergeSelectionWithExisting(
   newRange: Range,
   existing: TextRangeDescriptor[],
-  currentColor?: BoxColorKey
+  currentColor?: BoxColorKey,
 ): TextRangeDescriptor[] | null {
   let mergedRange = newRange.cloneRange();
   const keepExisting: TextRangeDescriptor[] = [];
@@ -185,8 +193,10 @@ export function mergeSelectionWithExisting(
     }
 
     if (rangesOverlapOrTouch(mergedRange, existingRange)) {
-      const newStartsAfterOrAt = mergedRange.compareBoundaryPoints(Range.START_TO_START, existingRange) >= 0;
-      const newEndsBeforeOrAt = mergedRange.compareBoundaryPoints(Range.END_TO_END, existingRange) <= 0;
+      const newStartsAfterOrAt =
+        mergedRange.compareBoundaryPoints(Range.START_TO_START, existingRange) >= 0;
+      const newEndsBeforeOrAt =
+        mergedRange.compareBoundaryPoints(Range.END_TO_END, existingRange) <= 0;
 
       if (newStartsAfterOrAt && newEndsBeforeOrAt) {
         // Complete subset -> ignore new range entirely
@@ -200,7 +210,7 @@ export function mergeSelectionWithExisting(
   }
 
   const mergedDescriptors = createDescriptors(mergedRange);
-  
+
   if (currentColor) {
     mergedDescriptors.forEach((d) => (d.color = currentColor));
   }

@@ -56,7 +56,8 @@ function serializeOne(desc: TextRangeDescriptor): string {
   // serializes it into the final URL, it converts the ' ' into a '+' for readability.
   const s = encodeURIComponent(desc.startText).replace(/%20/g, ' ');
   // If endText is identical to startText (short highlights), omit it to prevent duplication
-  const e = desc.startText === desc.endText ? '' : encodeURIComponent(desc.endText).replace(/%20/g, ' ');
+  const e =
+    desc.startText === desc.endText ? '' : encodeURIComponent(desc.endText).replace(/%20/g, ' ');
   const colorSuffix = desc.color && desc.color !== 'yellow' ? FIELD_SEP + desc.color : '';
   const annotationSuffix = buildAnnotationSuffix(desc);
 

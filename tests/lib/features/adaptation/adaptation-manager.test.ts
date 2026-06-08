@@ -101,7 +101,9 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('/docs');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/docs/versions/fail-id/fail-id.json');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost/docs/versions/fail-id/fail-id.json',
+      );
       expect(localStorage.removeItem).toHaveBeenCalledWith('cv-adaptation');
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('"fail-id" failed to fetch'),
@@ -175,7 +177,9 @@ describe('AdaptationManager', () => {
 
       await AdaptationManager.init('');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/versions/storage-id/storage-id.json');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost/versions/storage-id/storage-id.json',
+      );
     });
 
     it('should handle root baseUrl correctly', async () => {
@@ -238,7 +242,9 @@ describe('AdaptationManager', () => {
       // Should trim trailing slash on base and encode the ID components
       // Should encode the ID components
       const safeId = encodeURIComponent('id/with/slash');
-      expect(global.fetch).toHaveBeenCalledWith(`http://localhost/base/versions/${safeId}/${safeId}.json`);
+      expect(global.fetch).toHaveBeenCalledWith(
+        `http://localhost/base/versions/${safeId}/${safeId}.json`,
+      );
     });
 
     it('should use a custom adaptationsPath when provided', async () => {

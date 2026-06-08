@@ -26,7 +26,11 @@ export class AdaptationManager {
    * @param adaptationsPath Subfolder under baseUrl where adaptation JSON files are stored (default: 'versions')
    * @returns The loaded AdaptationConfig, or null if no adaptation is active
    */
-  static async init(baseUrl = '', storageKey?: string, adaptationsPath = 'versions'): Promise<AdaptationConfig | null> {
+  static async init(
+    baseUrl = '',
+    storageKey?: string,
+    adaptationsPath = 'versions',
+  ): Promise<AdaptationConfig | null> {
     const persistence = new PersistenceManager(storageKey);
 
     // 1. Read indicators (URL hash first, then ?adapt=)
