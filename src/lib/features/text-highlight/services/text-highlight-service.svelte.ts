@@ -119,6 +119,24 @@ export class TextHighlightService {
   private annotationWrappers: HTMLElement[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private annotationComponents: any[] = [];
+  
+  /** Tracks wrappers with their underlying range so they can be repositioned on resize/zoom */
+  private activeAnnotations: { range: Range; wrapper: HTMLElement }[] = [];
+
+  private _resizeListener = () => {
+    requestAnimationFrame(() => this.repositionAnnotations());
+  };
+
+  private repositionAnnotations() {
+    if (!this.active) return;
+    for (const { range, wrapper } of this.activeAnnotations) {
+      const rect = range.getBoundingClientRect();
+      wrapper.style.top = `${rect.top + window.scrollY}px`;
+      wrapper.style.left = `${rect.left + window.scrollX}px`;
+      wrapper.style.width = `${rect.width}px`;
+      wrapper.style.height = `${rect.height}px`;
+    }
+  }
 
   /**
    * Parse an encoded string (from ?cv-highlight=…) and apply highlights.
@@ -183,6 +201,10 @@ export class TextHighlightService {
       showToast('Some highlighted text may have changed since this link was created.');
     }
 
+    if (this.activeAnnotations.length > 0) {
+      window.addEventListener('resize', this._resizeListener, { passive: true });
+    }
+
     this.active = true;
     return firstRange;
   }
@@ -238,6 +260,8 @@ export class TextHighlightService {
     }
     this.annotationComponents = [];
     this.annotationWrappers = [];
+    this.activeAnnotations = [];
+    window.removeEventListener('resize', this._resizeListener);
 
     this.hlMap.clear();
     this.marks = [];
@@ -275,6 +299,7 @@ export class TextHighlightService {
     `;
     document.body.appendChild(wrapper);
     this.annotationWrappers.push(wrapper);
+    this.activeAnnotations.push({ range, wrapper });
 
     // Get the color for the box-color CSS variable
     const colorKey = desc.color ?? 'orange';
