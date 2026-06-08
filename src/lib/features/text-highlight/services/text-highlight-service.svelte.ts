@@ -40,69 +40,24 @@ function createHighlight(): HighlightLike | null {
 
 const HIGHLIGHT_CSS = `
 ::highlight(cv-hl-orange) {
-  background-color: transparent;
+  background-color: rgba(255, 158, 94, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: rgba(230, 130, 70, 0.95);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px rgba(200, 100, 40, 0.45),
-    -5px -2px 10px rgba(200, 100, 40, 0.32),
-    0 0 16px rgba(200, 100, 40, 0.22);
 }
 ::highlight(cv-hl-green) {
-  background-color: transparent;
+  background-color: rgba(226, 240, 115, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: rgba(200, 220, 90, 0.95);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px rgba(170, 190, 60, 0.45),
-    -5px -2px 10px rgba(170, 190, 60, 0.32),
-    0 0 16px rgba(170, 190, 60, 0.22);
 }
 ::highlight(cv-hl-pink) {
-  background-color: transparent;
+  background-color: rgba(255, 126, 179, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: rgba(230, 100, 150, 0.95);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px rgba(200, 70, 120, 0.45),
-    -5px -2px 10px rgba(200, 70, 120, 0.32),
-    0 0 16px rgba(200, 70, 120, 0.22);
 }
 ::highlight(cv-hl-yellow) {
-  background-color: transparent;
+  background-color: rgba(255, 212, 71, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: rgba(230, 190, 50, 0.95);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px rgba(200, 160, 20, 0.45),
-    -5px -2px 10px rgba(200, 160, 20, 0.32),
-    0 0 16px rgba(200, 160, 20, 0.22);
 }
 ::highlight(cv-hl-blue) {
-  background-color: transparent;
+  background-color: rgba(126, 224, 245, 0.45);
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 16px;
-  text-decoration-color: rgba(100, 200, 220, 0.95);
-  text-underline-offset: -12px;
-  text-shadow:
-    5px 2px 10px rgba(70, 170, 190, 0.45),
-    -5px -2px 10px rgba(70, 170, 190, 0.32),
-    0 0 16px rgba(70, 170, 190, 0.22);
 }
 `.trim();
 
@@ -114,29 +69,24 @@ const FALLBACK_CSS = `
   mix-blend-mode: multiply;
 }
 .cv-hl-fallback--orange {
-  background-color: rgba(230, 130, 70, 0.88);
+  background-color: rgba(255, 158, 94, 0.45);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(200, 100, 40, 0.35), -5px -2px 10px rgba(200, 100, 40, 0.25);
 }
 .cv-hl-fallback--green {
-  background-color: rgba(200, 220, 90, 0.88);
+  background-color: rgba(226, 240, 115, 0.45);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(170, 190, 60, 0.35), -5px -2px 10px rgba(170, 190, 60, 0.25);
 }
 .cv-hl-fallback--pink {
-  background-color: rgba(230, 100, 150, 0.88);
+  background-color: rgba(255, 126, 179, 0.45);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(200, 70, 120, 0.35), -5px -2px 10px rgba(200, 70, 120, 0.25);
 }
 .cv-hl-fallback--yellow {
-  background-color: rgba(230, 190, 50, 0.88);
+  background-color: rgba(255, 212, 71, 0.45);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(200, 160, 20, 0.35), -5px -2px 10px rgba(200, 160, 20, 0.25);
 }
 .cv-hl-fallback--blue {
-  background-color: rgba(100, 200, 220, 0.88);
+  background-color: rgba(126, 224, 245, 0.45);
   color: inherit;
-  text-shadow: 5px 2px 10px rgba(70, 170, 190, 0.35), -5px -2px 10px rgba(70, 170, 190, 0.25);
 }
 `.trim();
 
