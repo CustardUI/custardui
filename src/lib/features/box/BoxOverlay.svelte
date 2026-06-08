@@ -4,8 +4,8 @@
     BOX_COLORS,
     DEFAULT_COLOR_KEY,
   } from '$features/box/services/box-colors';
-  import BoxAnnotation from '$features/box/BoxAnnotation.svelte';
-  import BoxEmptyAnnotation from '$features/box/BoxEmptyAnnotation.svelte';
+  import Annotation from '$features/annotations/Annotation.svelte';
+  import EmptyAnnotation from '$features/annotations/EmptyAnnotation.svelte';
 
   interface Props {
     box: { rects: RectData[] };
@@ -55,12 +55,12 @@
         </a>
       </div>
       {#if rect.annotation !== undefined && rect.annotation.length > 0}
-        <BoxAnnotation
+        <Annotation
           annotation={rect.annotation}
           annotationCorner={rect.annotationCorner}
         />
       {:else}
-        <BoxEmptyAnnotation annotationCorner={rect.annotationCorner} />
+        <EmptyAnnotation annotationCorner={rect.annotationCorner} />
       {/if}
     </div>
   {/each}

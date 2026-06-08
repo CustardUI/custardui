@@ -23,14 +23,14 @@
   function getPositionStyle(c: AnnotationCorner): string {
     switch (c) {
       case 'tr':
-        return 'top: 4px; right: -6px;';
+        return 'top: -14px; right: -14px;';
       case 'bl':
-        return 'bottom: 4px; left: -6px;';
+        return 'bottom: -14px; left: -14px;';
       case 'br':
-        return 'bottom: 4px; right: -6px;';
+        return 'bottom: -14px; right: -14px;';
       case 'tl':
       default:
-        return 'top: 4px; left: -6px;';
+        return 'top: -14px; left: -14px;';
     }
   }
 
@@ -102,7 +102,7 @@
   .cv-empty-ribbon {
     min-width: 45px;
     min-height: 22px;
-    background: var(--cv-box-color);
+    background: var(--cv-annotation-color, var(--cv-box-color));
     display: flex;
     align-items: center;
     justify-content: center;

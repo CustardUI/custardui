@@ -8,7 +8,7 @@ import { type BoxColorKey } from '$features/box/services/box-colors';
 import {
   DEFAULT_ANNOTATION_CORNER,
 } from '$features/annotations/annotation-types';
-import BoxAnnotation from '$features/box/BoxAnnotation.svelte';
+import Annotation from '$features/annotations/Annotation.svelte';
 
 // ─── CSS Custom Highlight API ─────────────────────────────────────────────────
 // Use a module-level interface augmentation so we avoid repeated unsafe casts.
@@ -320,9 +320,9 @@ export class TextHighlightService {
     const colorMap: Record<string, string> = {
       yellow: '#facc15', blue: '#60a5fa', red: '#f87171', green: '#4ade80', black: '#4b5563',
     };
-    wrapper.style.setProperty('--cv-box-color', colorMap[colorKey] ?? colorMap['yellow']!);
+    wrapper.style.setProperty('--cv-annotation-color', colorMap[colorKey] ?? colorMap['yellow']!);
 
-    const component = mount(BoxAnnotation, {
+    const component = mount(Annotation, {
       target: wrapper,
       props: {
         annotation: desc.annotation ?? '',

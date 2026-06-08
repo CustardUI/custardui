@@ -136,14 +136,14 @@
   function getPositionStyle(c: AnnotationCorner): string {
     switch (c) {
       case 'tr':
-        return 'top: -6px; right: -6px;';
+        return 'top: -14px; right: -14px;';
       case 'bl':
-        return 'bottom: -6px; left: -6px;';
+        return 'bottom: -14px; left: -14px;';
       case 'br':
-        return 'bottom: -6px; right: -6px;';
+        return 'bottom: -14px; right: -14px;';
       case 'tl':
       default:
-        return 'top: -6px; left: -6px;';
+        return 'top: -14px; left: -14px;';
     }
   }
 
@@ -261,9 +261,10 @@
   .cv-annotation-ribbon {
     border: none;
     padding: 6px 20px 6px 8px;
-    min-width: 28px;
-    min-height: 24px;
-    background: var(--cv-box-color);
+    width: 140px;
+    height: 28px;
+    box-sizing: border-box;
+    background: var(--cv-annotation-color, var(--cv-box-color));
     cursor: default;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: flex;
@@ -288,7 +289,7 @@
   }
 
   .cv-annotation-ribbon--empty {
-    min-width: 24px;
+    width: 70px;
     padding: 6px 16px 6px 8px;
   }
 
@@ -364,7 +365,7 @@
      ============================== */
   .cv-annotation-card {
     background: #fffdf5;
-    border: 1.5px solid var(--cv-box-color);
+    border: 1.5px solid var(--cv-annotation-color, var(--cv-box-color));
     border-radius: 4px;
     padding: 10px 12px;
     max-width: 280px;
