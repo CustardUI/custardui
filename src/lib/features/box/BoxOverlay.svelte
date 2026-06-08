@@ -92,7 +92,7 @@
       inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
     /* CRISP DROP SHADOW */
-    filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.25));
+    filter: drop-shadow(4px 4px 1px rgba(0, 0, 0, 0.25));
 
     animation: boxFadeIn 0.3s ease-out forwards;
   }
