@@ -72,11 +72,11 @@ describe('text-highlight-serializer', () => {
       endText: 'bullet point', // test omit here too
       textHash: 55555,
       textLength: 12,
-      color: 'red',
+      color: 'orange',
     };
 
     const serialized = serializeTextHighlights([desc]);
-    expect(serialized).toBe('c:bullet point::12:parent-div:LI:2:44444:55555:red');
+    expect(serialized).toBe('c:bullet point::12:parent-div:LI:2:44444:55555:orange');
 
     const deserialized = deserializeTextHighlights(serialized);
     expect(deserialized.length).toBe(1);
@@ -86,7 +86,7 @@ describe('text-highlight-serializer', () => {
     expect(result.containerIndex).toBe(2);
     expect(result.startText).toBe('bullet point');
     expect(result.endText).toBe('bullet point');
-    expect(result.color).toBe('red');
+    expect(result.color).toBe('orange');
   });
 
   it('should serialize and deserialize base64 JSON format (short omit)', () => {
