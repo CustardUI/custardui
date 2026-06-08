@@ -91,7 +91,9 @@
 
     try {
       target.setPointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      /* ignore */
+    }
   }
 
   function onPointerMove(e: PointerEvent) {
@@ -121,7 +123,9 @@
       if (target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
         target.releasePointerCapture(e.pointerId);
       }
-    } catch {}
+    } catch {
+      /* ignore */
+    }
 
     if (isDragging) {
       setTimeout(() => {
@@ -141,7 +145,9 @@
       if (target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
         target.releasePointerCapture(e.pointerId);
       }
-    } catch {}
+    } catch {
+      /* ignore */
+    }
   }
 
   // Nudge annotation back in-bounds when the viewport shrinks.
