@@ -69,8 +69,7 @@
 
   let preview = $derived(
     localText.length > 0
-      ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH) +
-          (localText.length > ANNOTATION_PREVIEW_LENGTH ? '…' : '')
+      ? localText.slice(0, ANNOTATION_PREVIEW_LENGTH)
       : null,
   );
 </script>
@@ -87,6 +86,9 @@
   >
     {#if preview}
       <span class="cv-annotation-tab-preview">{preview}</span>
+      {#if localText.length > ANNOTATION_PREVIEW_LENGTH}
+        <span class="cv-annotation-tab-chevron">▾</span>
+      {/if}
     {:else}
       <span class="cv-annotation-tab-icon">{isExpanded ? '- note' : '+ note'}</span>
     {/if}
@@ -172,8 +174,15 @@
     font-family: ui-sans-serif, system-ui, sans-serif;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     max-width: 130px;
+  }
+
+  .cv-annotation-tab-chevron {
+    font-size: 12px;
+    line-height: 1;
+    color: #6b7280;
+    margin-left: 2px;
   }
 
   .cv-annotation-panel {

@@ -189,14 +189,14 @@
       {#if hasText}
         {#if isRightCorner}
           <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
+          <span class="cv-ribbon-text cv-ribbon-text--right">
+            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
+          </span>
           {#if !isShort}
             <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
               >▾</span
             >
           {/if}
-          <span class="cv-ribbon-text cv-ribbon-text--right">
-            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
-          </span>
           <span class="cv-ribbon-grip" aria-hidden="true">
             <span></span><span></span>
             <span></span><span></span>
@@ -210,7 +210,7 @@
             <span></span><span></span>
           </span>
           <span class="cv-ribbon-text">
-            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH) + '…'}
+            {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
           </span>
           {#if !isShort}
             <span class="cv-ribbon-chevron" class:cv-ribbon-chevron--bounce={introAnimationDone}
@@ -311,7 +311,7 @@
     line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     max-width: 160px;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
