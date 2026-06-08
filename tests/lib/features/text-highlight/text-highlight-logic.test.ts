@@ -51,14 +51,12 @@ describe('text-highlight-logic: mergeSelectionWithExisting', () => {
     const existingDescriptors = createDescriptors(range1);
 
     const range2 = getRange('p1', 6, 11); // "world"
-    const merged = mergeSelectionWithExisting(range2, existingDescriptors, 'red');
+    const merged = mergeSelectionWithExisting(range2, existingDescriptors, 'pink');
 
     expect(merged).not.toBeNull();
-    expect(merged?.length).toBe(1);
-
-    // The new descriptor should span the entire merged area (0 to 11)
+    expect(merged!.length).toBe(1);
     expect(merged![0].textLength).toBe(11); // "Hello world".length
-    expect(merged![0].color).toBe('red');
+    expect(merged![0].color).toBe('pink');
   });
 
   it('merges contiguous (touching) highlights correctly', () => {
@@ -79,7 +77,7 @@ describe('text-highlight-logic: mergeSelectionWithExisting', () => {
     const existingDescriptors = createDescriptors(mainRange);
 
     const identicalRange = getRange('p1', 0, 5); // "Hello"
-    const merged = mergeSelectionWithExisting(identicalRange, existingDescriptors, 'black');
+    const merged = mergeSelectionWithExisting(identicalRange, existingDescriptors, 'blue');
 
     // The exact same range is technically a subset. According to the logic:
     // If it's a complete subset (newStartsAfterOrAt && newEndsBeforeOrAt), it ignores it (returns null).

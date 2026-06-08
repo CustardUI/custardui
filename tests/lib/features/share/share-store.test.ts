@@ -78,8 +78,8 @@ describe('ShareStore', () => {
     const el2 = document.createElement('div');
     store.toggleMultipleElements([el1, el2]);
 
-    store.setBoxColor(el1, 'red');
-    expect(store.boxColors.get(el1)).toBe('red');
+    store.setBoxColor(el1, 'pink');
+    expect(store.boxColors.get(el1)).toBe('pink');
     expect(store.boxColors.has(el2)).toBe(false);
 
     store.setAllBoxColors('green');
