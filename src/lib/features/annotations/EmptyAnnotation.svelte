@@ -128,7 +128,7 @@
     width: 70px;
     height: 28px;
     background: rgba(0, 0, 0, 0.25);
-    transform: rotate(-3deg) translate(1px, 4px);
+    transform: translate(3px, 3px);
     pointer-events: none;
     z-index: -1;
   }

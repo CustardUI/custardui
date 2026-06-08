@@ -288,7 +288,7 @@
     width: 140px;
     height: 28px;
     background: rgba(0, 0, 0, 0.25);
-    transform: rotate(-3deg) translate(1px, 4px);
+    transform: translate(3px, 3px);
     pointer-events: none;
     z-index: -1;
   }
@@ -401,8 +401,9 @@
     padding: 10px 12px;
     max-width: 280px;
     min-width: 120px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
     position: relative;
+    z-index: 1;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.25);
     animation: cv-cardPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   }
 

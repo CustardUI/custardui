@@ -91,10 +91,8 @@
       inset 0 1px 2px rgba(129, 73, 25, 0.2),
       inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
-    /* DOUBLE LIGHT PROJECTION */
-    filter: drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15))
-      drop-shadow(-8px 12px 10px rgba(44, 26, 14, 0.12))
-      drop-shadow(8px 12px 10px rgba(44, 26, 14, 0.12));
+    /* CRISP DROP SHADOW */
+    filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.25));
 
     animation: boxFadeIn 0.3s ease-out forwards;
   }
