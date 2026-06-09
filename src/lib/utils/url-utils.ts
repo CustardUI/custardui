@@ -34,12 +34,12 @@ export function hasDangerousProtocol(
 }
 
 /**
- * Sanitizes HTML sourced from cv-tab-header innerHTML or header attribute.
+ * Sanitizes HTML sourced from user input (e.g. cv-tab-header innerHTML, label values).
  * Strips script, style, link, and all inline event handler attributes (on*)
  * and javascript:/vbscript:/data: URLs from href/src/action, preserving safe rich formatting.
  * Uses DOMParser — no external dependencies.
  */
-export function sanitizeTabHeader(rawHtml: string): string {
+export function sanitizeHtml(rawHtml: string): string {
   if (typeof DOMParser === 'undefined') {
     // Return rawHtml if DOMParser is not available (e.g., SSR or node context without jsdom),
     // though in our actual runtime it's browser-only.

@@ -12,6 +12,7 @@
   import { labelRegistryStore } from '../label-registry-store.svelte';
   import { colorSchemeStore } from '$lib/stores/color-scheme-store.svelte';
   import { computeTextColor, resolveColor } from '../label-utils';
+  import { sanitizeHtml } from '$lib/utils/url-utils';
 
   let { name = '', color = '' }: { name?: string; color?: string } = $props();
 
@@ -42,9 +43,16 @@
 </script>
 
 {#if labelDef?.value || hasSlotContent}
+  {#if labelDef?.value}
+    <!-- Inject global stylesheets to support icons (FontAwesome, etc.) inside Shadow DOM -->
+    {#each Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as link ((link as HTMLLinkElement).href)}
+      <link rel="stylesheet" href={(link as HTMLLinkElement).href} />
+    {/each}
+  {/if}
   <span class="cv-label" style:background={bgColor} style:color={textColor}>
     {#if labelDef?.value}
-      {labelDef.value}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html sanitizeHtml(labelDef.value)}
     {:else}
       <slot></slot>
     {/if}

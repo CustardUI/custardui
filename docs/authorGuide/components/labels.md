@@ -129,7 +129,42 @@ Text color (black or white) is auto-computed for contrast against the resolved b
 </variable>
 </include>
 
----
+<br>
+
+### Rich Formatting and Icons
+
+Labels support rich HTML formatting, meaning you can easily include icons or styled text. Global stylesheets (such as Font Awesome) are automatically injected, allowing icon classes to render perfectly.
+
+#### Using Icons via Slot
+
+When you write content directly inside the `<cv-label>` tag, you can include icons in two ways:
+1. **Via MarkBind shortcodes** (when using MarkBind) — MarkBind pre-processes `:fa-solid-icon:` into `<i>` elements. For them to render, you must wrap the slot content with `<md>`. 
+2. **Via direct HTML** — Include Font Awesome `<i>` tags directly.
+
+<include src="codeAndOutput.md" boilerplate >
+<variable name="highlightStyle">html</variable>
+<variable name="code">
+<cv-label name="new" color="g"><md>:fa-solid-star: NEW</md></cv-label>
+<cv-label name="warning" color="y"><strong>⚠ IMPORTANT</strong></cv-label>
+<cv-label name="pro" color="m"><i class="fa-solid fa-crown"></i>  &nbsp; PRO</cv-label>
+</variable>
+</include>
+
+#### Using Icons via Config
+
+If you specify a `value` in `custardui.config.json` or through an adaptation override, it also fully supports HTML. This allows different adaptations to use different icons.
+
+```json
+{
+  "name": "pro",
+  "value": "<i class=\"fa-solid fa-crown\"></i> PRO",
+  "color": "m"
+}
+```
+
+*Note: You must use direct HTML like `<i class="..."></i>` in configuration files, as MarkBind shortcodes are not processed inside JSON.*
+
+
 <br>
 
 ### Adaptation Overrides
