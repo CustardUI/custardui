@@ -15,7 +15,7 @@
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
   import { captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
-  import { sanitizeTabHeader } from '$lib/utils/url-utils';
+  import { sanitizeHtml } from '$lib/utils/url-utils';
 
   //  ID of the tabgroup Group
   let { groupId, stabilizeScroll = true } = $props<{
@@ -139,7 +139,7 @@
       // Check for <cv-tab-header>
       const headerEl = element.querySelector('cv-tab-header');
       if (headerEl) {
-        header = sanitizeTabHeader(headerEl.innerHTML.trim());
+        header = sanitizeHtml(headerEl.innerHTML.trim());
       } else {
         // Attribute syntax — also supports raw HTML (e.g. <i> icons), so sanitize too
         const rawAttrHeader =
@@ -148,7 +148,7 @@
           '';
 
         if (rawAttrHeader) {
-          header = sanitizeTabHeader(rawAttrHeader);
+          header = sanitizeHtml(rawAttrHeader);
         } else {
           // Fallback to tab-id or default
           header = element.getAttribute('tab-id') ? primaryId : `Tab ${index + 1}`;
