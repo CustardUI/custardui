@@ -22,6 +22,7 @@
     captureScrollAnchor,
     restoreScrollAnchor,
   } from '$lib/utils/scroll-utils';
+  import { PARAM_LINK_LABEL } from '$features/url/url-constants';
 
   import ToggleItem from './ToggleItem.svelte';
   import TabGroupItem from './TabGroupItem.svelte';
@@ -81,6 +82,7 @@
   // Height preservation logic
   let mainClientHeight = $state(0);
   let preservedHeight = $state(0);
+  let linkLabel = $state('');
 
   $effect(() => {
     if (!hasCustomizeContent && activeTab === 'customize') {
@@ -128,7 +130,7 @@
   }
 
   async function copyShareUrl() {
-    const url = URLStateManager.generateShareableURL(
+    const rawUrl = URLStateManager.generateShareableURL(
       activeStateStore.state,
       activeStateStore.config,
       {
@@ -137,8 +139,22 @@
         placeholders: elementStore.detectedPlaceholders,
       },
     );
+
+    const urlObj = new URL(rawUrl);
+    const trimmed = linkLabel.trim();
+    if (trimmed) {
+      const existingSearch = urlObj.search.replace(/^\?/, '');
+      const withoutLabel = existingSearch
+        .split('&')
+        .filter((p) => p && p !== PARAM_LINK_LABEL && !p.startsWith(`${PARAM_LINK_LABEL}=`))
+        .join('&');
+      const labelPart = `${PARAM_LINK_LABEL}=${encodeURIComponent(trimmed)}`;
+      urlObj.search = [labelPart, withoutLabel].filter(Boolean).join('&');
+    }
+    const finalUrl = urlObj.toString();
+
     try {
-      await copyToClipboard(url);
+      await copyToClipboard(finalUrl);
       showToast('Link copied to clipboard!');
       copySuccess = true;
       setTimeout(() => {
@@ -331,6 +347,17 @@
             </button>
 
             {#if hasCustomizeContent}
+              <div class="link-label-container">
+                <label for="settings-link-label">Link Label (Optional)</label>
+                <input
+                  type="text"
+                  id="settings-link-label"
+                  class="link-label-input"
+                  bind:value={linkLabel}
+                  placeholder="e.g. default-settings"
+                />
+              </div>
+
               <button type="button" class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
                 <span class="btn-icon">
                   {#if copySuccess}
@@ -829,5 +856,40 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  /* Link Label */
+  .link-label-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 320px;
+    text-align: left;
+    margin-bottom: 0.5rem;
+  }
+
+  .link-label-container label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--cv-text-secondary);
+  }
+
+  .link-label-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--cv-border);
+    background: var(--cv-bg);
+    color: var(--cv-text);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .link-label-input:focus {
+    outline: none;
+    border-color: var(--cv-primary);
+    box-shadow: 0 0 0 2px rgba(62, 132, 244, 0.2);
   }
 </style>

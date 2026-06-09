@@ -19,6 +19,7 @@ import {
 import { type TextRangeDescriptor } from '$features/text-highlight/services/text-highlight-descriptor';
 import { serializeTextHighlights } from '$features/text-highlight/services/text-highlight-serializer';
 import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
+import { PARAM_LINK_LABEL } from '$features/url/url-constants';
 
 export type SelectionMode = 'show' | 'hide' | 'box' | 'highlight';
 
@@ -31,6 +32,7 @@ export class ShareStore {
   boxAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
   textHighlights = $state<TextRangeDescriptor[]>([]);
   selectedTextColor = $state<AnnotationColorKey>(DEFAULT_ANNOTATION_COLOR_KEY);
+  linkLabel = $state('');
 
   get shareCount() {
     return this.selectionMode === 'highlight'
@@ -56,6 +58,7 @@ export class ShareStore {
         'cv-share-active-box',
         'cv-share-active-highlight',
       );
+      this.linkLabel = '';
     } else {
       this.isActive = true;
       this.updateBodyClass();
@@ -168,6 +171,7 @@ export class ShareStore {
     this.boxColors.clear();
     this.boxAnnotations.clear();
     this.textHighlights = [];
+    this.linkLabel = '';
     textHighlightService.clear();
     window.getSelection()?.removeAllRanges();
   }
@@ -253,12 +257,9 @@ export class ShareStore {
       }
 
       const serialized = serializeTextHighlights(this.textHighlights);
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+       
       const url = new URL(window.location.href);
-      url.searchParams.delete('cv-show');
-      url.searchParams.delete('cv-hide');
-      url.searchParams.delete('cv-box');
-      url.searchParams.set('cv-highlight', serialized);
+      this._injectShareParams(url, 'cv-highlight', serialized);
 
       navigator.clipboard
         .writeText(url.href)
@@ -285,22 +286,17 @@ export class ShareStore {
       return;
     }
 
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
 
-    // Clear all potential params first
-    url.searchParams.delete('cv-show');
-    url.searchParams.delete('cv-hide');
-    url.searchParams.delete('cv-box');
-    url.searchParams.delete('cv-highlight');
-
+    let paramKey = 'cv-show';
     if (this.selectionMode === 'hide') {
-      url.searchParams.set('cv-hide', serialized);
+      paramKey = 'cv-hide';
     } else if (this.selectionMode === 'box') {
-      url.searchParams.set('cv-box', serialized);
-    } else {
-      url.searchParams.set('cv-show', serialized);
+      paramKey = 'cv-box';
     }
+
+    this._injectShareParams(url, paramKey, serialized);
 
     // Copy to clipboard
     navigator.clipboard
@@ -321,12 +317,9 @@ export class ShareStore {
       }
 
       const serialized = serializeTextHighlights(this.textHighlights);
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+       
       const url = new URL(window.location.href);
-      url.searchParams.delete('cv-show');
-      url.searchParams.delete('cv-hide');
-      url.searchParams.delete('cv-box');
-      url.searchParams.set('cv-highlight', serialized);
+      this._injectShareParams(url, 'cv-highlight', serialized);
 
       window.open(url.toString(), '_blank');
       return;
@@ -340,20 +333,16 @@ export class ShareStore {
     const descriptors = this._buildDescriptors();
     const serialized = DomElementLocator.serialize(descriptors);
 
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
-    url.searchParams.delete('cv-show');
-    url.searchParams.delete('cv-hide');
-    url.searchParams.delete('cv-box');
-    url.searchParams.delete('cv-highlight');
-
+    let paramKey = 'cv-show';
     if (this.selectionMode === 'hide') {
-      url.searchParams.set('cv-hide', serialized);
+      paramKey = 'cv-hide';
     } else if (this.selectionMode === 'box') {
-      url.searchParams.set('cv-box', serialized);
-    } else {
-      url.searchParams.set('cv-show', serialized);
+      paramKey = 'cv-box';
     }
+
+    this._injectShareParams(url, paramKey, serialized);
 
     window.open(url.toString(), '_blank');
   }
@@ -372,6 +361,32 @@ export class ShareStore {
       }
       return desc;
     });
+  }
+
+  private _injectShareParams(url: URL, paramKey: string, paramValue: string) {
+    const existingSearch = url.search.replace(/^\?/, '');
+    
+    const withoutManaged = existingSearch
+      .split('&')
+      .filter((p) => {
+        if (!p) return false;
+        if (p === 'cv-show' || p.startsWith('cv-show=')) return false;
+        if (p === 'cv-hide' || p.startsWith('cv-hide=')) return false;
+        if (p === 'cv-box' || p.startsWith('cv-box=')) return false;
+        if (p === 'cv-highlight' || p.startsWith('cv-highlight=')) return false;
+        if (p === PARAM_LINK_LABEL || p.startsWith(`${PARAM_LINK_LABEL}=`)) return false;
+        return true;
+      });
+
+    const newParams: string[] = [];
+    const trimmed = this.linkLabel.trim();
+    if (trimmed) {
+      newParams.push(`${PARAM_LINK_LABEL}=${encodeURIComponent(trimmed)}`);
+    }
+
+    newParams.push(`${paramKey}=${encodeURIComponent(paramValue)}`);
+
+    url.search = [...newParams, ...withoutManaged].join('&');
   }
 }
 

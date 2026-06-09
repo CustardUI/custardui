@@ -106,6 +106,31 @@ describe('ShareStore', () => {
     );
   });
 
+  it('should generate link with link-label injected at the front and replace existing ones', async () => {
+    // Set up existing label in URL
+    Object.defineProperty(window, 'location', {
+      value: new URL('http://localhost/?link-label=old-label&t-show=A,B'),
+      writable: true,
+    });
+
+    const el = document.createElement('div');
+    el.id = 'test-id-2';
+    store.toggleElementSelection(el);
+    store.linkLabel = 'new-label';
+
+    vi.spyOn(DomElementLocator, 'createDescriptor').mockReturnValue({
+      type: 'id',
+      val: 'test-id-2',
+    } as unknown as DomElementLocator.AnchorDescriptor);
+    vi.spyOn(DomElementLocator, 'serialize').mockReturnValue('serialized-id-2');
+
+    await store.generateLink();
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      'http://localhost/?link-label=new-label&cv-box=serialized-id-2&t-show=A,B'
+    );
+  });
+
   it('should include metadata in generated link for highlight mode', async () => {
     store.setSelectionMode('box');
 
@@ -159,6 +184,36 @@ describe('ShareStore', () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       expect.stringContaining('cv-highlight=e%3AHello%3AWorld%3A11%3Apara-id%3A1234%3A5678%3Ablue'),
+    );
+  });
+
+  it('should generate text highlight link with link-label injected at the front and replace existing ones', async () => {
+    // Set up existing label in URL
+    Object.defineProperty(window, 'location', {
+      value: new URL('http://localhost/?link-label=old-label&tabs=g1:t1'),
+      writable: true,
+    });
+
+    store.setSelectionMode('highlight');
+    store.linkLabel = 'hl-label';
+    store.textHighlights = [
+      {
+        elementId: 'para-id',
+        containerTag: 'P',
+        containerIndex: 0,
+        containerHash: 1234,
+        startText: 'Hello',
+        endText: 'World',
+        textHash: 5678,
+        textLength: 11,
+        color: 'blue',
+      },
+    ];
+
+    await store.generateLink();
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      'http://localhost/?link-label=hl-label&cv-highlight=e%3AHello%3AWorld%3A11%3Apara-id%3A1234%3A5678%3Ablue&tabs=g1:t1'
     );
   });
 });

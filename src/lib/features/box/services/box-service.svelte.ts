@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable svelte/prefer-svelte-reactivity */
+ 
 import { mount, unmount } from 'svelte';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import { focusStore } from '$features/focus/stores/focus-store.svelte';
