@@ -7,4 +7,9 @@ export const TEXT_HIGHLIGHT_CURSORS: Record<AnnotationColorKey, { body: string; 
   pink: { body: '#f472b6', tip: '#be185d' },
   yellow: { body: '#facc15', tip: '#a16207' },
   blue: { body: '#7dd3fc', tip: '#0369a1' },
+  'classic-yellow': { body: '#fef08a', tip: '#854d0e' },
+  'classic-blue': { body: '#60a5fa', tip: '#1d4ed8' },
+  'classic-green': { body: '#4ade80', tip: '#15803d' },
+  red: { body: '#f87171', tip: '#b91c1c' },
+  black: { body: '#52525b', tip: '#18181b' },
 };

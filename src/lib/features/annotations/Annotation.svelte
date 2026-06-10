@@ -377,7 +377,7 @@
     text-overflow: ellipsis;
     flex: 1;
     min-width: 0;
-    color: #2c2c2c;
+    color: var(--cv-annotation-text-color, #2c2c2c);
   }
 
   .cv-ribbon-text--right {
@@ -389,7 +389,7 @@
     opacity: 1;
     flex-shrink: 0;
     line-height: 1;
-    color: #2c2c2c;
+    color: var(--cv-annotation-text-color, #2c2c2c);
   }
 
   .cv-ribbon-chevron--bounce {
@@ -417,7 +417,7 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: rgba(44, 44, 44, 0.8);
+    background: var(--cv-annotation-text-color, #2c2c2c);
   }
 
   /* ==============================

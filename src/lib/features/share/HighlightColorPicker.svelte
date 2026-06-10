@@ -133,12 +133,12 @@
   }
 
   .cv-color-swatches {
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(5, 16px);
+    gap: 6px;
     background: white;
-    border-radius: 100px;
-    padding: 4px 6px;
+    border-radius: 12px;
+    padding: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     border: 1px solid rgba(0, 0, 0, 0.1);
   }
