@@ -38,28 +38,18 @@ function createHighlight(): HighlightLike | null {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const HIGHLIGHT_CSS = `
-::highlight(cv-hl-orange) {
-  background-color: rgba(255, 158, 94, 0.45);
-  color: inherit;
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
-::highlight(cv-hl-green) {
-  background-color: rgba(226, 240, 115, 0.45);
+
+const HIGHLIGHT_CSS = ANNOTATION_COLORS.map((c) => `
+::highlight(cv-hl-${c.key}) {
+  background-color: ${hexToRgba(c.hex, 0.45)};
   color: inherit;
-}
-::highlight(cv-hl-pink) {
-  background-color: rgba(255, 126, 179, 0.45);
-  color: inherit;
-}
-::highlight(cv-hl-yellow) {
-  background-color: rgba(255, 212, 71, 0.45);
-  color: inherit;
-}
-::highlight(cv-hl-blue) {
-  background-color: rgba(126, 224, 245, 0.45);
-  color: inherit;
-}
-`.trim();
+}`).join('').trim();
 
 const FALLBACK_CSS = `
 .cv-hl-fallback {
@@ -68,26 +58,11 @@ const FALLBACK_CSS = `
   clip-path: polygon(3px 0%, 100% 2px, calc(100% - 3px) 100%, 0% calc(100% - 2px));
   mix-blend-mode: multiply;
 }
-.cv-hl-fallback--orange {
-  background-color: rgba(255, 158, 94, 0.45);
+${ANNOTATION_COLORS.map((c) => `
+.cv-hl-fallback--${c.key} {
+  background-color: ${hexToRgba(c.hex, 0.45)};
   color: inherit;
-}
-.cv-hl-fallback--green {
-  background-color: rgba(226, 240, 115, 0.45);
-  color: inherit;
-}
-.cv-hl-fallback--pink {
-  background-color: rgba(255, 126, 179, 0.45);
-  color: inherit;
-}
-.cv-hl-fallback--yellow {
-  background-color: rgba(255, 212, 71, 0.45);
-  color: inherit;
-}
-.cv-hl-fallback--blue {
-  background-color: rgba(126, 224, 245, 0.45);
-  color: inherit;
-}
+}`).join('')}
 `.trim();
 
 let styleInjected = false;
@@ -306,6 +281,7 @@ export class TextHighlightService {
     const colorKey = desc.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
     const colorDef = ANNOTATION_COLORS.find((c) => c.key === colorKey) ?? ANNOTATION_COLORS.find((c) => c.key === DEFAULT_ANNOTATION_COLOR_KEY)!;
     wrapper.style.setProperty('--cv-annotation-color', colorDef.hex);
+    wrapper.style.setProperty('--cv-annotation-text-color', colorDef.textColor);
 
     const component = mount(Annotation, {
       target: wrapper,

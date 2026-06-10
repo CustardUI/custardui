@@ -309,9 +309,11 @@
   /* ── Swatches ─────────────────────────────────── */
 
   .cv-hl-swatches {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(5, 18px);
     gap: 6px;
     align-items: center;
+    justify-items: center;
   }
 
   .cv-hl-swatch {

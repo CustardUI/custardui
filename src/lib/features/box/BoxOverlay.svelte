@@ -16,6 +16,11 @@
     return ANNOTATION_COLORS.find((c) => c.key === key)?.hex ?? ANNOTATION_COLORS[0]!.hex;
   }
 
+  function getTextColorHex(rect: RectData): string {
+    const key = rect.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    return ANNOTATION_COLORS.find((c) => c.key === key)?.textColor ?? '#2c2c2c';
+  }
+
   function scrollToRect(rect: RectData) {
     rect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -27,7 +32,7 @@
       class="cv-box-group"
       style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-box-color: {getColorHex(
         rect,
-      )};"
+      )}; --cv-annotation-text-color: {getTextColorHex(rect)};"
     >
       <div class="cv-box-marker"></div>
       {#if rects.length > 1}
