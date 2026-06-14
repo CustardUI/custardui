@@ -21,11 +21,12 @@
   * [Share Modes]({{baseUrl}}/authorGuide/focusedViews/shareModes.html)
   * [Show and Hide]({{baseUrl}}/authorGuide/focusedViews/showHideModes.html)
   * [Highlighting Pages]({{baseUrl}}/authorGuide/focusedViews/highlightModes.html)
-* [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
-* Site Adaptations
+* Site Adaptations :expanded:
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
+  * [Insertions]({{baseUrl}}/authorGuide/adaptations/insertions.html)
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
+* [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
       </site-nav>
     </div>
   </nav>

@@ -2,6 +2,8 @@ import { getScriptAttributes, fetchConfig } from '$lib/utils/init-utils';
 import { initUIManager } from '$lib/app/ui-manager';
 import { AppRuntime, type RuntimeOptions } from '$lib/runtime.svelte';
 import { AdaptationManager } from '$features/adaptation/adaptation-manager';
+import { InsertionLoader } from '$features/insertion/insertion-loader';
+import { insertionStore } from '$features/insertion/insertion-store.svelte';
 import '$lib/registry';
 
 // --- No Public API Exports ---
@@ -46,6 +48,20 @@ export function initializeFromScript(): void {
       if (adaptationConfig?.id) {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
       }
+
+      // Load adopter insertions (parallel concern to adaptation theme / preset).
+      // Fetch is fire-and-go before AppRuntime.start() so cv-insertion elements
+      // have data on first mount without needing a second render cycle.
+      const insertionMap = await InsertionLoader.init(
+        effectiveBaseURL,
+        adaptationConfig,
+        configFile.adaptationsPath,
+      );
+      insertionStore.init(
+        insertionMap,
+        adaptationConfig?.name ?? adaptationConfig?.id ?? null,
+        adaptationConfig !== null,
+      );
 
       const coreOptions: RuntimeOptions = {
         configFile,

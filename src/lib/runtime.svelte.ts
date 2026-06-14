@@ -232,7 +232,11 @@ export class AppRuntime {
     // Skip our own custom elements to avoid unnecessary scanning
     if (node.nodeType === Node.ELEMENT_NODE) {
       const el = node as HTMLElement;
-      if (el.tagName === 'CV-PLACEHOLDER' || el.tagName === 'CV-PLACEHOLDER-INPUT') {
+      if (
+        el.tagName === 'CV-PLACEHOLDER' ||
+        el.tagName === 'CV-PLACEHOLDER-INPUT' ||
+        el.tagName === 'CV-INSERTION'
+      ) {
         return;
       }
     }

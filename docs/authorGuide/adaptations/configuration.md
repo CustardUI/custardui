@@ -16,6 +16,7 @@
 {
   "id": "org-a",
   "name": "Organization A",
+  "insertionsFile": "insertions.html",
   "theme": {
     "cssVariables": {
       "--cv-primary": "#003d7c",
@@ -40,7 +41,8 @@
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | **Yes** | Must exactly match the filename and the `?adapt=` value. |
-| `name` | `string` | No | Human-readable name (reserved for future UI use). |
+| `name` | `string` | No | Human-readable name shown as the attribution label in `<cv-insertion>` callouts. |
+| `insertionsFile` | `string` | No | Filename of the adopter insertions file within the adaptation folder. Defaults to `insertions.html`. See [Insertions](./insertions.html). |
 | `theme` | `object` | No | CSS overrides applied immediately on activation. |
 | `preset` | `object` | No | State overrides applied before persisted user choices. |
 
