@@ -10,6 +10,8 @@ import '$features/placeholder/PlaceholderInput.svelte';
 
 import '$features/labels/components/Label.svelte';
 
+import '$features/insertion/Insertion.svelte';
+
 // Note: Svelte components register themselves upon import.
 // importing the components registers them as custom elements
 // triggers component compilation and custom element registration.
