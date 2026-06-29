@@ -43,13 +43,13 @@ When the active adaptation has a matching block in its `insertions.html`, the `<
 </cv-insertion>
 ```
 
-> `insertion-id` attribute is used for the lookup key for the `<cv-insertion insertion-id="...">` element, while the matching `<div id="...">` block in `insertion.html` uses `id` as the lookup key. This is because standard `id` attributes must be unique per page. This allows you to safely reuse the same insertion point multiple times without breaking HTML validation or browser anchor routing.
+> `insertion-id` attribute is used for the lookup key for the `<cv-insertion insertion-id="...">` element, while the matching `<div id="...">` block in `insertions.html` uses `id` as the lookup key. This is because standard `id` attributes must be unique per page. This allows you to safely reuse the same insertion point multiple times without breaking HTML validation or browser anchor routing.
 
 ### `insertions.html` Format
 
 Each adopter creates an `insertions.html` file in their adaptation folder. Each `<div id="...">` element defines one injection block — the `id` is the lookup key and the `innerHTML` is what gets rendered.
 
-**`insertion.html` / `insertion.md` (for static site generators like MarkBind)** 
+**`insertions.html` / `insertions.md` (for static site generators like MarkBind)**
 
 ```html
 <!-- versions/org-a/insertions.html -->
