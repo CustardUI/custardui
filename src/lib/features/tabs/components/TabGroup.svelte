@@ -298,8 +298,8 @@
   {/if}
 
   <!-- Inject global stylesheets to support icons (FontAwesome, etc.) inside Shadow DOM -->
-  {#each Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as link ((link as HTMLLinkElement).href)}
-    <link rel="stylesheet" href={(link as HTMLLinkElement).href} />
+  {#each Array.from(new Set(Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map(l => (l as HTMLLinkElement).href))) as href (href)}
+    <link rel="stylesheet" {href} />
   {/each}
 
   <!-- Content i.e. tab elements -->

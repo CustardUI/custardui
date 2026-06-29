@@ -52,11 +52,14 @@ export function initializeFromScript(): void {
       // Load adopter insertions (parallel concern to adaptation theme / preset).
       // Fetch is fire-and-go before AppRuntime.start() so cv-insertion elements
       // have data on first mount without needing a second render cycle.
-      const insertionMap = await InsertionLoader.init(
-        effectiveBaseURL,
-        adaptationConfig,
-        configFile.adaptationsPath,
-      );
+      let insertionMap = null;
+      if (document.querySelector('cv-insertion')) {
+        insertionMap = await InsertionLoader.init(
+          effectiveBaseURL,
+          adaptationConfig,
+          configFile.adaptationsPath,
+        );
+      }
       insertionStore.init(
         insertionMap,
         adaptationConfig?.name ?? adaptationConfig?.id ?? null,
