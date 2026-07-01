@@ -95,13 +95,16 @@
 
   <button type="button" class="btn clear" onclick={handleClear}>Clear</button>
 
-  <input
-    type="text"
-    class="label-input"
-    bind:value={shareStore.linkLabel}
-    placeholder="Label Link"
-    aria-label="Optional link label"
-  />
+  <label class="label-wrapper">
+    <span class="label-text">Label:</span>
+    <input
+      type="text"
+      class="label-input"
+      bind:value={shareStore.linkLabel}
+      placeholder="Optional link label"
+      aria-label="Optional link label"
+    />
+  </label>
 
   <button type="button" class="btn preview" onclick={handlePreview}>Preview</button>
   <button type="button" class="btn generate" onclick={handleGenerate}>Copy Link</button>
@@ -179,25 +182,44 @@
     color: #ccc;
   }
 
-  .label-input {
+  .label-wrapper {
+    display: flex;
+    align-items: center;
     background: #1a1a1a;
     border: 1px solid #4a4a4a;
-    color: #fff;
-    padding: 5px 8px;
     border-radius: 4px;
+    padding: 2px 2px 2px 8px;
     font-size: 13px;
-    width: 80px;
-    transition: width 0.2s ease, border-color 0.2s ease;
+    transition: all 0.2s ease;
+  }
+
+  .label-wrapper:focus-within {
+    border-color: #0078d4;
+    box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+  }
+
+  .label-text {
+    color: #888;
+    pointer-events: none;
+  }
+
+  .label-input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 4px 6px;
+    width: 70px;
+    font-size: 13px;
+    outline: none;
+    transition: width 0.2s ease;
   }
 
   .label-input::placeholder {
-    color: #666;
+    color: #555;
   }
 
   .label-input:focus {
-    width: 130px;
-    outline: none;
-    border-color: #0078d4;
+    width: 120px;
   }
 
   .btn {
