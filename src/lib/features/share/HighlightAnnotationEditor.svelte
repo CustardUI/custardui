@@ -144,9 +144,10 @@
   }
 
   .cv-annotation-tab {
-    height: 20px;
-    padding: 0 8px;
-    border-radius: 100px;
+    height: auto;
+    min-height: 24px;
+    padding: 4px 10px;
+    border-radius: 12px;
     border: 1.5px solid rgba(0, 0, 0, 0.18);
     background: white;
     cursor: pointer;
@@ -175,21 +176,28 @@
   }
 
   .cv-annotation-tab-preview {
-    font-size: 9px;
-    font-weight: 600;
-    color: #1a1a1a;
-    font-family: ui-sans-serif, system-ui, sans-serif;
-    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2c2c2c;
+    font-family: 'Segoe Print', 'Bradley Hand', 'Chilanka', cursive;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
     overflow: hidden;
-    text-overflow: clip;
-    max-width: 130px;
+    word-break: break-word;
+    line-height: 1.15;
+    text-align: left;
+    flex: 1;
+    min-width: 0;
   }
 
   .cv-annotation-tab-chevron {
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1;
     color: #6b7280;
     margin-left: 2px;
+    flex-shrink: 0;
   }
 
   .cv-annotation-panel {

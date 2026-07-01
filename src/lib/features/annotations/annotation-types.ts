@@ -24,4 +24,4 @@ export const DEFAULT_ANNOTATION_CORNER: AnnotationCorner = 'tl';
 export const MAX_ANNOTATION_LENGTH = 280;
 
 /** Characters shown in the collapsed ribbon preview. */
-export const ANNOTATION_PREVIEW_LENGTH = 12;
+export const ANNOTATION_PREVIEW_LENGTH = 36;
