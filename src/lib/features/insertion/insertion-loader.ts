@@ -96,7 +96,6 @@ export class InsertionLoader {
 
   /**
    * Parses an HTML string and extracts `<div id="...">` blocks into an InsertionMap.
-   * Also reads an optional `label` attribute on each div for per-insertion attribution.
    * Uses the browser's `DOMParser` for safe, standards-compliant parsing.
    */
   private static parseInsertions(html: string): InsertionMap {
@@ -110,12 +109,14 @@ export class InsertionLoader {
       divs.forEach((div) => {
         const insertionId = div.id;
         if (insertionId) {
-          const labelAttr = div.getAttribute('label');
           const colorAttr = div.getAttribute('color');
+          const alignAttr = div.getAttribute('align');
+          const outlineAttr = div.getAttribute('outline');
           map[insertionId] = {
             content: div.innerHTML,
-            ...(labelAttr ? { label: labelAttr } : {}),
             ...(colorAttr ? { color: colorAttr } : {}),
+            ...(alignAttr ? { align: alignAttr } : {}),
+            ...(outlineAttr ? { outline: outlineAttr } : {}),
           };
         }
       });

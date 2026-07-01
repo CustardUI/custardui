@@ -14,26 +14,25 @@
 
 **Insertions** let adopters inject their own content at specific points in site pages — without modifying the original source. They are ideal for institution-specific preambles, deadline reminders, or notes before exercises that the original site author has designated as injectable.
 
-**View as:** [NUS](./insertions.html?adapt=nus) · [Reset](./insertions.html?adapt=clear)
+**View Adaptations:** [NUS](./insertions.html?adapt=nus) · [Reset to Default](./insertions.html?adapt=clear)
 
 <include src="codeAndOutput.md" boilerplate >
 <variable name="highlightStyle">html</variable>
 <variable name="code">
 <cv-insertion insertion-id="week1-preamble">
-
-*No institution-specific note for this section.*
-
+ <md>*No note for this section.*</md>
 </cv-insertion>
 
-<cv-insertion insertion-id="week2-preamble">
+<cv-insertion insertion-id="week2-preamble" align="justify" default-style="none">
 
-*No institution-specific note for this section.*
-
+*No note for this section.*
 </cv-insertion>
+
+<cv-insertion insertion-id="week3-note" outline="solid"/>
 </variable>
 </include>
 
-When the active adaptation has a matching block in its `insertions.html`, the `<cv-insertion>` element renders it as a styled adopter callout. When there is no matching block — or no adaptation is active — the **default slot content** (children) is shown instead.
+When the active adaptation has a matching block in its `insertions.html`, the `<cv-insertion>` element renders it as a styled adopter callout. When there is no matching block — or no adaptation is active — the **default slot content** (children) is shown instead. By default, this fallback content is also rendered inside the same styled callout box to prevent layout shifts. The styling can be disabled.
 
 ### Basic Syntax
 
@@ -43,9 +42,9 @@ When the active adaptation has a matching block in its `insertions.html`, the `<
 </cv-insertion>
 ```
 
-> `insertion-id` attribute is used for the lookup key for the `<cv-insertion insertion-id="...">` element, while the matching `<div id="...">` block in `insertions.html` uses `id` as the lookup key. This is because standard `id` attributes must be unique per page. This allows you to safely reuse the same insertion point multiple times without breaking HTML validation or browser anchor routing.
+> `insertion-id` attribute is used as the lookup key for the matching `id` of the `<div id="...">` block in `insertions.html`. As `id` should be unique per page, this allows safe reuse of insertion points multiple times across a page.
 
-### `insertions.html` Format
+### Source `insertions.html` Format
 
 Each adopter creates an `insertions.html` file in their adaptation folder. Each `<div id="...">` element defines one injection block — the `id` is the lookup key and the `innerHTML` is what gets rendered.
 
@@ -55,14 +54,14 @@ Each adopter creates an `insertions.html` file in their adaptation folder. Each 
 <!-- versions/org-a/insertions.html -->
 <div id="week1-preamble">
   <p>
-    <strong>NUS CS2103T students:</strong> Before starting this section, make sure you have
+    <strong>Students:</strong> Before starting this section, make sure you have
     accepted the GitHub Classroom invitation and set up your individual project repository.
     Refer to the course schedule for this week's exact deadline.
   </p>
 </div> 
 
 <!-- versions/org-a/insertions.md (for MarkBind or SSGs):-->
-<div id="week2-preamble" label="week 2" color="#ef4444">
+<div id="week2-preamble" color="#ef4444">
 
 Complete this right after Week 1's tasks. This exercise is **examinable** —
 ensure you understand each step before proceeding.
@@ -70,29 +69,38 @@ ensure you understand each step before proceeding.
 </div>
 ```
 
+<cv-insertion default-badge="org-a">
+  <p>
+    <strong>Students:</strong> Before starting this section, make sure you have
+    accepted the GitHub Classroom invitation and set up your individual project repository.
+    Refer to the course schedule for this week's exact deadline.
+  </p>
+</cv-insertion>
+
+<cv-insertion color="#ef4444" default-badge="org-a">
+
+Complete this right after Week 1's tasks. This exercise is **examinable** —
+ensure you understand each step before proceeding.
+
+</cv-insertion>
+
 The `insertion-id` links the tag to a `<div id="...">` in the adopter's `insertions.html`. When a match is found, the adopter's HTML replaces the default slot content and is wrapped in a labelled callout block.
 
-<box type="info">
+* Only `<div id="...">` elements are parsed in `insertion.html`. Other elements (paragraphs, comments, etc.) not contained in these `div` elements are ignored.
+* You can include any HTML inside the `<div>` blocks: paragraphs, lists, bold text, links, etc.
 
-Only `<div id="...">` elements are extracted — at any depth in the file. Other top-level elements (paragraphs, comments, etc.) are ignored.
-
-</box>
-
-<box type="tip">
-
-You can include any HTML inside the `<div>` blocks: paragraphs, lists, bold text, links, etc. The content is rendered as-is inside the adopter callout.
-
-</box>
 
 ### Attributes of `<cv-insertion>`
 
-| Name           | Type     | Default      | Description |
-| -------------- | -------- | ------------ | ----------- |
-| `insertion-id` | `string` | **required** | The lookup key. Must match the `id` attribute of a `<div>` in the active adaptation's `insertions.html`. |
-| `label`        | `string` | —            | Attribution label shown in the callout header. Takes highest precedence, overriding both the `<div>` attribute and the adaptation `name` config. |
-| `color`        | `string` | —            | Custom color for the insertion callout (e.g. `#ef4444`). Takes highest precedence, overriding both the `<div>` attribute and the adaptation `--cv-primary` theme. |
-
-**Slot (default content):** Any children inside `<cv-insertion>` are rendered when no adaptation is active, or when the active adaptation has no matching `id` in its `insertions.html`.
+| Name           | Type      | Default      | Description |
+| -------------- | --------- | ------------ | ----------- |
+| `insertion-id` | `string`  | —            | The lookup key. Must match the `id` attribute of a `<div>` in the active adaptation's `insertions.html`. If omitted, the element acts as a static UI component that is never replaced. |
+| `color`        | `string`  | —            | Custom color for the inserted callout (e.g. `#ef4444`). Takes highest precedence, overriding the `<div>` attribute. |
+| `align`        | `string`  | —            | Text alignment for both the injected content and the fallback slot (`left`, `center`, `right`, or `justify`). |
+| `hide-badge`   | `boolean` | `false`      | When present, the attribution badge ("inserted for version...") is completely hidden. |
+| `outline`      | `string`  | `"dashed"`   | Border style for the callout box (`dashed`, `solid`, or `none`). Applies to both default content and adaptation content. |
+| `default-style`| `string`  | `"callout"`  | How the default slot content is styled when no adaptation matches (`callout` or `none`). Does not apply when adaptations are active. |
+| `default-badge`| `string`  | —            | Badge text to show when rendering the default slot as a callout (e.g. `Base Version`). Does not apply when adaptations are active. |
 
 <br>
 
@@ -101,34 +109,36 @@ You can include any HTML inside the `<div>` blocks: paragraphs, lists, bold text
 | Name    | Type     | Default      | Description |
 | ------- | -------- | ------------ | ----------- |
 | `id`    | `string` | **required** | The lookup key. Must match the `insertion-id` of a `<cv-insertion>` tag. |
-| `label` | `string` | —            | Attribution label shown in the callout header. Overrides the adaptation's `name` config, but is overridden by the `<cv-insertion>` tag's `label` attribute. |
-| `color` | `string` | —            | Custom color for the callout (e.g. `#ef4444`). Overrides the adaptation's `--cv-primary` theme, but is overridden by the `<cv-insertion>` tag's `color` attribute. |
+| `color` | `string` | —            | Custom color for the callout (e.g. `#ef4444`). Overridden by the `<cv-insertion>` tag's `color` attribute. |
+| `align` | `string` | —            | Text alignment for the injected content (`left`, `center`, `right`, or `justify`). Overridden by the `<cv-insertion>` tag's `align` attribute. |
+| `outline` | `string` | —            | Border style for the callout box (`dashed`, `solid`, or `none`). Overridden by the `<cv-insertion>` tag's `outline` attribute. |
 
 
-### With Attribution Label
+### Component Rendering Behavior
 
-Use the `label` attribute to override the attribution label shown in the callout header for a specific insertion point. When omitted, the label defaults to the adaptation's `name` field from its JSON config.
+The `<cv-insertion>` component behaves differently depending on the context:
 
-### With Custom Color
+1. **Default / No Active Adaptation**: When viewing the base site, the default content is rendered.
+1. **Active Adaptation** with _Matching `<div id>` in `insertions.html`_: `Div` content is rendered inside the callout box.
+1. **Active Adaptation** with _No Matching `insertion-id` to `<div id>`_: If an adaptation is active, but its `insertions.html` does not contain a `div` element with `id` corresponding to the `insertion-id`, nothing is rendered.
 
-Use the `color` attribute to override the color of the callout box and its label. This is useful for color-coding specific insertions (e.g. red for deadlines, green for tips). You can provide any valid CSS color, including hex codes like `#ef4444`.
+Alternatively, to use `<cv-insertion>` as a **pure UI element** that is never replaced, omit the `insertion-id` attribute. In this case, the component acts as a static UI wrapper that is never replaced, and will always render its default content across all adaptations.
 
-```html
-<cv-insertion insertion-id="exercise-1-preamble" color="#ef4444">
-  Default content shown when no insertion matches.
-</cv-insertion>
-```
 
-When omitted, the color defaults to the active adaptation's `--cv-primary` theme color.
+### Default Content in Insertions
 
-### No Default Content
+When the default content is displayed, it is rendered inside a styled callout box by default (`default-style="callout"`) so that the visual layout remains consistent with the adaptations. You can disable this by setting `default-style="none"` to render the fallback content completely unstyled/inline.
 
-If an insertion point has no meaningful default, you can use a self-closing tag. The element renders nothing when no matching block is found:
+
+**Setting no default content**: If an insertion point has no meaningful default, you can use a self-closing tag. The element automatically renders nothing when there is no active adaptation enabled.
 
 ```html
 <cv-insertion insertion-id="week3-note" />
 ```
 
+<cv-insertion insertion-id="week3-note"/>
+
+**View in Adaptation:** [NUS](./insertions.html?adapt=nus#default-content-in-insertions) · [Reset to Default](./insertions.html?adapt=clear#default-content-in-insertions)
 
 ## File Placement
 
@@ -191,7 +201,7 @@ The `insertionsFile` field is optional and belongs at the top level of the adapt
 }
 ```
 
-The `name` field is used as the default attribution label in all `<cv-insertion>` callout headers for this adaptation (unless overridden per-tag via `name` attribute).
+The `name` field is used as the attribution label in all `<cv-insertion>` callout badges for this adaptation.
 
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -206,6 +216,6 @@ See [Adaptation Configuration](./configuration.html) for the full JSON schema.
 * **Insertion not showing?** Check that the `insertion-id` attribute on the tag exactly matches the `id` attribute on the `<div>` in `insertions.html` (case-sensitive).
 * **Default content showing instead of adopter block?** Verify that the adaptation is active (`#/id` in the URL or `?adapt=id`), and that `insertions.html` is accessible at the expected path.
 * **No content at all?** If neither the adopter block nor the default slot content appears, ensure the `<cv-insertion>` tag has children for the fallback case, or check browser network tools to confirm the insertions file was fetched.
-* **Wrong attribution label?** Set the `name` field in the adaptation's JSON config, or override it per-tag with the `label` attribute on `<cv-insertion>`.
+* **Wrong attribution label?** Set the `name` field in the adaptation's JSON config.
 
 <br>

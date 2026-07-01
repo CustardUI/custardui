@@ -5,19 +5,24 @@ export interface InsertionEntry {
   /** The raw HTML content of the div block. */
   content: string;
   /**
-   * Optional per-insertion label from the `label` attribute on the div.
-   * Overrides the adaptation-level `name` in the callout header.
-   *
-   * Example: `<div id="week1-preamble" label="Week 1 – NUS">`
-   */
-  label?: string;
-  /**
    * Optional per-insertion color from the `color` attribute on the div.
    * Sets the callout's border and background hue.
    * 
    * Example: `<div id="week1-preamble" color="#ef4444">`
    */
   color?: string;
+  /**
+   * Optional per-insertion alignment from the `align` attribute on the div.
+   * 
+   * Example: `<div id="week1-preamble" align="center">`
+   */
+  align?: string;
+  /**
+   * Optional per-insertion outline from the `outline` attribute on the div.
+   * 
+   * Example: `<div id="week1-preamble" outline="solid">`
+   */
+  outline?: string;
 }
 
 /**
