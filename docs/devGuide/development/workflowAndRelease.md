@@ -60,6 +60,18 @@ gitGraph
 ### B. Beta Releases (from `develop` branch)
 Use these when features are on `develop` and need to be tested in a non-local environment.
 
+<mermaid>
+gitGraph
+   checkout main
+   commit id: "v2.1.0" tag: "v2.1.0"
+   branch develop
+   checkout develop
+   commit id: "Feature X"
+   commit id: "v2.1.1-beta.0" tag: "v2.1.1-beta.0"
+   commit id: "Feature Y"
+   commit id: "v2.1.1-beta.1" tag: "v2.1.1-beta.1"
+</mermaid>
+
 ```sh
 # 0. Be on the develop branch
 git checkout develop
@@ -73,11 +85,34 @@ npm run release:beta
 
 # CICD handles deployment of Beta Docs
 ```
-*Beta docs are hosted at [https://custardui.js.org/betadocs](https://custardui.js.org/betadocs), and is updated on every beta release.*
+* *Beta docs are hosted at [https://custardui.js.org/betadocs](https://custardui.js.org/betadocs), and is updated on every beta release.*
+
+Additionally, make a [release](https://github.com/CustardUI/custardui/releases) on GitHub for the beta version. Use the pre-release option on GitHub to indicate that it is a beta release. 
+
 
 ### C. Production Release (from `main` branch)
-
 When `develop` is stable and ready for the public.
+
+<mermaid>
+gitGraph
+   commit id: "v2.1.0" tag: "v2.1.0"
+   branch develop
+   checkout develop
+   commit id: "Feature 1"
+   commit id: "Feature 2"
+   commit id: "Prepare Release"
+   
+   %% The PR from develop to main
+   checkout main
+   merge develop id: "Merge PR #Release-v2.2.0" tag: "v2.2.0"
+   
+   %% The 'Finalize' step (Back-merge)
+   checkout develop
+   merge main id: "Sync v2.2.0 back to Beta"
+   
+   %% Next Beta cycle starts here
+   commit id: "Next Feature Start"
+</mermaid>
 
 1. **Create a PR** from `develop` to `main`, with name e.g. `Release v2.2.0`. **Merge via "Create a Merge Commit"** on the GitHub UI.
 
@@ -101,30 +136,11 @@ npm run release:prod
 # CICD handles deployment of Production Docs
 ```
 
-3.  **Sync Back to 'develop' branch:** Open a PR from **`main` back to `develop`, with name e.g. `Sync: Release v2.2.0 back to develop`, merging with a merge commit.
-    > **Why?** This ensures the official versioning and the release "node" are integrated into the Beta channel. Because you used a Merge Commit in Step 1, this PR should be conflict-free.
+3.  **Sync Back to 'develop' branch:** Open a PR from **`main` back to `develop`, with name e.g. `Sync: Release version back to develop`, merging with a merge commit.
+    > **Why?** This ensures the version number is integrated into the `develop` branch. Because you used a Merge Commit in Step 1, this PR should be conflict-free.
 
+4.  **Make a release on [GitHub](https://github.com/CustardUI/custardui/releases)**: Create a release that is tagged to the version bumped, and auto generate the changelog.
 
-<mermaid>
-gitGraph
-   commit id: "v2.1.0" tag: "v2.1.0"
-   branch develop
-   checkout develop
-   commit id: "Feature 1"
-   commit id: "Feature 2"
-   commit id: "Prepare Release"
-   
-   %% The PR from develop to main
-   checkout main
-   merge develop id: "Merge PR #Release-v2.2.0" tag: "v2.2.0"
-   
-   %% The 'Finalize' step (Back-merge)
-   checkout develop
-   merge main id: "Sync v2.2.0 back to Beta"
-   
-   %% Next Beta cycle starts here
-   commit id: "Next Feature Start"
-</mermaid>
 
 *Production docs are hosted at [https://custardui.js.org](https://custardui.js.org), and is updated on every production release.*
 
