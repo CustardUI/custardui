@@ -1,10 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
-import {
-  groupSiblings,
-  calculateMergedRects,
-  type SimpleRect,
-} from '$features/highlight/highlight-logic';
+import { groupSiblings, calculateMergedRects, type SimpleRect } from '$features/box/box-logic';
 import { SvelteMap } from 'svelte/reactivity';
 
 describe('highlight-logic', () => {

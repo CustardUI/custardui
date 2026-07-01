@@ -98,11 +98,37 @@ A toggle can also be shown or hidden based on whether a [placeholder](./placehol
 The block is hidden when `username` has no value, and visible when it does. See [Placeholder-Driven Toggles](./placeholders.md#placeholder-driven-toggles) for full details.
 
 
+### Inline Toggles
+
+By default, `<cv-toggle>` elements behave as block-level elements (`display: block`). If you want to render a toggle or a placeholder-driven toggle inline (for example, to display a conditional badge or inline text within a paragraph or navigation link), add the `inline` attribute.
+
+* This displays any toggle content inline so it flows with surrounding text without a line break.
+* Note that inline toggles do not support peek/expand mode, and will simply be shown in full when peek/show states are active.
+
+<cv-toggle-control toggle-id="mac"></cv-toggle-control>
+<cv-placeholder-input name="username" layout="card"></cv-placeholder-input>
+
+<include src="codeAndOutput.md" boilerplate >
+<variable name="highlightStyle">html</variable>
+<variable name="code">
+
+Run the configuration commands <cv-toggle inline toggle-id="mac">
+for **macOS**</cv-toggle> in your terminal.
+
+<cv-toggle inline placeholder-id="username"> Welcome back! </cv-toggle>
+
+</variable>
+</include>
+
+
+
 ### Attributes of `<cv-toggle>`
 
 | Name     | Type      | Default      | Description                    |
 | -------- | --------- | ------------ | ------------------------------ |
 | toggle-id        | `string`  | **required** | Defines the category for the cv-toggle element. E.g.: `toggle-id="mac"`. |
+| placeholder-id   | `string`  | —            | If set, drives the toggle visibility by whether the named placeholder has a value. Cannot be used together with toggle-id. |
+| inline           | `boolean` | `false`      | If present, renders the toggle and its internal wrappers inline (`display: inline`) so it flows seamlessly with surrounding text instead of creating block-level line breaks. |
 | show-peek-border | `boolean` | `false`      | If present, adds a subtle border to the top and sides of the toggle content. The border is only applied while the toggle is in Peek mode (whether collapsed or user‑expanded). When the toggle is fully shown (non‑Peek), no border is rendered even if this attribute is set. |
 | show-label       | `boolean` | `false`      | If present, displays the category label (e.g. "MacOS") at the top-left corner of the toggle. |
 

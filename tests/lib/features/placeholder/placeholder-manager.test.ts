@@ -1,13 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PlaceholderManager } from '../../../../src/lib/features/placeholder/placeholder-manager';
 
-vi.mock('../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte', () => ({
-  placeholderRegistryStore: {
-    has: vi.fn(),
-    register: vi.fn(),
-    get: vi.fn(),
-  },
-}));
+vi.mock(
+  '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte',
+  () => ({
+    placeholderRegistryStore: {
+      has: vi.fn(),
+      register: vi.fn(),
+      get: vi.fn(),
+    },
+  }),
+);
 
 import { placeholderRegistryStore } from '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte';
 
@@ -38,7 +41,7 @@ describe('PlaceholderManager', () => {
         expect.objectContaining({
           name: 'p1',
           source: 'config',
-        })
+        }),
       );
     });
   });
@@ -65,7 +68,7 @@ describe('PlaceholderManager', () => {
           name: 'p1',
           source: 'tabgroup',
           ownerTabGroupId: 'g1',
-        })
+        }),
       );
     });
 
@@ -103,7 +106,6 @@ describe('PlaceholderManager', () => {
       expect(placeholderRegistryStore.register).not.toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalled();
     });
-
   });
 
   describe('calculatePlaceholderFromTabSelected', () => {
@@ -126,22 +128,22 @@ describe('PlaceholderManager', () => {
     });
 
     it('should return empty string if placeholderValue is undefined', () => {
-        const config = {
-          tabGroups: [
-            {
-              groupId: 'g1',
-              placeholderId: 'p1',
-              tabs: [{ tabId: 't1' }],
-            },
-          ],
-        };
+      const config = {
+        tabGroups: [
+          {
+            groupId: 'g1',
+            placeholderId: 'p1',
+            tabs: [{ tabId: 't1' }],
+          },
+        ],
+      };
 
-        vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
+      vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
 
-        const result = manager.calculatePlaceholderFromTabSelected('g1', 't1', config);
+      const result = manager.calculatePlaceholderFromTabSelected('g1', 't1', config);
 
-        expect(result).toEqual({ key: 'p1', value: '' });
-      });
+      expect(result).toEqual({ key: 'p1', value: '' });
+    });
   });
 
   describe('registerConfigPlaceholders — siteManaged', () => {
@@ -150,7 +152,7 @@ describe('PlaceholderManager', () => {
         placeholders: [{ name: 'instName', siteManaged: true }],
       });
       expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
-        expect.objectContaining({ hiddenFromSettings: true })
+        expect.objectContaining({ hiddenFromSettings: true }),
       );
     });
 
@@ -159,7 +161,7 @@ describe('PlaceholderManager', () => {
         placeholders: [{ name: 'instName', siteManaged: true, hiddenFromSettings: false }],
       });
       expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
-        expect.objectContaining({ hiddenFromSettings: true })
+        expect.objectContaining({ hiddenFromSettings: true }),
       );
     });
 
@@ -168,7 +170,7 @@ describe('PlaceholderManager', () => {
         placeholders: [{ name: 'user', hiddenFromSettings: false }],
       });
       expect(placeholderRegistryStore.register).toHaveBeenCalledWith(
-        expect.objectContaining({ hiddenFromSettings: false })
+        expect.objectContaining({ hiddenFromSettings: false }),
       );
     });
   });
@@ -184,7 +186,10 @@ describe('PlaceholderManager', () => {
 
     it('silently drops siteManaged: true entries', () => {
       vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
-      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'instName', siteManaged: true });
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'instName',
+        siteManaged: true,
+      });
 
       expect(manager.filterUserSettablePlaceholders({ instName: 'NUS' })).toEqual({});
       expect(warnSpy).not.toHaveBeenCalled(); // silent, not a warning
@@ -204,9 +209,7 @@ describe('PlaceholderManager', () => {
     it('mixed: keeps user-settable, drops adaptation-only', () => {
       vi.mocked(placeholderRegistryStore.has).mockReturnValue(true);
       vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
-        key === 'instName'
-          ? { name: 'instName', siteManaged: true }
-          : { name: key }
+        key === 'instName' ? { name: 'instName', siteManaged: true } : { name: key },
       );
 
       const result = manager.filterUserSettablePlaceholders({ user: 'Alice', instName: 'NUS' });
@@ -230,9 +233,7 @@ describe('PlaceholderManager', () => {
       const result = manager.filterValidPlaceholders({ unknown: 'value' });
 
       expect(result).toEqual({});
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('"unknown"'),
-      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"unknown"'));
     });
 
     it('returns empty object when placeholders is undefined', () => {

@@ -41,7 +41,11 @@ export class PlaceholderManager {
    * @param config The full application configuration
    * @returns An object containing the placeholder key and value, or null if nothing to update.
    */
-  calculatePlaceholderFromTabSelected(tabgroupId: string, tabId: string, config: Config): { key: string; value: string } | null {
+  calculatePlaceholderFromTabSelected(
+    tabgroupId: string,
+    tabId: string,
+    config: Config,
+  ): { key: string; value: string } | null {
     const groupConfig = config.tabGroups?.find((g) => g.groupId === tabgroupId);
 
     if (!groupConfig || !groupConfig.placeholderId) return null;
@@ -65,7 +69,7 @@ export class PlaceholderManager {
    */
   filterValidPlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
     const valid: Record<string, string> = {};
-    
+
     for (const [key, value] of Object.entries(placeholders)) {
       if (placeholderRegistryStore.has(key)) {
         valid[key] = value;
@@ -81,7 +85,9 @@ export class PlaceholderManager {
    * Extends filterValidPlaceholders() by also excluding siteManaged placeholders.
    * Use this for persistence loads and URL delta application.
    */
-  filterUserSettablePlaceholders(placeholders: Record<string, string> = {}): Record<string, string> {
+  filterUserSettablePlaceholders(
+    placeholders: Record<string, string> = {},
+  ): Record<string, string> {
     const valid = this.filterValidPlaceholders(placeholders);
     const userSettable: Record<string, string> = {};
 
@@ -131,7 +137,7 @@ export class PlaceholderManager {
       source: 'tabgroup',
       ownerTabGroupId: groupConfig.groupId,
     });
-    
+
     // We do not return the initial value here, as registration happens during config load
     // and we let the ActiveStateStore handle initial state setup.
   }

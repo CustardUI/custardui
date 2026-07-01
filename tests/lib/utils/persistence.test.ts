@@ -134,7 +134,10 @@ describe('PersistenceManager', () => {
 
       const state = manager.getPersistedState();
       expect(state).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('[CustardUI] Failed to parse persisted state:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[CustardUI] Failed to parse persisted state:',
+        expect.any(Error),
+      );
       consoleSpy.mockRestore();
     });
 

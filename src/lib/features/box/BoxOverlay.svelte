@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { type RectData } from '$features/highlight/services/highlight-types';
-  import { HIGHLIGHT_COLORS, DEFAULT_COLOR_KEY } from '$features/highlight/services/highlight-colors';
-  import HighlightTextAnnotation from '$features/highlight/HighlightTextAnnotation.svelte';
-  import HighlightEmptyAnnotation from '$features/highlight/HighlightEmptyAnnotation.svelte';
+  import { type RectData } from '$features/box/services/box-types';
+  import { ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
+  import Annotation from '$features/annotations/Annotation.svelte';
+  import EmptyAnnotation from '$features/annotations/EmptyAnnotation.svelte';
 
   interface Props {
     box: { rects: RectData[] };
@@ -12,8 +12,13 @@
   let rects = $derived(box.rects);
 
   function getColorHex(rect: RectData): string {
-    const key = rect.color ?? DEFAULT_COLOR_KEY;
-    return HIGHLIGHT_COLORS.find((c) => c.key === key)?.hex ?? HIGHLIGHT_COLORS[0]!.hex;
+    const key = rect.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    return ANNOTATION_COLORS.find((c) => c.key === key)?.hex ?? ANNOTATION_COLORS[0]!.hex;
+  }
+
+  function getTextColorHex(rect: RectData): string {
+    const key = rect.color ?? DEFAULT_ANNOTATION_COLOR_KEY;
+    return ANNOTATION_COLORS.find((c) => c.key === key)?.textColor ?? '#2c2c2c';
   }
 
   function scrollToRect(rect: RectData) {
@@ -21,48 +26,47 @@
   }
 </script>
 
-<div class="cv-highlight-overlay">
+<div class="cv-box-overlay">
   {#each rects as rect, i (rect.element)}
     <div
-      class="cv-highlight-group"
-      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-highlight-color: {getColorHex(rect)};"
+      class="cv-box-group"
+      style="top: {rect.top}px; left: {rect.left}px; width: {rect.width}px; height: {rect.height}px; --cv-box-color: {getColorHex(
+        rect,
+      )}; --cv-annotation-text-color: {getTextColorHex(rect)};"
     >
-      <div class="cv-highlight-marker"></div>
+      <div class="cv-box-marker"></div>
       {#if rects.length > 1}
         <button
           type="button"
           class="cv-nav-arrow cv-nav-arrow--up"
           class:cv-nav-arrow--hidden={i === 0}
           onclick={() => scrollToRect(rects[i - 1]!)}
-          aria-label="Previous highlight"
-        >↑</button>
+          aria-label="Previous highlight">↑</button
+        >
         <button
           type="button"
           class="cv-nav-arrow cv-nav-arrow--down"
           class:cv-nav-arrow--hidden={i === rects.length - 1}
           onclick={() => scrollToRect(rects[i + 1]!)}
-          aria-label="Next highlight"
-        >↓</button>
+          aria-label="Next highlight">↓</button
+        >
       {/if}
-      <div class="cv-highlight-pill">
+      <div class="cv-box-pill">
         <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer">
           Annotated by: CustardUI↗
         </a>
       </div>
       {#if rect.annotation !== undefined && rect.annotation.length > 0}
-        <HighlightTextAnnotation
-          annotation={rect.annotation}
-          annotationCorner={rect.annotationCorner}
-        />
+        <Annotation annotation={rect.annotation} annotationCorner={rect.annotationCorner} />
       {:else}
-        <HighlightEmptyAnnotation annotationCorner={rect.annotationCorner} />
+        <EmptyAnnotation annotationCorner={rect.annotationCorner} />
       {/if}
     </div>
   {/each}
 </div>
 
 <style>
-  .cv-highlight-overlay {
+  .cv-box-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -72,40 +76,30 @@
     z-index: 8000;
   }
 
-  .cv-highlight-group {
+  .cv-box-group {
     position: absolute;
     pointer-events: none;
   }
 
-  .cv-highlight-marker {
+  .cv-box-marker {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    
+
     /* Marker Style */
-    border: 3.5px solid var(--cv-highlight-color);
+    border: 3.5px solid var(--cv-box-color);
     border-radius: 200px 15px 225px 15px / 15px 225px 15px 255px;
     transform: rotate(-0.5deg);
-    
-    /* 3D INTERNAL VOLUME:
-       Adds depth to the yellow border itself so it looks rounded.
-    */
-    box-shadow: 
+
+    /* 3D INTERNAL VOLUME */
+    box-shadow:
       inset 0 1px 2px rgba(129, 73, 25, 0.2),
       inset 0 -1px 1px rgba(255, 255, 255, 0.7);
 
-    /* 2A-3 DOUBLE LIGHT PROJECTION:
-       Stacks multiple drop-shadows to cast into the box interior.
-    */
-    filter: 
-      /* Sharp contact shadow for grounding */
-      drop-shadow(0 2px 2px rgba(44, 26, 14, 0.15)) 
-      /* Light Source A: Casts shadow from top-left to bottom-right */
-      drop-shadow(-8px 12px 10px rgba(44, 26, 14, 0.12))
-      /* Light Source B: Casts shadow from top-right to bottom-left */
-      drop-shadow(8px 12px 10px rgba(44, 26, 14, 0.12));
-    
-    animation: highlightFadeIn 0.3s ease-out forwards;
+    /* CRISP DROP SHADOW */
+    filter: drop-shadow(4px 4px 1px rgba(0, 0, 0, 0.25));
+
+    animation: boxFadeIn 0.3s ease-out forwards;
   }
 
   .cv-nav-arrow {
@@ -116,7 +110,7 @@
     width: 14px;
     height: 14px;
     border-radius: 100px;
-    border: 1px solid var(--cv-highlight-color);
+    border: 1px solid var(--cv-box-color);
     background: white;
     cursor: pointer;
     display: flex;
@@ -149,7 +143,7 @@
     pointer-events: none;
   }
 
-  .cv-highlight-pill {
+  .cv-box-pill {
     position: absolute;
     z-index: 10;
     bottom: -2px;
@@ -159,17 +153,16 @@
     padding: 0 8px;
     display: flex;
     align-items: center;
-    
+
     border-radius: 100px;
-    border: 1px solid var(--cv-highlight-color);
+    border: 1px solid var(--cv-box-color);
     pointer-events: auto;
     white-space: nowrap;
-    
-    /* Stronger shadow to match the frame's new altitude */
+
     box-shadow: 0 4px 12px rgba(44, 26, 14, 0.15);
   }
 
-  .cv-highlight-pill a {
+  .cv-box-pill a {
     font-size: 8px;
     font-weight: 700;
     color: #814919;
@@ -178,18 +171,18 @@
     line-height: 1;
   }
 
-  .cv-highlight-pill:hover a {
+  .cv-box-pill:hover a {
     opacity: 0.8;
   }
 
-  @keyframes highlightFadeIn {
-    from { 
-      opacity: 0; 
-      transform: scale(0.98) rotate(-1deg); 
+  @keyframes boxFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.98) rotate(-1deg);
     }
-    to { 
-      opacity: 1; 
-      transform: scale(1) rotate(-0.5deg); 
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(-0.5deg);
     }
   }
 </style>

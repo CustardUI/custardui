@@ -47,10 +47,10 @@ export class ActiveStateStore {
   init(config: Config) {
     Object.assign(this.config, config);
     this.configSectionOrder = Object.keys(config).filter(isValidConfigSection);
-    
+
     // Compute new defaults and merge
     const newState = this.computeDefaultState();
-    
+
     // Reset state to computed defaults.
     // Overriding with URL state happens later via applyDifferenceInState().
     this.state.shownToggles = newState.shownToggles ?? [];
@@ -70,8 +70,12 @@ export class ActiveStateStore {
   setMarkedTab(groupId: string, tabId: string) {
     if (!this.state.tabs) this.state.tabs = {};
     this.state.tabs[groupId] = tabId;
-    
-    const phUpdate = placeholderManager.calculatePlaceholderFromTabSelected(groupId, tabId, this.config);
+
+    const phUpdate = placeholderManager.calculatePlaceholderFromTabSelected(
+      groupId,
+      tabId,
+      this.config,
+    );
     if (phUpdate) {
       this.setPlaceholder(phUpdate.key, phUpdate.value);
     }
@@ -124,7 +128,7 @@ export class ActiveStateStore {
    * Precedence model:
    * 1. Start from computed defaults for toggles and tabs.
    * 2. Layer in the incoming `newState`, sanitizing toggles, tabs, and user-settable placeholders.
-   * 3. For placeholders, use the CURRENT state as the base (preserving adaptation defaults) 
+   * 3. For placeholders, use the CURRENT state as the base (preserving adaptation defaults)
    *    and merge user-persisted values on top.
    * 4. Sync any tab-group-derived placeholders that weren't explicitly set.
    *
@@ -134,16 +138,22 @@ export class ActiveStateStore {
     const defaults = this.computeDefaultState();
 
     const validatedTabs = this.filterValidTabs(newState.tabs ?? {});
-    const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(newState.placeholders ?? {});
-    
+    const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(
+      newState.placeholders ?? {},
+    );
+
     // For site-managed toggles, we use the current state (which includes adaptation defaults).
     // For user-settable toggles, we use the incoming newState (if present) or fall back to defaults.
     const validatedShownToggles = [
-      ...this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? [])),
+      ...this.filterNonSiteManagedToggleIds(
+        this.filterValidToggles(newState.shownToggles ?? defaults.shownToggles ?? []),
+      ),
       ...this.filterSiteManagedToggleIds(this.state.shownToggles ?? []),
     ];
     const validatedPeekToggles = [
-      ...this.filterNonSiteManagedToggleIds(this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? [])),
+      ...this.filterNonSiteManagedToggleIds(
+        this.filterValidToggles(newState.peekToggles ?? defaults.peekToggles ?? []),
+      ),
       ...this.filterSiteManagedToggleIds(this.state.peekToggles ?? []),
     ];
 
@@ -213,7 +223,6 @@ export class ActiveStateStore {
     this.state = this.computeDefaultState();
   }
 
-
   public computeDefaultState(): State {
     const shownToggles: string[] = [];
     const peekToggles: string[] = [];
@@ -221,7 +230,7 @@ export class ActiveStateStore {
     const placeholders: Record<string, string> = {};
 
     // 1. Process toggles
-    for (const toggle of (this.config.toggles ?? [])) {
+    for (const toggle of this.config.toggles ?? []) {
       if (toggle.default === 'peek') {
         peekToggles.push(toggle.toggleId);
       } else if (toggle.default === 'hide') {
@@ -232,7 +241,7 @@ export class ActiveStateStore {
     }
 
     // 2. Process tab groups
-    for (const group of (this.config.tabGroups ?? [])) {
+    for (const group of this.config.tabGroups ?? []) {
       let defaultTabId = group.default;
       if (!defaultTabId) {
         defaultTabId = group.tabs?.[0]?.tabId;
@@ -313,13 +322,19 @@ export class ActiveStateStore {
    * all others retain their current visibility.
    */
   private applyToggleDelta(deltaState: State) {
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toShow = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.shownToggles ?? [])));
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toPeek = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.peekToggles ?? [])));
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const toHide = new Set(this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.hiddenToggles ?? [])));
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
+    const toShow = new Set(
+      this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.shownToggles ?? [])),
+    );
+     
+    const toPeek = new Set(
+      this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.peekToggles ?? [])),
+    );
+     
+    const toHide = new Set(
+      this.filterNonSiteManagedToggleIds(this.filterValidToggles(deltaState.hiddenToggles ?? [])),
+    );
+     
     const allMentioned = new Set([...toShow, ...toPeek, ...toHide]);
 
     const newShown = (this.state.shownToggles ?? []).filter((id) => !allMentioned.has(id));
@@ -356,7 +371,8 @@ export class ActiveStateStore {
    * Explicit placeholder values override any tab-derived value (winning over syncPlaceholdersFromTabs).
    */
   private applyPlaceholdersDelta(deltaPlaceholders: Record<string, string>) {
-    const validatedPlaceholders = placeholderManager.filterUserSettablePlaceholders(deltaPlaceholders);
+    const validatedPlaceholders =
+      placeholderManager.filterUserSettablePlaceholders(deltaPlaceholders);
 
     if (!this.state.placeholders) this.state.placeholders = {};
     Object.assign(this.state.placeholders, validatedPlaceholders);
@@ -397,15 +413,21 @@ export class ActiveStateStore {
     const valid: Record<string, string> = {};
 
     for (const [groupId, tabId] of Object.entries(incomingTabs)) {
-      const group = this.config.tabGroups?.find((g) => g.groupId.toLowerCase() === groupId.toLowerCase());
+      const group = this.config.tabGroups?.find(
+        (g) => g.groupId.toLowerCase() === groupId.toLowerCase(),
+      );
       if (!group) {
-        console.warn(`[CustardUI] Tab group "${groupId}" is not in the config and will be ignored.`);
+        console.warn(
+          `[CustardUI] Tab group "${groupId}" is not in the config and will be ignored.`,
+        );
         continue;
       }
 
       const matchedTab = group.tabs.find((t) => t.tabId.toLowerCase() === tabId.toLowerCase());
       if (!matchedTab) {
-        console.warn(`[CustardUI] Tab "${tabId}" is not in group "${group.groupId}" and will be ignored.`);
+        console.warn(
+          `[CustardUI] Tab "${tabId}" is not in group "${group.groupId}" and will be ignored.`,
+        );
         continue;
       }
 
@@ -469,7 +491,11 @@ export class ActiveStateStore {
       const activeTabId = this.state.tabs?.[group.groupId];
       if (!activeTabId) continue;
 
-      const phUpdate = placeholderManager.calculatePlaceholderFromTabSelected(group.groupId, activeTabId, this.config);
+      const phUpdate = placeholderManager.calculatePlaceholderFromTabSelected(
+        group.groupId,
+        activeTabId,
+        this.config,
+      );
       if (phUpdate) {
         this.setPlaceholder(phUpdate.key, phUpdate.value);
       }

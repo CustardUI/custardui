@@ -32,10 +32,10 @@
     if (label) return label;
     const def = placeholderRegistryStore.get(name);
     if (!def) return name;
-    
+
     // For visible label layouts, try settingsLabel
     if (effectiveLayout !== 'inline' && def.settingsLabel) return def.settingsLabel;
-    
+
     // Fallback
     return def.settingsLabel || name;
   });
@@ -56,10 +56,10 @@
   }
 
   let inputSize = $derived.by(() => {
-    if (effectiveLayout !== 'inline' || width !== 'auto-grow') return undefined; 
-    
+    if (effectiveLayout !== 'inline' || width !== 'auto-grow') return undefined;
+
     const len = (value || effectiveHint).length;
-    return Math.max(len, 4); 
+    return Math.max(len, 4);
   });
 </script>
 
@@ -107,7 +107,7 @@
     width: 100%;
     margin: 0 0 0.5rem 0; /* Reset margins for block layouts */
   }
-  
+
   /* Wrapper Grid/Flex Layouts */
   .cv-input-wrapper {
     display: flex;
@@ -258,14 +258,14 @@
   .card .edit-icon {
     right: 0.5rem;
   }
-  
+
   .horizontal .placeholder-input {
-      width: var(--cv-input-width, auto);
-      flex: 1;
+    width: var(--cv-input-width, auto);
+    flex: 1;
   }
 
   /* APPEARANCES */
-  
+
   /* Outline (Default) - handled by base styles above */
 
   /* Underline */
@@ -288,7 +288,7 @@
     background: transparent;
   }
   .placeholder-input.ghost:hover {
-    background: var(--cv-input-bg-hover, rgba(0,0,0,0.05));
+    background: var(--cv-input-bg-hover, rgba(0, 0, 0, 0.05));
   }
   .placeholder-input.ghost:focus {
     background: var(--cv-input-bg, white);

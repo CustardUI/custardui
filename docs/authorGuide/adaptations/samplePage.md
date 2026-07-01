@@ -167,3 +167,34 @@ Submit via the **Sample Portal** using your student ID.
 ---
 
 *This page is personalised for **[[institutionName : all students]]**. Logged in as: [[username : Guest]]*
+
+---
+
+## Adopter Insertions
+
+The sections below demonstrate `<cv-insertion>`. Switch to the **NUS** adaptation to see the adopter-supplied notes appear in place of the default text.
+
+**View as:** [NUS](./samplePage.html?adapt=nus) · [Sample Institution](./samplePage.html?adapt=sample) · [Reset](./samplePage.html?adapt=clear)
+
+### Before Exercise 1
+
+<cv-insertion insertion-id="week1-preamble">
+
+*No institution-specific note for this section. Check the course handbook for general guidance.*
+
+</cv-insertion>
+
+### Before Exercise 2
+
+<cv-insertion insertion-id="week2-preamble">
+
+*No institution-specific note for this section.*
+
+</cv-insertion>
+
+### Before Exercise 3
+
+This insertion has **no default content** — when no matching block is found in `insertions.html`, nothing is rendered here.
+
+<cv-insertion insertion-id="week3-preamble" />
+

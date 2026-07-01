@@ -46,8 +46,8 @@ Refer to individual components for more details on each configuration option.
 
 - Tab Group Configuration Settings, see [here](./components/tabs.md#configuration)
 - Toggle Configuration Settings (including `siteManaged`), see [here](./components/toggles.md#configuration)
-- Placeholder Configuration Settings (including `siteManaged`), see [here](./components/placeholders.md#placeholder-configuration)
-- Label Configuration Settings, see [here](./components/labels.md#label-configuration)
+- Placeholder Configuration Settings (including `siteManaged`), see [here](./components/placeholders.md#configuration)
+- Label Configuration Settings, see [here](./components/labels.md#configuration)
 
 
 ### Settings Configuration in `config.json`: (`settings`)

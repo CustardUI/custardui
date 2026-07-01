@@ -11,18 +11,22 @@
 * Site Integrations
   * [MarkBind]({{baseUrl}}/authorGuide/integrations/setupWithMarkbind.html)
 * [Configuration]({{baseUrl}}/authorGuide/configuration.html)
-* [Components & Features]({{baseUrl}}/authorGuide/components/allComponents.html) :expanded:
+* [UI Components]({{baseUrl}}/authorGuide/components/allComponents.html) :expanded:
   * [Toggles]({{baseUrl}}/authorGuide/components/toggles.html)
   * [TabGroups and Tabs]({{baseUrl}}/authorGuide/components/tabs.html)
   * [Placeholders]({{baseUrl}}/authorGuide/components/placeholders.html)
   * [Labels]({{baseUrl}}/authorGuide/components/labels.html)
   * [Settings Dialog]({{baseUrl}}/authorGuide/components/settings.html)
-  * [Focused Views]({{baseUrl}}/authorGuide/components/share.html)
-* [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
-* Site Adaptations
+* Focused Views :expanded:
+  * [Share Modes]({{baseUrl}}/authorGuide/focusedViews/shareModes.html)
+  * [Show and Hide]({{baseUrl}}/authorGuide/focusedViews/showHideModes.html)
+  * [Highlighting Pages]({{baseUrl}}/authorGuide/focusedViews/highlightModes.html)
+* Site Adaptations :expanded:
   * [Adaptations]({{baseUrl}}/authorGuide/adaptations/adaptations.html)
+  * [Insertions]({{baseUrl}}/authorGuide/adaptations/insertions.html)
   * [Configuration]({{baseUrl}}/authorGuide/adaptations/configuration.html)
   * [Sample Adaptation Page]({{baseUrl}}/authorGuide/adaptations/samplePage.html)
+* [URL Sharing]({{baseUrl}}/authorGuide/urlSharing.html)
       </site-nav>
     </div>
   </nav>

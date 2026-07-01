@@ -2,20 +2,28 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
-vi.mock('../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte', () => ({
-  placeholderRegistryStore: { get: vi.fn() },
-}));
+vi.mock(
+  '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte',
+  () => ({
+    placeholderRegistryStore: { get: vi.fn() },
+  }),
+);
 
-import { URLStateManager, FOCUS_PARAMS, MANAGED_PARAMS } from '../../../../src/lib/features/url/url-state-manager';
-import { 
-  PARAM_SHOW_TOGGLE, 
-  PARAM_PEEK_TOGGLE, 
-  PARAM_HIDE_TOGGLE, 
-  PARAM_TABS, 
-  PARAM_PH, 
-  PARAM_CV_SHOW, 
-  PARAM_CV_HIDE, 
-  PARAM_CV_HIGHLIGHT 
+import {
+  URLStateManager,
+  FOCUS_PARAMS,
+  MANAGED_PARAMS,
+} from '../../../../src/lib/features/url/url-state-manager';
+import {
+  PARAM_SHOW_TOGGLE,
+  PARAM_PEEK_TOGGLE,
+  PARAM_HIDE_TOGGLE,
+  PARAM_TABS,
+  PARAM_PH,
+  PARAM_CV_SHOW,
+  PARAM_CV_HIDE,
+  PARAM_CV_BOX,
+  PARAM_CV_HIGHLIGHT,
 } from '../../../../src/lib/features/url/url-constants';
 import type { Config, State } from '../../../../src/lib/types/index';
 import { placeholderRegistryStore } from '../../../../src/lib/features/placeholder/stores/placeholder-registry-store.svelte';
@@ -24,7 +32,8 @@ import { placeholderRegistryStore } from '../../../../src/lib/features/placehold
 
 function setLocation(search: string) {
   (window as any).location.search = search;
-  (window as any).location.href = 'http://localhost/' + (search.startsWith('?') ? '' : '?') + search;
+  (window as any).location.href =
+    'http://localhost/' + (search.startsWith('?') ? '' : '?') + search;
 }
 
 function freshLocation() {
@@ -39,7 +48,9 @@ function freshLocation() {
 }
 
 describe('URLStateManager', () => {
-  afterEach(() => { vi.clearAllMocks(); });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   // ==========================================================================
   // parseURL
@@ -100,7 +111,9 @@ describe('URLStateManager', () => {
     });
 
     it('parses all params together', () => {
-      setLocation(`?${PARAM_SHOW_TOGGLE}=t1&${PARAM_PEEK_TOGGLE}=p1&${PARAM_HIDE_TOGGLE}=h1&${PARAM_TABS}=g1:tab1&${PARAM_PH}=myKey:Hello%20World`);
+      setLocation(
+        `?${PARAM_SHOW_TOGGLE}=t1&${PARAM_PEEK_TOGGLE}=p1&${PARAM_HIDE_TOGGLE}=h1&${PARAM_TABS}=g1:tab1&${PARAM_PH}=myKey:Hello%20World`,
+      );
       const result = URLStateManager.parseURL();
       expect(result).not.toBeNull();
       expect(result!.shownToggles).toEqual(['t1']);
@@ -169,7 +182,7 @@ describe('URLStateManager', () => {
       };
 
       const config: Config = {
-        placeholders: [{ name: 'key1' }, { name: 'key2' }]
+        placeholders: [{ name: 'key1' }, { name: 'key2' }],
       };
 
       const shareUrl = URLStateManager.generateShareableURL(current, config, {
@@ -194,14 +207,8 @@ describe('URLStateManager', () => {
 
     it('encodes all active toggles and explicitly hides the rest', () => {
       const config: Config = {
-        toggles: [
-          { toggleId: 'A' },
-          { toggleId: 'NEW' },
-          { toggleId: 'HIDDEN_DEFAULT' }
-        ],
-        tabGroups: [
-          { groupId: 'g1', tabs: [{ tabId: 'tabA' }] }
-        ]
+        toggles: [{ toggleId: 'A' }, { toggleId: 'NEW' }, { toggleId: 'HIDDEN_DEFAULT' }],
+        tabGroups: [{ groupId: 'g1', tabs: [{ tabId: 'tabA' }] }],
       };
       const url = URLStateManager.generateShareableURL(
         { shownToggles: ['A', 'NEW'], peekToggles: [], tabs: { g1: 'tabA' } },
@@ -221,7 +228,7 @@ describe('URLStateManager', () => {
 
     it('preserves cv-show / cv-hide params', () => {
       setLocation(`?${PARAM_CV_SHOW}=el1`);
-      
+
       const config: Config = { toggles: [{ toggleId: 't1', isLocal: false }] };
       const currentState: State = { shownToggles: ['t1'] };
       const elementsOnCurrentPage = { toggles: ['t1'], tabGroups: [], placeholders: [] };
@@ -233,7 +240,11 @@ describe('URLStateManager', () => {
 
     it('preserves cv-highlight params', () => {
       setLocation(`?${PARAM_CV_HIGHLIGHT}=desc1`);
-      const url = URLStateManager.generateShareableURL({}, {}, { toggles: [], tabGroups: [], placeholders: [] });
+      const url = URLStateManager.generateShareableURL(
+        {},
+        {},
+        { toggles: [], tabGroups: [], placeholders: [] },
+      );
       expect(url).toContain(`${PARAM_CV_HIGHLIGHT}=desc1`);
     });
     it(`encodes ${PARAM_HIDE_TOGGLE} for all toggles not shown or peeked`, () => {
@@ -251,16 +262,20 @@ describe('URLStateManager', () => {
       const config: Config = {
         toggles: [{ toggleId: 'globalToggle', isLocal: false }],
         tabGroups: [{ groupId: 'globalGroup', isLocal: false, tabs: [{ tabId: 't1' }] }],
-        placeholders: [{ name: 'globalPH', isLocal: false }]
+        placeholders: [{ name: 'globalPH', isLocal: false }],
       };
       const state: State = {
         shownToggles: ['globalToggle'],
         tabs: { globalGroup: 't1' },
-        placeholders: { globalPH: 'val1' }
+        placeholders: { globalPH: 'val1' },
       };
       // elementsOnCurrentPage is empty
-      const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
-      
+      const url = URLStateManager.generateShareableURL(state, config, {
+        toggles: [],
+        tabGroups: [],
+        placeholders: [],
+      });
+
       expect(url).toContain(`${PARAM_SHOW_TOGGLE}=globalToggle`);
       expect(url).toContain(`${PARAM_TABS}=globalGroup:t1`);
       expect(url).toContain(`${PARAM_PH}=globalPH:val1`);
@@ -270,12 +285,12 @@ describe('URLStateManager', () => {
       const config: Config = {
         toggles: [{ toggleId: 'localToggle', isLocal: true }],
         tabGroups: [{ groupId: 'localGroup', isLocal: true, tabs: [{ tabId: 't1' }] }],
-        placeholders: [{ name: 'localPH', isLocal: true }]
+        placeholders: [{ name: 'localPH', isLocal: true }],
       };
       const state: State = {
         shownToggles: ['localToggle'],
         tabs: { localGroup: 't1' },
-        placeholders: { localPH: 'val1' }
+        placeholders: { localPH: 'val1' },
       };
       // Mock registry to return a local definition for localPH
       vi.mocked(placeholderRegistryStore.get).mockImplementation((name) => {
@@ -284,8 +299,12 @@ describe('URLStateManager', () => {
       });
 
       // elementsOnCurrentPage is empty
-      const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
-      
+      const url = URLStateManager.generateShareableURL(state, config, {
+        toggles: [],
+        tabGroups: [],
+        placeholders: [],
+      });
+
       expect(url).not.toContain('localToggle');
       expect(url).not.toContain('localGroup');
       expect(url).not.toContain('localPH');
@@ -293,14 +312,13 @@ describe('URLStateManager', () => {
 
     describe('generateShareableURL — siteManaged', () => {
       beforeEach(freshLocation);
-      afterEach(() => { vi.clearAllMocks(); });
+      afterEach(() => {
+        vi.clearAllMocks();
+      });
 
       it('excludes siteManaged toggles from shownToggles in the URL', () => {
         const config: Config = {
-          toggles: [
-            { toggleId: 'managed', siteManaged: true },
-            { toggleId: 'normal' },
-          ],
+          toggles: [{ toggleId: 'managed', siteManaged: true }, { toggleId: 'normal' }],
         };
         const url = URLStateManager.generateShareableURL(
           { shownToggles: ['managed', 'normal'], peekToggles: [] },
@@ -314,10 +332,7 @@ describe('URLStateManager', () => {
 
       it('excludes siteManaged toggles from hiddenToggles in the URL', () => {
         const config: Config = {
-          toggles: [
-            { toggleId: 'managed', siteManaged: true },
-            { toggleId: 'normal' },
-          ],
+          toggles: [{ toggleId: 'managed', siteManaged: true }, { toggleId: 'normal' }],
         };
         const url = URLStateManager.generateShareableURL(
           { shownToggles: [], peekToggles: [] },
@@ -339,7 +354,7 @@ describe('URLStateManager', () => {
         const url = URLStateManager.generateShareableURL(
           { placeholders: { instName: 'NUS', user: 'Alice' } },
           {},
-          { toggles: [], tabGroups: [], placeholders: ['instName', 'user'] }
+          { toggles: [], tabGroups: [], placeholders: ['instName', 'user'] },
         );
 
         expect(url).not.toContain('instName');
@@ -352,7 +367,7 @@ describe('URLStateManager', () => {
         const url = URLStateManager.generateShareableURL(
           { placeholders: { user: 'Alice' } },
           {},
-          { toggles: [], tabGroups: [], placeholders: ['user'] }
+          { toggles: [], tabGroups: [], placeholders: ['user'] },
         );
 
         expect(url).toContain('user:Alice');
@@ -369,7 +384,7 @@ describe('URLStateManager', () => {
         const url = URLStateManager.generateShareableURL(
           { placeholders: { fruit: 'apple', instName: 'NUS', user: 'Alice' } },
           {},
-          { toggles: [], tabGroups: [], placeholders: ['fruit', 'instName', 'user'] }
+          { toggles: [], tabGroups: [], placeholders: ['fruit', 'instName', 'user'] },
         );
 
         expect(url).not.toContain('fruit');
@@ -380,13 +395,19 @@ describe('URLStateManager', () => {
 
     describe('robustness and injection prevention', () => {
       beforeEach(freshLocation);
-      afterEach(() => { vi.clearAllMocks(); });
+      afterEach(() => {
+        vi.clearAllMocks();
+      });
 
       it('strips unknown toggles that are not in config and not on page', () => {
         const config: Config = { toggles: [{ toggleId: 'known' }] };
         const state: State = { shownToggles: ['known', 'unknown_injected'] };
-        const url = URLStateManager.generateShareableURL(state, config, { toggles: ['known'], tabGroups: [], placeholders: [] });
-        
+        const url = URLStateManager.generateShareableURL(state, config, {
+          toggles: ['known'],
+          tabGroups: [],
+          placeholders: [],
+        });
+
         expect(url).toContain(`${PARAM_SHOW_TOGGLE}=known`);
         expect(url).not.toContain('unknown_injected');
       });
@@ -394,41 +415,53 @@ describe('URLStateManager', () => {
       it('strips unknown tab groups that are not in config and not on page', () => {
         const config: Config = { tabGroups: [{ groupId: 'known', tabs: [{ tabId: 't1' }] }] };
         const state: State = { tabs: { known: 't1', unknown_injected: 'val' } };
-        const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: ['known'], placeholders: [] });
-        
+        const url = URLStateManager.generateShareableURL(state, config, {
+          toggles: [],
+          tabGroups: ['known'],
+          placeholders: [],
+        });
+
         expect(url).toContain(`${PARAM_TABS}=known:t1`);
         expect(url).not.toContain('unknown_injected');
       });
 
       it('strips unknown placeholders that are not in registry and not on page', () => {
-        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => 
-          key === 'known' ? { name: 'known', isLocal: false } : undefined
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
+          key === 'known' ? { name: 'known', isLocal: false } : undefined,
         );
 
         const state: State = { placeholders: { known: 'val1', unknown_injected: 'val2' } };
-        const url = URLStateManager.generateShareableURL(state, {}, { toggles: [], tabGroups: [], placeholders: ['known'] });
-        
+        const url = URLStateManager.generateShareableURL(
+          state,
+          {},
+          { toggles: [], tabGroups: [], placeholders: ['known'] },
+        );
+
         expect(url).toContain(`${PARAM_PH}=known:val1`);
         expect(url).not.toContain('unknown_injected');
       });
 
       it('strips local elements if they are not on the current page', () => {
-        const config: Config = { 
+        const config: Config = {
           toggles: [{ toggleId: 'localT', isLocal: true }],
-          tabGroups: [{ groupId: 'localG', isLocal: true, tabs: [{ tabId: 't1' }] }]
+          tabGroups: [{ groupId: 'localG', isLocal: true, tabs: [{ tabId: 't1' }] }],
         };
-        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) => 
-          key === 'localP' ? { name: 'localP', isLocal: true } : undefined
+        vi.mocked(placeholderRegistryStore.get).mockImplementation((key) =>
+          key === 'localP' ? { name: 'localP', isLocal: true } : undefined,
         );
 
-        const state: State = { 
-          shownToggles: ['localT'], 
+        const state: State = {
+          shownToggles: ['localT'],
           tabs: { localG: 't1' },
-          placeholders: { localP: 'val' }
+          placeholders: { localP: 'val' },
         };
         // empty page elements
-        const url = URLStateManager.generateShareableURL(state, config, { toggles: [], tabGroups: [], placeholders: [] });
-        
+        const url = URLStateManager.generateShareableURL(state, config, {
+          toggles: [],
+          tabGroups: [],
+          placeholders: [],
+        });
+
         expect(url).not.toContain('localT');
         expect(url).not.toContain('localG');
         expect(url).not.toContain('localP');
@@ -452,7 +485,7 @@ describe('URLStateManager', () => {
     it('clears all managed params but leaves focus params', () => {
       // Setup URL with both managed and focus params
       const managed = `${PARAM_SHOW_TOGGLE}=t1&${PARAM_TABS}=g1:tab1`;
-      const focus = `${PARAM_CV_SHOW}=el1&${PARAM_CV_HIDE}=el2&${PARAM_CV_HIGHLIGHT}=hl1`;
+      const focus = `${PARAM_CV_SHOW}=el1&${PARAM_CV_HIDE}=el2&${PARAM_CV_BOX}=box1&${PARAM_CV_HIGHLIGHT}=hl1`;
       setLocation(`?${managed}&${focus}`);
 
       URLStateManager.clearURL();
@@ -461,9 +494,9 @@ describe('URLStateManager', () => {
       expect(window.history.replaceState).toHaveBeenCalled();
       const call = vi.mocked(window.history.replaceState).mock.calls[0]!;
       const resultUrl = new URL(call[2] as string, 'http://localhost');
-      
-      MANAGED_PARAMS.forEach(p => expect(resultUrl.searchParams.has(p)).toBe(false));
-      FOCUS_PARAMS.forEach(p => expect(resultUrl.searchParams.has(p)).toBe(true));
+
+      MANAGED_PARAMS.forEach((p) => expect(resultUrl.searchParams.has(p)).toBe(false));
+      FOCUS_PARAMS.forEach((p) => expect(resultUrl.searchParams.has(p)).toBe(true));
     });
 
     it('does nothing if no managed params are present', () => {
@@ -473,4 +506,3 @@ describe('URLStateManager', () => {
     });
   });
 });
-

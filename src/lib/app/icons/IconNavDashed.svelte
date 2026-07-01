@@ -1,15 +1,8 @@
-
 <script>
   let { ...rest } = $props();
 </script>
 
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="250"
-  height="181"
-  viewBox="0 0 250 181"
-  {...rest}
->
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="181" viewBox="0 0 250 181" {...rest}>
   <rect
     y="34.5001"
     width="250"

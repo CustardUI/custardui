@@ -4,6 +4,7 @@ import svelte from 'rollup-plugin-svelte';
 import svelteConfig from './svelte.config.js';
 
 import alias from '@rollup/plugin-alias';
+import replace from '@rollup/plugin-replace';
 import path from 'path';
 
 import resolve from '@rollup/plugin-node-resolve';
@@ -21,7 +22,7 @@ const banner = `/*!
  * Released under the ${pkg.license} License.
  */`;
 
-// Custom Web Component Elements 
+// Custom Web Component Elements
 const sveltePluginCustomElements = svelte({
   ...svelteConfig,
   include: [
@@ -57,6 +58,10 @@ const sveltePluginRegular = svelte({
 
 // Plugin tools pipeline, build is for browser, dedupe prevents bundling Svelte multiple times
 const plugins = [
+  replace({
+    preventAssignment: true,
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  }),
   alias({
     entries: [
       { find: '$lib', replacement: path.resolve('src/lib') },

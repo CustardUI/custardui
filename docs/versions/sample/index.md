@@ -3,5 +3,5 @@
 </frontmatter>
 
 <script>
-  window.location.href = "../index.html"
+  window.location.href = "../../index.html"
 </script>

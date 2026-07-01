@@ -30,8 +30,16 @@ describe('labelManager', () => {
       };
       labelManager.registerConfigLabels(config);
       expect(labelRegistryStore.register).toHaveBeenCalledTimes(2);
-      expect(labelRegistryStore.register).toHaveBeenCalledWith({ name: 'optional', value: 'OPTIONAL', color: '#3b82f6' });
-      expect(labelRegistryStore.register).toHaveBeenCalledWith({ name: 'key', value: '★ KEY', color: '#ef4444' });
+      expect(labelRegistryStore.register).toHaveBeenCalledWith({
+        name: 'optional',
+        value: 'OPTIONAL',
+        color: '#3b82f6',
+      });
+      expect(labelRegistryStore.register).toHaveBeenCalledWith({
+        name: 'key',
+        value: '★ KEY',
+        color: '#ef4444',
+      });
     });
 
     it('registers labels that have only name and color (no value)', () => {
@@ -39,7 +47,10 @@ describe('labelManager', () => {
         labels: [{ name: 'optional', color: '#3b82f6' }],
       };
       labelManager.registerConfigLabels(config);
-      expect(labelRegistryStore.register).toHaveBeenCalledWith({ name: 'optional', color: '#3b82f6' });
+      expect(labelRegistryStore.register).toHaveBeenCalledWith({
+        name: 'optional',
+        color: '#3b82f6',
+      });
     });
 
     it('is a no-op when labels is empty', () => {
@@ -60,7 +71,10 @@ describe('labelManager', () => {
         key: { color: '#000000' },
       });
       expect(labelRegistryStore.override).toHaveBeenCalledTimes(2);
-      expect(labelRegistryStore.override).toHaveBeenCalledWith('optional', { value: 'COMPULSORY', color: '#ef4444' });
+      expect(labelRegistryStore.override).toHaveBeenCalledWith('optional', {
+        value: 'COMPULSORY',
+        color: '#ef4444',
+      });
       expect(labelRegistryStore.override).toHaveBeenCalledWith('key', { color: '#000000' });
     });
 

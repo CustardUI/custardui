@@ -335,7 +335,7 @@ The Liskov Substitution Principle (LSP) states that objects of a subclass should
 
 **Common violation:** Overriding a method in a subclass to throw an exception or do nothing breaks substitutability — callers written against the superclass will break unexpectedly.
 
-<a href="?cv-highlight=lsp-violation-example">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-highlight=lsp-violation-example%3Ared%3Abr%3AWatch%2520out%2520for%2520this%2521">:fa-solid-link: Share with note</a>
+<a href="?cv-box=lsp-violation-example">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-box=lsp-violation-example%3Ared%3Abr%3AWatch%2520out%2520for%2520this%2521">:fa-solid-link: Share with note</a>
 
 </div>
 
@@ -356,7 +356,7 @@ All submissions are due Friday 11:59 PM. Push to your `main` branch on GitHub.
 
 Your team repo is at `github.com/course-[team-id]/project`. If you cannot access it, check that you have accepted the GitHub Classroom invitation.
 
-<a href="?cv-highlight=faq-team-repo">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-highlight=faq-team-repo%3A%3Atl%3ARefer%2520to%2520this%2521">:fa-solid-link: Share with note</a>
+<a href="?cv-box=faq-team-repo">:fa-solid-link: Share</a> &nbsp;·&nbsp; <a href="?cv-box=faq-team-repo%3A%3Atl%3ARefer%2520to%2520this%2521">:fa-solid-link: Share with note</a>
 
 </div>
 
@@ -368,7 +368,7 @@ Go to your repo → Settings → Collaborators → Add your tutor's GitHub usern
 </include>
 
 
-%%Click "Share" for a plain highlight, or "Share with note" to include a message and color. The URL encodes the element, color, position, and note — the recipient lands directly on that section.%%
+%%Click "Share" for a plain boxed element, or "Share with note" to include a message and color. The URL encodes the element, color, position, and note — the recipient lands directly on that section.%%
 
 **Generating share links is built in.** Add `#cv-share` to any page URL to enter share mode. Hover over any element on the page, add a note, and CustardUI generates the shareable URL for you. Links use content fingerprinting to stay robust even if the page text changes slightly.
 

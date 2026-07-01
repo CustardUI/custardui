@@ -1,5 +1,5 @@
-import { type HighlightColorKey } from '$features/highlight/services/highlight-colors';
-import { type AnnotationCorner } from '$features/highlight/services/highlight-annotations';
+import { type AnnotationColorKey } from '$features/annotations/annotation-colors';
+import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /**
  * Descriptor for an anchor that represents a DOM element.
@@ -11,7 +11,7 @@ export interface AnchorDescriptor {
   textSnippet: string; // First 32 chars of text content (normalized)
   textHash: number; // A simple hash of the full text content
   elementId?: string; // The element's own ID if present
-  color?: HighlightColorKey; // Per-element highlight color (omitted = default yellow)
+  color?: AnnotationColorKey; // Per-element box color (omitted = default red)
   annotation?: string; // Optional text annotation (≤280 chars)
   annotationCorner?: AnnotationCorner; // Which corner the annotation anchors to
 }

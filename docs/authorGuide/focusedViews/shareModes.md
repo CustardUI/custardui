@@ -53,7 +53,7 @@ To create links that trigger share mode:
 
 [Hide Mode (Hash)](#cv-share-hide) (`[Hide Mode (Hash)](#cv-share-hide)`)
 
-[Highlight Mode (Query + Hash)](./share.html?cv-share-highlight#selecting-elements) (`[Highlight Mode (Query + Hash)](./share.html?cv-share-highlight#selecting-elements)`)
+[Highlight Mode (Query + Hash)](./shareModes.html?cv-share-highlight#selecting-elements) (`[Highlight Mode (Query + Hash)](./shareModes.html?cv-share-highlight#selecting-elements)`)
 
 ### Selecting Elements
 
@@ -93,13 +93,15 @@ CustardUI supports a human-readable format using HTML element IDs:
 | :------------- | :-------- | :---------------------------------------------------------------- |
 | `cv-show`      | `id1,id2` | **Shows** only the specified elements. All others are hidden.     |
 | `cv-hide`      | `id1,id2` | **Hides** the specified elements. All others are shown.           |
-| `cv-highlight` | `id1,id2` | **Highlights** the specified elements. Full page remains visible. |
+| `cv-box`       | `id1,id2` | **Boxes (outlines)** the specified elements. Full page is visible.|
 
 **Example:**
 To show only the `#setup` and `#config` sections:
 `https://yoursite.com/guide.html?cv-show=setup,config`
 
-- For example, one such link could be [this](./share.html?cv-highlight=example-share): `[this](./share.html?cv-highlight=example-share)`
+- For example, one such link could be [this](./shareModes.html?cv-box=example-share): `[this](./shareModes.html?cv-box=example-share)`
+
+For fine-grained text range highlighting, CustardUI supports a separate `cv-highlight` parameter. For full details on both element boxing (`cv-box`) and text highlighting (`cv-highlight`), see the [Highlighting Modes Guide](./highlightModes.md).
 
 **Note:**
 

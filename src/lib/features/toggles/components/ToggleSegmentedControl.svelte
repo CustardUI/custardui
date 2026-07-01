@@ -18,7 +18,7 @@
 </script>
 
 <div class="segmented" class:standalone role="group" aria-label={ariaLabel}>
-  {#each (['hide', 'peek', 'show'] as const) as option (option)}
+  {#each ['hide', 'peek', 'show'] as const as option (option)}
     <button
       type="button"
       class="segment-btn {value === option ? 'active' : ''}"
@@ -61,7 +61,9 @@
     font-weight: 500;
     color: var(--cv-text-secondary);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
     font-family: inherit;
     line-height: 1;
   }

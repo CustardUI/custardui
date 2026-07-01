@@ -246,6 +246,9 @@ describe('PlaceholderBinder', () => {
       const a = container.querySelector('a')!;
       expect(a.getAttribute('href')).toBe('mailto:support@example.com');
     });
+  });
+
+  describe('updateAll — fallback priority', () => {
     it('should treat an explicit empty fallback as "show nothing" (overrides registry default)', () => {
       vi.mocked(placeholderRegistryStore.get).mockReturnValue({
         name: 'key',
@@ -294,7 +297,10 @@ describe('PlaceholderBinder', () => {
     });
 
     it('returns undefined even if a registry defaultValue exists (does not consult registry)', () => {
-      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'name', defaultValue: 'Guest' });
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'name',
+        defaultValue: 'Guest',
+      });
       // resolveUserValue must NOT call the registry — only looks at the values map
       expect(PlaceholderBinder.resolveUserValue('name', {})).toBeUndefined();
     });
@@ -376,9 +382,13 @@ describe('PlaceholderBinder', () => {
 
   describe('updateAll — conditional syntax resolution', () => {
     it('[[name ? t : f]] returns falsy when only registry default exists (user-set only)', () => {
-      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'username', defaultValue: 'Guest' });
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'username',
+        defaultValue: 'Guest',
+      });
 
-      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({});
 
@@ -387,9 +397,13 @@ describe('PlaceholderBinder', () => {
     });
 
     it('[[name* ? t : f]] returns truthy with registry default substituted', () => {
-      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'username', defaultValue: 'Guest' });
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'username',
+        defaultValue: 'Guest',
+      });
 
-      container.innerHTML = '<div data-value="[[username* ? Hi $! : nobody]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="[[username* ? Hi $! : nobody]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({});
 
@@ -398,7 +412,8 @@ describe('PlaceholderBinder', () => {
     });
 
     it('[[name ? t : f]] returns truthy when user has set a value', () => {
-      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({ username: 'alice' });
 
@@ -407,7 +422,8 @@ describe('PlaceholderBinder', () => {
     });
 
     it('[[name* ? t : f]] returns truthy when user has set a value', () => {
-      container.innerHTML = '<div data-value="[[username* ? Hi $! : nobody]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="[[username* ? Hi $! : nobody]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({ username: 'alice' });
 
@@ -418,7 +434,8 @@ describe('PlaceholderBinder', () => {
     it('[[name ? t : f]] returns falsy when neither user value nor registry default exists', () => {
       vi.mocked(placeholderRegistryStore.get).mockReturnValue(undefined);
 
-      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({});
 
@@ -427,7 +444,8 @@ describe('PlaceholderBinder', () => {
     });
 
     it('[[name ? t : f]] ignores empty string user value (treats as unset)', () => {
-      container.innerHTML = '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="[[username ? Hi $! : nobody]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({ username: '' });
 
@@ -436,7 +454,10 @@ describe('PlaceholderBinder', () => {
     });
 
     it('regular [[name]] display is unaffected — still uses registry default', () => {
-      vi.mocked(placeholderRegistryStore.get).mockReturnValue({ name: 'username', defaultValue: 'Guest' });
+      vi.mocked(placeholderRegistryStore.get).mockReturnValue({
+        name: 'username',
+        defaultValue: 'Guest',
+      });
 
       container.innerHTML = '<div data-value="[[username]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
@@ -470,7 +491,8 @@ describe('PlaceholderBinder', () => {
       // This is the primary use-case for <cv-placeholder if-set="..."> —
       // the [[]] shorthand cannot embed URLs (`:` is the truthy/falsy separator)
       // but interpolateString handles it fine in attribute binding strings.
-      container.innerHTML = '<div data-value="https://github.com/[[username]]" class="cv-bind"></div>';
+      container.innerHTML =
+        '<div data-value="https://github.com/[[username]]" class="cv-bind"></div>';
       PlaceholderBinder.scanAndHydrate(container);
       PlaceholderBinder.updateAll({ username: 'alice' });
 

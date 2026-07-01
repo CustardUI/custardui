@@ -41,4 +41,9 @@ export interface ConfigFile {
   settings?: WidgetSettings;
   /** Color scheme used to resolve shorthand label colors. Defaults to 'light'. */
   colorScheme?: 'light' | 'dark' | 'auto';
+  /**
+   * Subfolder (relative to data-base-url) where adaptation JSON files are stored.
+   * Defaults to 'versions'. e.g. 'versions' → {baseUrl}/versions/{id}/{id}.json
+   */
+  adaptationsPath?: string;
 }

@@ -1,5 +1,11 @@
 import type { State } from '$lib/types/index';
-import { PARAM_SHOW_TOGGLE, PARAM_PEEK_TOGGLE, PARAM_HIDE_TOGGLE, PARAM_TABS, PARAM_PH } from './url-constants';
+import {
+  PARAM_SHOW_TOGGLE,
+  PARAM_PEEK_TOGGLE,
+  PARAM_HIDE_TOGGLE,
+  PARAM_TABS,
+  PARAM_PH,
+} from './url-constants';
 import { encodeList, encodePairs } from './url-encoding-utils';
 
 /**

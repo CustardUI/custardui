@@ -3,7 +3,10 @@
 
   import { onMount, getContext } from 'svelte';
   import IconGear from '$lib/app/icons/IconGear.svelte';
-  import { type IconSettingsStore, ICON_SETTINGS_CTX } from '$features/settings/stores/icon-settings-store.svelte';
+  import {
+    type IconSettingsStore,
+    ICON_SETTINGS_CTX,
+  } from '$features/settings/stores/icon-settings-store.svelte';
 
   const iconSettingsStore = getContext<IconSettingsStore>(ICON_SETTINGS_CTX);
 
@@ -196,7 +199,12 @@
   }
 
   // Helper for transforms
-  function getTransform(pos: string | undefined, offset: number, s: number | undefined, collapsed: boolean) {
+  function getTransform(
+    pos: string | undefined,
+    offset: number,
+    s: number | undefined,
+    collapsed: boolean,
+  ) {
     const isMiddle = pos && pos.includes('middle');
     const isRight = pos && pos.includes('right');
     let t = '';
@@ -253,8 +261,8 @@
     onmousedown={(e) => e.stopPropagation()}
     ontouchstart={(e) => e.stopPropagation()}
     onpointerdown={(e) => e.stopPropagation()}
-    aria-label="Collapse settings icon"
-  >{isRight ? '›' : '‹'}</button>
+    aria-label="Collapse settings icon">{isRight ? '›' : '‹'}</button
+  >
 
   <!-- Dismiss button: shown above peek strip when collapsed -->
   {#if isCollapsed}
@@ -262,14 +270,16 @@
       type="button"
       class="cv-dismiss-btn"
       data-side={isRight ? 'left' : 'right'}
-      onclick={(e) => { e.stopPropagation(); iconSettingsStore.dismiss(); }}
+      onclick={(e) => {
+        e.stopPropagation();
+        iconSettingsStore.dismiss();
+      }}
       onmousedown={(e) => e.stopPropagation()}
       ontouchstart={(e) => e.stopPropagation()}
       onpointerdown={(e) => e.stopPropagation()}
-      aria-label="Dismiss settings icon"
-    >✕</button>
+      aria-label="Dismiss settings icon">✕</button
+    >
   {/if}
-
 </div>
 
 <style>
@@ -386,7 +396,9 @@
     line-height: 1;
     color: inherit;
     opacity: 0.5;
-    transition: opacity 0.15s ease, background 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      background 0.15s ease;
   }
 
   .cv-collapse-btn[data-side='left'] {
@@ -426,17 +438,22 @@
     line-height: 1;
     color: inherit;
     opacity: 0.5;
-    transition: opacity 0.15s ease, background 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      background 0.15s ease;
   }
 
-  .cv-dismiss-btn[data-side='left'] { left: 0; }
-  .cv-dismiss-btn[data-side='right'] { right: 0; }
+  .cv-dismiss-btn[data-side='left'] {
+    left: 0;
+  }
+  .cv-dismiss-btn[data-side='right'] {
+    right: 0;
+  }
 
   .cv-dismiss-btn:hover {
     opacity: 1;
     background: rgba(0, 0, 0, 0.25);
   }
-
 
   /* Top-right */
   .cv-settings-top-right {

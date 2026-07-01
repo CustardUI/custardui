@@ -220,11 +220,11 @@ Interpolate placeholder values into HTML attributes such as `href` or `src` by a
 
 **Security and Responsible Use**
 
-Placeholders can be populated directly from [shareable URL parameters](#shareable-url). They must be treated as **untrusted user input**. 
+Placeholders can be populated directly from [shareable URL parameters](#shareable-url). They must be treated as **untrusted user input**.
 
-- **Cross-Site Scripting (XSS):** While CustardUI automatically URL-encodes placeholder values when they are used as components of an `href` or `src` attribute (e.g. `[[username]]`), it **does not** prevent full `javascript:` URLs if the placeholder itself is a full URL.
-- **Avoid Dangerous Attributes:** Never bind placeholders to event handler attributes (e.g., `onclick`, `onerror`, `onmouseover`) or `<script>` tags, as they are not sanitized and could execute arbitrary code if a malicious shareable URL is clicked.
-- **Context Awareness:** Only bind placeholders to attributes where the resulting value is constrained to a safe domain or format that you control.
+- **Protocol blocking:** `javascript:` and `vbscript:` URLs are blocked when a placeholder value is bound to an `href` or `src` attribute, returning an empty string instead.
+- **Event handler blocking:** Placeholder binding into `on*` attributes (e.g. `onclick`, `onerror`) is blocked entirely, and the attribute is silently skipped and a warning is logged to the console.
+- **Context awareness:** Only bind placeholders to attributes where the resulting value is constrained to a safe domain or format that you control.
 
 </box>
 

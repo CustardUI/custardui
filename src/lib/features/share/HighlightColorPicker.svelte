@@ -1,20 +1,26 @@
 <script lang="ts">
-  import { shareStore } from '$features/share/stores/share-store.svelte';
   import {
-    HIGHLIGHT_COLORS,
-    DEFAULT_COLOR_KEY,
-    type HighlightColorKey,
-  } from '$features/highlight/services/highlight-colors';
+    ANNOTATION_COLORS,
+    type AnnotationColorKey,
+  } from '$features/annotations/annotation-colors';
 
-  let { element }: { element: HTMLElement } = $props();
+  interface Props {
+    getRect: () => DOMRect;
+    colorKey: AnnotationColorKey;
+    onchange: (key: AnnotationColorKey) => void;
+    ondblclick?: (key: AnnotationColorKey) => void;
+    isVisible?: boolean;
+  }
+
+  let { getRect, colorKey, onchange, ondblclick, isVisible = true }: Props = $props();
 
   let isExpanded = $state(false);
-  let rect = $state({ top: 0, left: 0, width: 0 });
+  let rect = $state<DOMRect>(new DOMRect());
 
   $effect(() => {
-    rect = element.getBoundingClientRect();
+    rect = getRect();
     const update = () => {
-      rect = element.getBoundingClientRect();
+      rect = getRect();
     };
     window.addEventListener('scroll', update, { capture: true, passive: true });
     window.addEventListener('resize', update, { passive: true });
@@ -25,9 +31,8 @@
     };
   });
 
-  let currentColorKey = $derived(shareStore.highlightColors.get(element) ?? DEFAULT_COLOR_KEY);
   let currentHex = $derived(
-    HIGHLIGHT_COLORS.find((c) => c.key === currentColorKey)?.hex ?? HIGHLIGHT_COLORS[0]!.hex,
+    ANNOTATION_COLORS.find((c) => c.key === colorKey)?.hex ?? ANNOTATION_COLORS[0]!.hex,
   );
 
   let clickTimer: ReturnType<typeof setTimeout> | null = null;
@@ -37,23 +42,23 @@
     isExpanded = !isExpanded;
   }
 
-  function handleSwatchClick(e: MouseEvent, key: HighlightColorKey) {
+  function handleSwatchClick(e: MouseEvent, key: AnnotationColorKey) {
     e.stopPropagation();
     if (clickTimer) return; // defer to potential dblclick
     clickTimer = setTimeout(() => {
       clickTimer = null;
-      shareStore.setHighlightColor(element, key);
+      onchange(key);
       isExpanded = false;
     }, 220);
   }
 
-  function handleSwatchDblClick(e: MouseEvent, key: HighlightColorKey) {
+  function handleSwatchDblClick(e: MouseEvent, key: AnnotationColorKey) {
     e.stopPropagation();
     if (clickTimer) {
       clearTimeout(clickTimer);
       clickTimer = null;
     }
-    shareStore.setAllHighlightColors(key);
+    if (ondblclick) ondblclick(key);
     isExpanded = false;
   }
 
@@ -61,11 +66,7 @@
   let topY = $derived(rect.top);
 </script>
 
-<div
-  class="cv-color-picker"
-  style="left: {centerX}px; top: {topY}px;"
-  role="none"
->
+<div class="cv-color-picker" class:visible={isVisible || isExpanded} style="left: {centerX}px; top: {topY}px;" role="none">
   <button
     type="button"
     class="cv-color-trigger"
@@ -78,17 +79,17 @@
   </button>
   {#if isExpanded}
     <div class="cv-color-swatches" role="none">
-      {#each HIGHLIGHT_COLORS as color}
+      {#each ANNOTATION_COLORS as color (color.key)}
         <button
           type="button"
           class="cv-color-swatch"
-          class:active={currentColorKey === color.key}
+          class:active={colorKey === color.key}
           style="background: {color.hex};"
           onclick={(e) => handleSwatchClick(e, color.key)}
           ondblclick={(e) => handleSwatchDblClick(e, color.key)}
           title="{color.label} · dbl-click to apply to all"
           aria-label={color.label}
-          aria-pressed={currentColorKey === color.key}
+          aria-pressed={colorKey === color.key}
         ></button>
       {/each}
     </div>
@@ -103,10 +104,17 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    pointer-events: auto;
     z-index: 9500;
     /* Nudge down so the trigger peeks above the element edge */
     margin-top: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+
+  .cv-color-picker.visible {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .cv-color-trigger {
@@ -137,12 +145,12 @@
   }
 
   .cv-color-swatches {
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(5, 16px);
+    gap: 6px;
     background: white;
-    border-radius: 100px;
-    padding: 4px 6px;
+    border-radius: 12px;
+    padding: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     border: 1px solid rgba(0, 0, 0, 0.1);
   }
@@ -154,7 +162,9 @@
     border: 2px solid transparent;
     cursor: pointer;
     padding: 0;
-    transition: transform 0.1s, border-color 0.1s;
+    transition:
+      transform 0.1s,
+      border-color 0.1s;
   }
 
   .cv-color-swatch:hover {

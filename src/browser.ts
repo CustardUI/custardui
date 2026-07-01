@@ -2,6 +2,8 @@ import { getScriptAttributes, fetchConfig } from '$lib/utils/init-utils';
 import { initUIManager } from '$lib/app/ui-manager';
 import { AppRuntime, type RuntimeOptions } from '$lib/runtime.svelte';
 import { AdaptationManager } from '$features/adaptation/adaptation-manager';
+import { InsertionLoader } from '$features/insertion/insertion-loader';
+import { insertionStore } from '$features/insertion/insertion-store.svelte';
 import '$lib/registry';
 
 // --- No Public API Exports ---
@@ -15,7 +17,7 @@ export function initializeFromScript(): void {
   // Only run in browser environment
   if (typeof window === 'undefined') return;
 
-  // Idempotency check 
+  // Idempotency check
   if (window.__custardUIInitialized) {
     console.info('[CustardUI] Auto-init skipped: already initialized.');
     return;
@@ -38,10 +40,31 @@ export function initializeFromScript(): void {
       // - Theme CSS injected ASAP (FOUC prevention)
       // - ?adapt= param cleaned before URLStateManager.parseURL() runs
       // - URL indicator set before AppRuntime so URL state is seeded correctly
-      const adaptationConfig = await AdaptationManager.init(effectiveBaseURL, configFile.storageKey);
+      const adaptationConfig = await AdaptationManager.init(
+        effectiveBaseURL,
+        configFile.storageKey,
+        configFile.adaptationsPath,
+      );
       if (adaptationConfig?.id) {
         AdaptationManager.rewriteUrlIndicator(adaptationConfig.id);
       }
+
+      // Load adopter insertions (parallel concern to adaptation theme / preset).
+      // Fetch is fire-and-go before AppRuntime.start() so cv-insertion elements
+      // have data on first mount without needing a second render cycle.
+      let insertionMap = null;
+      if (document.querySelector('cv-insertion')) {
+        insertionMap = await InsertionLoader.init(
+          effectiveBaseURL,
+          adaptationConfig,
+          configFile.adaptationsPath,
+        );
+      }
+      insertionStore.init(
+        insertionMap,
+        adaptationConfig?.name ?? adaptationConfig?.id ?? null,
+        adaptationConfig !== null,
+      );
 
       const coreOptions: RuntimeOptions = {
         configFile,

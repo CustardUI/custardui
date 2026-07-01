@@ -101,7 +101,6 @@ describe('share-logic', () => {
   });
 
   describe('isExcluded', () => {
-
     it('should exclude elements with data share ignore attribute', () => {
       const el = document.createElement('div');
       el.setAttribute(CV_SHARE_IGNORE_ATTRIBUTE, '');

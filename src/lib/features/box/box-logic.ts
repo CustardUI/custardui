@@ -1,7 +1,7 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { type RectData } from './services/highlight-types';
-import { type HighlightColorKey } from './services/highlight-colors';
-import { type AnnotationCorner } from './services/highlight-annotations';
+import { type RectData } from './services/box-types';
+import { type AnnotationColorKey } from '../annotations/annotation-colors';
+import { type AnnotationCorner } from '$features/annotations/annotation-types';
 
 /**
  * Groups elements by their parent.
@@ -43,7 +43,7 @@ export function calculateMergedRects(
   groups: SvelteMap<HTMLElement, HTMLElement[]>,
   getRect: (el: HTMLElement) => SimpleRect,
   getScroll: () => { scrollTop: number; scrollLeft: number },
-  colorMap?: Map<HTMLElement, HighlightColorKey>,
+  colorMap?: Map<HTMLElement, AnnotationColorKey>,
   annotationMap?: Map<HTMLElement, { text: string; corner: AnnotationCorner }>,
 ): RectData[] {
   const mergedRects: RectData[] = [];
@@ -55,7 +55,15 @@ export function calculateMergedRects(
 
     // Optimization if only 1 child, no need to scan parent
     if (siblingsInGroup.length === 1) {
-      addMergedRect(mergedRects, siblingsInGroup, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+      addMergedRect(
+        mergedRects,
+        siblingsInGroup,
+        getRect,
+        scrollTop,
+        scrollLeft,
+        colorMap,
+        annotationMap,
+      );
       continue;
     }
 
@@ -74,21 +82,45 @@ export function calculateMergedRects(
           currentBatch.length > 0 &&
           !sameMetadata(currentBatch[0]!, child, colorMap, annotationMap)
         ) {
-          addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+          addMergedRect(
+            mergedRects,
+            currentBatch,
+            getRect,
+            scrollTop,
+            scrollLeft,
+            colorMap,
+            annotationMap,
+          );
           currentBatch = [];
         }
         currentBatch.push(child);
       } else {
         // Break in continuity
         if (currentBatch.length > 0) {
-          addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+          addMergedRect(
+            mergedRects,
+            currentBatch,
+            getRect,
+            scrollTop,
+            scrollLeft,
+            colorMap,
+            annotationMap,
+          );
           currentBatch = [];
         }
       }
     }
     // Finalize last batch
     if (currentBatch.length > 0) {
-      addMergedRect(mergedRects, currentBatch, getRect, scrollTop, scrollLeft, colorMap, annotationMap);
+      addMergedRect(
+        mergedRects,
+        currentBatch,
+        getRect,
+        scrollTop,
+        scrollLeft,
+        colorMap,
+        annotationMap,
+      );
     }
   }
 
@@ -98,7 +130,7 @@ export function calculateMergedRects(
 function sameMetadata(
   a: HTMLElement,
   b: HTMLElement,
-  colorMap?: Map<HTMLElement, HighlightColorKey>,
+  colorMap?: Map<HTMLElement, AnnotationColorKey>,
   annotationMap?: Map<HTMLElement, { text: string; corner: AnnotationCorner }>,
 ): boolean {
   if ((colorMap?.get(a) ?? undefined) !== (colorMap?.get(b) ?? undefined)) return false;
@@ -115,7 +147,7 @@ function addMergedRect(
   getRect: (el: HTMLElement) => SimpleRect,
   scrollTop: number,
   scrollLeft: number,
-  colorMap?: Map<HTMLElement, HighlightColorKey>,
+  colorMap?: Map<HTMLElement, AnnotationColorKey>,
   annotationMap?: Map<HTMLElement, { text: string; corner: AnnotationCorner }>,
 ) {
   if (elements.length === 0) return;

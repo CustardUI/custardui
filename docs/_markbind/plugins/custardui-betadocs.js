@@ -22,7 +22,8 @@ const tagConfig = {
 	'cv-tab-header': { isCustomElement: true },
 	'cv-define-placeholder': { isCustomElement: true },
 	'cv-placeholder-input': { isCustomElement: true },
-	'cv-label': { isCustomElement: true }
+	'cv-label': { isCustomElement: true },
+	'cv-insertion': { isCustomElement: true }
 };
 
 // CJS: module.exports = { getScripts };

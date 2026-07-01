@@ -7,11 +7,11 @@ export const SHAREABLE_SELECTOR =
   'div, p, blockquote, pre, li, h1, h2, h3, h4, h5, h6, table, span, tr, ' + CV_CUSTOM_ELEMENTS;
 
 export const SELECTED_CLASS = 'cv-share-selected';
-export const HIGHLIGHT_TARGET_CLASS = 'cv-highlight-target';
+export const BOX_TARGET_CLASS = 'cv-box-target';
 export const HIDE_SELECTED_CLASS = 'cv-share-selected-hide';
-export const HIDE_HIGHLIGHT_TARGET_CLASS = 'cv-highlight-target-hide';
-export const HIGHLIGHT_SELECTED_CLASS = 'cv-share-selected-highlight';
-export const HIGHLIGHT_TARGET_MODE_CLASS = 'cv-highlight-target-mode';
+export const HIDE_BOX_TARGET_CLASS = 'cv-box-target-hide';
+export const BOX_SELECTED_CLASS = 'cv-share-selected-box';
+export const BOX_TARGET_MODE_CLASS = 'cv-box-target-mode';
 
 // IDs that should be treated as generic wrappers even if they are unique
 export const GENERIC_WRAPPER_IDS = ['flex-body', 'content-wrapper', 'app'];

@@ -17,7 +17,12 @@
   import { URLStateManager } from '$features/url/url-state-manager';
   import { showToast } from '$features/notifications/stores/toast-store.svelte';
   import { placeholderRegistryStore } from '$features/placeholder/stores/placeholder-registry-store.svelte';
-  import { findHighestVisibleElement, captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
+  import {
+    findHighestVisibleElement,
+    captureScrollAnchor,
+    restoreScrollAnchor,
+  } from '$lib/utils/scroll-utils';
+  import { PARAM_LINK_LABEL } from '$features/url/url-constants';
 
   import ToggleItem from './ToggleItem.svelte';
   import TabGroupItem from './TabGroupItem.svelte';
@@ -30,11 +35,7 @@
     onstartShare?: () => void;
   }
 
-  let {
-    onclose = () => {},
-    onreset = () => {},
-    onstartShare = () => {},
-  }: Props = $props();
+  let { onclose = () => {}, onreset = () => {}, onstartShare = () => {} }: Props = $props();
 
   // --- Derived State from Core ---
   const areTabNavsVisible = $derived(uiStore.isTabGroupNavHeadingVisible);
@@ -76,10 +77,12 @@
   let activeTab = $state<'customize' | 'share'>('customize');
 
   let copySuccess = $state(false);
+  let isOverlayMousedown = false;
 
   // Height preservation logic
   let mainClientHeight = $state(0);
   let preservedHeight = $state(0);
+  let linkLabel = $state('');
 
   $effect(() => {
     if (!hasCustomizeContent && activeTab === 'customize') {
@@ -127,17 +130,31 @@
   }
 
   async function copyShareUrl() {
-    const url = URLStateManager.generateShareableURL(
+    const rawUrl = URLStateManager.generateShareableURL(
       activeStateStore.state,
       activeStateStore.config,
       {
         toggles: elementStore.detectedToggles,
         tabGroups: elementStore.detectedTabGroups,
         placeholders: elementStore.detectedPlaceholders,
-      }
+      },
     );
+
+    const urlObj = new URL(rawUrl);
+    const trimmed = linkLabel.trim();
+    if (trimmed) {
+      const existingSearch = urlObj.search.replace(/^\?/, '');
+      const withoutLabel = existingSearch
+        .split('&')
+        .filter((p) => p && p !== PARAM_LINK_LABEL && !p.startsWith(`${PARAM_LINK_LABEL}=`))
+        .join('&');
+      const labelPart = `${PARAM_LINK_LABEL}=${encodeURIComponent(trimmed)}`;
+      urlObj.search = [labelPart, withoutLabel].filter(Boolean).join('&');
+    }
+    const finalUrl = urlObj.toString();
+
     try {
-      await copyToClipboard(url);
+      await copyToClipboard(finalUrl);
       showToast('Link copied to clipboard!');
       copySuccess = true;
       setTimeout(() => {
@@ -162,8 +179,14 @@
 
 <div
   class="modal-overlay"
-  onclick={(e) => {
-    if (e.target === e.currentTarget) onclose();
+  onmousedown={(e) => {
+    if (e.target === e.currentTarget) isOverlayMousedown = true;
+  }}
+  onmouseup={(e) => {
+    if (isOverlayMousedown && e.target === e.currentTarget) {
+      onclose();
+    }
+    isOverlayMousedown = false;
   }}
   role="presentation"
   transition:fade={{ duration: 200 }}
@@ -314,14 +337,27 @@
               the page to share.
             </div>
 
-            <button type="button" class="share-action-btn primary start-share-btn" onclick={() => onstartShare()}>
-              <span class="btn-icon"
-                ><IconShare /></span
-              >
+            <button
+              type="button"
+              class="share-action-btn primary start-share-btn"
+              onclick={() => onstartShare()}
+            >
+              <span class="btn-icon"><IconShare /></span>
               <span>Select elements to share</span>
             </button>
 
             {#if hasCustomizeContent}
+              <div class="link-label-container">
+                <label for="settings-link-label">Link Label (Optional)</label>
+                <input
+                  type="text"
+                  id="settings-link-label"
+                  class="link-label-input"
+                  bind:value={linkLabel}
+                  placeholder="e.g. default-settings"
+                />
+              </div>
+
               <button type="button" class="share-action-btn copy-url-btn" onclick={copyShareUrl}>
                 <span class="btn-icon">
                   {#if copySuccess}
@@ -346,16 +382,26 @@
 
     <footer class="footer">
       {#if showReset}
-        <button type="button" class="reset-btn" title="Reset to Default" onclick={onreset}>Reset</button>
+        <button type="button" class="reset-btn" title="Reset to Default" onclick={onreset}
+          >Reset</button
+        >
       {:else}
         <div></div>
       {/if}
 
       <div class="footer-attribution">
         <span class="footer-tagline">Browser-side page customisations provided by</span>
-        <a href="https://custardui.js.org" target="_blank" rel="noopener noreferrer" class="footer-link">
-          custardui.js.org
-        </a>
+        <div class="footer-link-container">
+          <a
+            href="https://custardui.js.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+          >
+            custardui.js.org
+          </a>
+          <span class="footer-version">v{__APP_VERSION__}</span>
+        </div>
       </div>
 
       <button type="button" class="done-btn" onclick={onclose}>Done</button>
@@ -689,6 +735,19 @@
     color: var(--cv-primary);
   }
 
+  .footer-link-container {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .footer-version {
+    font-size: 0.65rem;
+    color: var(--cv-text);
+    opacity: 0.9;
+    letter-spacing: 0.04em;
+  }
+
   .reset-btn {
     display: flex;
     align-items: center;
@@ -718,13 +777,19 @@
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
-    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.08);
+    transition:
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .done-btn:hover {
     background: var(--cv-primary-hover);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+    box-shadow:
+      0 3px 6px rgba(0, 0, 0, 0.12),
+      0 2px 4px rgba(0, 0, 0, 0.08);
   }
 
   /* Share Tab Styles */
@@ -791,5 +856,40 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  /* Link Label */
+  .link-label-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 320px;
+    text-align: left;
+    margin-bottom: 0.5rem;
+  }
+
+  .link-label-container label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--cv-text-secondary);
+  }
+
+  .link-label-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--cv-border);
+    background: var(--cv-bg);
+    color: var(--cv-text);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .link-label-input:focus {
+    outline: none;
+    border-color: var(--cv-primary);
+    box-shadow: 0 0 0 2px rgba(62, 132, 244, 0.2);
   }
 </style>

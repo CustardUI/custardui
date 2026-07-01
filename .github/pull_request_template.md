@@ -8,7 +8,6 @@
 - [ ] Minor (when you add functionality in a backward compatible manner)
 - [ ] Patch (when you make backward compatible bug fixes)
 
-
 **Checklist:** :ballot_box_with_check:
 
 <!-- Leave non-applicable items unchecked -->
@@ -24,5 +23,6 @@
 -->
 
 **Merge Instructions**:
+
 - [ ] For feature branches merging to **develop**: Prefer **Squash and Merge**.
 - [ ] For release/hotfix branches merging to **main**, or subsequent sync back-merges merging to **develop**: ONLY use **Create a Merge Commit**.

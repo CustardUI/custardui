@@ -29,7 +29,9 @@ describe('ActiveStateStore', () => {
     vi.clearAllMocks();
     // Default: filterValidPlaceholders and filterUserSettablePlaceholders are passthroughs
     vi.mocked(placeholderManager.filterValidPlaceholders).mockImplementation((ph) => ph ?? {});
-    vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockImplementation((ph) => ph ?? {});
+    vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockImplementation(
+      (ph) => ph ?? {},
+    );
     store = new ActiveStateStore();
   });
 
@@ -62,7 +64,7 @@ describe('ActiveStateStore', () => {
       expect(placeholderManager.calculatePlaceholderFromTabSelected).toHaveBeenCalledWith(
         'group1',
         't2',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -173,8 +175,12 @@ describe('ActiveStateStore', () => {
       expect(store.state.shownToggles).toContain('known');
       expect(store.state.shownToggles).not.toContain('ghost-show');
       expect(store.state.peekToggles).not.toContain('ghost-peek');
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost-show" is not in the config'));
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"ghost-peek" is not in the config'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"ghost-show" is not in the config'),
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"ghost-peek" is not in the config'),
+      );
     });
 
     it('should filter out invalid tab group IDs', () => {
@@ -202,7 +208,9 @@ describe('ActiveStateStore', () => {
 
       // Falls back to default (first tab)
       expect(store.state.tabs?.g1).toBe('valid');
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"nonexistent" is not in group'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"nonexistent" is not in group'),
+      );
     });
 
     it('should sanitize incoming placeholders via filterUserSettablePlaceholders', () => {
@@ -210,7 +218,10 @@ describe('ActiveStateStore', () => {
 
       store.applyState({ placeholders: { safe: 'ok', evil: 'injected' } });
 
-      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ safe: 'ok', evil: 'injected' });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({
+        safe: 'ok',
+        evil: 'injected',
+      });
       expect(store.state.placeholders?.evil).toBeUndefined();
     });
   });
@@ -303,11 +314,16 @@ describe('ActiveStateStore', () => {
     });
 
     it('only accepts registered placeholder keys (explicit override wins)', () => {
-      vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({ p1: 'explicit' });
+      vi.mocked(placeholderManager.filterUserSettablePlaceholders).mockReturnValue({
+        p1: 'explicit',
+      });
 
       store.applyDifferenceInState({ placeholders: { p1: 'explicit', evil: 'injected' } });
 
-      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ p1: 'explicit', evil: 'injected' });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({
+        p1: 'explicit',
+        evil: 'injected',
+      });
       expect(store.state.placeholders?.evil).toBeUndefined();
     });
 
@@ -318,25 +334,31 @@ describe('ActiveStateStore', () => {
       };
       store.init(config);
 
-      store.applyDifferenceInState({ shownToggles: ['real', 'fakeShow'], peekToggles: ['fakePeek'], hiddenToggles: ['fakeHide'] });
+      store.applyDifferenceInState({
+        shownToggles: ['real', 'fakeShow'],
+        peekToggles: ['fakePeek'],
+        hiddenToggles: ['fakeHide'],
+      });
 
       expect(store.state.shownToggles).toContain('real');
       expect(store.state.shownToggles).not.toContain('fakeShow');
       expect(store.state.peekToggles).not.toContain('fakePeek');
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakeShow" is not in the config'));
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakePeek" is not in the config'));
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"fakeHide" is not in the config'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"fakeShow" is not in the config'),
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"fakePeek" is not in the config'),
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"fakeHide" is not in the config'),
+      );
     });
   });
 
   describe('applyAdaptationDefaults', () => {
     beforeEach(() => {
       const config = {
-        toggles: [
-          { toggleId: 'A-Toggle' },
-          { toggleId: 'B-Toggle' },
-          { toggleId: 'C-Toggle' },
-        ],
+        toggles: [{ toggleId: 'A-Toggle' }, { toggleId: 'B-Toggle' }, { toggleId: 'C-Toggle' }],
       };
       store.init(config);
       // Setup some initial state to prove it overwrites/appends correctly
@@ -353,7 +375,7 @@ describe('ActiveStateStore', () => {
           'A-toggle': 'hide',
           'b-toggle': 'show',
           'C-TOGGLE': 'peek',
-        }
+        },
       });
 
       expect(store.state.shownToggles).toContain('B-Toggle');
@@ -363,11 +385,11 @@ describe('ActiveStateStore', () => {
 
     it('should warn and ignore unknown toggle IDs', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       store.applyAdaptationDefaults({
         toggles: {
           'ghost-toggle': 'show',
-        }
+        },
       });
 
       expect(store.state.shownToggles).not.toContain('ghost-toggle');
@@ -381,7 +403,7 @@ describe('ActiveStateStore', () => {
       store.applyAdaptationDefaults({
         placeholders: {
           newKey: 'newVal',
-        }
+        },
       });
 
       expect(store.state.placeholders).toEqual({ newKey: 'newVal' });
@@ -416,7 +438,9 @@ describe('ActiveStateStore', () => {
 
       store.applyState({ placeholders: { instName: 'stale-stored-value' } });
 
-      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ instName: 'stale-stored-value' });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({
+        instName: 'stale-stored-value',
+      });
       expect(store.state.placeholders?.instName).toBeUndefined();
     });
 
@@ -437,7 +461,9 @@ describe('ActiveStateStore', () => {
 
       store.applyDifferenceInState({ placeholders: { instName: 'injected' } });
 
-      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({ instName: 'injected' });
+      expect(placeholderManager.filterUserSettablePlaceholders).toHaveBeenCalledWith({
+        instName: 'injected',
+      });
       expect(store.state.placeholders?.instName).toBeUndefined();
     });
   });
@@ -472,7 +498,11 @@ describe('ActiveStateStore', () => {
       });
 
       // Persisted state tries to hide 'managed-show' and show 'managed-hide'
-      store.applyState({ shownToggles: ['managed-hide'], peekToggles: [], hiddenToggles: ['managed-show'] });
+      store.applyState({
+        shownToggles: ['managed-hide'],
+        peekToggles: [],
+        hiddenToggles: ['managed-show'],
+      });
 
       expect(store.state.shownToggles).toContain('managed-show');
       expect(store.state.shownToggles).not.toContain('managed-hide');
@@ -502,14 +532,14 @@ describe('ActiveStateStore', () => {
 
       // 1. Adaptation sets 'managed' to 'show'
       store.applyAdaptationDefaults({
-        toggles: { managed: 'show' }
+        toggles: { managed: 'show' },
       });
       expect(store.state.shownToggles).toContain('managed');
 
       // 2. Persistence is applied (user tried to peek 'managed' and show 'normal')
-      store.applyState({ 
-        shownToggles: ['normal'], 
-        peekToggles: ['managed'] 
+      store.applyState({
+        shownToggles: ['normal'],
+        peekToggles: ['managed'],
       });
 
       // 'managed' should still be 'show' (from adaptation), not 'peek' (from persistence)
@@ -517,7 +547,6 @@ describe('ActiveStateStore', () => {
       expect(store.state.peekToggles).not.toContain('managed');
       expect(store.state.shownToggles).toContain('normal');
     });
-
   });
 
   // ---------------------------------------------------------------------------
@@ -552,6 +581,5 @@ describe('ActiveStateStore', () => {
       expect(store.state.shownToggles).toContain('managed');
       expect(store.state.shownToggles).not.toContain('normal');
     });
-
   });
 });

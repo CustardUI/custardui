@@ -17,15 +17,20 @@ export class AdaptationManager {
    * - Theme CSS is injected early (FOUC prevention)
    * - ?adapt= param is cleaned before URLStateManager.parseURL() runs
    *
-   * Adaptation JSON files are resolved relative to the site's baseUrl:
-   *   `{baseUrl}/{id}/{id}.json`
-   * e.g. baseUrl="/base", id="nus" → "/base/nus/nus.json"
+   * Adaptation JSON files are resolved relative to the site's baseUrl and adaptationsPath:
+   *   `{baseUrl}/{adaptationsPath}/{id}/{id}.json`
+   * e.g. baseUrl="/base", adaptationsPath="versions", id="nus" → "/base/versions/nus/nus.json"
    *
    * @param baseUrl The site's base URL (from data-base-url, default: '')
    * @param storageKey The project's unique storageKey prefix to use for saving preferences
+   * @param adaptationsPath Subfolder under baseUrl where adaptation JSON files are stored (default: 'versions')
    * @returns The loaded AdaptationConfig, or null if no adaptation is active
    */
-  static async init(baseUrl = '', storageKey?: string): Promise<AdaptationConfig | null> {
+  static async init(
+    baseUrl = '',
+    storageKey?: string,
+    adaptationsPath = 'versions',
+  ): Promise<AdaptationConfig | null> {
     const persistence = new PersistenceManager(storageKey);
 
     // 1. Read indicators (URL hash first, then ?adapt=)
@@ -35,7 +40,7 @@ export class AdaptationManager {
 
     // 2. Handle ?adapt=clear
     if (queryParamValue === 'clear') {
-      persistence.clearAll();              // wipe custardUI-state and tab nav prefs
+      persistence.clearAll(); // wipe custardUI-state and tab nav prefs
       persistence.removeItem(STORAGE_KEY); // wipe the adaptation ID itself
       if (this.hasHashAdaptationId(url.hash)) {
         this.stripHashFromUrl(url);
@@ -45,10 +50,11 @@ export class AdaptationManager {
     }
 
     // 4. Determine namespace: page meta tag > URL param > Hash Indicator > localStorage
-    const rawId = this.getMetaAdaptationId() 
-      ?? queryParamValue 
-      ?? hashMatch 
-      ?? persistence.getItem(STORAGE_KEY);
+    const rawId =
+      this.getMetaAdaptationId() ??
+      queryParamValue ??
+      hashMatch ??
+      persistence.getItem(STORAGE_KEY);
 
     const id = typeof rawId === 'string' ? rawId.trim() : rawId;
     if (!id) {
@@ -58,7 +64,7 @@ export class AdaptationManager {
     }
 
     // 5. Fetch adaptation config and validate
-    const config = await this.loadAdaptationConfig(baseUrl, id, persistence);
+    const config = await this.loadAdaptationConfig(baseUrl, id, persistence, adaptationsPath);
     if (!config) {
       this.clearStoredId(persistence);
       return null;
@@ -67,7 +73,10 @@ export class AdaptationManager {
     // 6. Clean URL indicators given valid adaptation
     if (queryParamValue !== null) {
       // If the query param specifies a new adaptation, we should clear any stale hash indicator
-      if (this.hasHashAdaptationId(url.hash) && url.hash !== this.getHashUrlIndicator(queryParamValue)) {
+      if (
+        this.hasHashAdaptationId(url.hash) &&
+        url.hash !== this.getHashUrlIndicator(queryParamValue)
+      ) {
         this.stripHashFromUrl(url);
       }
       // If hash empty, or matches query param, populate later with hash indicator, so remove query param
@@ -133,7 +142,21 @@ export class AdaptationManager {
 
     // Inject CSS variables onto :root
     if (theme.cssVariables) {
+      const CUSTOM_PROP = /^--[a-zA-Z0-9_-]+$/;
+      const DANGEROUS_VALUE = /url\s*\(|expression\s*\(|javascript:/i;
       for (const [property, value] of Object.entries(theme.cssVariables)) {
+        if (!CUSTOM_PROP.test(property)) {
+          console.warn(
+            `[CustardUI] Ignoring non-custom CSS property in adaptation theme: "${property}"`,
+          );
+          continue;
+        }
+        if (DANGEROUS_VALUE.test(value)) {
+          console.warn(
+            `[CustardUI] Ignoring suspicious CSS value for "${property}" in adaptation theme.`,
+          );
+          continue;
+        }
         document.documentElement.style.setProperty(property, value);
       }
     }
@@ -179,7 +202,9 @@ export class AdaptationManager {
    * Meta tag is in the form <meta name="cv-adapt" content="{id}">
    */
   private static getMetaAdaptationId(): string | null {
-    return (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content || null;
+    return (
+      (document.querySelector('meta[name="cv-adapt"]') as HTMLMetaElement | null)?.content || null
+    );
   }
 
   private static stripQueryParamFromUrl(url: URL): void {
@@ -195,19 +220,22 @@ export class AdaptationManager {
   private static async loadAdaptationConfig(
     baseUrl: string,
     id: string,
-    persistence: PersistenceManager
+    persistence: PersistenceManager,
+    adaptationsPath = 'versions',
   ): Promise<AdaptationConfig | null> {
     try {
       if (!id || id.trim() === '') return null;
       const safeId = encodeURIComponent(id.trim());
-      const jsonFile = `${safeId}/${safeId}.json`;
-      
+      const normalizedPath = adaptationsPath.trim().replace(/^\/+|\/+$/g, '');
+      const safePath = normalizedPath ? `${normalizedPath}/` : '';
+      const jsonFile = `${safePath}${safeId}/${safeId}.json`;
+
       // The base must end in a slash for the URL constructor to treat it as a directory.
       // If baseUrl is empty, this falls back to '/', which resolves against window.location.origin.
       const directoryBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      
+
       const fetchUrl = new URL(jsonFile, new URL(directoryBase, window.location.origin)).toString();
-      
+
       const response = await fetch(fetchUrl);
 
       if (!response.ok) {
@@ -230,10 +258,13 @@ export class AdaptationManager {
 
       return config;
     } catch (err) {
-      console.warn(`[CustardUI] Adaptation "${id}" failed to fetch:`, err, 'Clearing stored adaptation.');
+      console.warn(
+        `[CustardUI] Adaptation "${id}" failed to fetch:`,
+        err,
+        'Clearing stored adaptation.',
+      );
       this.clearStoredId(persistence);
       return null;
     }
   }
-
 }

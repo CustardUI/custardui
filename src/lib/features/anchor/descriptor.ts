@@ -7,9 +7,10 @@ import { hashCode, getStableNormalizedText } from './stable-text';
  * caller can use the element itself as a query scope.
  * Returns `ancestorEl: null` when no id-bearing ancestor exists.
  */
-function findNearestIdAncestor(
-  el: HTMLElement,
-): { parentId: string | undefined; ancestorEl: HTMLElement | null } {
+function findNearestIdAncestor(el: HTMLElement): {
+  parentId: string | undefined;
+  ancestorEl: HTMLElement | null;
+} {
   let node = el.parentElement;
   while (node) {
     if (node.id) return { parentId: node.id, ancestorEl: node };
@@ -31,8 +32,11 @@ export function createDescriptor(el: HTMLElement): AnchorDescriptor {
   const siblings = Array.from(container.querySelectorAll(tag));
   const rawIndex = siblings.indexOf(el);
   if (rawIndex === -1) {
-    console.error('[CustardUI] createDescriptor: element not found in container, ' +
-      'element may be detached from the DOM. Please open an issue.', el);
+    console.error(
+      '[CustardUI] createDescriptor: element not found in container, ' +
+        'element may be detached from the DOM. Please open an issue.',
+      el,
+    );
   }
   const index = rawIndex !== -1 ? rawIndex : 0;
 

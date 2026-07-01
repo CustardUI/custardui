@@ -28,8 +28,8 @@ export class ElementStore {
    */
   hasElementsOnCurrentPage = $derived(
     this.detectedToggles.size > 0 ||
-    this.detectedTabGroups.size > 0 ||
-    this.detectedPlaceholders.size > 0
+      this.detectedTabGroups.size > 0 ||
+      this.detectedPlaceholders.size > 0,
   );
 
   // --- Registry Actions ---

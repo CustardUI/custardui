@@ -1,12 +1,20 @@
 import type { State } from '$lib/types/index';
-import { PARAM_SHOW_TOGGLE, PARAM_PEEK_TOGGLE, PARAM_HIDE_TOGGLE, PARAM_TABS, PARAM_PH } from './url-constants';
+import {
+  PARAM_SHOW_TOGGLE,
+  PARAM_PEEK_TOGGLE,
+  PARAM_HIDE_TOGGLE,
+  PARAM_TABS,
+  PARAM_PH,
+} from './url-constants';
 import { splitAndDecode, decodePairs } from './url-encoding-utils';
 
 /**
  * Parses toggle visibility state from the current URL search string.
  * Returns partial state containing only the toggle fields that are present.
  */
-export function parseTogglesFromURL(search: string): Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> {
+export function parseTogglesFromURL(
+  search: string,
+): Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> {
   const partial: Pick<State, 'shownToggles' | 'peekToggles' | 'hiddenToggles'> = {};
 
   const showIds = splitAndDecode(search, PARAM_SHOW_TOGGLE);

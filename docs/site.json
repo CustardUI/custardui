@@ -16,7 +16,7 @@
     "CNAME",
     "design.md"
   ],
-  "pagesExclude": ["node_modules/*"],
+  "pagesExclude": ["node_modules/*", "markbindSyntaxReference.md"],
   "pages": [
     {
       "src": "index.md"

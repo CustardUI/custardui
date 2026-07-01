@@ -15,9 +15,13 @@
   import { elementStore } from '$lib/stores/element-store.svelte';
   import { uiStore } from '$lib/stores/ui-store.svelte';
   import { captureScrollAnchor, restoreScrollAnchor } from '$lib/utils/scroll-utils';
+  import { sanitizeHtml } from '$lib/utils/url-utils';
 
   //  ID of the tabgroup Group
-  let { groupId, stabilizeScroll = true } = $props<{ groupId?: string; stabilizeScroll?: boolean }>();
+  let { groupId, stabilizeScroll = true } = $props<{
+    groupId?: string;
+    stabilizeScroll?: boolean;
+  }>();
   $effect(() => {
     if (groupId) elementStore.registerTabGroup(groupId);
   });
@@ -41,6 +45,20 @@
   let markedTab = $derived.by(() => {
     const tabs$ = activeStateStore.state.tabs ?? {};
     return groupId && tabs$[groupId] ? tabs$[groupId] : null;
+  });
+
+  // Precompute tab active/marked states reactively to avoid template {@const} preprocessor bugs
+  let derivedTabs = $derived.by(() => {
+    return tabs.map((tab) => {
+      const splitIds = splitTabIds(tab.rawId);
+      const isActive = splitIds.includes(localActiveTabId);
+      const isMarked = !!(markedTab && splitIds.includes(markedTab));
+      return {
+        ...tab,
+        isActive,
+        isMarked,
+      };
+    });
   });
 
   // Track the last seen store state to detect real changes
@@ -121,12 +139,17 @@
       // Check for <cv-tab-header>
       const headerEl = element.querySelector('cv-tab-header');
       if (headerEl) {
-        header = headerEl.innerHTML.trim();
+        header = sanitizeHtml(headerEl.innerHTML.trim());
       } else {
-        // Attribute syntax
-        header = (element as HTMLElement & { header?: string }).header || element.getAttribute('header') || '';
-        
-        if (!header) {
+        // Attribute syntax — also supports raw HTML (e.g. <i> icons), so sanitize too
+        const rawAttrHeader =
+          (element as HTMLElement & { header?: string }).header ||
+          element.getAttribute('header') ||
+          '';
+
+        if (rawAttrHeader) {
+          header = sanitizeHtml(rawAttrHeader);
+        } else {
           // Fallback to tab-id or default
           header = element.getAttribute('tab-id') ? primaryId : `Tab ${index + 1}`;
         }
@@ -180,9 +203,7 @@
     event.preventDefault();
 
     if (localActiveTabId !== tabId) {
-      const anchor = stabilizeScroll && containerEl
-        ? captureScrollAnchor(containerEl)
-        : null;
+      const anchor = stabilizeScroll && containerEl ? captureScrollAnchor(containerEl) : null;
 
       localActiveTabId = tabId;
       updateVisibility();
@@ -201,9 +222,7 @@
 
     if (!groupId) return;
 
-    const anchor = stabilizeScroll && containerEl
-      ? captureScrollAnchor(containerEl)
-      : null;
+    const anchor = stabilizeScroll && containerEl ? captureScrollAnchor(containerEl) : null;
 
     activeStateStore.setMarkedTab(groupId, tabId);
 
@@ -223,9 +242,7 @@
 
     if (!groupId) return;
 
-    const anchor = stabilizeScroll && containerEl
-      ? captureScrollAnchor(containerEl)
-      : null;
+    const anchor = stabilizeScroll && containerEl ? captureScrollAnchor(containerEl) : null;
 
     activeStateStore.setMarkedTab(groupId, tabId);
 
@@ -241,18 +258,15 @@
   <!-- Nav -->
   {#if tabs.length > 0 && navHeadingVisible}
     <ul class="cv-tabgroup-nav" role="tablist">
-      {#each tabs as tab (tab.id)}
-        {@const splitIds = splitTabIds(tab.rawId)}
-        {@const isActive = splitIds.includes(localActiveTabId)}
-        {@const isMarked = markedTab && splitIds.includes(markedTab)}
+      {#each derivedTabs as tab (tab.id)}
         <li class="cv-tabgroup-item">
-          <div class="cv-tab-wrapper" class:active={isActive}>
+          <div class="cv-tab-wrapper" class:active={tab.isActive}>
             <a
               class="cv-tabgroup-link"
               href={'#' + tab.id}
-              class:active={isActive}
+              class:active={tab.isActive}
               role="tab"
-              aria-selected={isActive}
+              aria-selected={tab.isActive}
               onclick={(e) => handleTabClick(tab.id, e)}
               ondblclick={(e) => handleTabDoubleClick(tab.id, e)}
               title="Double-click a tab to 'mark' it in all similar tab groups."
@@ -266,14 +280,16 @@
             <button
               type="button"
               class="cv-tab-marked-icon"
-              class:is-marked={isMarked}
-              title={isMarked ? "Unmark this tab" : "Mark this tab"}
-              aria-label={isMarked ? "Unmark this tab" : "Mark this tab"}
-              aria-pressed={!!isMarked}
+              class:is-marked={tab.isMarked}
+              title={tab.isMarked ? 'Unmark this tab' : 'Mark this tab'}
+              aria-label={tab.isMarked ? 'Unmark this tab' : 'Mark this tab'}
+              aria-pressed={tab.isMarked}
               onclick={(e) => handleMarkClick(tab.id, e)}
-              ondblclick={(e) => { e.stopPropagation(); }}
+              ondblclick={(e) => {
+                e.stopPropagation();
+              }}
             >
-              <IconMark {isMarked} />
+              <IconMark isMarked={tab.isMarked} />
             </button>
           </div>
         </li>
@@ -282,8 +298,8 @@
   {/if}
 
   <!-- Inject global stylesheets to support icons (FontAwesome, etc.) inside Shadow DOM -->
-  {#each Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as link ((link as HTMLLinkElement).href)}
-    <link rel="stylesheet" href={(link as HTMLLinkElement).href} />
+  {#each Array.from(new Set(Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map(l => (l as HTMLLinkElement).href))) as href (href)}
+    <link rel="stylesheet" {href} />
   {/each}
 
   <!-- Content i.e. tab elements -->

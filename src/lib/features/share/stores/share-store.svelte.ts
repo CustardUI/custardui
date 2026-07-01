@@ -1,29 +1,44 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { type HighlightColorKey } from '$features/highlight/services/highlight-colors';
-import { type AnnotationCorner, DEFAULT_ANNOTATION_CORNER, MAX_ANNOTATION_LENGTH } from '$features/highlight/services/highlight-annotations';
+import { type AnnotationColorKey, DEFAULT_ANNOTATION_COLOR_KEY } from '$features/annotations/annotation-colors';
+import {
+  type AnnotationCorner,
+  DEFAULT_ANNOTATION_CORNER,
+  MAX_ANNOTATION_LENGTH,
+} from '$features/annotations/annotation-types';
 import { showToast } from '$features/notifications/stores/toast-store.svelte';
 import * as DomElementLocator from '$features/anchor';
 import {
   calculateNewSelection,
   SELECTED_CLASS,
-  HIGHLIGHT_TARGET_CLASS,
+  BOX_TARGET_CLASS,
   HIDE_SELECTED_CLASS,
-  HIDE_HIGHLIGHT_TARGET_CLASS,
-  HIGHLIGHT_SELECTED_CLASS,
-  HIGHLIGHT_TARGET_MODE_CLASS,
+  HIDE_BOX_TARGET_CLASS,
+  BOX_SELECTED_CLASS,
+  BOX_TARGET_MODE_CLASS,
 } from '../share-logic';
+import { type TextRangeDescriptor } from '$features/text-highlight/services/text-highlight-descriptor';
+import { serializeTextHighlights } from '$features/text-highlight/services/text-highlight-serializer';
+import { textHighlightService } from '$features/text-highlight/services/text-highlight-service.svelte';
+import { PARAM_LINK_LABEL } from '$features/url/url-constants';
 
-export type SelectionMode = 'show' | 'hide' | 'highlight';
+export type SelectionMode = 'show' | 'hide' | 'box' | 'highlight';
 
 export class ShareStore {
   isActive = $state(false);
-  selectionMode = $state<SelectionMode>('highlight');
+  selectionMode = $state<SelectionMode>('box');
   selectedElements = $state<SvelteSet<HTMLElement>>(new SvelteSet<HTMLElement>());
   currentHoverTarget = $state<HTMLElement | null>(null);
-  highlightColors = new SvelteMap<HTMLElement, HighlightColorKey>();
-  highlightAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
+  boxColors = new SvelteMap<HTMLElement, AnnotationColorKey>();
+  boxAnnotations = new SvelteMap<HTMLElement, { text: string; corner: AnnotationCorner }>();
+  textHighlights = $state<TextRangeDescriptor[]>([]);
+  selectedTextColor = $state<AnnotationColorKey>(DEFAULT_ANNOTATION_COLOR_KEY);
+  linkLabel = $state('');
 
-  shareCount = $derived(this.selectedElements.size);
+  get shareCount() {
+    return this.selectionMode === 'highlight'
+      ? this.textHighlights.length
+      : this.selectedElements.size;
+  }
 
   toggleActive(active?: boolean) {
     const newState = active !== undefined ? active : !this.isActive;
@@ -31,7 +46,7 @@ export class ShareStore {
       // Cleanup on deactivate
       this.clearAllSelections();
       if (this.currentHoverTarget) {
-        this._removeHighlightClass(this.currentHoverTarget);
+        this._removeBoxHoverClass(this.currentHoverTarget);
       }
 
       // Reset state
@@ -40,8 +55,10 @@ export class ShareStore {
       document.body.classList.remove(
         'cv-share-active-show',
         'cv-share-active-hide',
+        'cv-share-active-box',
         'cv-share-active-highlight',
       );
+      this.linkLabel = '';
     } else {
       this.isActive = true;
       this.updateBodyClass();
@@ -51,7 +68,23 @@ export class ShareStore {
   setSelectionMode(mode: SelectionMode) {
     if (this.selectionMode === mode) return;
 
+    // Always clear hover styling first — prevents outline from lingering
+    // when switching away from box/show/hide (setHoverTarget no-ops in highlight mode)
+    if (this.currentHoverTarget) {
+      this._removeBoxHoverClass(this.currentHoverTarget);
+      this.currentHoverTarget = null;
+    }
+
     this.selectionMode = mode;
+
+    // Clear other selections based on the target mode
+    if (mode === 'highlight') {
+      this.clearAllSelections();
+    } else {
+      this.textHighlights = [];
+      textHighlightService.clear();
+      window.getSelection()?.removeAllRanges();
+    }
 
     // Update styling for all currently selected elements
     this.selectedElements.forEach((el) => {
@@ -68,53 +101,65 @@ export class ShareStore {
     document.body.classList.remove(
       'cv-share-active-show',
       'cv-share-active-hide',
+      'cv-share-active-box',
       'cv-share-active-highlight',
     );
     document.body.classList.add(`cv-share-active-${this.selectionMode}`);
   }
 
   setHoverTarget(target: HTMLElement | null) {
-    // Clear previous highlight
+    // In text highlight mode, element hover is completely disabled
+    if (this.selectionMode === 'highlight') return;
+
+    // Clear previous hover
     if (this.currentHoverTarget && this.currentHoverTarget !== target) {
-      this._removeHighlightClass(this.currentHoverTarget);
+      this._removeBoxHoverClass(this.currentHoverTarget);
     }
 
-    // Set new highlight
+    // Set new hover
     if (target) {
-      this._addHighlightClass(target);
+      this._addBoxHoverClass(target);
     }
 
     this.currentHoverTarget = target;
   }
 
   toggleElementSelection(el: HTMLElement) {
+    // In text highlight mode, element clicking is completely disabled
+    if (this.selectionMode === 'highlight') return;
+
+    // When selecting elements, clear any text highlights
+    if (this.textHighlights.length > 0) {
+      this.textHighlights = [];
+      textHighlightService.clear();
+    }
+    window.getSelection()?.removeAllRanges();
+
     const { updatedSelection, changesMade } = calculateNewSelection(this.selectedElements, el);
 
     if (changesMade) {
-      // We need to sync the classes on the DOM elements
-      // 1. Remove classes from elements that are no longer selected
+      // 1. Remove classes from elements no longer selected
       this.selectedElements.forEach((oldEl) => {
         if (!updatedSelection.has(oldEl)) {
           this._removeSelectionClass(oldEl);
-          this.highlightColors.delete(oldEl);
-          this.highlightAnnotations.delete(oldEl);
+          this.boxColors.delete(oldEl);
+          this.boxAnnotations.delete(oldEl);
         }
       });
 
-      // 2. Add classes to elements that are newly selected
+      // 2. Add classes to newly selected elements
       updatedSelection.forEach((newEl) => {
         if (!this.selectedElements.has(newEl)) {
           this._addSelectionClass(newEl);
         }
       });
 
-      // 3. Update the state
+      // 3. Update state
       this.selectedElements = updatedSelection;
     }
   }
 
   toggleMultipleElements(elements: HTMLElement[]) {
-    // TODO: Optimization: we could batch this in logic if needed, but simple iteration works for now
     for (const el of elements) {
       this.toggleElementSelection(el);
     }
@@ -123,69 +168,123 @@ export class ShareStore {
   clearAllSelections() {
     this.selectedElements.forEach((el) => this._removeSelectionClass(el));
     this.selectedElements.clear();
-    this.highlightColors.clear();
-    this.highlightAnnotations.clear();
+    this.boxColors.clear();
+    this.boxAnnotations.clear();
+    this.textHighlights = [];
+    this.linkLabel = '';
+    textHighlightService.clear();
+    window.getSelection()?.removeAllRanges();
   }
 
   setAnnotation(el: HTMLElement, text: string, corner: AnnotationCorner) {
     const trimmed = text.trim();
     if (trimmed.length === 0) {
       if (corner !== DEFAULT_ANNOTATION_CORNER) {
-        this.highlightAnnotations.set(el, { text: '', corner });
+        this.boxAnnotations.set(el, { text: '', corner });
       } else {
-        this.highlightAnnotations.delete(el);
+        this.boxAnnotations.delete(el);
       }
     } else {
-      const validatedText = trimmed.length > MAX_ANNOTATION_LENGTH
-        ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
-        : trimmed;
-      this.highlightAnnotations.set(el, { text: validatedText, corner });
+      const validatedText =
+        trimmed.length > MAX_ANNOTATION_LENGTH
+          ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
+          : trimmed;
+      this.boxAnnotations.set(el, { text: validatedText, corner });
     }
   }
 
-  setHighlightColor(el: HTMLElement, color: HighlightColorKey) {
-    this.highlightColors.set(el, color);
+  setTextHighlightAnnotation(index: number, text: string, corner: AnnotationCorner) {
+    const desc = this.textHighlights[index];
+    if (!desc) return;
+    const trimmed = text.trim();
+    const updated = { ...desc };
+    if (trimmed.length > 0) {
+      updated.annotation =
+        trimmed.length > MAX_ANNOTATION_LENGTH
+          ? trimmed.substring(0, MAX_ANNOTATION_LENGTH)
+          : trimmed;
+    } else {
+      delete updated.annotation;
+    }
+    updated.annotationCorner = corner;
+    this.textHighlights = this.textHighlights.map((d, i) => (i === index ? updated : d));
+    textHighlightService.applyDescriptors(this.textHighlights, true);
   }
 
-  setAllHighlightColors(color: HighlightColorKey) {
+  setTextHighlightColor(index: number, color: AnnotationColorKey) {
+    const desc = this.textHighlights[index];
+    if (!desc) return;
+    const updated = { ...desc, color };
+    this.textHighlights = this.textHighlights.map((d, i) => (i === index ? updated : d));
+    textHighlightService.applyDescriptors(this.textHighlights, true);
+  }
+
+  setAllTextHighlightColors(color: AnnotationColorKey) {
+    this.textHighlights = this.textHighlights.map((desc) => ({ ...desc, color }));
+    textHighlightService.applyDescriptors(this.textHighlights, true);
+  }
+
+  setBoxColor(el: HTMLElement, color: AnnotationColorKey) {
+    this.boxColors.set(el, color);
+  }
+
+  setAllBoxColors(color: AnnotationColorKey) {
     this.selectedElements.forEach((el) => {
-      this.highlightColors.set(el, color);
+      this.boxColors.set(el, color);
     });
   }
 
-  private _addHighlightClass(el: HTMLElement) {
+  private _addBoxHoverClass(el: HTMLElement) {
     if (this.selectionMode === 'hide') {
-      el.classList.add(HIDE_HIGHLIGHT_TARGET_CLASS);
-    } else if (this.selectionMode === 'highlight') {
-      el.classList.add(HIGHLIGHT_TARGET_MODE_CLASS);
+      el.classList.add(HIDE_BOX_TARGET_CLASS);
+    } else if (this.selectionMode === 'box') {
+      el.classList.add(BOX_TARGET_MODE_CLASS);
     } else {
-      el.classList.add(HIGHLIGHT_TARGET_CLASS);
+      el.classList.add(BOX_TARGET_CLASS);
     }
   }
 
-  private _removeHighlightClass(el: HTMLElement) {
-    el.classList.remove(
-      HIGHLIGHT_TARGET_CLASS,
-      HIDE_HIGHLIGHT_TARGET_CLASS,
-      HIGHLIGHT_TARGET_MODE_CLASS,
-    );
+  private _removeBoxHoverClass(el: HTMLElement) {
+    el.classList.remove(BOX_TARGET_CLASS, HIDE_BOX_TARGET_CLASS, BOX_TARGET_MODE_CLASS);
   }
 
   private _addSelectionClass(el: HTMLElement) {
     if (this.selectionMode === 'hide') {
       el.classList.add(HIDE_SELECTED_CLASS);
-    } else if (this.selectionMode === 'highlight') {
-      el.classList.add(HIGHLIGHT_SELECTED_CLASS);
+    } else if (this.selectionMode === 'box') {
+      el.classList.add(BOX_SELECTED_CLASS);
     } else {
       el.classList.add(SELECTED_CLASS);
     }
   }
 
   private _removeSelectionClass(el: HTMLElement) {
-    el.classList.remove(SELECTED_CLASS, HIDE_SELECTED_CLASS, HIGHLIGHT_SELECTED_CLASS);
+    el.classList.remove(SELECTED_CLASS, HIDE_SELECTED_CLASS, BOX_SELECTED_CLASS);
   }
 
   generateLink() {
+    if (this.selectionMode === 'highlight') {
+      if (this.textHighlights.length === 0) {
+        showToast('Please highlight some text first.');
+        return;
+      }
+
+      const serialized = serializeTextHighlights(this.textHighlights);
+       
+      const url = new URL(window.location.href);
+      this._injectShareParams(url, 'cv-highlight', serialized);
+
+      navigator.clipboard
+        .writeText(url.href)
+        .then(() => {
+          showToast('Highlight link copied!');
+        })
+        .catch(() => {
+          showToast('Failed to copy link.');
+        });
+      return;
+    }
+
     if (this.selectedElements.size === 0) {
       showToast('Please select at least one item.');
       return;
@@ -200,21 +299,17 @@ export class ShareStore {
       return;
     }
 
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
 
-    // Clear all potential params first
-    url.searchParams.delete('cv-show');
-    url.searchParams.delete('cv-hide');
-    url.searchParams.delete('cv-highlight');
-
+    let paramKey = 'cv-show';
     if (this.selectionMode === 'hide') {
-      url.searchParams.set('cv-hide', serialized);
-    } else if (this.selectionMode === 'highlight') {
-      url.searchParams.set('cv-highlight', serialized);
-    } else {
-      url.searchParams.set('cv-show', serialized);
+      paramKey = 'cv-hide';
+    } else if (this.selectionMode === 'box') {
+      paramKey = 'cv-box';
     }
+
+    this._injectShareParams(url, paramKey, serialized);
 
     // Copy to clipboard
     navigator.clipboard
@@ -228,6 +323,21 @@ export class ShareStore {
   }
 
   previewLink() {
+    if (this.selectionMode === 'highlight') {
+      if (this.textHighlights.length === 0) {
+        showToast('Please highlight some text first.');
+        return;
+      }
+
+      const serialized = serializeTextHighlights(this.textHighlights);
+       
+      const url = new URL(window.location.href);
+      this._injectShareParams(url, 'cv-highlight', serialized);
+
+      window.open(url.toString(), '_blank');
+      return;
+    }
+
     if (this.selectedElements.size === 0) {
       showToast('Please select at least one item.');
       return;
@@ -236,19 +346,16 @@ export class ShareStore {
     const descriptors = this._buildDescriptors();
     const serialized = DomElementLocator.serialize(descriptors);
 
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+     
     const url = new URL(window.location.href);
-    url.searchParams.delete('cv-show');
-    url.searchParams.delete('cv-hide');
-    url.searchParams.delete('cv-highlight');
-
+    let paramKey = 'cv-show';
     if (this.selectionMode === 'hide') {
-      url.searchParams.set('cv-hide', serialized);
-    } else if (this.selectionMode === 'highlight') {
-      url.searchParams.set('cv-highlight', serialized);
-    } else {
-      url.searchParams.set('cv-show', serialized);
+      paramKey = 'cv-hide';
+    } else if (this.selectionMode === 'box') {
+      paramKey = 'cv-box';
     }
+
+    this._injectShareParams(url, paramKey, serialized);
 
     window.open(url.toString(), '_blank');
   }
@@ -256,10 +363,10 @@ export class ShareStore {
   private _buildDescriptors(): DomElementLocator.AnchorDescriptor[] {
     return Array.from(this.selectedElements).map((el) => {
       const desc = DomElementLocator.createDescriptor(el);
-      if (this.selectionMode === 'highlight') {
-        const color = this.highlightColors.get(el);
+      if (this.selectionMode === 'box') {
+        const color = this.boxColors.get(el);
         if (color !== undefined) desc.color = color;
-        const annotation = this.highlightAnnotations.get(el);
+        const annotation = this.boxAnnotations.get(el);
         if (annotation !== undefined) {
           desc.annotation = annotation.text;
           desc.annotationCorner = annotation.corner;
@@ -267,6 +374,32 @@ export class ShareStore {
       }
       return desc;
     });
+  }
+
+  private _injectShareParams(url: URL, paramKey: string, paramValue: string) {
+    const existingSearch = url.search.replace(/^\?/, '');
+    
+    const withoutManaged = existingSearch
+      .split('&')
+      .filter((p) => {
+        if (!p) return false;
+        if (p === 'cv-show' || p.startsWith('cv-show=')) return false;
+        if (p === 'cv-hide' || p.startsWith('cv-hide=')) return false;
+        if (p === 'cv-box' || p.startsWith('cv-box=')) return false;
+        if (p === 'cv-highlight' || p.startsWith('cv-highlight=')) return false;
+        if (p === PARAM_LINK_LABEL || p.startsWith(`${PARAM_LINK_LABEL}=`)) return false;
+        return true;
+      });
+
+    const newParams: string[] = [];
+    const trimmed = this.linkLabel.trim();
+    if (trimmed) {
+      newParams.push(`${PARAM_LINK_LABEL}=${encodeURIComponent(trimmed)}`);
+    }
+
+    newParams.push(`${paramKey}=${encodeURIComponent(paramValue)}`);
+
+    url.search = [...newParams, ...withoutManaged].join('&');
   }
 }
 
