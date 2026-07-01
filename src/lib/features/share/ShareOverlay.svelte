@@ -67,6 +67,7 @@
   let dragStart = $state<{ x: number; y: number } | null>(null);
   let dragCurrent = $state<{ x: number; y: number } | null>(null);
   let wasDragging = false;
+  let hoveredHighlightIndex = $state<number | null>(null);
 
   // Cache candidates when active to avoid repeated DOM queries
   let cachedCandidates: HTMLElement[] = [];
@@ -114,17 +115,12 @@
 
     // Check ancestors selection (level up logic)
     let parent = finalTarget.parentElement;
-    let selectedAncestor: HTMLElement | null = null;
-    while (parent) {
-      if (shareStore.selectedElements.has(parent)) {
-        selectedAncestor = parent;
-        break;
-      }
+    while (parent && !shareStore.selectedElements.has(parent)) {
       parent = parent.parentElement;
     }
 
-    if (selectedAncestor) {
-      shareStore.setHoverTarget(selectedAncestor);
+    if (parent) {
+      shareStore.setHoverTarget(parent);
       return;
     }
 
@@ -175,8 +171,35 @@
     wasDragging = false; // Ensure clean state
   }
 
+  function getHoveredHighlightIndex(clientX: number, clientY: number): number | null {
+    for (let i = 0; i < shareStore.textHighlights.length; i++) {
+      const range = textHighlightService.getRange(i);
+      if (!range) continue;
+      
+      const rects = range.getClientRects();
+      for (let j = 0; j < rects.length; j++) {
+        const r = rects[j];
+        if (
+          clientX >= r.left - 5 && clientX <= r.right + 5 &&
+          clientY >= r.top - 5 && clientY <= r.bottom + 5
+        ) {
+          return i;
+        }
+      }
+    }
+    return null;
+  }
+
   function handleMouseMove(e: MouseEvent) {
-    if (!dragStart) return;
+    if (!dragStart) {
+      if (shareStore.selectionMode === 'highlight') {
+        const target = e.target as HTMLElement;
+        if (target.closest('.cv-color-picker')) return;
+
+        hoveredHighlightIndex = getHoveredHighlightIndex(e.clientX, e.clientY);
+      }
+      return;
+    }
 
     dragCurrent = { x: e.clientX, y: e.clientY };
 
@@ -332,7 +355,13 @@
 
   {#if shareStore.selectionMode === 'box'}
     {#each [...shareStore.selectedElements] as el (el)}
-      <HighlightColorPicker element={el} />
+      <HighlightColorPicker 
+        getRect={() => el.getBoundingClientRect()}
+        colorKey={shareStore.boxColors.get(el) ?? DEFAULT_ANNOTATION_COLOR_KEY}
+        onchange={(key) => shareStore.setBoxColor(el, key)}
+        ondblclick={(key) => shareStore.setAllBoxColors(key)}
+        isVisible={shareStore.currentHoverTarget === el}
+      />
       <HighlightAnnotationEditor
         getRect={() => el.getBoundingClientRect()}
         annotation={shareStore.boxAnnotations.get(el)?.text ?? ''}
@@ -346,6 +375,13 @@
     {#each shareStore.textHighlights as desc, i (i)}
       {@const resolvedRange = textHighlightService.getRange(i)}
       {#if resolvedRange}
+        <HighlightColorPicker 
+          getRect={() => textHighlightService.getAnchorRect(i) ?? new DOMRect()}
+          colorKey={desc.color ?? DEFAULT_ANNOTATION_COLOR_KEY}
+          onchange={(key) => shareStore.setTextHighlightColor(i, key)}
+          ondblclick={(key) => shareStore.setAllTextHighlightColors(key)}
+          isVisible={hoveredHighlightIndex === i}
+        />
         <HighlightAnnotationEditor
           getRect={() => textHighlightService.getAnchorRect(i) ?? new DOMRect()}
           annotation={desc.annotation ?? ''}

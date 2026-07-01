@@ -1,20 +1,26 @@
 <script lang="ts">
-  import { shareStore } from '$features/share/stores/share-store.svelte';
   import {
     ANNOTATION_COLORS,
-    DEFAULT_ANNOTATION_COLOR_KEY,
     type AnnotationColorKey,
   } from '$features/annotations/annotation-colors';
 
-  let { element }: { element: HTMLElement } = $props();
+  interface Props {
+    getRect: () => DOMRect;
+    colorKey: AnnotationColorKey;
+    onchange: (key: AnnotationColorKey) => void;
+    ondblclick?: (key: AnnotationColorKey) => void;
+    isVisible?: boolean;
+  }
+
+  let { getRect, colorKey, onchange, ondblclick, isVisible = true }: Props = $props();
 
   let isExpanded = $state(false);
-  let rect = $state({ top: 0, left: 0, width: 0 });
+  let rect = $state<DOMRect>(new DOMRect());
 
   $effect(() => {
-    rect = element.getBoundingClientRect();
+    rect = getRect();
     const update = () => {
-      rect = element.getBoundingClientRect();
+      rect = getRect();
     };
     window.addEventListener('scroll', update, { capture: true, passive: true });
     window.addEventListener('resize', update, { passive: true });
@@ -25,9 +31,8 @@
     };
   });
 
-  let currentColorKey = $derived(shareStore.boxColors.get(element) ?? DEFAULT_ANNOTATION_COLOR_KEY);
   let currentHex = $derived(
-    ANNOTATION_COLORS.find((c) => c.key === currentColorKey)?.hex ?? ANNOTATION_COLORS[0]!.hex,
+    ANNOTATION_COLORS.find((c) => c.key === colorKey)?.hex ?? ANNOTATION_COLORS[0]!.hex,
   );
 
   let clickTimer: ReturnType<typeof setTimeout> | null = null;
@@ -42,7 +47,7 @@
     if (clickTimer) return; // defer to potential dblclick
     clickTimer = setTimeout(() => {
       clickTimer = null;
-      shareStore.setBoxColor(element, key);
+      onchange(key);
       isExpanded = false;
     }, 220);
   }
@@ -53,7 +58,7 @@
       clearTimeout(clickTimer);
       clickTimer = null;
     }
-    shareStore.setAllBoxColors(key);
+    if (ondblclick) ondblclick(key);
     isExpanded = false;
   }
 
@@ -61,7 +66,7 @@
   let topY = $derived(rect.top);
 </script>
 
-<div class="cv-color-picker" style="left: {centerX}px; top: {topY}px;" role="none">
+<div class="cv-color-picker" class:visible={isVisible || isExpanded} style="left: {centerX}px; top: {topY}px;" role="none">
   <button
     type="button"
     class="cv-color-trigger"
@@ -78,13 +83,13 @@
         <button
           type="button"
           class="cv-color-swatch"
-          class:active={currentColorKey === color.key}
+          class:active={colorKey === color.key}
           style="background: {color.hex};"
           onclick={(e) => handleSwatchClick(e, color.key)}
           ondblclick={(e) => handleSwatchDblClick(e, color.key)}
           title="{color.label} · dbl-click to apply to all"
           aria-label={color.label}
-          aria-pressed={currentColorKey === color.key}
+          aria-pressed={colorKey === color.key}
         ></button>
       {/each}
     </div>
@@ -99,10 +104,17 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    pointer-events: auto;
     z-index: 9500;
     /* Nudge down so the trigger peeks above the element edge */
     margin-top: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+
+  .cv-color-picker.visible {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .cv-color-trigger {
