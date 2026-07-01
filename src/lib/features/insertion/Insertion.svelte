@@ -166,7 +166,6 @@
     padding: 1.25rem 1.5rem;
     border: 1px dashed var(--cv-insertion-color, #a1a1aa);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--cv-insertion-color, transparent) 5%, #f4f4f5);
     font-style: normal;
     box-sizing: border-box;
   }
@@ -197,7 +196,7 @@
     bottom: 0;
     right: 1.5rem;
     transform: translateY(50%);
-    background: #ffffff;
+    background: var(--cv-insertion-bg, var(--bs-body-bg, #ffffff));
     border: 1px solid var(--cv-insertion-color, #a1a1aa);
     padding: 0.15rem 0.75rem;
     border-radius: 9999px;
