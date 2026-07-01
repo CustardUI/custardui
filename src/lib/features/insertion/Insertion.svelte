@@ -7,6 +7,8 @@
       align: { reflect: false, type: 'String', attribute: 'align' },
       hideBadge: { reflect: false, type: 'Boolean', attribute: 'hide-badge' },
       outline: { reflect: false, type: 'String', attribute: 'outline' },
+      defaultStyle: { reflect: false, type: 'String', attribute: 'default-style' },
+      defaultBadge: { reflect: false, type: 'String', attribute: 'default-badge' },
     },
   }}
 />
@@ -20,12 +22,16 @@
     align = '',
     hideBadge = false,
     outline,
+    defaultStyle = 'callout',
+    defaultBadge = '',
   }: {
     insertionId?: string;
     color?: string;
     align?: string;
     hideBadge?: boolean;
     outline?: string;
+    defaultStyle?: string;
+    defaultBadge?: string;
   } = $props();
 
   /**
@@ -72,48 +78,77 @@
 
   let hasInsertion = $derived(insertedHtml !== null);
 
+  let hasDefaultContent = $state(false);
+  
+  let showAsCallout = $derived(hasInsertion || (defaultStyle !== 'none' && hasDefaultContent));
+
+  function updateHasDefaultContent(slot: HTMLSlotElement) {
+    if (!slot) return;
+    const nodes = slot.assignedNodes();
+    hasDefaultContent = nodes.some(n => 
+      (n.nodeType === 1) || 
+      (n.nodeType === 3 && n.textContent?.trim() !== '')
+    );
+  }
+
+  const initSlotWrapper = (node: HTMLElement) => {
+    const slot = node.querySelector('slot');
+    if (!slot) return;
+    
+    slot.addEventListener('slotchange', () => {
+      updateHasDefaultContent(slot);
+    });
+
+    queueMicrotask(() => {
+      updateHasDefaultContent(slot);
+    });
+  };
+
+  /**
+   * If an adaptation is active but this specific insertion-id is not provided, 
+   * the element should completely disappear (unless it's a pure UI element with no id).
+   */
+  let shouldRender = $derived(
+    !insertionStore.isAdaptationActive || 
+    hasInsertion || 
+    !insertionId
+  );
+
   /**
    * Inject the raw HTML into the element using Svelte's native {@html} tag.
    */
 </script>
 
-{#if hasInsertion}
-  <!--
-    Adopter-supplied insertion block.
-    Rendered as a visually distinct callout to make it clear this content
-    comes from the adaptation, not the original site.
-  -->
-  <aside 
-    class="cv-insertion-block" 
-    aria-label={attributionLabel || 'Adopter note'}
-    style={attributionColor ? `--cv-insertion-color: ${attributionColor};` : undefined}
+{#if shouldRender}
+  <div 
+    class:cv-insertion-block={showAsCallout} 
+    class:cv-insertion-unstyled={!showAsCallout}
+    aria-label={showAsCallout ? (hasInsertion ? (attributionLabel || 'Adopter note') : (defaultBadge || 'Note')) : undefined}
+    style={showAsCallout && attributionColor ? `--cv-insertion-color: ${attributionColor};` : undefined}
     style:text-align={computedAlign || undefined}
-    style:border-style={computedOutline}
-    style:border-width={computedOutline === 'none' ? '0' : undefined}
+    style:border-style={showAsCallout ? computedOutline : undefined}
+    style:border-width={showAsCallout && computedOutline === 'none' ? '0' : undefined}
   >
-    <!-- Raw HTML from insertions.html is injected here natively by Svelte -->
-    <div class="cv-insertion-content">
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html insertedHtml}
+    <div class:cv-insertion-content={showAsCallout}>
+      {#if hasInsertion}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html insertedHtml}
+      {:else}
+        <div style="display: contents" use:initSlotWrapper>
+          <slot></slot>
+        </div>
+      {/if}
     </div>
-    {#if attributionLabel && !hideBadge}
+    {#if showAsCallout && hasInsertion && attributionLabel && !hideBadge}
       <div class="cv-insertion-badge">
         inserted for version: <strong>{attributionLabel}</strong>
       </div>
+    {:else if showAsCallout && !hasInsertion && defaultBadge && !hideBadge}
+      <div class="cv-insertion-badge">
+        <strong>{defaultBadge}</strong>
+      </div>
     {/if}
-  </aside>
-{:else}
-  <!--
-    Default slot: shown when no adaptation is active, or when no matching
-    insertion-id is found in the active adaptation's insertions.html.
-  -->
-  {#if computedAlign}
-    <div style:text-align={computedAlign}>
-      <slot></slot>
-    </div>
-  {:else}
-    <slot></slot>
-  {/if}
+  </div>
 {/if}
 
 <style>
