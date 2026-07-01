@@ -360,7 +360,7 @@
         colorKey={shareStore.boxColors.get(el) ?? DEFAULT_ANNOTATION_COLOR_KEY}
         onchange={(key) => shareStore.setBoxColor(el, key)}
         ondblclick={(key) => shareStore.setAllBoxColors(key)}
-        isVisible={shareStore.currentHoverTarget === el}
+        isVisible={true}
       />
       <HighlightAnnotationEditor
         getRect={() => el.getBoundingClientRect()}
