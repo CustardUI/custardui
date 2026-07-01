@@ -96,20 +96,47 @@ export class TextHighlightService {
   private annotationComponents: any[] = [];
   
   /** Tracks wrappers with their underlying range so they can be repositioned on resize/zoom */
-  private activeAnnotations: { range: Range; wrapper: HTMLElement }[] = [];
+  private activeAnnotations: { range: Range; wrapper: HTMLElement; cachedTop?: number; cachedLeft?: number; cachedWidth?: number; cachedHeight?: number }[] = [];
 
-  private _resizeListener = () => {
-    requestAnimationFrame(() => this.repositionAnnotations());
-  };
+  private rafId: number | null = null;
 
-  private repositionAnnotations() {
-    if (!this.active) return;
-    for (const { range, wrapper } of this.activeAnnotations) {
-      const rect = range.getBoundingClientRect();
-      wrapper.style.top = `${rect.top + window.scrollY}px`;
-      wrapper.style.left = `${rect.left + window.scrollX}px`;
-      wrapper.style.width = `${rect.width}px`;
-      wrapper.style.height = `${rect.height}px`;
+  private startTrackingPositions() {
+    const track = () => {
+      if (!this.active) return;
+      
+      for (const item of this.activeAnnotations) {
+        const rect = item.range.getBoundingClientRect();
+        const newTop = rect.top + window.scrollY;
+        const newLeft = rect.left + window.scrollX;
+        
+        if (
+          item.cachedTop !== newTop || 
+          item.cachedLeft !== newLeft || 
+          item.cachedWidth !== rect.width || 
+          item.cachedHeight !== rect.height
+        ) {
+          item.cachedTop = newTop;
+          item.cachedLeft = newLeft;
+          item.cachedWidth = rect.width;
+          item.cachedHeight = rect.height;
+          
+          item.wrapper.style.top = `${newTop}px`;
+          item.wrapper.style.left = `${newLeft}px`;
+          item.wrapper.style.width = `${rect.width}px`;
+          item.wrapper.style.height = `${rect.height}px`;
+        }
+      }
+      this.rafId = requestAnimationFrame(track);
+    };
+    
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = requestAnimationFrame(track);
+  }
+
+  private stopTrackingPositions() {
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
     }
   }
 
@@ -178,7 +205,7 @@ export class TextHighlightService {
     }
 
     if (this.activeAnnotations.length > 0) {
-      window.addEventListener('resize', this._resizeListener, { passive: true });
+      this.startTrackingPositions();
     }
 
     this.active = true;
@@ -237,7 +264,7 @@ export class TextHighlightService {
     this.annotationComponents = [];
     this.annotationWrappers = [];
     this.activeAnnotations = [];
-    window.removeEventListener('resize', this._resizeListener);
+    this.stopTrackingPositions();
 
     this.hlMap.clear();
     this.marks = [];
