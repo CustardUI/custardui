@@ -26,17 +26,28 @@ export class BoxState {
 export class BoxService {
   private overlayApp: any;
   private state = new BoxState();
-  private resizeObserver: ResizeObserver;
+
   private activeTargets: HTMLElement[] = [];
   private activeColors: Map<HTMLElement, AnnotationColorKey> = new Map();
   private activeAnnotations: Map<HTMLElement, { text: string; corner: AnnotationCorner }> =
     new Map();
-  private onWindowResize = () => this.updatePositions();
 
-  constructor() {
-    this.resizeObserver = new ResizeObserver(() => {
+  private rafId: number | null = null;
+
+  private startTrackingPositions() {
+    const track = () => {
       this.updatePositions();
-    });
+      this.rafId = requestAnimationFrame(track);
+    };
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = requestAnimationFrame(track);
+  }
+
+  private stopTrackingPositions() {
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
   }
 
   public resolveTargets(encodedDescriptors: string): HTMLElement[] {
@@ -95,9 +106,7 @@ export class BoxService {
     this.activeAnnotations = annotations;
 
     // Start observing
-    this.activeTargets.forEach((t) => this.resizeObserver.observe(t));
-    this.resizeObserver.observe(document.body); // Catch layout shifts
-    window.addEventListener('resize', this.onWindowResize);
+    this.startTrackingPositions();
 
     this.renderBoxOverlay();
 
@@ -111,8 +120,7 @@ export class BoxService {
   public exit(): void {
     document.body.classList.remove(BODY_BOX_CLASS);
 
-    this.resizeObserver.disconnect();
-    window.removeEventListener('resize', this.onWindowResize);
+    this.stopTrackingPositions();
     this.activeTargets = [];
     this.activeColors.clear();
     this.activeAnnotations.clear();
@@ -198,7 +206,7 @@ export class BoxService {
 
   private updatePositions() {
     if (this.activeTargets.length === 0) {
-      this.state.rects = [];
+      if (this.state.rects.length !== 0) this.state.rects = [];
       return;
     }
 
@@ -206,7 +214,7 @@ export class BoxService {
     const groups = groupSiblings(this.activeTargets);
 
     // Calculate Union Rect for each group, sorted top-to-bottom
-    this.state.rects = calculateMergedRects(
+    const newRects = calculateMergedRects(
       groups,
       (el) => el.getBoundingClientRect(),
       () => ({
@@ -216,5 +224,31 @@ export class BoxService {
       this.activeColors,
       this.activeAnnotations,
     ).sort((a, b) => a.top - b.top);
+
+    let changed = false;
+    if (newRects.length !== this.state.rects.length) {
+      changed = true;
+    } else {
+      for (let i = 0; i < newRects.length; i++) {
+        const nr = newRects[i]!;
+        const or = this.state.rects[i]!;
+        if (
+          nr.top !== or.top ||
+          nr.left !== or.left ||
+          nr.width !== or.width ||
+          nr.height !== or.height ||
+          nr.color !== or.color ||
+          nr.annotation !== or.annotation ||
+          nr.annotationCorner !== or.annotationCorner
+        ) {
+          changed = true;
+          break;
+        }
+      }
+    }
+
+    if (changed) {
+      this.state.rects = newRects;
+    }
   }
 }

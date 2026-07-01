@@ -36,7 +36,6 @@
   let dragStartY = 0;
   let dragStartOffsetX = 0;
   let dragStartOffsetY = 0;
-  let containerEl: HTMLElement;
 
   function toggle() {
     if (isShort) return;
@@ -49,29 +48,6 @@
   }
 
 
-
-  // Hard clamp so the element can never leave the viewport.
-  function clampToViewport(newX: number, newY: number): { x: number; y: number } {
-    if (!containerEl) return { x: newX, y: newY };
-    const rect = containerEl.getBoundingClientRect();
-    const pad = 8;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    const origLeft = rect.left - dragOffsetX;
-    const origTop = rect.top - dragOffsetY;
-
-    const newLeft = origLeft + newX;
-    const newTop = origTop + newY;
-
-    let x = newX;
-    let y = newY;
-    if (newLeft < pad) x += pad - newLeft;
-    if (newLeft + rect.width > vw - pad) x -= newLeft + rect.width - (vw - pad);
-    if (newTop < pad) y += pad - newTop;
-    if (newTop + rect.height > vh - pad) y -= newTop + rect.height - (vh - pad);
-    return { x, y };
-  }
 
   function onPointerDown(e: PointerEvent) {
     if (e.button !== 0) return; // Only left click
@@ -106,11 +82,8 @@
     }
 
     if (isDragging) {
-      const rawX = dragStartOffsetX + dx;
-      const rawY = dragStartOffsetY + dy;
-      const clamped = clampToViewport(rawX, rawY);
-      dragOffsetX = clamped.x;
-      dragOffsetY = clamped.y;
+      dragOffsetX = dragStartOffsetX + dx;
+      dragOffsetY = dragStartOffsetY + dy;
     }
   }
 
@@ -150,17 +123,6 @@
     }
   }
 
-  // Nudge annotation back in-bounds when the viewport shrinks.
-  $effect(() => {
-    function onResize() {
-      const clamped = clampToViewport(dragOffsetX, dragOffsetY);
-      dragOffsetX = clamped.x;
-      dragOffsetY = clamped.y;
-    }
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  });
-
   /**
    * Returns CSS positioning based on the annotation corner.
    */
@@ -192,7 +154,6 @@
 </script>
 
 <div
-  bind:this={containerEl}
   class="cv-annotation-container"
   class:cv-annotation-container--expanded={expanded}
   style="{getPositionStyle(corner)} transform: translate({dragOffsetX}px, {dragOffsetY}px);"

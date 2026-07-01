@@ -74,7 +74,7 @@
   );
 </script>
 
-<div class="cv-annotation-editor" style={tabStyle} role="none">
+<div class="cv-annotation-editor" class:cv-annotation-editor--expanded={isExpanded} style={tabStyle} role="none">
   <button
     type="button"
     class="cv-annotation-tab"
@@ -137,6 +137,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
+  }
+
+  .cv-annotation-editor--expanded {
+    z-index: 9500;
   }
 
   .cv-annotation-tab {
