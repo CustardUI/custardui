@@ -15,6 +15,7 @@
   const corner = $derived(annotationCorner ?? DEFAULT_ANNOTATION_CORNER);
   const hasText = $derived(annotation.length > 0);
   const isShort = $derived(annotation.length <= ANNOTATION_PREVIEW_LENGTH);
+  const isMultiLine = $derived(hasText && annotation.length > 16);
   const isRightCorner = $derived(corner === 'tr' || corner === 'br');
 
   let expanded = $state(false);
@@ -182,6 +183,7 @@
         class:cv-annotation-ribbon--empty={!hasText}
         class:cv-annotation-ribbon--right={isRightCorner}
         class:cv-annotation-ribbon--expandable={!isShort}
+        class:cv-annotation-ribbon--multiline={isMultiLine}
         style="clip-path: {getRibbonClipPath(corner)};"
         onclick={handleInteraction}
         aria-label={hasText ? (isShort ? annotation : 'Expand annotation') : 'Annotation marker'}
@@ -190,7 +192,7 @@
         {#if hasText}
           {#if isRightCorner}
             <!-- Right-corner: point is LEFT, flat side is RIGHT → grip goes last -->
-            <span class="cv-ribbon-text cv-ribbon-text--right">
+            <span class="cv-ribbon-text cv-ribbon-text--right" class:cv-ribbon-text--multiline={isMultiLine}>
               {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
             </span>
             {#if !isShort}
@@ -210,7 +212,7 @@
               <span></span><span></span>
               <span></span><span></span>
             </span>
-            <span class="cv-ribbon-text">
+            <span class="cv-ribbon-text" class:cv-ribbon-text--multiline={isMultiLine}>
               {isShort ? annotation : annotation.slice(0, ANNOTATION_PREVIEW_LENGTH)}
             </span>
             {#if !isShort}
@@ -263,6 +265,7 @@
   .cv-ribbon-wrapper {
     position: relative;
     transform-origin: center center;
+    width: max-content;
   }
 
   .cv-ribbon-wrapper--intro {
@@ -277,8 +280,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 140px;
-    height: 28px;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.25);
     transform: translate(3px, 3px);
     pointer-events: none;
@@ -294,8 +297,9 @@
   .cv-annotation-ribbon {
     border: none;
     padding: 6px 20px 6px 8px;
-    width: 140px;
-    height: 28px;
+    width: 160px;
+    min-height: 28px;
+    height: auto;
     box-sizing: border-box;
     background: var(--cv-annotation-color, var(--cv-box-color));
     cursor: default;
@@ -303,7 +307,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 5px;
+    gap: 4px;
   }
 
   .cv-annotation-ribbon--right {
@@ -311,8 +315,16 @@
     justify-content: flex-end;
   }
 
+  .cv-annotation-ribbon--multiline {
+    padding: 4px 18px 4px 6px;
+  }
+  .cv-annotation-ribbon--multiline.cv-annotation-ribbon--right {
+    padding: 4px 6px 4px 18px;
+  }
+
   .cv-annotation-ribbon--empty {
     width: 70px;
+    min-height: 28px;
     padding: 6px 16px 6px 8px;
   }
 
@@ -328,17 +340,25 @@
      RIBBON TEXT (single line)
      ============================== */
   .cv-ribbon-text {
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
     font-family: 'Segoe Print', 'Bradley Hand', 'Chilanka', cursive;
     font-size: 13px;
     font-weight: 700;
     line-height: 1.2;
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
     flex: 1;
     min-width: 0;
     color: var(--cv-annotation-text-color, #2c2c2c);
+    text-align: left;
+    word-break: break-word;
+  }
+  
+  .cv-ribbon-text--multiline {
+    font-size: 12px;
+    line-height: 1.15;
   }
 
   .cv-ribbon-text--right {
