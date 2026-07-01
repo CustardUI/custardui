@@ -28,7 +28,7 @@ Refer to the course schedule for this week's exact deadline. :D
 
 </div> 
 
-<div id="week2-preamble" label="week 2">
+<div id="week2-preamble">
   <p>
     Complete this right after Week 1's tasks. This exercise is <strong>examinable</strong> —
     ensure you understand each step before proceeding.
