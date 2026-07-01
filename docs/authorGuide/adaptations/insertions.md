@@ -20,16 +20,15 @@
 <variable name="highlightStyle">html</variable>
 <variable name="code">
 <cv-insertion insertion-id="week1-preamble">
-
-*No institution-specific note for this section.*
-
+ <md>*No note for this section.*</md>
 </cv-insertion>
 
-<cv-insertion insertion-id="week2-preamble" align="justify" outline="none" default-style="none">
+<cv-insertion insertion-id="week2-preamble" align="justify" default-style="none">
 
-*No institution-specific note for this section.*
-
+*No note for this section.*
 </cv-insertion>
+
+<cv-insertion insertion-id="week3-note" outline="solid"/>
 </variable>
 </include>
 
@@ -99,9 +98,9 @@ The `insertion-id` links the tag to a `<div id="...">` in the adopter's `inserti
 | `color`        | `string`  | —            | Custom color for the inserted callout (e.g. `#ef4444`). Takes highest precedence, overriding the `<div>` attribute. |
 | `align`        | `string`  | —            | Text alignment for both the injected content and the fallback slot (`left`, `center`, `right`, or `justify`). |
 | `hide-badge`   | `boolean` | `false`      | When present, the attribution badge ("inserted for version...") is completely hidden. |
-| `outline`      | `string`  | `"dashed"`   | Border style for the callout box (`dashed`, `solid`, or `none`). |
-| `default-style`| `string`  | `"callout"`  | How the default slot content is styled when no adaptation matches (`callout` or `none`). |
-| `default-badge`| `string`  | —            | Badge text to show when rendering the default slot as a callout (e.g. `Base Version`). |
+| `outline`      | `string`  | `"dashed"`   | Border style for the callout box (`dashed`, `solid`, or `none`). Applies to both default content and adaptation content. |
+| `default-style`| `string`  | `"callout"`  | How the default slot content is styled when no adaptation matches (`callout` or `none`). Does not apply when adaptations are active. |
+| `default-badge`| `string`  | —            | Badge text to show when rendering the default slot as a callout (e.g. `Base Version`). Does not apply when adaptations are active. |
 
 <br>
 
