@@ -211,6 +211,19 @@ export class ShareStore {
     textHighlightService.applyDescriptors(this.textHighlights, true);
   }
 
+  setTextHighlightColor(index: number, color: AnnotationColorKey) {
+    const desc = this.textHighlights[index];
+    if (!desc) return;
+    const updated = { ...desc, color };
+    this.textHighlights = this.textHighlights.map((d, i) => (i === index ? updated : d));
+    textHighlightService.applyDescriptors(this.textHighlights, true);
+  }
+
+  setAllTextHighlightColors(color: AnnotationColorKey) {
+    this.textHighlights = this.textHighlights.map((desc) => ({ ...desc, color }));
+    textHighlightService.applyDescriptors(this.textHighlights, true);
+  }
+
   setBoxColor(el: HTMLElement, color: AnnotationColorKey) {
     this.boxColors.set(el, color);
   }
