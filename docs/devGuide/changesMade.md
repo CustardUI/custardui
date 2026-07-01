@@ -9,20 +9,17 @@
 
 Also refer to [release notes](https://github.com/CustardUI/custardui/releases) to view detailed changes and version history.
 
-### LATEST: (v2.3-beta / v3.0.*)
+### v3.0.0
 
 **User Facing Changes**:
 * Add `<cv-insertion>` element for inserting HTML for adaptations
-* Add back old annotation color palettes
-* Add icons to labels
-* Add optional link label support to shareable URLs
-* Update annotation styling and annotation bug fixes
+* Add annotation color palettes, updated styling, labelled link support.
+* Add icon support to labels
 * Add highlight text mode for sharing
-* Add CustardUI version into settings modal footer
-* Fix nit in settings modal closure behavior
+* Fix settings closure behavior when dragging off-modal and CustardUI version into modal
 * Add user input sanitization
 * feat: Nest adaptation files under a configurable subfolder to keep the site root clean
-  * (CHANGE NEEDED: adaptation JSON files are now resolved at `{baseUrl}/versions/{id}/{id}.json` instead of `{baseUrl}/{id}/{id}.json`;)
+  * (Adaptation JSON files are now resolved at `{baseUrl}/versions/{id}/{id}.json` instead of `{baseUrl}/{id}/{id}.json`)
 * feat: Add `adaptationsPath` field to `custardui.config.json` to customise the subfolder name (defaults to `"versions"`), e.g. "adaptationsPath": "adaptations".
 
 **Developer Facing Changes**:
